@@ -910,7 +910,6 @@ export default {
   'win.about.serial': 'Serienummer',
   'win.about.ip': 'IP-adresse',
   'win.about.associated': 'Tilknyttet produkt:',
-  'win.about.build': 'build',
   'win.about.hardware': 'Hardwareversion',
   'win.about.series': 'Serie-id',
   'win.about.wm': 'WM',

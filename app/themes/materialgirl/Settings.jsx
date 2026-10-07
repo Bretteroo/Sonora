@@ -23,6 +23,7 @@ import { Sheet, SheetBar, Button, IconButton, Switch, Confirm, Empty, Busy, Menu
 import { SHAPES } from './shapes.js'
 import { readDynamic, writeDynamic } from './color.js'
 import { ServiceGrid } from './Browse.jsx'
+import { versionLabel } from '../../frontend/src/lib/version.js'
 
 // Settings, in M3's list-detail layout: the pages as a list with a line of
 // what each is for, and the page beside it on a wide window. On a compact
@@ -496,7 +497,7 @@ function SystemsPage({ households, zones }) {
                   {speakers.map((p) => (
                     <tr key={p.uuid} data-offline={p.online === false || undefined}>
                       <th>{playerLabel(p)}{p.online === false && <small> · {t('desk.rooms.offline')}</small>}</th>
-                      <td>{p.model}</td><td>{p.display_version || ''}</td><td className="mg-mono">{p.host}</td>
+                      <td>{p.model}</td><td>{versionLabel(p.display_version, p.software_version)}</td><td className="mg-mono">{p.host}</td>
                     </tr>
                   ))}
                 </tbody>

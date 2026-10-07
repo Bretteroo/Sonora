@@ -925,7 +925,6 @@ export default {
   'win.about.serial': 'Numero di serie',
   'win.about.ip': 'Indirizzo IP',
   'win.about.associated': 'Prodotto associato:',
-  'win.about.build': 'build',
   'win.about.hardware': 'Versione hardware',
   'win.about.series': 'ID serie',
   'win.about.wm': 'WM',

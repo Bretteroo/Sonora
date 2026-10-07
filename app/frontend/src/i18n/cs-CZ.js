@@ -918,7 +918,6 @@ export default {
   'win.about.serial': 'Sériové číslo',
   'win.about.ip': 'IP adresa',
   'win.about.associated': 'Přidružený produkt:',
-  'win.about.build': 'sestavení',
   'win.about.hardware': 'Verze hardwaru',
   'win.about.series': 'ID série',
   'win.about.wm': 'WM',

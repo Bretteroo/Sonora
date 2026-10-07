@@ -14,6 +14,7 @@ import { canEnqueue, isPlayableLeaf, providerIdOf } from '../lib/items.js'
 import Art, { nowPlayingArt } from '../components/Art.jsx'
 import { Confirm } from './Dialogs.jsx'
 import { itemAccount } from '../lib/itemAccount.js'
+import { versionLabel } from '../lib/version.js'
 
 // The Music pane. Its header reads "Select a Music Source" at the root and the
 // container's title below it, with a 42px back button on the left and a 30px
@@ -588,7 +589,7 @@ export default function Browse({
   const open = (item) => {
     if (item.disabled) return
     if (node.id === '__root') {
-      if (item.id === 'update') { setUpdateAsk({ hh: item.hh, version: updatesByHh[item.hh]?.version || '' }); return }
+      if (item.id === 'update') { setUpdateAsk({ hh: item.hh, version: versionLabel(updatesByHh[item.hh]?.display, updatesByHh[item.hh]?.version) }); return }
       if (!item.playable) setLastRoot({ id: item.id, hh: item.hh })
       // Root rows carry their own household room; deeper items inherit the
       // node's room, since API items don't know which system they belong to.

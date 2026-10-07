@@ -11,6 +11,7 @@ import * as I from './icons.jsx'
 import { Sheet, SheetHeader, IconButton, Slider, Button, Toggle, Field, Confirm, Segmented, Empty, SystemPicker, Select } from './ui.jsx'
 import { nowSummary, hasMusic, nextTransport, togglePlay, isLoaded, householdOf } from './house.js'
 import Battery, { batteryShown } from '../../frontend/src/components/Battery.jsx'
+import { versionLabel } from '../../frontend/src/lib/version.js'
 
 // Rooms: every room of the systems in view, arranged by group, each with its
 // own volume; a room's settings in a side panel; grouping as a sheet that
@@ -330,7 +331,7 @@ export function RoomSettings({ uuid, households, onClose }) {
         {tab === 'about' && (
           <dl className="sf-facts">
             <dt>{t('desk.about.model')}</dt><dd>{zone.model}</dd>
-            <dt>{t('desk.about.version')}</dt><dd>{zone.display_version || ''}</dd>
+            <dt>{t('desk.about.version')}</dt><dd>{versionLabel(zone.display_version, zone.software_version)}</dd>
             <dt>{t('desk.about.system')}</dt><dd>{household?.generation || ''}</dd>
             <dt>{t('desk.about.address')}</dt><dd>{zone.host}</dd>
             <dt>{t('sf.lineIn')}</dt><dd>{zone.supports_line_in ? (zone.line_in_connected ? t('sf.connected') : t('sf.nothingConnected')) : t('sf.none')}</dd>

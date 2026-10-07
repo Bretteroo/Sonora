@@ -805,7 +805,6 @@ export default {
   'win.about.serial': '序列号',
   'win.about.ip': 'IP 地址',
   'win.about.associated': '关联产品：',
-  'win.about.build': '构建',
   'win.about.hardware': '硬件版本',
   'win.about.series': '系列 ID',
   'win.about.wm': 'WM',

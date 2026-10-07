@@ -3,6 +3,7 @@ import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
 import { playersOf, playerLabel } from '../../frontend/src/lib/players.js'
+import { versionLabel } from '../../frontend/src/lib/version.js'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
 import { useContentFiltering } from '../../frontend/src/lib/useContentFiltering.js'
 import { api } from '../../frontend/src/lib/api.js'
@@ -114,12 +115,12 @@ export default function SystemDetailsPage({ onClose, systemFilter = 'all' }) {
               <span className="wb-sysdetails-text">
                 <span className="wb-sysdetails-filter-label">{t('desk.browse.updateNow')}</span>
                 <span className="wb-sysdetails-product">
-                  {updates[household.id].started ? t('desk.update.started') : updates[household.id].version}
+                  {updates[household.id].started ? t('desk.update.started') : versionLabel(updates[household.id].display, updates[household.id].version)}
                 </span>
               </span>
               {updates[household.id].pending && (
                 <button type="button" className="wb-btn"
-                        onClick={() => setUpdateAsk({ hh: household.id, version: updates[household.id].version || '' })}>
+                        onClick={() => setUpdateAsk({ hh: household.id, version: versionLabel(updates[household.id].display, updates[household.id].version) })}>
                   {t('desk.update.start')}
                 </button>
               )}
@@ -224,7 +225,9 @@ function ProductDialog({ player, facts, onClose, onFacts }) {
     // A speaker that cannot be asked has no known limit; the product says so.
     [t('web.settings.fact.maxVolume'), facts?.max_volume != null ? `${facts.max_volume}%`
       : facts && !facts.online ? t('web.settings.fact.colorUnknown') : ''],
-    [t('web.settings.fact.version'), [facts?.generation, facts?.software_version || player.software_version].filter(Boolean).join(' ')],
+    [t('web.settings.fact.version'), [facts?.generation, facts?.software_version
+      ? versionLabel(facts.display_version, facts.software_version)
+      : versionLabel(player.display_version, player.software_version)].filter(Boolean).join(' ')],
   ].filter(([, value]) => value)
   const online = facts ? facts.online : player.online
   return (

@@ -10,6 +10,7 @@ import * as G from './glyphs.jsx'
 import { Unit, Display, Key, IconKey, Knob, Fader, Lever, Led, Panel, PanelHead, Button, Confirm, Menu, MenuItem, MenuSep, Select, Field, Empty, KeyBank } from './controls.jsx'
 import { nowSummary, hasMusic, nextTransport, togglePlay, isLoaded, householdOf, pauseEverything, canSkip, canNext } from './house.js'
 import Battery, { batteryShown } from '../../frontend/src/components/Battery.jsx'
+import { versionLabel } from '../../frontend/src/lib/version.js'
 
 // The zone amplifier: one module per group, side by side in the rack. Each
 // module has a small display naming the rooms and what they play, a knob for
@@ -356,7 +357,7 @@ export function ToneControl({ uuid, households, onClose }) {
         {tab === 'about' && (
           <dl className="hf-facts">
             <dt>{t('desk.about.model')}</dt><dd>{zone.model}</dd>
-            <dt>{t('desk.about.version')}</dt><dd>{zone.display_version || ''}</dd>
+            <dt>{t('desk.about.version')}</dt><dd>{versionLabel(zone.display_version, zone.software_version)}</dd>
             <dt>{t('desk.about.system')}</dt><dd>{household?.generation || ''}</dd>
             <dt>{t('desk.about.address')}</dt><dd className="hf-mono">{zone.host}</dd>
             <dt>{t('hifi.lineIn')}</dt><dd>{zone.supports_line_in ? (zone.line_in_connected ? t('hifi.connected') : t('hifi.nothingConnected')) : t('hifi.none')}</dd>

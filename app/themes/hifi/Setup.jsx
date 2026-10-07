@@ -22,6 +22,7 @@ import NetworkMap, { HealthDonut } from '../../frontend/src/components/NetworkMa
 import Swirl from '../../frontend/src/components/Swirl.jsx'
 import ParentalControls from '../../frontend/src/components/ParentalControls.jsx'
 import { chosenHousehold } from '../../frontend/src/lib/shellSelection.js'
+import { versionLabel } from '../../frontend/src/lib/version.js'
 
 // The rear panel: the settings, reached by turning the function selector to
 // SETUP, as the connections and service switches of a component are round
@@ -563,7 +564,7 @@ function SystemsPage({ households, zones }) {
                 {speakers.map((p) => (
                   <tr key={p.uuid} data-offline={p.online === false || undefined}>
                     <th>{playerLabel(p)}{p.online === false && <small> · {t('desk.rooms.offline')}</small>}</th>
-                    <td>{p.model}</td><td>{p.display_version || ''}</td><td className="hf-mono">{p.host}</td>
+                    <td>{p.model}</td><td>{versionLabel(p.display_version, p.software_version)}</td><td className="hf-mono">{p.host}</td>
                   </tr>
                 ))}
               </tbody>

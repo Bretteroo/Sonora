@@ -912,7 +912,6 @@ export default {
   'win.about.serial': 'Serienummer',
   'win.about.ip': 'IP-adres',
   'win.about.associated': 'Gekoppeld product:',
-  'win.about.build': 'build',
   'win.about.hardware': 'Hardwareversie',
   'win.about.series': 'Serie-ID',
   'win.about.wm': 'WM',

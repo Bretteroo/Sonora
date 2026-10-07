@@ -915,7 +915,6 @@ export default {
   'win.about.serial': 'Sarjanumero',
   'win.about.ip': 'IP-osoite',
   'win.about.associated': 'Liitetty tuote:',
-  'win.about.build': 'koontiversio',
   'win.about.hardware': 'Laitteistoversio',
   'win.about.series': 'Sarjatunnus',
   'win.about.wm': 'WM',

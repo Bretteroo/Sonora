@@ -18,7 +18,7 @@ export function playersOf(household, zones = []) {
   return zones
     .filter((z) => household?.zone_uuids?.includes(z.uuid))
     .map((z) => ({ uuid: z.uuid, name: z.name, model: z.model, role: '',
-                   display_version: z.display_version, host: z.host, online: z.online }))
+                   display_version: z.display_version, software_version: z.software_version, host: z.host, online: z.online }))
     .sort((a, b) => a.name.localeCompare(b.name))
 }
 

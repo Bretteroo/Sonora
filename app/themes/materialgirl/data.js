@@ -20,6 +20,7 @@ import { isLoaded, nextTransport, togglePlay, isFixedSource } from '../../fronte
 import { groupTitle } from '../../frontend/src/lib/groups.js'
 import { useQueue } from '../../frontend/src/lib/useQueue.js'
 import { tvSignalLine } from '../../frontend/src/lib/tvFormat.js'
+import { versionLabel } from '../../frontend/src/lib/version.js'
 
 export const GROUP_KEY = 'sonora.desktop.group'  // the room in view, shared with the desktop themes
 export const SYSTEM_KEY = 'sonora.system'
@@ -324,7 +325,7 @@ export function useSources({ households, systemFilter, zones, activeZone, servic
       const hzone = zoneForHousehold(households, zones, activeZone, h.id)
       const rows = []
       // "Update Now" heads the list while the speakers have an update waiting.
-      if (updates[h.id]?.pending) rows.push({ id: 'update', title: t('desk.browse.updateNow'), glyph: 'update', version: updates[h.id].version || '' })
+      if (updates[h.id]?.pending) rows.push({ id: 'update', title: t('desk.browse.updateNow'), glyph: 'update', version: versionLabel(updates[h.id].display, updates[h.id].version) })
       rows.push({ id: 'FV:2', title: t('desk.browse.favorites'), glyph: 'star', container: true })
       // The television input sits directly under Sonos Favorites and above
       // Music Library, where the app puts it (2026-09-11).

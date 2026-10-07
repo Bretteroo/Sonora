@@ -913,7 +913,6 @@ export default {
   'win.about.serial': 'Serienummer',
   'win.about.ip': 'IP-adress',
   'win.about.associated': 'Associerad produkt:',
-  'win.about.build': 'build',
   'win.about.hardware': 'Maskinvaruversion',
   'win.about.series': 'Serie-ID',
   'win.about.wm': 'WM',

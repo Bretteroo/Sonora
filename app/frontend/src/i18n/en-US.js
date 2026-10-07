@@ -800,7 +800,6 @@ export default {
   'win.about.serial': 'Serial Number',
   'win.about.ip': 'IP Address',
   'win.about.associated': 'Associated Product:',
-  'win.about.build': 'build',
   'win.about.hardware': 'Hardware Version',
   'win.about.series': 'Series ID',
   'win.about.wm': 'WM',

@@ -24,6 +24,7 @@ import Swirl from '../../frontend/src/components/Swirl.jsx'
 import AlarmsSection from './Alarms.jsx'
 import ParentalControls from '../../frontend/src/components/ParentalControls.jsx'
 import { chosenHousehold } from '../../frontend/src/lib/shellSelection.js'
+import { versionLabel } from '../../frontend/src/lib/version.js'
 
 // Settings, arranged by what a person wants done: the music services and
 // their links, the music library's folders, the clock, the systems, and their
@@ -566,7 +567,7 @@ function SystemsPage({ households, zones }) {
                 {speakers.map((p) => (
                   <tr key={p.uuid} data-offline={p.online === false || undefined}>
                     <th>{playerLabel(p)}{p.online === false && <small> · {t('desk.rooms.offline')}</small>}</th>
-                    <td>{p.model}</td><td>{p.display_version || ''}</td><td className="sf-mono">{p.host}</td>
+                    <td>{p.model}</td><td>{versionLabel(p.display_version, p.software_version)}</td><td className="sf-mono">{p.host}</td>
                   </tr>
                 ))}
               </tbody>

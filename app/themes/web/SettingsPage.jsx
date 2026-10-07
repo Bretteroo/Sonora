@@ -10,6 +10,7 @@ import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
 import Overlay from './Overlay.jsx'
 import { useCloudAccount } from '../../frontend/src/lib/useCloudAccount.js'
 import { useContentFiltering } from '../../frontend/src/lib/useContentFiltering.js'
+import { versionLabel } from '../../frontend/src/lib/version.js'
 
 // Settings, in the shape the product gives it.
 //
@@ -81,8 +82,8 @@ export default function SettingsPage({ onClose, onTroubleshoot, onSystemDetails,
       {/* "System" over "Your System", as the product heads its two rows. */}
       <Section title={t('web.settings.systems')} blurb={t('web.yourSystem')}>
         {shown.map((household) => {
-          const version = household.zone_uuids
-            .map((uuid) => zones[uuid]?.display_version).filter(Boolean)[0] || ''
+          const first = household.zone_uuids.map((uuid) => zones[uuid]).find((z) => z?.display_version)
+          const version = versionLabel(first?.display_version, first?.software_version)
           const unreachable = household.vanished.length
           return (
             <Row

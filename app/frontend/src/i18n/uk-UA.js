@@ -896,7 +896,6 @@ export default {
   'win.about.serial': 'Серійний номер',
   'win.about.ip': 'IP-адреса',
   'win.about.associated': 'Пов’язаний продукт:',
-  'win.about.build': 'збірка',
   'win.about.hardware': 'Версія апаратної частини',
   'win.about.series': 'Ідентифікатор серії',
   'win.about.wm': 'WM',

@@ -836,7 +836,6 @@ export default {
   'win.about.serial': '일련번호',
   'win.about.ip': 'IP 주소',
   'win.about.associated': '연결된 제품:',
-  'win.about.build': '빌드',
   'win.about.hardware': '하드웨어 버전',
   'win.about.series': '시리즈 ID',
   'win.about.wm': 'WM',

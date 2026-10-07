@@ -828,7 +828,6 @@ export default {
   'win.about.serial': 'シリアル番号',
   'win.about.ip': 'IP アドレス',
   'win.about.associated': '関連製品：',
-  'win.about.build': 'ビルド',
   'win.about.hardware': 'ハードウェアバージョン',
   'win.about.series': 'シリーズ ID',
   'win.about.wm': 'WM',

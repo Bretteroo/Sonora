@@ -29,6 +29,7 @@ import { proposedGroups, groupingPlan, runPlan } from '../lib/grouping.js'
 import { chosenHousehold } from '../lib/shellSelection.js'
 import { suggestedQueueName } from '../lib/playlistName.js'
 import { canStereoPair } from '../lib/rooms.js'
+import { versionLabel } from '../lib/version.js'
 
 // Secondary windows. On the Mac these are ordinary light windows floating
 // over the dark application, so they are drawn as such: a 22px title bar with
@@ -1281,7 +1282,7 @@ export function RoomPage({ rooms, households, zone, onRoom }) {
             <RoomExtras zone={zone} rooms={[]} />
             <StereoPairField zone={zone} />
             <div className="dk-field"><span>{t('desk.about.model')}</span><span>{zone.model}</span></div>
-            <div className="dk-field"><span>{t('desk.about.version')}</span><span>{zone.display_version}</span></div>
+            <div className="dk-field"><span>{t('desk.about.version')}</span><span>{versionLabel(zone.display_version, zone.software_version)}</span></div>
             <div className="dk-field"><span>{t('desk.about.system')}</span><span>{household?.generation || ''}</span></div>
             <div className="dk-field"><span>{t('desk.about.address')}</span><span>{zone.host}</span></div>
           </>
@@ -1630,8 +1631,7 @@ export function About({ onClose }) {
       text += `${p.model}: ${p.role ? `${p.name} (${ROLE_LABEL[p.role] ?? p.role})` : p.name}\n`
       text += line(t('desk.about.serial'), p.serial)
       text += line(t('desk.about.sonosOs'), h.generation)
-      text += line(t('desk.about.version'), p.software_version && p.software_version !== p.display_version
-        ? `${p.display_version} (${p.software_version})` : p.display_version)
+      text += line(t('desk.about.version'), versionLabel(p.display_version, p.software_version))
       text += line(t('desk.about.hardware'), p.hardware_version)
       text += line(t('desk.about.series'), p.series_id)
       text += line(t('desk.about.ip'), p.host)

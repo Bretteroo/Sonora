@@ -6,6 +6,7 @@ import { playersOf, playerLabel } from '../../frontend/src/lib/players.js'
 import { APP } from '../../frontend/src/lib/meta.js'
 import { Window } from './Dialogs.jsx'
 import icon from '../../frontend/src/assets/sonora.png'
+import { versionLabel } from '../../frontend/src/lib/version.js'
 
 // "About My Sonos System" laid out as the Windows app draws it (captured
 // 2026-09-05): the icon beside the product name and its facts, a bordered box
@@ -53,7 +54,7 @@ export default function About({ onClose }) {
                     <p>{productName(p.model)}: {playerLabel(p)}</p>
                     <p>{t('win.about.serial')}: {p.serial || p.uuid}</p>
                     <p>{t('win.about.os')} {h.generation}</p>
-                    <p>{t('win.about.version')} {p.display_version || '\u2014'}{p.software_version ? ` (${t('win.about.build')} ${p.software_version.replace(/\D/g, '')})` : ''}</p>
+                    <p>{t('win.about.version')} {versionLabel(p.display_version, p.software_version) || '\u2014'}</p>
                     <p>{t('win.about.hardware')}: {p.hardware_version || '\u2014'}</p>
                     <p>{t('win.about.series')}: {p.series_id || '\u2014'}</p>
                     <p>{t('win.about.ip')}: {p.host}</p>

@@ -12,6 +12,7 @@ import { KIND_SHAPES, SHAPES } from './shapes.js'
 import { nowSummary, hasMusic, householdOf } from './data.js'
 import { PlayButton } from './Player.jsx'
 import Battery, { batteryShown } from '../../frontend/src/components/Battery.jsx'
+import { versionLabel } from '../../frontend/src/lib/version.js'
 
 // Rooms: every room of the systems in view, arranged by what plays together.
 // Each group is an outlined card; its rooms are list items with their own
@@ -323,7 +324,7 @@ export function RoomSettings({ uuid, households, onClose }) {
         {tab === 'about' && (
           <div className="mg-card mg-card-filled mg-list">
             <ListItem overline={t('desk.about.model')} headline={zone.model} />
-            <ListItem overline={t('desk.about.version')} headline={zone.display_version || ''} />
+            <ListItem overline={t('desk.about.version')} headline={versionLabel(zone.display_version, zone.software_version)} />
             <ListItem overline={t('desk.about.system')} headline={household?.generation || ''} />
             <ListItem overline={t('desk.about.address')} headline={<span className="mg-mono">{zone.host}</span>} />
             <ListItem overline={t('mg.lineIn')} headline={zone.supports_line_in ? (zone.line_in_connected ? t('mg.connected') : t('mg.nothingConnected')) : t('mg.none')} />

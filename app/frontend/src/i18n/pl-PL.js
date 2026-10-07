@@ -930,7 +930,6 @@ export default {
   'win.about.serial': 'Numer seryjny',
   'win.about.ip': 'Adres IP',
   'win.about.associated': 'Powiązany produkt:',
-  'win.about.build': 'kompilacja',
   'win.about.hardware': 'Wersja sprzętu',
   'win.about.series': 'Identyfikator serii',
   'win.about.wm': 'WM',

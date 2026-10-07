@@ -151,6 +151,8 @@ class ZoneState:
     model_number: str = ""
     generation: str = ""
     display_version: str = ""
+    # The build of the same software ("97.1-80312" beside "18.8").
+    software_version: str = ""
     online: bool = True
     paired: bool = False
     topology_label: str = ""
@@ -720,6 +722,7 @@ class SonosController:
                     model=model_label(zone.primary.model, zone.primary.model_number),
                     model_number=zone.primary.model_number,
                     generation=zone.primary.generation,
+                    software_version=zone.primary.software_version,
                     online=zone.primary.online,
                     paired=zone.is_paired,
                     has_balance=has_balance(zone.is_paired, zone.primary.model_number),
@@ -772,6 +775,7 @@ class SonosController:
                 info = await self.soap.call(
                     state.host, const.DEVICE_PROPERTIES, "GetZoneInfo")
                 state.display_version = info.get("DisplaySoftwareVersion", "")
+                state.software_version = info.get("SoftwareVersion", "") or state.software_version
                 state.ht_audio_in = _as_int(info.get("HTAudioIn", ""), -1)
                 if state.ht_audio_in < 0:
                     state.ht_audio_in = None
@@ -2448,8 +2452,8 @@ class SonosController:
             number = gone.model_number or known.get("model_number", "")
             model = known.get("model") or MODEL_NAMES.get(number.upper(), number)
             # The firmware every member runs, as the product's dialog prints it.
-            version = next((p.software_version for p in household.players.values()
-                            if p.software_version), "")
+            current = next((p for p in household.players.values() if p.software_version), None)
+            version = current.software_version if current else ""
             return {
                 "uuid": uuid,
                 "name": gone.name or known.get("name", ""),
@@ -2458,6 +2462,7 @@ class SonosController:
                 "color": known.get("color", ""),
                 "serial": known.get("serial", ""),
                 "software_version": version,
+                "display_version": getattr(current, "display_version", "") or "",
                 "generation": household.generation,
                 "max_volume": None,
                 "online": False,
@@ -2530,6 +2535,7 @@ class SonosController:
             "color": device.get("color") or "",
             "serial": device.get("serialNumber") or player.serial,
             "software_version": device.get("softwareVersion") or player.software_version,
+            "display_version": getattr(player, "display_version", "") or "",
             "generation": household.generation if household is not None else "",
             "max_volume": max_volume,
             "online": player.online,

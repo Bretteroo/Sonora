@@ -784,7 +784,6 @@ export default {
   'win.about.serial': 'Sorozatszám',
   'win.about.ip': 'IP-cím',
   'win.about.associated': 'Társított termék:',
-  'win.about.build': 'build',
   'win.about.hardware': 'Hardververzió',
   'win.about.series': 'Sorozatazonosító',
   'win.about.wm': 'WM',

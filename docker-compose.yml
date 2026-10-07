@@ -16,4 +16,6 @@ services:
     volumes:
       # The optional Sonos session, music service tokens, uploaded themes and
       # the logo cache. Without it you sign in to everything again on restart.
+      # Replace </path/to/data> with a folder on this machine. Recommended:
+      # /home/<username>/.config/sonora:/data
       - </path/to/data>:/data

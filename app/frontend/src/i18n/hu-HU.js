@@ -351,6 +351,7 @@ export default {
   'desk.browse.updateNow': 'Frissítés most',
   'desk.update.title': 'Frissítés érhető el',
   'desk.update.body': 'Frissítés érhető el a Sonos hangszóróidhoz: {version} verzió. Telepítés közben a zene minden szobában leáll; ez több percig is tarthat.',
+  'desk.update.bodySystem': 'Frissítés érhető el a Sonos {system} hangszóróidhoz: {version} verzió. Telepítés közben a zene minden szobában leáll; ez több percig is tarthat.',
   'desk.update.start': 'Frissítés',
   'desk.update.notNow': 'Most nem',
   'desk.update.started': 'A frissítés elindult. Minden szoba újraindul, amikor végzett.',

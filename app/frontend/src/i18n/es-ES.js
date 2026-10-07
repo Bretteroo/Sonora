@@ -353,6 +353,7 @@ export default {
   'desk.browse.updateNow': 'Actualizar ahora',
   'desk.update.title': 'Actualización disponible',
   'desk.update.body': 'Hay una actualización lista para tus altavoces Sonos: versión {version}. La música se detiene en cada habitación mientras se instala, lo que puede tardar varios minutos.',
+  'desk.update.bodySystem': 'Hay una actualización lista para tus altavoces Sonos {system}: versión {version}. La música se detiene en cada habitación mientras se instala, lo que puede tardar varios minutos.',
   'desk.update.start': 'Actualizar',
   'desk.update.notNow': 'Ahora no',
   'desk.update.started': 'La actualización ha comenzado. Cada habitación se reinicia al terminar.',

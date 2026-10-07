@@ -351,6 +351,7 @@ export default {
   'desk.browse.updateNow': '立即更新',
   'desk.update.title': '有可用更新',
   'desk.update.body': '你的 Sonos 扬声器有可用更新：版本 {version}。安装期间各房间的音乐会停止，可能需要几分钟。',
+  'desk.update.bodySystem': '你的 Sonos {system} 扬声器有可用更新：版本 {version}。安装期间各房间的音乐会停止，可能需要几分钟。',
   'desk.update.start': '更新',
   'desk.update.notNow': '以后再说',
   'desk.update.started': '更新已开始。每个房间完成后会重新启动。',

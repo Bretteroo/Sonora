@@ -359,6 +359,7 @@ export default {
   'desk.browse.updateNow': '今すぐアップデート',
   'desk.update.title': 'アップデートがあります',
   'desk.update.body': 'Sonos スピーカーのアップデートの準備ができました: バージョン {version}。インストール中は各部屋の音楽が止まり、数分かかることがあります。',
+  'desk.update.bodySystem': 'Sonos {system} スピーカーのアップデートの準備ができました: バージョン {version}。インストール中は各部屋の音楽が止まり、数分かかることがあります。',
   'desk.update.start': 'アップデート',
   'desk.update.notNow': '後で',
   'desk.update.started': 'アップデートを開始しました。各部屋は完了すると再起動します。',

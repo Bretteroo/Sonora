@@ -15,6 +15,7 @@ import { playTarget } from '../../frontend/src/lib/browserRoom.js'
 import { readLibraryPrefs, libraryRows } from '../../frontend/src/lib/libraryPrefs.js'
 import { useBrowsePage, useSources, searchScopesOf, playItems, isQueueable, genericArt, describeFavorite, serviceLabelFor,
          TUNEIN_ICONS, readStored, writeStored, VIEW_KEY, householdOf, useSpeakerUpdates, favoriteTarget, favoriteKey } from './house.js'
+import { updateBody } from '../../frontend/src/lib/version.js'
 
 // The source tuner: every source of music the systems hold, as a bank of lit
 // selector keys down the left, and what the chosen one holds on the screen
@@ -813,7 +814,7 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
       {/* The speakers' own update, confirmed first: music stops in each room
           while it installs. */}
       {updateAsk && (
-        <Confirm title={t('desk.update.title')} body={t('desk.update.body', { version: updateAsk.version })}
+        <Confirm title={t('desk.update.title')} body={updateBody(t, households, updateAsk.hh, updateAsk.version)}
                  action={t('desk.update.start')} cancelLabel={t('desk.update.notNow')} onClose={() => setUpdateAsk(null)}
                  onConfirm={async () => {
                    const ask = updateAsk

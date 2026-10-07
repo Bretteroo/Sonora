@@ -3,7 +3,7 @@ import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
 import { playersOf, playerLabel } from '../../frontend/src/lib/players.js'
-import { versionLabel } from '../../frontend/src/lib/version.js'
+import { versionLabel, updateBody } from '../../frontend/src/lib/version.js'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
 import { useContentFiltering } from '../../frontend/src/lib/useContentFiltering.js'
 import { api } from '../../frontend/src/lib/api.js'
@@ -168,7 +168,7 @@ export default function SystemDetailsPage({ onClose, systemFilter = 'all' }) {
             <Icon.Close width={10} height={10} />
           </button>
           <h2>{t('desk.update.title')}</h2>
-          <p>{t('desk.update.body', { version: updateAsk.version })}</p>
+          <p>{updateBody(t, households, updateAsk.hh, updateAsk.version)}</p>
           <div className="wb-dialog-actions">
             <button type="button" className="wb-dialog-btn" onClick={() => setUpdateAsk(null)}>{t('desk.update.notNow')}</button>
             <button type="button" className="wb-dialog-btn" onClick={startUpdate}>{t('desk.update.start')}</button>

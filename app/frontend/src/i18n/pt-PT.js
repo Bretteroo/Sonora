@@ -405,6 +405,10 @@ export default {
     'Há uma atualização pronta para os teus altifalantes Sonos: versão '
     + '{version}. A música para em cada divisão durante a instalação, o que '
     + 'pode demorar alguns minutos.',
+  'desk.update.bodySystem':
+    'Há uma atualização pronta para os teus altifalantes Sonos {system}: versão '
+    + '{version}. A música para em cada divisão durante a instalação, o que '
+    + 'pode demorar alguns minutos.',
   'desk.update.start': 'Atualizar',
   'desk.update.notNow': 'Agora não',
   'desk.update.started':

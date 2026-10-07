@@ -819,6 +819,7 @@
 :where(:root[data-theme='sonofuture']) .sf-clock span { color: var(--t-fg-muted); }
 :where(:root[data-theme='sonofuture']) .sf-clock small { color: var(--t-fg-dim); font-size: 11px; margin-top: 4px; }
 :where(:root[data-theme='sonofuture']) .sf-status-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+:where(:root[data-theme='sonofuture']) .sf-system-update { margin-bottom: 10px; }
 :where(:root[data-theme='sonofuture']) .sf-table-wrap { overflow-x: auto; border: 1px solid var(--t-border); border-radius: 12px; background: var(--t-surface); }
 :where(:root[data-theme='sonofuture']) .sf-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 /* Columns where the markup puts them, so two tables of the same shape

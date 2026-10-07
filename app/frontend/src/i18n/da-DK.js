@@ -388,6 +388,10 @@ export default {
     'Der er en opdatering klar til dine Sonos-højttalere: version '
     + '{version}. Musikken stopper i hvert rum under installationen, som kan '
     + 'tage flere minutter.',
+  'desk.update.bodySystem':
+    'Der er en opdatering klar til dine Sonos {system}-højttalere: version '
+    + '{version}. Musikken stopper i hvert rum under installationen, som kan '
+    + 'tage flere minutter.',
   'desk.update.start': 'Opdater',
   'desk.update.notNow': 'Ikke nu',
   'desk.update.started':

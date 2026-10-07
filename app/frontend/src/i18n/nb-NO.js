@@ -390,6 +390,10 @@ export default {
     'En oppdatering er klar for Sonos-høyttalerne dine: versjon {version}. '
     + 'Musikken stopper i hvert rom mens den installeres, og det kan ta flere '
     + 'minutter.',
+  'desk.update.bodySystem':
+    'En oppdatering er klar for Sonos {system}-høyttalerne dine: versjon {version}. '
+    + 'Musikken stopper i hvert rom mens den installeres, og det kan ta flere '
+    + 'minutter.',
   'desk.update.start': 'Oppdater',
   'desk.update.notNow': 'Ikke nå',
   'desk.update.started':

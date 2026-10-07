@@ -396,6 +396,7 @@ export default {
   'desk.browse.updateNow': 'Mettre à jour maintenant',
   'desk.update.title': 'Mise à jour disponible',
   'desk.update.body': 'Une mise à jour est prête pour tes enceintes Sonos : version {version}. La musique s\'arrête dans chaque pièce pendant l\'installation, qui peut prendre plusieurs minutes.',
+  'desk.update.bodySystem': 'Une mise à jour est prête pour tes enceintes Sonos {system} : version {version}. La musique s\'arrête dans chaque pièce pendant l\'installation, qui peut prendre plusieurs minutes.',
   'desk.update.start': 'Mettre à jour',
   'desk.update.notNow': 'Pas maintenant',
   'desk.update.started': 'La mise à jour a commencé. Chaque pièce redémarre une fois terminée.',

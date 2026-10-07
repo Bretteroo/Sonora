@@ -16,6 +16,7 @@ import { IconButton, Button, SplitButton, Menu, MenuItem, MenuSep, Confirm, Empt
 import { KIND_SHAPES, SHAPES } from './shapes.js'
 import { useBrowsePage, useSources, searchScopesOf, playItems, isQueueable, genericArt, describeFavorite, serviceLabelFor,
          TUNEIN_ICONS, readStored, writeStored, VIEW_KEY, householdOf, useSpeakerUpdates, favoriteTarget } from './data.js'
+import { updateBody } from '../../frontend/src/lib/version.js'
 
 // Browse: every source of music the systems hold, and what is inside each.
 //
@@ -678,7 +679,7 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
                  }} />
       )}
       {updateAsk && (
-        <Confirm title={t('desk.update.title')} body={t('desk.update.body', { version: updateAsk.version })} icon={<I.Update />}
+        <Confirm title={t('desk.update.title')} body={updateBody(t, households, updateAsk.hh, updateAsk.version)} icon={<I.Update />}
                  action={t('desk.update.start')} cancelLabel={t('desk.update.notNow')} onClose={() => setUpdateAsk(null)}
                  onConfirm={async () => {
                    const ask = updateAsk

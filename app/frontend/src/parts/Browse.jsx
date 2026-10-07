@@ -14,7 +14,7 @@ import { canEnqueue, isPlayableLeaf, providerIdOf } from '../lib/items.js'
 import Art, { nowPlayingArt } from '../components/Art.jsx'
 import { Confirm } from './Dialogs.jsx'
 import { itemAccount } from '../lib/itemAccount.js'
-import { versionLabel } from '../lib/version.js'
+import { versionLabel, updateBody } from '../lib/version.js'
 
 // The Music pane. Its header reads "Select a Music Source" at the root and the
 // container's title below it, with a 42px back button on the left and a 30px
@@ -1462,7 +1462,7 @@ export default function Browse({
       {/* "Update Now": the speakers' own update, confirmed first, since
           music stops in each room while it installs. */}
       {updateAsk && (
-        <Confirm title={t('desk.update.title')} body={t('desk.update.body', { version: updateAsk.version })}
+        <Confirm title={t('desk.update.title')} body={updateBody(t, households, updateAsk.hh, updateAsk.version)}
                  action={t('desk.update.start')} cancelLabel={t('desk.update.notNow')}
                  onClose={() => setUpdateAsk(null)}
                  onConfirm={async () => {

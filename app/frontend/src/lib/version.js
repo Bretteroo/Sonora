@@ -8,3 +8,13 @@ export function versionLabel(release, build) {
   if (r && b && r !== b) return `${r} (${b})`
   return r || b
 }
+
+// The question before a speaker update. With S1 and S2 systems both in the
+// house it names the one the update is for; with one kind only it need not.
+export function updateBody(t, households, householdId, version) {
+  const kinds = new Set((households || []).map((h) => h.generation).filter(Boolean))
+  const system = (households || []).find((h) => h.id === householdId)?.generation
+  return kinds.size > 1 && system
+    ? t('desk.update.bodySystem', { system, version })
+    : t('desk.update.body', { version })
+}

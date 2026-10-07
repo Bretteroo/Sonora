@@ -393,6 +393,10 @@ export default {
     'Dla głośników Sonos jest gotowa aktualizacja: wersja {version}. '
     + 'Podczas instalacji muzyka w każdym pomieszczeniu zostanie zatrzymana; '
     + 'może to potrwać kilka minut.',
+  'desk.update.bodySystem':
+    'Dla głośników Sonos {system} jest gotowa aktualizacja: wersja {version}. '
+    + 'Podczas instalacji muzyka w każdym pomieszczeniu zostanie zatrzymana; '
+    + 'może to potrwać kilka minut.',
   'desk.update.start': 'Aktualizuj',
   'desk.update.notNow': 'Nie teraz',
   'desk.update.started':

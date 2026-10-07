@@ -355,6 +355,7 @@ export default {
   'desk.browse.updateNow': 'Update Now',
   'desk.update.title': 'Update Available',
   'desk.update.body': 'An update for your Sonos speakers is ready: version {version}. Music stops in each room while it installs, which can take several minutes.',
+  'desk.update.bodySystem': 'An update for your {system} Sonos speakers is ready: version {version}. Music stops in each room while it installs, which can take several minutes.',
   'desk.update.start': 'Update',
   'desk.update.notNow': 'Not Now',
   'desk.update.started': 'The update has started. Each room restarts when it finishes.',

@@ -390,6 +390,10 @@ export default {
     'Sonos-kaiuttimille on valmiina päivitys: versio {version}. Musiikki '
     + 'pysähtyy jokaisessa huoneessa asennuksen ajaksi, ja se voi kestää '
     + 'useita minuutteja.',
+  'desk.update.bodySystem':
+    'Sonos {system} -kaiuttimille on valmiina päivitys: versio {version}. Musiikki '
+    + 'pysähtyy jokaisessa huoneessa asennuksen ajaksi, ja se voi kestää '
+    + 'useita minuutteja.',
   'desk.update.start': 'Päivitä',
   'desk.update.notNow': 'Ei nyt',
   'desk.update.started':

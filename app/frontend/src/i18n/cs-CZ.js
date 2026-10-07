@@ -393,6 +393,10 @@ export default {
     'Pro reproduktory Sonos je připravena aktualizace: verze {version}. '
     + 'Během instalace se v každé místnosti zastaví hudba; může to trvat '
     + 'několik minut.',
+  'desk.update.bodySystem':
+    'Pro reproduktory Sonos {system} je připravena aktualizace: verze {version}. '
+    + 'Během instalace se v každé místnosti zastaví hudba; může to trvat '
+    + 'několik minut.',
   'desk.update.start': 'Aktualizovat',
   'desk.update.notNow': 'Nyní ne',
   'desk.update.started':

@@ -22,7 +22,8 @@ import NetworkMap, { HealthDonut } from '../../frontend/src/components/NetworkMa
 import Swirl from '../../frontend/src/components/Swirl.jsx'
 import ParentalControls from '../../frontend/src/components/ParentalControls.jsx'
 import { chosenHousehold } from '../../frontend/src/lib/shellSelection.js'
-import { versionLabel } from '../../frontend/src/lib/version.js'
+import { versionLabel, updateBody } from '../../frontend/src/lib/version.js'
+import { useSpeakerUpdates } from './house.js'
 
 // The rear panel: the settings, reached by turning the function selector to
 // SETUP, as the connections and service switches of a component are round
@@ -525,9 +526,39 @@ function TimePage({ households }) {
 
 // --- systems and rooms -----------------------------------------------------------------
 
+// The speakers' own update, on the system it is for: the source list offers
+// it too, but there it sits below every source of the system above. Confirmed
+// first, as music stops in each room while it installs.
+function SystemUpdate({ household, households, update, onStarted }) {
+  const { t } = useI18n()
+  const [ask, setAsk] = useState(false)
+  const [started, setStarted] = useState(false)
+  if (!update?.pending && !started) return null
+  return (
+    <div className="hf-status-row">
+      <G.Update />
+      {started ? <span>{t('desk.update.started')}</span> : (
+        <span><strong>{t('desk.update.title')}</strong> <span className="hf-muted">{versionLabel(update.display, update.version)}</span></span>
+      )}
+      <span className="hf-grow" />
+      {!started && <Button primary small onClick={() => setAsk(true)}>{t('desk.update.start')}</Button>}
+      {ask && (
+        <Confirm title={t('desk.update.title')} body={updateBody(t, households, household.id, versionLabel(update.display, update.version))}
+                 action={t('desk.update.start')} cancelLabel={t('desk.update.notNow')} onClose={() => setAsk(false)}
+                 onConfirm={async () => {
+                   setAsk(false)
+                   const done = await api.startSoftwareUpdate(household.id).catch(() => null)
+                   if (done?.started?.length) { setStarted(true); onStarted() }
+                 }} />
+      )}
+    </div>
+  )
+}
+
 function SystemsPage({ households, zones }) {
   const { t } = useI18n()
   const { actions, scanning, lastScan, connected } = useSystem()
+  const speakerUpdates = useSpeakerUpdates(households)
   const [health, setHealth] = useState(null)
   useEffect(() => { api.health().then(setHealth).catch(() => setHealth(null)) }, [])
 
@@ -553,12 +584,13 @@ function SystemsPage({ households, zones }) {
             {t.plural('common.rooms', rooms)}
             {speakers.length !== rooms && ` · ${t.plural('common.speakers', speakers.length)}`}
           </small></h3>
+          <SystemUpdate household={h} households={households} update={speakerUpdates.updates[h.id]} onStarted={() => speakerUpdates.clear(h.id)} />
           <div className="hf-table-wrap">
             {/* Named widths rather than the browser's own: one system's room
                 names are longer than the other's, so the two tables drew
                 their columns in different places. */}
             <table className="hf-table hf-table-fixed">
-              <colgroup><col style={{ width: '30%' }} /><col style={{ width: '30%' }} /><col style={{ width: '18%' }} /><col style={{ width: '22%' }} /></colgroup>
+              <colgroup><col style={{ width: '27%' }} /><col style={{ width: '27%' }} /><col style={{ width: '27%' }} /><col style={{ width: '19%' }} /></colgroup>
               <thead><tr><th>{t('desk.about.speakers')}</th><th>{t('desk.about.model')}</th><th>{t('desk.about.version')}</th><th>{t('desk.about.address')}</th></tr></thead>
               <tbody>
                 {speakers.map((p) => (

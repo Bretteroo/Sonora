@@ -14,6 +14,7 @@ import { playTarget } from '../../frontend/src/lib/browserRoom.js'
 import { readLibraryPrefs, libraryRows } from '../../frontend/src/lib/libraryPrefs.js'
 import { useBrowsePage, useSources, searchScopesOf, playItems, isQueueable, genericArt, describeFavorite, serviceLabelFor,
          TUNEIN_ICONS, readStored, writeStored, VIEW_KEY, householdOf, useSpeakerUpdates, favoriteTarget } from './house.js'
+import { updateBody } from '../../frontend/src/lib/version.js'
 
 // The library: every source of music the systems hold, in a column on the
 // left, and what is inside it on the right, as a grid of covers where the
@@ -773,7 +774,7 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
       {/* The speakers' own update, confirmed first: music stops in each room
           while it installs. */}
       {updateAsk && (
-        <Confirm title={t('desk.update.title')} body={t('desk.update.body', { version: updateAsk.version })}
+        <Confirm title={t('desk.update.title')} body={updateBody(t, households, updateAsk.hh, updateAsk.version)}
                  action={t('desk.update.start')} cancelLabel={t('desk.update.notNow')} onClose={() => setUpdateAsk(null)}
                  onConfirm={async () => {
                    const ask = updateAsk

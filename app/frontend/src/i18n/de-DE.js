@@ -388,6 +388,7 @@ export default {
   'desk.browse.updateNow': 'Jetzt aktualisieren',
   'desk.update.title': 'Update verfügbar',
   'desk.update.body': 'Für deine Sonos-Lautsprecher ist ein Update bereit: Version {version}. Während der Installation stoppt die Musik in jedem Raum; das kann einige Minuten dauern.',
+  'desk.update.bodySystem': 'Für deine Sonos-{system}-Lautsprecher ist ein Update bereit: Version {version}. Während der Installation stoppt die Musik in jedem Raum; das kann einige Minuten dauern.',
   'desk.update.start': 'Aktualisieren',
   'desk.update.notNow': 'Nicht jetzt',
   'desk.update.started': 'Das Update hat begonnen. Jeder Raum startet neu, sobald er fertig ist.',

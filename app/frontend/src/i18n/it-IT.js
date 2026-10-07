@@ -388,6 +388,7 @@ export default {
   'desk.browse.updateNow': 'Aggiorna ora',
   'desk.update.title': 'Aggiornamento disponibile',
   'desk.update.body': 'È pronto un aggiornamento per i tuoi diffusori Sonos: versione {version}. La musica si interrompe in ogni stanza durante l\'installazione, che può richiedere alcuni minuti.',
+  'desk.update.bodySystem': 'È pronto un aggiornamento per i tuoi diffusori Sonos {system}: versione {version}. La musica si interrompe in ogni stanza durante l\'installazione, che può richiedere alcuni minuti.',
   'desk.update.start': 'Aggiorna',
   'desk.update.notNow': 'Non ora',
   'desk.update.started': 'L\'aggiornamento è iniziato. Ogni stanza si riavvia al termine.',

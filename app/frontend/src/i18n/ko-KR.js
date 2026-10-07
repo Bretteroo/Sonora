@@ -365,6 +365,7 @@ export default {
   'desk.browse.updateNow': '지금 업데이트',
   'desk.update.title': '업데이트 사용 가능',
   'desk.update.body': 'Sonos 스피커 업데이트가 준비되었습니다: 버전 {version}. 설치하는 동안 각 방의 음악이 멈추며 몇 분 정도 걸릴 수 있습니다.',
+  'desk.update.bodySystem': 'Sonos {system} 스피커 업데이트가 준비되었습니다: 버전 {version}. 설치하는 동안 각 방의 음악이 멈추며 몇 분 정도 걸릴 수 있습니다.',
   'desk.update.start': '업데이트',
   'desk.update.notNow': '나중에',
   'desk.update.started': '업데이트가 시작되었습니다. 각 방은 완료되면 다시 시작됩니다.',

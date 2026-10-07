@@ -386,6 +386,7 @@ export default {
   'desk.browse.updateNow': 'Nu bijwerken',
   'desk.update.title': 'Update beschikbaar',
   'desk.update.body': 'Er staat een update klaar voor je Sonos-speakers: versie {version}. Tijdens de installatie stopt de muziek in elke ruimte; dat kan enkele minuten duren.',
+  'desk.update.bodySystem': 'Er staat een update klaar voor je Sonos {system}-speakers: versie {version}. Tijdens de installatie stopt de muziek in elke ruimte; dat kan enkele minuten duren.',
   'desk.update.start': 'Bijwerken',
   'desk.update.notNow': 'Niet nu',
   'desk.update.started': 'De update is gestart. Elke ruimte start opnieuw als hij klaar is.',

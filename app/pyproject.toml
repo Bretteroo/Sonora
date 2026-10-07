@@ -16,7 +16,7 @@ dependencies = [
 # jsonschema is for the tests only: Sonora generates the schema it
 # publishes and never validates against it, but the tests check that
 # what it publishes is a schema and that it catches what the gate does.
-dev = ["pytest>=9.1.1", "pytest-asyncio>=0.24", "jsonschema>=4"]
+dev = ["pytest>=9.1.1", "pytest-asyncio>=1.4.0", "jsonschema>=4"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

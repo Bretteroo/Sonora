@@ -220,11 +220,11 @@ export const Info = (p) => (
 )
 // "Update Now" in the source list: two arrows side by side pointing in, the
 // left one up to the right and the right one down to the left, with square
-// corners -- the apps' icn_update (Assets/Browse, 72px, measured 2026-09-23).
+// corners and a gap between them -- the apps' icn_update (Assets/Browse, 72px, measured 2026-09-23).
 export const Update = (p) => (
   <svg {...base} {...p}>
-    <path d="M2 9.9 6.3 5.6M1.3 5.3h5.8v5.4" strokeWidth="1.8" strokeLinecap="butt" strokeLinejoin="miter" />
-    <path d="M14 5.7 9.7 10M8.9 5.3v5.4h5.8" strokeWidth="1.8" strokeLinecap="butt" strokeLinejoin="miter" />
+    <path d="M1.3 9.9 5.6 5.6M0.6 5.3h5.8v5.4" strokeWidth="1.8" strokeLinecap="butt" strokeLinejoin="miter" />
+    <path d="M14.7 5.7 10.4 10M9.6 5.3v5.4h5.8" strokeWidth="1.8" strokeLinecap="butt" strokeLinejoin="miter" />
   </svg>
 )
 export const Star = (p) => (

@@ -1,0 +1,375 @@
+/* Sedona: the desktop controller as a desert section.
+ *
+ * The application below is the Windows theme's (desktop.css + windows.css);
+ * this sheet is the skin. Read top to bottom the page is a canyon wall: sky
+ * in the frame overhead, a mesa horizon, a haze band for the transport strip,
+ * then panes of sand whose headers are exposed red rock capped with a
+ * sedimentary band, and room tiles resting on the ground like boulders. Every
+ * ornament is a background or an aria-hidden SVG, so nothing decorative can
+ * be focused or read aloud, and the striations are gradients, not images. */
+
+.sd-root {
+  --sedona-band:
+    linear-gradient(180deg,
+      var(--t-rock-cap) 0 2px, var(--t-ochre) 2px 5px, var(--t-rust) 5px 7px,
+      var(--t-rock-red-light) 7px 9px, var(--t-rock-red) 9px 12px,
+      var(--t-rock-shadow) 12px 14px);
+  color: var(--t-ink);
+  font-family: var(--t-font-ui);
+  background: linear-gradient(180deg, var(--t-sand-light) 0%, var(--t-sand) 46%, var(--t-sand-dark) 100%);
+  scrollbar-color: var(--t-dirt) transparent;
+}
+.sd-root ::-webkit-scrollbar-thumb { background: var(--t-dirt); }
+
+/* --- the frame: sky, sun, brand, horizon ---------------------------------- */
+.sd-frame { flex: none; position: relative; }
+/* The sky and the land are one photograph: a Sonoran Desert panorama made
+   with ChatGPT (it replaced a Sedona one),
+   cropped to the band from 266 to 696 of its 1536x1024 (landscape.webp). It
+   spans the frame's width, and the far ranges' skyline, 200px down the crop, sits 60px down the frame at any width, where the drawn sky
+   used to meet the drawn mesas; below 640px wide it stops shrinking so the
+   rock keeps its size. The frame is a size container so the offset can be
+   reckoned from its own width. The picture itself is set by index.jsx: a
+   theme's sheet loads nothing but data: URLs. */
+.sd-frame { container-type: inline-size; }
+.sd-sky {
+  position: relative;
+  display: flex; align-items: center; gap: 18px;
+  height: 92px; padding: 0 18px 34px;
+  box-sizing: border-box;
+  color: #f6f1e6;
+  background-color: var(--t-sky-mid);
+  background-repeat: no-repeat;
+  background-size: max(100cqw, 640px) auto;
+  background-position: center calc(60px - max(100cqw, 640px) * 0.13021);
+}
+/* The wordmark stands on the land: its letters' foot on the horizon. The
+   picture's letters run from 23% to 77% of its height, so a 46px picture
+   with its foot on the photograph's horizon, 60px down the frame, starts at
+   24.6px; it had stood at 49px, on the drawn mesas' flat line at 83, which
+   put its desert-colored letters over the photograph's rock where they could
+   hardly be read. Its letters start 3.8px into the picture, so
+   it stands at 8.7px to put their left edge on the File menu's F, at 12.5.
+   A one-pixel cream outline and a soft shadow keep it off the sky. */
+.sd-brand { position: absolute; left: 8.7px; top: 24.6px; z-index: 2; display: flex; align-items: baseline; gap: 10px; padding: 0; background: none; border: 0; color: inherit; cursor: pointer; }
+.sd-brand img { height: 46px; width: auto; display: block;
+  filter: drop-shadow(0 0 0.6px #fff8ec) drop-shadow(0 0 0.6px #fff8ec) drop-shadow(0 1px 3px rgba(60, 28, 12, 0.45)); }
+.sd-title { margin-left: auto; font-family: var(--t-font); font-size: 15px; letter-spacing: 0.02em;
+  /* The photograph's sky is pale this near the horizon, so the light title carries a halo of the sky's
+     own deep blue to stay legible. */
+  text-shadow: 0 1px 2px rgba(16, 52, 92, 0.75), 0 0 10px rgba(16, 52, 92, 0.55); }
+
+/* --- menu bar: dirt under the sky; menus open as sand panels --------------- */
+.sd-root .win-menubar { background: var(--t-dirt); color: var(--t-sand-light); border-bottom: 1px solid var(--t-dirt-dark); }
+.sd-root .win-menubar-title { color: var(--t-sand-light); }
+.sd-root .win-menubar-title:hover, .sd-root .win-menubar-title[aria-expanded='true'] { background: var(--t-dirt-dark); }
+/* The Windows chrome paints its highlight on ::after; it takes the theme's. */
+.sd-root .win-menubar-title:hover::after, .sd-root .win-menubar-title[aria-expanded='true']::after { background: var(--t-dirt-dark); }
+.sd-root .win-menu { background: var(--t-sand-light); color: var(--t-ink); border: 1px solid var(--t-border-strong); box-shadow: var(--t-shadow); }
+.sd-root .win-menu-item { color: var(--t-ink); }
+.sd-root .win-menu-item:hover:not(:disabled), .sd-root .win-menu-item:focus-visible { background: var(--t-row-selected); color: var(--t-ink); }
+.sd-root .win-menu-item:disabled { color: var(--t-ink-faint); }
+.sd-root .win-menu-sep { background: var(--t-border); }
+
+/* --- transport strip: the haze band ---------------------------------------- */
+.sd-root .dk-strip { background: linear-gradient(180deg, var(--t-sand-light), var(--t-sand-dark)); color: var(--t-ink); border-bottom: 1px solid var(--t-border-strong); }
+.sd-root .dk-strip svg, .sd-root .dk-strip button { color: var(--t-ink); }
+.sd-root .dk-strip button:disabled, .sd-root .dk-strip button:disabled svg { color: var(--t-ink-faint); }
+.sd-root .dk-mode[aria-pressed='true'] { color: var(--t-rock-red); }
+.sd-root .dk-time-elapsed, .sd-root .dk-time-total, .sd-root .dk-time-remaining { color: var(--t-ink-muted); }
+/* The Windows chrome's progress strip is drawn for that app's dark bar: white
+   times, and a white glyph and dot for a mode that is on. On Sedona's sand
+   they all but vanished, so the strip takes the theme's ink and
+   rock here, at the chrome's own specificity and then some. */
+.sd-root.win-root .dk-strip-progress time { color: var(--t-ink-muted); }
+.sd-root.win-root .dk-strip-progress .dk-mode[aria-pressed='true'] { color: var(--t-rock-red); }
+.sd-root.win-root .dk-strip-progress .dk-mode[aria-pressed='true']:not(:disabled)::after { background: var(--t-rock-red); }
+.sd-root .dk-progress-track { background: rgba(70, 48, 31, 0.22); }
+.sd-root .dk-progress-fill { background: var(--t-rock-red); }
+.sd-root .dk-progress-thumb { background: var(--t-rust); border-color: var(--t-sand-light); }
+.sd-root .dk-slider-track { background: rgba(70, 48, 31, 0.22); }
+.sd-root .dk-slider-fill { background: var(--t-rust); }
+.sd-root .dk-slider-thumb, .sd-root .dk-slider [class*='thumb'] { background: var(--t-sand-light); border: 1.5px solid var(--t-rust); }
+.sd-root .dk-strip-search { background: var(--t-sand-light); border: 1px solid var(--t-border-strong); border-radius: 999px; }
+.sd-root .dk-strip-search input { color: var(--t-ink); }
+.sd-root .dk-strip-search input::placeholder { color: var(--t-ink-faint); }
+.sd-root .dk-strip-search button { color: var(--t-ink-muted); }
+
+/* --- panes: sand, capped with rock ------------------------------------------ */
+.sd-root .dk-panes { background: transparent; }
+.sd-root .dk-divider { background: transparent; }
+.sd-root .dk-pane { background: var(--t-sand-light); border: 1px solid var(--t-border); border-radius: 10px 10px 4px 4px; overflow: hidden; box-shadow: var(--t-shadow-inset); }
+.sd-root .dk-header {
+  position: relative; color: var(--t-sand-light);
+  background: linear-gradient(180deg, var(--t-rock-red-light), var(--t-rock-red));
+  border-bottom: 1px solid var(--t-rock-shadow);
+}
+.sd-root .dk-header::before { content: ''; position: absolute; inset: 0 0 auto; height: 5px; background: var(--sedona-band); opacity: 0.9; pointer-events: none; }
+.sd-root .dk-header-title { font-family: var(--t-font); font-weight: 600; letter-spacing: 0.01em; }
+.sd-root .dk-header-sub { color: rgba(246, 241, 230, 0.8); }
+.sd-root .dk-header-btn, .sd-root .dk-header-btn svg { color: var(--t-sand-light); }
+.sd-root .dk-header-btn:hover { background: rgba(0, 0, 0, 0.12); }
+.sd-root .dk-footer { background: var(--t-sand-dark); border-top: 1px solid var(--t-border-strong); }
+.sd-root .dk-footer button { color: var(--t-ink); border-color: var(--t-border-strong); background: transparent; }
+.sd-root .dk-footer button:hover:not(:disabled) { background: var(--t-row-selected); }
+.sd-root .dk-footer button:disabled { color: var(--t-ink-faint); }
+
+/* --- room tiles: boulders --------------------------------------------------- */
+.sd-root .dk-tile {
+  position: relative; overflow: hidden; color: var(--t-ink);
+  border-radius: 22px 10px 18px 12px;
+  background: linear-gradient(158deg, var(--t-sand-light) 0%, var(--t-sand) 58%, var(--t-sand-dark) 100%);
+  border: 1px solid var(--t-border);
+  box-shadow: 0 6px 16px rgba(70, 48, 31, 0.18), var(--t-shadow-inset);
+}
+.sd-root .dk-tile:nth-child(3n + 2) { border-radius: 12px 22px 11px 20px; }
+.sd-root .dk-tile:nth-child(3n + 3) { border-radius: 18px 14px 22px 9px; }
+.sd-root .dk-tile::before { content: ''; position: absolute; inset: 0 0 auto; height: 9px; background: var(--sedona-band); opacity: 0.9; pointer-events: none; }
+.sd-root .dk-tile:hover { background: linear-gradient(158deg, #fbf6ea 0%, var(--t-sand-light) 58%, var(--t-sand) 100%); border-color: var(--t-ochre); }
+.sd-root .dk-tile[aria-pressed='true'] { background: linear-gradient(158deg, #fffaf0 0%, var(--t-sand-light) 70%); border-color: var(--t-rock-red); box-shadow: 0 10px 24px rgba(168, 63, 44, 0.26), var(--t-shadow-inset); color: var(--t-ink); }
+.sd-root .dk-tile[aria-pressed='true']::before { height: 12px; }
+.sd-root .dk-tile-now, .sd-root .dk-tile-state-win, .sd-root .dk-tile-device { color: var(--t-ink-muted); }
+.sd-root .dk-tile[aria-pressed='true'] .dk-tile-now { color: var(--t-ink-muted); }
+.sd-root .dk-tile-group, .sd-root .dk-tile-group-win, .sd-root .dk-tile-group svg { color: var(--t-rust); }
+.sd-root .dk-tile-group:hover { background: rgba(176, 102, 58, 0.12); }
+.sd-root .dk-tile-more { color: var(--t-rust); }
+
+/* --- browse and queue rows -------------------------------------------------- */
+.sd-root .dk-browse-row, .sd-root .dk-row { color: var(--t-ink); border-color: var(--t-border); }
+.sd-root .dk-browse-row:hover, .sd-root .dk-row:hover { background: var(--t-row-hover); }
+.sd-root .dk-browse-row[aria-selected='true'], .sd-root .dk-row[aria-selected='true'], .sd-root .dk-row[aria-checked='true'] { background: var(--t-row-selected); color: var(--t-ink); }
+.sd-root .dk-row[aria-current='true'] { background: var(--t-row-playing); }
+.sd-root .dk-browse-sub, .sd-root .dk-row-sub, .sd-root .dk-row-num, .sd-root .dk-row-dur { color: var(--t-ink-muted); }
+.sd-root .dk-browse-title, .sd-root .dk-row-text { color: var(--t-ink); }
+.sd-root .dk-browse-disclosure, .sd-root .dk-browse-actions, .sd-root .dk-browse-check { color: var(--t-ink-faint); }
+.sd-root .dk-browse-section { color: var(--t-rock-red); font-family: var(--t-font); }
+.sd-root .dk-browse-note, .sd-root .dk-browse-prose { color: var(--t-ink-muted); }
+.sd-root .dk-scopebar-tabs button { color: var(--t-ink-muted); }
+.sd-root .dk-scopebar-tabs button[aria-selected='true'] { color: var(--t-ink); border-bottom-color: var(--t-rock-red); }
+.sd-root .dk-queue-header, .sd-root .dk-center .dk-header { color: var(--t-sand-light); }
+
+/* --- now playing ------------------------------------------------------------- */
+.sd-root .dk-now-line { color: var(--t-ink); }
+.sd-root .dk-now-line[data-caption]::before { color: var(--t-ink-muted); }
+.sd-root .dk-now-muted { color: var(--t-ink-muted); }
+.sd-root .dk-now-source strong { color: var(--t-ink); }
+.sd-root .dk-now-source span { color: var(--t-ink-muted); }
+.sd-root .dk-now-art { background: var(--t-sand-dark); border-radius: 8px 3px 6px 4px; }
+.sd-root .dk-now-art svg { color: var(--t-ink-faint); }
+.sd-root .dk-now-rating button, .sd-root .dk-now-rating svg { color: var(--t-ink-muted); }
+
+/* --- popovers, menus, notices ------------------------------------------------- */
+.sd-root .dk-popover, .sd-root .dk-action-menu, .sd-root .dk-account-menu { background: var(--t-sand-light); color: var(--t-ink); border: 1px solid var(--t-border-strong); box-shadow: var(--t-shadow); }
+.sd-root .dk-action-menu button, .sd-root .dk-popover button { color: var(--t-ink); }
+.sd-root .dk-action-menu button:hover:not(:disabled), .sd-root .dk-popover button:hover:not(:disabled) { background: var(--t-row-selected); color: var(--t-ink); }
+.sd-root .dk-action-menu button:disabled { color: var(--t-ink-faint); }
+.sd-root .dk-popover-sep { background: var(--t-border); }
+.sd-root .dk-popover-title { color: var(--t-ink-muted); }
+.sd-root .dk-notices .dk-notice { background: var(--t-sand-light); color: var(--t-ink); border: 1px solid var(--t-border-strong); border-left: 6px solid var(--t-rock-red); box-shadow: var(--t-shadow); }
+.sd-root .dk-notice button { color: var(--t-rust); }
+
+/* --- windows and dialogs: sand panels with a rock title bar ------------------- */
+.sd-root .dk-window { background: var(--t-sand-light); color: var(--t-ink); border: 1px solid var(--t-border-strong); box-shadow: var(--t-shadow); }
+.sd-root .dk-window-title { position: relative; background: linear-gradient(180deg, var(--t-rock-red-light), var(--t-rock-red)); color: var(--t-sand-light); font-family: var(--t-font); }
+.sd-root .dk-window-title::before { content: ''; position: absolute; inset: 0 0 auto; height: 4px; background: var(--sedona-band); pointer-events: none; }
+.sd-root .dk-light-close { background: var(--t-sand-light); color: var(--t-rock-red); }
+.sd-root .dk-light-close:hover { background: var(--t-rock-shadow); color: var(--t-sand-light); }
+.sd-root .dk-window-body { color: var(--t-ink); }
+.sd-root .win-settings, .sd-root .win-about, .sd-root .win-shortcuts, .sd-root .win-savequeue, .sd-root .win-message, .sd-root .win-alarms, .sd-root .win-alarm-editor, .sd-root .win-wizard, .sd-root .win-errorlog, .sd-root .win-grouping, .sd-root .dk-confirm, .sd-root .dk-sleep, .sd-root .dk-grouping, .sd-root .dk-musicpicker, .sd-root .dk-addradio, .sd-root .dk-info, .sd-root .dk-add { color: var(--t-ink); }
+.sd-root .win-settings .dk-win-btn, .sd-root .dk-win-btn, .sd-root .win-dialog button { border-color: var(--t-border-strong); color: var(--t-ink); background: var(--t-sand-light); }
+.sd-root .dk-win-btn:hover:not(:disabled), .sd-root .win-dialog button:hover:not(:disabled) { background: var(--t-row-selected); }
+.sd-root .win-settings .win-settings-nav button[aria-selected='true'], .sd-root .dk-tabs button[aria-selected='true'] { background: var(--t-row-selected); color: var(--t-ink); }
+.sd-root a { color: var(--t-rust); }
+.sd-root :focus-visible { outline: 2px solid var(--t-rock-red); outline-offset: 1px; }
+/* The search pill takes focus as a whole: the field inside it draws no ring
+   of its own, which had left a bracket and a bar inside the pill. */
+.sd-root .dk-strip-search input:focus-visible, .sd-root .dk-strip-search input:focus { outline: none; box-shadow: none; }
+.sd-root .dk-strip-search:focus-within { box-shadow: 0 0 0 2px var(--t-rock-red); }
+
+/* --- the Mini Controller ------------------------------------------------------ */
+.sd-root .win-mini-panel, .sd-root .win-mini { background: var(--t-sand-light); color: var(--t-ink); border-color: var(--t-border-strong); }
+.sd-root .win-mini-track { color: #f6f1e6; }
+.sd-root .win-mini-artist { color: rgba(246, 241, 230, 0.85); }
+.sd-root .win-mini-shade { background: linear-gradient(180deg, transparent, rgba(47, 30, 19, 0.75)); }
+.sd-root .win-mini-transport button, .sd-root .win-mini-chrome-btn, .sd-root .win-mini-btn { color: #f6f1e6; }
+
+/* --- the Troubleshooting survey window ---------------------------------------- */
+.sd-survey-backdrop { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: rgba(47, 30, 19, 0.45); }
+.sd-root .sd-survey { width: min(960px, 94vw); height: min(720px, 90vh); display: flex; flex-direction: column; border-radius: 12px 12px 6px 6px; overflow: hidden; }
+.sd-root .sd-survey .dk-window-title { flex: none; display: flex; align-items: center; gap: 10px; height: 33px; padding: 0 10px; }
+.sd-root .sd-survey-body { flex: 1; min-height: 0; overflow: auto; background: linear-gradient(180deg, var(--t-sand-light), var(--t-sand)); }
+.sd-root .sd-ground { padding:22px 24px 60px;background-image:repeating-linear-gradient(177deg,rgba(122,53,36,.05) 0 1px,transparent 1px 7px),repeating-linear-gradient(183deg,rgba(204,154,74,.045) 0 1px,transparent 1px 11px) }
+.sd-root .sd-section { margin-bottom:30px }
+.sd-root .sd-section-head { display:flex;align-items:baseline;gap:12px;margin:0 0 15px;padding-bottom:7px;border-bottom:2px solid var(--t-border) }
+.sd-root .sd-section-head h2 { margin:0;font-family:var(--t-font);font-size:17px;font-weight:600 }
+.sd-root .sd-section-head span { font-size:12px;color:var(--t-ink-faint) }
+.sd-root .sd-section-head .sd-spacer { margin-left:auto }
+.sd-root .sd-tag { padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--t-sand-light);background:var(--t-rust);white-space:nowrap }
+.sd-root .sd-tag[data-tone=quiet] { color:var(--t-ink-muted);background:transparent;box-shadow:inset 0 0 0 1.5px var(--t-border-strong) }
+.sd-root .sd-empty { padding:44px 0;font-style:italic;text-align:center;color:var(--t-ink-faint) }
+.sd-root .sd-samples { display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--t-ink-muted) }
+.sd-root .sd-samples select { padding:4px 7px;border:1.5px solid var(--t-border-strong);border-radius:7px;background:var(--t-sand-light) }
+.sd-root .sd-survey-btn { display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:999px;font-size:12px;font-weight:600;color:var(--t-sand-light);background:var(--t-rust);box-shadow:0 2px 5px #46301f47 }
+.sd-root .sd-survey-btn:hover:not(:disabled) { background:var(--t-rock-red-light) }
+.sd-root .sd-note { margin:0 0 14px;font-size:12.5px;line-height:1.55;color:var(--t-ink-muted) }
+.sd-root .sd-notes { display:grid;gap:11px;margin-bottom:20px }
+.sd-root .sd-notes li { position:relative;padding:13px 15px 13px 20px;border-radius:14px 7px 12px 8px;background:#fffcf5c7;box-shadow:var(--t-shadow-inset),0 3px 10px #46301f21;overflow:hidden }
+.sd-root .sd-notes li:before { content:"";position:absolute;inset:0 auto 0 0;width:7px;background:linear-gradient(180deg,var(--t-rock-cap) 0 22%,var(--t-ochre) 22% 45%,var(--t-rust) 45% 68%,var(--t-rock-red) 68% 100%) }
+.sd-root .sd-notes li[data-severity=critical]:before { width:10px;background:linear-gradient(180deg,var(--t-rock-red-light),var(--t-rock-red) 55%,var(--t-rock-shadow)) }
+.sd-root .sd-notes li[data-severity=info]:before { background:linear-gradient(180deg,var(--t-sky-mid),var(--t-good)) }
+.sd-root .sd-notes h4 { margin:0 0 5px;font-family:var(--t-font);font-size:14px;font-weight:600 }
+.sd-root .sd-notes p { margin:0;font-size:12.5px;line-height:1.55;color:var(--t-ink-muted) }
+.sd-root .sd-remedy { margin-top:7px!important;font-style:italic;color:var(--t-ink-faint)!important }
+.sd-root .sd-cores-legend { display:flex;gap:16px;margin-bottom:10px;font-size:11px;color:var(--t-ink-faint) }
+.sd-root .sd-cores-legend span { display:inline-flex;align-items:center;gap:6px }
+.sd-root .sd-cores-legend i { width:16px;height:9px;border-radius:2px }
+.sd-root .sd-cores-legend i[data-band=calm] { background:var(--t-sand-dark) }
+.sd-root .sd-cores-legend i[data-band=mid] { background:var(--t-ochre) }
+.sd-root .sd-cores-legend i[data-band=tail] { background:var(--t-rock-red) }
+.sd-root .sd-cores { display:grid;gap:9px }
+.sd-root .sd-core { display:grid;grid-template-columns:176px 1fr auto;align-items:center;gap:16px;padding:11px 15px;border-radius:16px 8px 14px 9px;background:#fffcf5b3;box-shadow:var(--t-shadow-inset),0 2px 8px #46301f1c }
+.sd-root .sd-core-name strong { display:block;font-family:var(--t-font);font-size:14px;font-weight:600 }
+.sd-root .sd-core-name small { font-size:10.5px;color:var(--t-ink-faint) }
+.sd-root .sd-core-bar { position:relative;height:22px;min-width:90px;border-radius:4px;background:#7a352417;box-shadow:inset 0 0 0 1px #7a35241f }
+.sd-root .sd-core-bar[data-empty=true] { display:grid;place-items:center;font-size:11px;font-style:italic;color:var(--t-rock-red) }
+.sd-root .sd-core-bar span { position:absolute;top:3px;height:16px }
+.sd-root .sd-core-bar span[data-band=calm] { background:repeating-linear-gradient(180deg,var(--t-sand-dark) 0 3px,#c9b696 3px 6px);border-radius:3px 0 0 3px }
+.sd-root .sd-core-bar span[data-band=mid] { background:repeating-linear-gradient(180deg,var(--t-ochre) 0 3px,#bd8a3c 3px 6px) }
+.sd-root .sd-core-bar span[data-band=tail] { background:repeating-linear-gradient(180deg,var(--t-rock-red-light) 0 3px,var(--t-rock-red) 3px 6px);border-radius:0 3px 3px 0 }
+.sd-root .sd-core-stats { display:flex;gap:14px;margin:0 }
+.sd-root .sd-core-stats div { min-width:46px;text-align:right }
+.sd-root .sd-core-stats dt { font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t-ink-faint) }
+.sd-root .sd-core-stats dd { margin:1px 0 0;font-family:var(--t-mono);font-size:13px;font-variant-numeric:tabular-nums }
+.sd-root .sd-core-stats dd[data-emphasis=true] { font-weight:700 }
+.sd-root .sd-core-stats dd[data-warn=true] { color:var(--t-rock-red) }
+.sd-root .sd-core-stats em { margin-left:1px;font-size:9px;font-style:normal;color:var(--t-ink-faint) }
+.sd-root .sd-pair { flex:0 0 250px;color:var(--t-ink-muted) }
+.sd-root .sd-seam { flex:1;min-width:60px;height:7px;border-radius:999px;background:#7a35241f;overflow:hidden }
+.sd-root .sd-seam i { display:block;height:100%;background:var(--t-good) }
+.sd-root .sd-seam[data-quality=fair] i { background:var(--t-fair) }
+.sd-root .sd-seam[data-quality=poor] i { background:var(--t-poor) }
+.sd-root .sd-seam[data-quality=critical] i { background:var(--t-critical) }
+/* --- legibility on sand: the tile's now-playing line and the empty queue ------- */
+.sd-root .dk-tile-now, .sd-root .dk-tile-state-win, .sd-root .dk-tile .dk-tile-now span { color: var(--t-ink-muted); opacity: 1; }
+.sd-root .dk-tile[aria-pressed='true'] .dk-tile-now, .sd-root .dk-tile[aria-pressed='true'] .dk-tile-state-win { color: var(--t-ink-muted); }
+.sd-root .dk-empty p { color: var(--t-ink-muted); }
+.sd-root .dk-empty svg { color: var(--t-sand-dark); }
+
+/* The survey fills its window rather than keeping the old page's column. */
+.sd-root .sd-survey .sd-ground { max-width: none; width: auto; margin: 0; padding: 18px 24px 28px; min-height: 100%; }
+.sd-root .sd-survey .sd-section { max-width: none; }
+
+/* --- the Windows accent, recolored to rock and ochre --------------------------- */
+.sd-root .win-settings .win-settings-list button[aria-selected='true'],
+.sd-root .win-savequeue-list button[aria-selected='true'],
+.sd-root .dk-musicpicker-row[aria-selected='true'],
+.sd-root .dk-room-menu button:hover:not(:disabled) { background: var(--t-rust); color: var(--t-sand-light); }
+.sd-root .win-settings .dk-win-btn:hover:not(:disabled) { background: var(--t-row-selected); border-color: var(--t-rust); }
+.sd-root .dk-win-btn[data-default='true'] { border-color: var(--t-rock-red); box-shadow: inset 0 0 0 1px var(--t-rock-red); background: var(--t-sand); color: var(--t-ink); }
+.sd-root .win-savequeue-field input:focus { border-color: var(--t-rock-red); }
+.sd-root .dk-addradio-mark, .sd-root .win-wizard-mark { color: var(--t-rock-red); }
+.sd-root .win-settings, .sd-root .win-settings .win-settings-page, .sd-root .win-settings .win-settings-body { background: var(--t-sand-light); }
+.sd-root .win-settings .win-settings-list { background: var(--t-sand); }
+.sd-root .win-settings .win-settings-list button { color: var(--t-ink); }
+/* the survey heading keeps a breath between its title and its summary */
+.sd-root .sd-section-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+
+/* The chosen tile's second line, ink on sand. */
+.sd-root .dk-tile[aria-pressed='true'] .dk-tile-marquee { color: var(--t-ink-muted); }
+
+/* the Settings side column follows the dialog ground */
+.sd-root .win-settings .dk-prefs-toc { background: var(--t-sand); }
+
+/* The music pane's back chevron wears the header buttons' own color. */
+.sd-root { --t-back-arrow: currentColor; }
+
+/* --- the Windows skin's grays, all of them in the desert range ---------------------------------
+ * Wherever this sheet named no color the dialogs and a few corners of the main window kept the
+ * Windows theme's whites, grays and charcoals. They read these variables:
+ * sand for grounds and panels, a paler sand for wells, ink for text, sandstone for lines and red
+ * rock for what is chosen. The Windows rules that outranked the theme are met at their own
+ * strength. */
+.sd-root {
+  --sd-ground: var(--t-sand-light); --sd-panel: var(--t-sand); --sd-well: #fbf6ec;
+  --sd-fg: var(--t-ink); --sd-strong: var(--t-ink); --sd-quiet: var(--t-ink-muted); --sd-dim: var(--t-ink-faint);
+  --sd-line: var(--t-border-strong); --sd-rule: var(--t-sand-dark);
+  --sd-btn: var(--t-sand-light); --sd-btn-hover: var(--t-sand); --sd-accent: var(--t-rock-red);
+}
+.sd-root.win-root .win-grouping, .sd-root.win-root .win-message-body, .sd-root .dk-window-body,
+.sd-root .win-alarms, .sd-root .win-alarm-editor, .sd-root .win-errorlog, .sd-root .win-shortcuts, .sd-root .win-savequeue, .sd-root .win-about, .sd-root .dk-addradio, .sd-root .dk-add { background: var(--sd-ground); color: var(--sd-fg); }
+.sd-root.win-root .win-settings .dk-prefs-page { background: var(--sd-ground); }
+.sd-root.win-root .dk-window :is(h3, h4, h5, label, p, th, td, dt, dd, legend, .win-settings-for > span, .dk-field > span, .win-eq-loudness span, .dk-theme-actions span, .win-eq-label, .win-eq-end):not([aria-selected='true'] *) { color: var(--sd-fg); }
+.sd-root.win-root .dk-window :is(.win-about-rule, .win-shortcuts-note, .win-lib-note, .win-parental-note, .dk-theme-version, .dk-grouping-artist) { color: var(--sd-quiet); }
+.sd-root.win-root .win-grouping :is(.dk-grouping-left, .dk-grouping-right, .dk-grouping-track, .dk-grouping-list label) { color: var(--sd-fg); }
+.sd-root.win-root .win-grouping .dk-grouping-artist { color: var(--sd-quiet); }
+.sd-root.win-root .dk-window .win-shortcuts-table td { color: var(--t-rock-red); }
+/* wells */
+.sd-root .win-about-box, .sd-root .win-alarms-table, .sd-root .win-savequeue-list, .sd-root .win-shortcuts-table, .sd-root.win-root .win-settings .win-lib-table, .sd-root.win-root .win-settings .win-settings-panel,
+.sd-root .win-errorlog-body .error-log, .sd-root .dk-add-list, .sd-root.win-root .win-grouping::before { background: var(--sd-well); color: var(--sd-fg); border-color: var(--sd-line); }
+.sd-root .win-shortcuts-table th, .sd-root .win-alarms-table th, .sd-root.win-root .win-settings .win-lib-table th { background: var(--sd-panel); color: var(--sd-strong); border-color: var(--sd-rule); }
+.sd-root .win-shortcuts-table tbody tr:first-child td { background: var(--sd-panel); }
+.sd-root .win-alarms-table td, .sd-root.win-root .win-settings .win-lib-table td { border-color: var(--sd-rule); }
+.sd-root .win-savequeue-list button { color: var(--sd-fg); }
+.sd-root.win-root .win-grouping { background: var(--sd-ground); }
+.sd-root.win-root .win-grouping::after { background: var(--sd-panel); border-top-color: var(--sd-rule); }
+.sd-root.win-root .win-grouping .dk-grouping-right::after { background: var(--sd-rule); }
+.sd-root.win-root .win-grouping .dk-grouping-art { background: var(--t-dirt); }
+/* fields, pop-ups, checkboxes, radios */
+.sd-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']), textarea) { background-color: var(--sd-well); color: var(--sd-fg); border-color: var(--sd-line); }
+.sd-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select) {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%236b5340' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--sd-well);
+  color: var(--sd-fg); border-color: var(--sd-line); box-shadow: none;
+}
+.sd-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select):hover:not(:disabled) { border-color: var(--sd-accent); }
+.sd-root.win-root input[type='checkbox'], .sd-root.win-root input[type='radio'] { background-color: var(--sd-well); border-color: var(--sd-line); }
+.sd-root.win-root input[type='checkbox']:hover:not(:disabled), .sd-root.win-root input[type='radio']:hover:not(:disabled) { background-color: var(--sd-panel); border-color: var(--sd-accent); }
+.sd-root.win-root input[type='checkbox']:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 9.1'%3E%3Cpath fill='%23a83f2c' d='M9.975 1.223 4.698 9.098H4.522L0 5.193 1.277 3.522 4.255 6.088 8.333 0Z'/%3E%3C/svg%3E"); }
+.sd-root.win-root input[type='radio']:checked { background-image: radial-gradient(circle, var(--t-rock-red) 0 3px, transparent 3.5px); }
+.sd-root.win-root input[type='checkbox']:disabled, .sd-root.win-root input[type='radio']:disabled { background-color: var(--sd-panel); border-color: var(--sd-rule); }
+.sd-root.win-root .dk-timefield, .sd-root.win-root .win-alarm-time { border-color: var(--sd-line); background-color: var(--sd-well); }
+/* tabs */
+.sd-root.win-root .dk-window .dk-tabs, .sd-root .dk-window .dk-tabs { background: var(--sd-panel); border-color: var(--sd-line); }
+.sd-root.win-root .dk-window .dk-tabs button { background: var(--sd-panel); color: var(--sd-fg); border-color: var(--sd-line); }
+.sd-root.win-root .dk-window .dk-tabs button[aria-selected='true'] { background: var(--sd-ground); color: var(--sd-strong); }
+/* buttons, every corner */
+.sd-root.win-root .win-dialog-foot .dk-win-btn, .sd-root.win-root .win-settings .dk-win-btn, .sd-root.win-root .win-grouping .dk-grouping-all, .sd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn, .sd-root.win-root .dk-musicpicker .dk-grouping-actions .dk-win-btn, .sd-root.win-root .dk-window .theme-pill button {
+  background: var(--sd-btn); color: var(--sd-fg); border: 1px solid var(--sd-line); box-shadow: none;
+}
+.sd-root.win-root .win-dialog-foot .dk-win-btn:hover:not(:disabled), .sd-root.win-root .win-settings .dk-win-btn:hover:not(:disabled), .sd-root.win-root .win-grouping .dk-grouping-all:hover, .sd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn:hover { background: var(--t-row-selected, var(--sd-btn-hover)); border-color: var(--t-rust); }
+.sd-root.win-root .win-dialog-foot .dk-win-btn[data-default='true'], .sd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn[data-default='true'] { border-color: var(--sd-accent); box-shadow: inset 0 0 0 1px var(--sd-accent); }
+.sd-root.win-root .dk-win-btn:disabled, .sd-root.win-root .win-dialog-foot .dk-win-btn:disabled, .sd-root.win-root .win-settings .dk-win-btn:disabled { background: var(--sd-panel); color: var(--sd-dim); border-color: var(--sd-rule); }
+.sd-root.win-root .win-dialog-foot, .sd-root.win-root .win-grouping .dk-grouping-actions, .sd-root.win-root .dk-musicpicker .dk-grouping-actions { background: var(--sd-panel); border-top: 1px solid var(--sd-rule); box-shadow: none; }
+/* Add Music Services */
+.sd-root .dk-window .dk-add-row { color: var(--sd-fg); }
+.sd-root .dk-window .dk-add-row:hover { background: var(--t-rock-red); color: var(--t-sand-light); }
+.sd-root .dk-window .dk-add-row-off, .sd-root .dk-window .dk-add-row-off:hover { background: transparent; color: var(--sd-dim); }
+.sd-root .dk-window .dk-add-auth, .sd-root .dk-window .dk-add-row-off:hover .dk-add-auth { color: var(--sd-quiet); }
+.sd-root .dk-window .dk-add-row:hover .dk-add-auth { color: var(--t-sand); }
+.sd-root .dk-window .dk-add-mono { background: var(--t-dirt); color: var(--t-sand-light); }
+/* the Sleep Timer popover: dark earth in place of the Windows charcoal */
+.sd-root.win-root .dk-sleep-window { background: var(--t-dirt-dark); color: var(--t-sand-light); }
+.sd-root.win-root .dk-sleep-window::after { border-top-color: var(--t-dirt-dark); }
+.sd-root.win-root .dk-sleep-window :is(.dk-sleep, .dk-sleep-title, .dk-sleep-choose) { color: var(--t-sand-light); }
+.sd-root.win-root .dk-sleep-window .dk-sleep, .sd-root.win-root .dk-sleep-window .dk-window-body { background: transparent; }  /* the dialogs' sand ground had covered the earth */
+.sd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn { background: transparent; color: var(--t-sand-light); border-color: var(--t-dirt); }
+.sd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover { background: var(--t-dirt); }
+.sd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: var(--t-rock-red); color: var(--t-sand-light); border-color: var(--t-rock-red); }
+/* the main window: the theme and system pickers, the menu bar's titles, glyph discs, chevrons */
+.sd-root.win-root :is(.win-titlebar, .win-menubar-theme, .dk-strip-select) select { background: var(--sd-well); color: var(--sd-fg); border: 1px solid var(--sd-line); }
+.sd-root.win-root .win-menubar-title { color: var(--t-sand-light); }
+.sd-root.win-root .dk-browse-art.dk-browse-glyph { background: var(--sd-panel); color: var(--sd-strong); }
+.sd-root.win-root .dk-browse-glyph svg { background: transparent; color: var(--sd-strong); }
+.sd-root.win-root .dk-browse-disclosure, .sd-root.win-root .dk-browse-chevron { background-color: var(--sd-dim); }
+/* Now Playing's (i): the Windows white disc held a sand glyph, barely there on it. */
+.sd-root.win-root .dk-now-info-header svg { background: var(--t-sand-light); color: var(--t-rock-red); }
+/* The Services table's names wore the Windows link blue; Sedona's links are its open-sky blue. */
+.sd-root.win-root .win-settings .win-svc-name { color: var(--t-good); }
+/* The popover's title and prompt keep the sand ink over the earth (the dialogs' ink rule above
+   would have darkened them). */
+.sd-root.win-root.win-root .dk-window.dk-sleep-window :is(h3, h4, p, .dk-sleep-title, .dk-sleep-choose) { color: var(--t-sand-light); }
+/* The Sonos Upgrade Advisor reads --t-bg-raised, which Sedona does not publish, and fell back
+   to a charcoal under Sedona's ink: dark on dark. It is a sand window. */
+.sd-root .s2-dialog { background: var(--sd-ground); color: var(--sd-fg); border-color: var(--sd-line); }
+.sd-root .s2-dialog-head { border-bottom-color: var(--sd-rule); }
+.sd-root .s2-dialog-close { color: var(--sd-quiet); }
+.sd-root .s2-dialog-close:hover { background: var(--sd-panel); color: var(--sd-fg); }

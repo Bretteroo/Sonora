@@ -1,0 +1,71 @@
+name: Something isn't working
+description: Report a problem with Sonora.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. The more of the form you fill in, the faster it can be found and fixed.
+  - type: input
+    id: version
+    attributes:
+      label: Sonora version
+      description: Shown in the About window (in most themes, under Help or Settings).
+      placeholder: e.g. 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Theme
+      description: The theme you were using when it happened.
+      options:
+        - Coromar
+        - Sonos Windows Desktop
+        - Sonos macOS Desktop
+        - Sonos Web
+        - Sonofuture
+        - Liquid Glass
+        - Material Girl
+        - Outrun
+        - Sedona
+        - Hot Dog Stand
+        - Solarized
+        - Hi-Fi
+        - An installed theme (name it below)
+    validations:
+      required: true
+  - type: dropdown
+    id: system
+    attributes:
+      label: System
+      description: Which kind of Sonos system the problem happened on.
+      options:
+        - S1
+        - S2
+        - Both S1 and S2
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: service
+    attributes:
+      label: Music service
+      description: The music service involved, if any.
+      placeholder: e.g. Spotify, TuneIn, Sonos Radio
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected to happen
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened
+      description: |
+        Screenshots help a great deal: drag them into this box to attach them. If the official Sonos app does something different, a screenshot of that is just as useful.
+    validations:
+      required: true

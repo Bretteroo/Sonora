@@ -1,0 +1,1529 @@
+/* The layout renderer's dialog styles, for an installed package's layout.
+   Scoped to :root[data-layout]; no built-in theme reads this file. */
+
+/* Sonos macOS Desktop theme.
+ *
+ * Geometry comes from the S1 desktop controller's own interface files: a
+ * 1006x750 main view split into an 80px transport strip and three panes of
+ * 264, 322 and 418 points; 32px header and footer bars; 35px device rows in
+ * the room tiles; 42px queue rows; 50px browse rows with 40px art at x=8; a
+ * 172x21 group-volume slider at x=57; transport buttons of 34/34/44/34/34 at
+ * offsets 11/55/99/154/198 in a 242px cluster; a 212x25 search field on the
+ * right. Colors are sampled from the tiles the application paints with.
+ * The Mac build's system menu bar and window title bar sit above it. */
+
+/* Zero-specificity reset, so a class on a button still wins its padding. */
+
+/* --- menu bar and title bar (Mac chrome) ----------------------------------- */
+/* The system menu bar: 22px, light, 13px titles with 10px side padding, the
+   application title in bold. Menus are 13px in a rounded light panel with the
+   system blue highlight. The window's title bar is the unified 22px kind with
+   the three controls at the left and the title "Sonos" centered. */
+
+/* An item that opens a submenu ends in the arrow the system draws. */
+
+:where(:root[data-layout]) .dk-lights {
+  position: absolute;
+  left: 8px;
+  top: 5px;
+  display: flex;
+  gap: 8px;
+}
+
+:where(:root[data-layout]) .dk-lights span,
+:where(:root[data-layout]) .dk-lights button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  padding: 0;
+}
+
+:where(:root[data-layout]) .dk-light-close { background: #ff5f57; }
+:where(:root[data-layout]) .dk-light-min { background: #febc2e; }
+:where(:root[data-layout]) .dk-light-zoom { background: #28c840; }
+
+:where(:root[data-layout]) .dk-lights[data-inactive='true'] span {
+  background: #d9d9d9;
+}
+
+/* --- transport strip ------------------------------------------------------- */
+
+/* Five buttons at offsets 11/55/99/154/198 in a 242px cluster, 8px down. */
+
+/* The 448x22 progress row sits along the bottom of the strip. */
+
+/* The button sits on the pill and takes the pill's own color: both desktop
+   apps have a white pill, so painting it white here looked right in them and
+   left a white square on any theme that repaints the pill (Outrun, reported
+   2026-09-15). */
+
+/* --- panes ------------------------------------------------------------------ */
+
+/* 32px header: navy gradient, a black rule and a lighter line below it. */
+
+/* The search results' scope bar, standing where the header would be: a back
+   button and a tab per category the provider searches. */
+
+/* With both systems on show, the sources belonging to the system the chosen
+   room is not on are dimmed and take no clicks (they cannot play there). */
+/* Collapsed with the queue's own movement: a 260ms ease on the row block's
+   grid track, so the list slides shut rather than blinking out. */
+/* The S1 / S2 system headers collapse their section on a click, so the
+   pointer says so (asked for 2026-09-08). */
+
+/* A built-in source's glyph beside the header title (white disc, like its row). */
+
+/* --- rooms ------------------------------------------------------------------ */
+
+/* A tile: 25px top cap fading from the edge color into the fill, 26px
+   bottom cap, 7px/6px side radii. */
+
+/* --- now playing ----------------------------------------------------------- */
+
+/* The app's explicit badge sits 5px after the title and 5px before whatever
+   follows, its baseline one pixel above the text's
+   (nowplaying/metadatacontrol.xaml: Width="11" Margin="5,0,5,1"). */
+
+/* --- queue ------------------------------------------------------------------ */
+
+/* --- browse ----------------------------------------------------------------- */
+
+/* The app paints this list with two backgrounds only: the row, and the hover
+   tint. That hover tint also covers the row whose menu is open and the row
+   last browsed into, which stays lit after you come back (#1a1a1a / #262626
+   on the S1 app's source list, 2026-09-11). */
+
+/* The caret goes from dim gray to solid white while its own menu is open
+   (bttn_dd_pressed, measured on the same row). */
+
+/* Service logos arrive already drawn as circles on their own color, so the
+   white disc is dropped behind them: painting a second circle under the first
+   leaves a pale, stepped rim where the two edges' anti-aliasing overlaps. */
+
+/* The words a search matched lean, in the app's bold italic: every Pandora
+   result for "the cure" wears it over the part that matched and stands
+   upright over the rest (measured in the S1 app 2026-09-20). */
+/* The second line is marked too, for the skins that lean it there; the rest
+   draw it upright. */
+
+/* An empty container's one line. The app centers it across the pane and sets
+   it about 128px below the header rather than in the middle of the height
+   (measured 2026-09-14 on a 665px pane). */
+
+/* The "link this service in Sonora" prompt shown when a household service has
+   no Sonora account yet. */
+
+/* Action popover: the dark #262626 panel with 15px corners. */
+:where(:root[data-layout]) .dk-popover {
+  position: fixed;
+  z-index: 40;
+  min-width: 200px;
+  padding: 6px 0;
+  background: var(--t-surface);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+  color: var(--t-fg);
+}
+
+:where(:root[data-layout]) .dk-popover button {
+  display: block;
+  width: 100%;
+  padding: 7px 16px;
+  text-align: left;
+  font-size: 13px;
+}
+
+:where(:root[data-layout]) .dk-popover button:hover:not(:disabled) {
+  background: var(--t-row-selected);
+}
+
+:where(:root[data-layout]) .dk-popover button:disabled {
+  color: var(--t-fg-dim);
+}
+
+/* --- slider ----------------------------------------------------------------- */
+
+/* --- dialogs (Mac windows over the dark application) ------------------------ */
+
+:where(:root[data-layout]) .dk-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+:where(:root[data-layout]) .dk-window {
+  display: flex;
+  flex-direction: column;
+  background: #ececec;
+  color: #262626;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25), 0 22px 60px rgba(0, 0, 0, 0.55);
+  font-size: 13px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  overflow: hidden;
+}
+
+:where(:root[data-layout]) .dk-window-title {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  background: linear-gradient(#ececec, #d6d6d6);
+  border-bottom: 1px solid #b3b3b3;
+  color: #4d4d4d;
+  font-size: 13px;
+}
+
+:where(:root[data-layout]) .dk-window-title span {
+  flex: 1;
+  text-align: center;
+}
+
+:where(:root[data-layout]) .dk-window-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+/* Preferences: 800x500 with a 180px table of contents. */
+:where(:root[data-layout]) .dk-prefs {
+  width: 800px;
+  height: 500px;
+}
+
+:where(:root[data-layout]) .dk-prefs-toc {
+  width: 180px;
+  flex: none;
+  border-right: 1px solid #c8c8c8;
+  background: #f5f5f5;
+  overflow-y: auto;
+}
+
+:where(:root[data-layout]) .dk-prefs-toc button {
+  display: block;
+  width: 100%;
+  padding: 4px 12px;
+  text-align: left;
+  font-size: 13px;
+  color: #262626;
+}
+
+:where(:root[data-layout]) .dk-prefs-toc button[aria-selected='true'] {
+  background: #2f6fe3;
+  color: #ffffff;
+}
+
+:where(:root[data-layout]) .dk-prefs-toc button:hover:not([aria-selected='true']) {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+:where(:root[data-layout]) .dk-prefs-toc h4 {
+  margin: 12px 12px 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+:where(:root[data-layout]) .dk-prefs-page {
+  flex: 1;
+  min-width: 0;
+  padding: 16px 20px;
+  overflow-y: auto;
+  color: #262626;
+}
+
+:where(:root[data-layout]) .dk-prefs-page h3 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #262626;
+}
+
+:where(:root[data-layout]) .dk-prefs-page p {
+  margin: 0 0 10px;
+  line-height: 1.45;
+}
+
+/* Mac segmented tabs. */
+:where(:root[data-layout]) .dk-tabs {
+  display: inline-flex;
+  margin: 0 0 16px;
+  border: 1px solid #b5b5b5;
+  border-radius: 5px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+:where(:root[data-layout]) .dk-tabs button {
+  padding: 3px 14px;
+  font-size: 13px;
+  color: #262626;
+  border-left: 1px solid #b5b5b5;
+}
+
+:where(:root[data-layout]) .dk-tabs button:first-child {
+  border-left: 0;
+}
+
+:where(:root[data-layout]) .dk-tabs button[aria-selected='true'] {
+  background: #6f6f6f;
+  color: #ffffff;
+}
+
+/* The EQ tab: bold 12px captions in a 180px column, 240px sliders at x=192
+   with 11px scale labels, Loudness below, Reset centered. */
+:where(:root[data-layout]) .dk-eq {
+  position: relative;
+  height: 320px;
+}
+
+:where(:root[data-layout]) .dk-eq-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 45px;
+}
+
+:where(:root[data-layout]) .dk-eq-row label {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 180px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #242424;
+}
+
+:where(:root[data-layout]) .dk-eq-row .dk-eq-slider {
+  position: absolute;
+  left: 192px;
+  top: 4px;
+  width: 240px;
+}
+
+:where(:root[data-layout]) .dk-eq-row .dk-eq-min,
+:where(:root[data-layout]) .dk-eq-row .dk-eq-max {
+  position: absolute;
+  top: 30px;
+  font-size: 11px;
+  color: #242424;
+}
+
+:where(:root[data-layout]) .dk-eq-row .dk-eq-min { left: 191px; }
+:where(:root[data-layout]) .dk-eq-row .dk-eq-max { left: 330px; width: 103px; text-align: right; }
+
+:where(:root[data-layout]) .dk-eq-row .dk-eq-value {
+  position: absolute;
+  left: 444px;
+  top: 8px;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+
+:where(:root[data-layout]) .dk-eq-loudness {
+  position: absolute;
+  left: 192px;
+  top: 172px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+:where(:root[data-layout]) .dk-eq-reset {
+  position: absolute;
+  left: 242px;
+  top: 220px;
+  width: 194px;
+}
+
+/* Mac push button: white with a faint gradient, 5px corners, 13px text. */
+/* The default (blue) button keeps its blue on hover, a touch darker, the way
+   the Mac and Windows apps do. Without this the generic gray hover above wins
+   and leaves white text on gray. */
+
+:where(:root[data-layout]) .dk-win-input,
+:where(:root[data-layout]) .dk-prefs-page select {
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid #b5b5b5;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #262626;
+  font: inherit;
+}
+
+:where(:root[data-layout]) .dk-prefs-page input[type='range'] {
+  width: 240px;
+}
+
+:where(:root[data-layout]) .dk-about {
+  width: 520px;
+  padding: 16px 20px;
+  color: #262626;
+}
+
+:where(:root[data-layout]) .dk-about h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+:where(:root[data-layout]) .dk-about table {
+  width: 100%;
+  /* Fixed layout so the S1 and S2 tables share the same column widths. */
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+:where(:root[data-layout]) .dk-about td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+:where(:root[data-layout]) .dk-about td,
+:where(:root[data-layout]) .dk-about th {
+  padding: 3px 6px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: 400;
+}
+
+:where(:root[data-layout]) .dk-about th {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+:where(:root[data-layout]) .dk-shortcuts {
+  width: 420px;
+  padding: 12px 20px 16px;
+  color: #262626;
+}
+
+:where(:root[data-layout]) .dk-shortcuts table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+:where(:root[data-layout]) .dk-shortcuts td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+:where(:root[data-layout]) .dk-shortcuts kbd {
+  font-family: inherit;
+  background: #ffffff;
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+  padding: 0 6px;
+}
+
+/* Group Rooms: 480x372 with a 220x206 list at x=233. */
+:where(:root[data-layout]) .dk-grouping {
+  width: 480px;
+  height: 372px;
+  position: relative;
+  color: #262626;
+}
+
+:where(:root[data-layout]) .dk-grouping h4 {
+  position: absolute;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #484848;
+}
+
+:where(:root[data-layout]) .dk-grouping .dk-grouping-left { left: 28px; top: 30px; width: 185px; }
+:where(:root[data-layout]) .dk-grouping .dk-grouping-right { left: 235px; top: 30px; width: 217px; }
+
+:where(:root[data-layout]) .dk-grouping-art {
+  position: absolute;
+  left: 58px;
+  top: 57px;
+  width: 120px;
+  height: 120px;
+  background: #d8d8d8;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+:where(:root[data-layout]) .dk-grouping-art img { width: 100%; height: 100%; object-fit: cover; }
+:where(:root[data-layout]) .dk-grouping-art svg { width: 40px; height: 40px; color: #8a8a8a; }
+
+:where(:root[data-layout]) .dk-grouping-track {
+  position: absolute;
+  left: 28px;
+  top: 187px;
+  width: 185px;
+  font-size: 12px;
+  color: #484848;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:where(:root[data-layout]) .dk-grouping-artist {
+  position: absolute;
+  left: 28px;
+  top: 204px;
+  width: 185px;
+  font-size: 12px;
+  color: #848484;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:where(:root[data-layout]) .dk-grouping-list {
+  position: absolute;
+  left: 233px;
+  top: 57px;
+  width: 220px;
+  height: 206px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+}
+
+:where(:root[data-layout]) .dk-grouping-list label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+:where(:root[data-layout]) .dk-grouping-all {
+  position: absolute;
+  left: 93px;
+  top: 276px;
+  width: 293px;
+}
+
+/* Notices, in the application's own dark popover style. */
+
+/* Add Music Services: a Mac list of the catalog, then the code to enter. */
+:where(:root[data-layout]) .dk-add {
+  width: 480px;
+  min-height: 372px;
+  padding: 16px 20px;
+  color: #262626;
+}
+
+:where(:root[data-layout]) .dk-add-intro {
+  margin: 0 0 10px;
+}
+
+:where(:root[data-layout]) .dk-add-list {
+  height: 280px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+}
+
+:where(:root[data-layout]) .dk-add-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  text-align: left;
+  color: #262626;
+}
+
+:where(:root[data-layout]) .dk-add-row:hover {
+  background: #2f6fe3;
+  color: #ffffff;
+}
+
+/* A service the provider will not sign in from Sonora: shown, but grayed and
+   not selectable. */
+:where(:root[data-layout]) .dk-add-row-off {
+  opacity: 0.4;
+  cursor: default;
+}
+:where(:root[data-layout]) .dk-add-row-off:hover {
+  background: transparent;
+  color: #262626;
+}
+:where(:root[data-layout]) .dk-add-row-off:hover .dk-add-auth {
+  color: var(--t-fg-muted, #8a8a8a);
+}
+
+:where(:root[data-layout]) .dk-add-row:hover .dk-add-auth {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+:where(:root[data-layout]) .dk-add-mono {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #262626;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+:where(:root[data-layout]) .dk-add-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:where(:root[data-layout]) .dk-add-auth {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+:where(:root[data-layout]) .dk-add-flow h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+
+:where(:root[data-layout]) .dk-add-flow p {
+  margin: 0 0 10px;
+  line-height: 1.45;
+  /* A sign-in address is one long word: Libby's ran off the dialog's edge
+     (2026-09-29). It breaks where it must. */
+  overflow-wrap: anywhere;
+}
+
+:where(:root[data-layout]) .dk-add-code {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-align: center;
+  padding: 10px 0;
+  user-select: text;
+}
+
+/* Parental Controls, the Windows tab's arrangement in this window's dress:
+   a paragraph, then two 260px buttons centered under it, 10 and 20 apart. */
+:where(:root[data-layout]) .dk-parental-body {
+  margin: 0 0 12px;
+}
+
+:where(:root[data-layout]) .dk-parental-btn {
+  display: block;
+  width: 260px;
+  max-width: 100%;
+  margin: 10px auto 0;
+}
+
+:where(:root[data-layout]) .dk-parental-btn.pc-more {
+  margin-top: 20px;
+}
+
+:where(:root[data-layout]) .dk-parental-note {
+  margin: 10px 0 0;
+  text-align: center;
+  color: var(--t-fg-muted, #6b6b6b);
+}
+
+:where(:root[data-layout]) .dk-parental-picker {
+  margin: 0 0 12px;
+}
+
+:where(:root[data-layout]) .dk-add-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+/* Selectors in the strip, sitting just left of the 212px search box: a
+   development-only theme switcher and the S1/S2 system toggle. */
+
+/* The development-only theme switcher at the end of the menu bar, past Help.
+   Pushed to the far end of the row and drawn in the bar's own colors, so it
+   reads as part of the chrome rather than as a control the app has. */
+
+/* "S1" / "S2" header above each system's music sources. */
+
+/* A real service logo in the add list, when one is available; falls back to
+   the lettered monogram otherwise. */
+:where(:root[data-layout]) .dk-add-logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex: none;
+  object-fit: cover;
+}
+
+/* System subheader in the Preferences room list. */
+
+/* Loading feedback in the Add Music Services flow. */
+:where(:root[data-layout]) .dk-add-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: #444;
+}
+
+:where(:root[data-layout]) .dk-spinner {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  border-top-color: #2f6fe3;
+  border-radius: 50%;
+  animation: dk-spin--layout 0.8s linear infinite;
+}
+
+@keyframes dk-spin--layout { to { transform: rotate(360deg); } }
+
+/* Blocking overlay, per main/busyskin.xaml: the window dims under #000 at
+   50%, and a transient-message box (280-410 wide, 50 tall at least) holds a
+   28px spinner 10px above the message, its 12px progress bar and Cancel
+   10px below. */
+
+/* "Add Music Services" closes the source list of the system the chosen room
+   is on: a top rule and a little breathing room set it off from the last
+   service above it. */
+
+
+/* Service Settings: a selectable list, as the application's pane is. */
+
+/* Checkboxes on the light dialogs: render as the Mac/Windows do — a white box
+   with a gray border unchecked, blue when checked — rather than the near-black
+   the dark color-scheme gives them. Disabled rows dim, not just go inert. */
+/* Dialogs are light panels on a dark app; every native control in them must
+   draw in the light scheme, or Firefox paints them near-black. */
+:where(:root[data-layout]) .dk-window input, :where(:root[data-layout]) .dk-window select, :where(:root[data-layout]) .dk-window textarea, :where(:root[data-layout]) .dk-window button { color-scheme: light; }
+:where(:root[data-layout]) .dk-window input[type="date"], :where(:root[data-layout]) .dk-window input[type="time"], :where(:root[data-layout]) .dk-window input[type="text"] {
+  background: #ffffff; color: #262626; border: 1px solid #b8b8b8; border-radius: 4px; padding: 2px 6px; font: inherit;
+}
+
+/* Inline "add it from the other system's services" link in the linked message. */
+
+/* Caution mark on service rows, and beside the browse-pane explanations. */
+
+/* Date and Time Settings pane. */
+:where(:root[data-layout]) .dk-time { border: 0; padding: 0; margin: 0; min-width: 0; }
+:where(:root[data-layout]) .dk-time .dk-field select { max-width: 420px; }
+:where(:root[data-layout]) .dk-time .dk-check { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Sleep Timer and Alarms dialogs. */
+:where(:root[data-layout]) .dk-sleep, :where(:root[data-layout]) .dk-alarms { padding: 16px 20px; color: #262626; min-width: 360px; }
+:where(:root[data-layout]) .dk-sleep-choices { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; }
+:where(:root[data-layout]) .dk-sleep-choices .dk-win-btn[aria-pressed="true"] { background: #d6d6d6; }
+:where(:root[data-layout]) .dk-alarms table { border-collapse: collapse; width: 100%; margin-bottom: 10px; }
+:where(:root[data-layout]) .dk-alarms th, :where(:root[data-layout]) .dk-alarms td { text-align: left; padding: 4px 8px; border-bottom: 1px solid #e0e0e0; font-weight: 400; }
+:where(:root[data-layout]) .dk-alarms th { color: rgba(0,0,0,0.5); }
+
+/* The room after "Now Playing": hidden here, shown by the Windows and Mac
+   shells (both apps print it -- "Now Playing (<room>)", 2026-09-15). */
+
+/* The account dropdown on a root row is always shown -- the app pins its caret
+   on without hover whenever the row's actions include a selectable one, which
+   is exactly the account picker (the S1 app's Spotify row, 2026-09-11). The
+   selector has to out-weigh the hover rule for carets further down. */
+/* An account or scope in use is marked by its tick, not by weight. */
+:where(:root[data-layout]) .dk-popover button[aria-checked='true'] { font-weight: 400; }
+
+/* The tile's group badge: the Mac glyph by default, the Windows speaker
+   outline when that theme asks for it. */
+
+/* Title-bar app icon: Windows chrome only. */
+:where(:root[data-layout]) .dk-window-icon { display: none; }
+
+/* Group Rooms footer buttons (were inline). */
+:where(:root[data-layout]) .dk-grouping-actions { position: absolute; right: 20px; bottom: 40px; display: flex; gap: 8px; }
+/* Windows-only details on shared markup, hidden here. */
+/* A service playlist the account only follows: shown, not to be picked. */
+:where(:root[data-layout]) .dk-sleep-title, :where(:root[data-layout]) .dk-sleep-choose { display: none; }
+
+/* A row's caret shows on hover (and keyboard focus), as the app's does. */
+
+/* Windows-app details on the center pane, hidden until that theme shows them. */
+/* The TuneIn wordmark under the art is a Windows-app detail, like the rest. */
+/* The reserved-but-empty chevron slot is the Windows app's own layout: the
+   Mac-shaped themes keep their tighter right edge. */
+
+/* The tile's state glyph is not a control. */
+
+/* Info & Options page in the browse pane (Windows theme; the Mac keeps its window). */
+
+/* Group volume popover under the strip's volume control. */
+
+/* Search scope badge in the pill, and its menu under the strip. */
+/* The scope badge as the app's: the logo in a ringed circle, a small caret
+   to its right, then the placeholder. */
+/* As tall as its list, as the apps' menu is, down to the window's foot: at
+   360px it hid the last service (TuneIn, with 17 scopes) and the recent
+   searches behind a scroll (2026-10-02). */
+/* The current scope is marked by its tick alone, as the app's menu does. */
+/* The current scope carries a tick in a 19px column ahead of the logo
+   (searchcontextmenustyles.xaml's MenuItemIconColumnGroup + capture), and
+   what was typed before follows under a "Recent Searches" heading. */
+
+/* Choose Music, when grouping merges rooms that are each playing something
+   (the apps' GroupingMusicPicker). */
+:where(:root[data-layout]) .dk-musicpicker { position: relative; display: flex; flex-direction: column; gap: 10px; padding: 16px; min-width: 320px; }
+:where(:root[data-layout]) .dk-musicpicker h4 { margin: 0; font-size: 13px; }
+:where(:root[data-layout]) .dk-musicpicker-list { max-height: 220px; overflow: auto; border: 1px solid var(--t-border); border-radius: 4px; }
+:where(:root[data-layout]) .dk-musicpicker-row { display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 8px; cursor: pointer; }
+:where(:root[data-layout]) .dk-musicpicker-row[aria-selected='true'] { background: var(--t-row-hover); }
+:where(:root[data-layout]) .dk-musicpicker-art { flex: none; width: 40px; height: 40px; overflow: hidden; }
+:where(:root[data-layout]) .dk-musicpicker-text { min-width: 0; }
+:where(:root[data-layout]) .dk-musicpicker-title, :where(:root[data-layout]) .dk-musicpicker-sub { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:where(:root[data-layout]) .dk-musicpicker-sub { color: var(--t-fg-muted); font-size: 11px; }
+
+/* Transient message over the window (the app's TransientMessagePopover). */
+
+/* The badge is not the pill's magnifier button: lay its logo and caret side by side. */
+
+/* Page slides in the browse pane, as the app's BrowsePanel animates them:
+   350ms, exponential ease in-out, the new list from the right (forward) or
+   the left (back) while a static copy of the old one leaves the other way. */
+
+/* Sonos Favorites whose service has left the system: grayed, with the app's
+   missing-service mark in place of art. The rename dialog's field. */
+
+/* A row the service itself refuses -- Mixcloud's subscriber-only shows, a
+   track outside the plan. Both S1 apps dim the title, leave the second line
+   at its usual gray, and draw a slashed circle in place of the cover: the
+   library substitutes SCALBUMART_RESTRICTED for the art, so the picture the
+   service sent never appears. Each skin sets the grays its own app ships. */
+
+/* The explicit badge after a title. The app lays the row's first line out as
+   a two-column grid -- title with Margin="0,0,5,0", then an 11x11 image --
+   so the mark sits 5px past the text and centered on it. */
+
+/* Album page rows and numbered tracks; the per-row checkbox shows on hover
+   or while ticked, and a ticked row keeps the selected shade. */
+
+:where(:root[data-layout]) .dk-addradio-body { padding: 16px 20px; }
+:where(:root[data-layout]) .dk-addradio-field { display: block; margin-top: 12px; position: relative; }
+:where(:root[data-layout]) .dk-addradio-field span { display: block; margin-bottom: 4px; }
+:where(:root[data-layout]) .dk-addradio-field input { width: 100%; box-sizing: border-box; }
+:where(:root[data-layout]) .dk-addradio-mark { position: absolute; right: -14px; bottom: 4px; color: #4a90d9; font-style: normal; font-weight: 700; }
+:where(:root[data-layout]) .dk-addradio-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; }
+
+/* My Radio Stations: the app's antenna mark for stations without art, and
+   the "Add New Radio Station" row pinned above the footer. */
+
+/* Queue drag: rows slide to open the landing slot, the dragged row dims, a
+   50px copy of its art rides with the pointer. */
+
+:where(:root[data-layout]) .dk-room-extras { border: 0; padding: 0; margin: 0; min-width: 0; }
+:where(:root[data-layout]) .dk-room-extras .dk-check { display: flex; align-items: center; gap: 6px; }
+
+/* The system picker in the Rooms header, pushed to its right edge. */
+
+/* A service's Description page: its own prose, as the app shows it. */
+
+/* Confirm's body and button strip, formerly inline styles that no theme
+   could override. */
+:where(:root[data-layout]) .dk-confirm { width: 380px; padding: 16px; font-size: 12px; }
+:where(:root[data-layout]) .dk-confirm p { margin: 0; }
+:where(:root[data-layout]) .dk-confirm-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+
+/* The swirl beside a share that is still being mounted. */
+:where(:root[data-layout]) .dk-lib-swirl { vertical-align: -2px; margin-right: 4px; }
+
+/* The theme picker's still: a medium preview of the theme in the dropdown,
+   with the button that actually switches to it. The picture is 640x400 and
+   drawn at half that, so it stays sharp on a dense display. */
+/* Install theme... and Delete theme at the left, Apply at the right, across the
+   still's width (user's arrangement, 2026-09-14). */
+
+/* A row dragged in from the music pane: the list says it will take it. */
+
+/* The still and what the theme is, side by side: picture left, name, version,
+   description and Apply to its right (user's arrangement, 2026-09-15). */
+/* The still beside what the theme is, until there is no room for both: then
+   `.theme-about` (flex-basis 200px) drops below the still rather than being
+   squeezed into it. Without the wrap the name, version and description came
+   out as a 5px column running off the right edge of a 390px screen, which is
+   what the settings window is on a phone. */
+/* Installing and deleting are their own matter, under their own heading. */
+
+/* The connection overlay (ConnectionOverlay.jsx), from
+   main/connectionerrorsoverlay.xaml and the running Windows app: #0A0A0A
+   over every pane, the wordmark at the top, then a 290px band centring a
+   364px column of 14px white text; the transport strip above stays drawn. */
+/* The replicas wear their app's own ground -- #0A0A0A in Windows, the
+   panes' #1A1A1A on the Mac, whose lines are 13px (both apps seen with
+   their VM's link cut, 2026-09-22) -- and Sonora's skins their theme's. */
+
+
+/* The Windows app's Now Playing marquee (lib/marquee.jsx). At rest the line
+   is cut with an ellipsis 5px short of its edge (PART_TruncatedMetadataProperty
+   Margin="0,0,5,0"); while its turn runs, the whole text rides over it with
+   25px after its end (PART_MetadataProperty Margin="0,0,25,0"). */
+/* The Mac app's labels: the cut one fills the line, the whole one has
+   nothing after it (SAMarqueeView). */
+
+/* The search box's clear button, which the Windows and Mac shells draw
+   (window-chrome.css, mac.css); any other shell leaves it out. */
+
+/* Where a track dragged within a Sonos Playlist will land: a rule over the
+   row it would go before, or under the last. */
+
+/* A rating the service gives no way to undo (AccuRadio's lit star): lit,
+   and not pressable. */
+/* Windows chrome over the shared desktop content styles (desktop.css is
+   imported first). Only the window frame is restyled: a light title bar with
+   the controls on the right, a classic menu bar, and Segoe UI throughout. */
+
+/* Title bar: icon and title on the left, window controls on the right. */
+
+/* Classic Windows menu bar under the title bar. */
+
+/* Dialogs: the shared Window component draws a Mac title bar (centered title,
+   traffic lights). Under Windows chrome it gets square corners, a light title
+   bar with the title on the left, and a single close button on the right. */
+
+/* ---- Fidelity pass: the decompiled Windows app (s1win-xaml) checked against
+   a 1667x859 capture of the real client, maximized
+   (sonos-apps/s1win-screens/main-window.png). Where the two disagree the
+   capture wins; several XAML numbers were read without knowing which element
+   they belonged to. Measured: 23px light title bar; 22px dark menu row; flat
+   #0a0a0a transport 83 tall with a 5px gap below; panels 5px in from the
+   edges with 5px splitters; 32px headers over a 1px black rule; Rooms tiles
+   65 tall on an 81 pitch, 18px below the header, 4px corners, white when
+   selected; Now Playing 239 tall with 150px art at 16,16 and gray 11px
+   captions over 12px values; browse rows 48 tall with 30px icons 18px in;
+   31px footers under a 1px rule with 1px dividers between the buttons. */
+/* The caption buttons as Windows 11 draws them on the app (measured 2026-09-14
+   at 100%): three 45x21 buttons from the top of the 23px bar, 1px apart, 2px
+   short of the right edge, a 10px glyph centered in each. Hover fills the
+   whole button; pressing it fills a shade lighter. */
+/* Windows itself sets the square and the X one pixel further left than the
+   line (1443+17 and 1489+17 against 1397+18 on the app's bar). */
+
+/* Menus as measured in the app (mainmenustyles.xaml + captures, 2026-09-05):
+   a title's gray box (#5d5d5d to #424242) is inset 3px each side, starts 6px
+   below the bar's top and runs 1px into the dropdown; titles are #cccccc,
+   #f5f5f5 when lit. The dropdown opens 5px right of that box with a 1px
+   #242424 edge, a #4d4d4d-to-#3b3b3b gradient, 5px bottom corners, 15px
+   above the first row and 12px below the last. Rows are 21px, text 22px in
+   (#e5e5e5, #959595 disabled), a #adadad row highlight with black text, a
+   two-tone 2px separator in a 20px block. Edit is the only menu that shows
+   shortcuts: 30px after the label, 21px before the edge. */
+/* Measured with the pointer over Edit (2026-09-06): the highlight is the
+   whole 22px row, 23..44, flat #4f4f4f, and it sits 6px clear of its
+   neighbor's. Sonora drew a gradient starting 6px down the row and
+   overhanging the bottom by a pixel, with only 4px between items. */
+
+/* Transport: flat, 83 tall, a 5px gap below. The app puts no caption over
+   the volume slider and has no 30-second skips; its search field is white. */
+/* The caption shows only for a group, as the app's "Group Volume" does. */
+/* No caption over the slider, grouped or not; a group's per-room popover
+   opens on a press or keyboard focus (GroupVolumeControl.cs), never on hover. */
+/* While the popover is open the app shows "Group Volume" over the slider
+   (the popover's own copy of the control, #656565 at 23,54). */
+/* groupvolumepopover.xaml as captured: a #262626 box 248 wide at 25,65 (from
+   the strip's top) with a 34x14 beak, rooms 18px in: a 12px bold name, 5px,
+   then the 34px mute cell, 12px, and a 147px slider; rows 8px apart with a
+   #1a1a1a rule 3px below and 10px above the next name; 12px at the bottom.
+   The beak paints 15x7 of its 34x16 bitmap. */
+/* searchboxspecialized.xaml: 25 tall, columns 33 | text | 52 (a 30px button
+   at the end); the provider's 18px logo at 2,2 with an 8x5 #868686 caret 3px
+   after it; the prompt text #484848 5px into its column. */
+/* transportbar.xaml: SearchBoxSpecialized is Width="214" with
+   Margin="0,22,18,0", so 214 wide and 18 clear of the right edge. Sonora had
+   213 and 17 (2026-09-06 audit). */
+/* The service's own logo, 18px and round: the app draws them as circles in
+   the pill and in its scope menu (checked against Sonos Radio's, 2026-09-06),
+   even though searchboxspecialized.xaml's Image element is square. */
+/* Both sit on the pill's own middle line: the app centers them, whatever
+   the XAML's cell margins suggest (measured 2026-09-06: pill interior
+   73..96, caret ink 84..87). */
+
+/* The app refuses to shrink below 937x668 (MainWindow.SetDefaultDimensions,
+   57.23). The page keeps that as its minimum and scrolls below it rather than
+   squashing the panes. */
+
+/* Three panels with 5px splitters, 5px in from the window edges. */
+/* 33px header + 239px body, as measured (the XAML's 271). The queue caret
+   slides the queue up over Now Playing, as the app animates it. */
+
+/* Panel headers: flat #262626, 32 tall over a 1px black rule, 12px bold
+   white, 8px in; the room name after "Now Playing" is regular weight. */
+/* browse/scopebar.xaml: 31 tall, #303030 -> #1E1E1E, a 43px back button and
+   one tab per searchable category, each with a 1px divider on its right
+   edge; the showing tab inverts the gradient inside a #2F2F2F border, hover
+   is #505050 -> #303030. */
+/* browse_scope_divider.png, right-aligned in the back button and in every
+   tab: 2x28, a 50% black line beside a 10% white one, centred in the bar. */
+/* Each tab is its label plus 20px plus an equal share of what is left
+   (ScopeBar.cs SeparateScopeItems: ScopeItemMargin = leftover / 2n + 10 a
+   side), which is flex-grow over the label's own width; equal widths cut
+   "Podcasts & Shows" (2026-10-02). Search rows are 46 tall with 30px art 10px in, smaller than the
+   40px art of a browsed album's rows. */
+
+/* Rooms: tiles in a 16px gutter, 18px below the header, 16px apart, 65 tall
+   (taller only when a group lists several devices), 4px corners, flat
+   fills; the selected tile is white with dark text (the app inverts it). */
+/* zones/zonespanel.xaml: the header is Height="32" with its title
+   Margin="8,8,0,8", the list of tiles Margin="0,0,0,12", the footer
+   Height="31". Each tile (zonegroupcontrol.xaml) is Margin="16,16,16,0", so
+   16 all round and 16 between tiles, with 12 under the list. Sonora had 18
+   at the top and nothing at the bottom. */
+/* The Windows skin's selected tile is white, so its text is dark. That was
+   written as a literal, which meant any theme wearing this shell with a dark
+   selected tile got dark on dark -- contrast 1.00, measured while writing
+   THEMING.md against the guide's own example. The default is unchanged. */
+/* A one-room tile is 65 tall and each extra room adds 21 (measured on the
+   app 2026-09-06: a two-room tile is 86), so only the rooms after the first
+   carry the taller line. */
+/* "Offline" ends clear of the room glyph, which is centered in a 34px button
+   30px from the tile's right edge (its ink spans 39-55px in). */
+/* The selected (white) tile inverts everything on it, its buttons included. */
+
+/* Now Playing: 150px art at 16,16; each line carries a gray 11px caption
+   (Song / Artist / Album) over a regular 12px value, 42px per pair. The app
+   shows no position counter here. */
+/* The app fits the whole picture inside the 150px square, flush left: a
+   portrait book cover (Libby by OverDrive) shows 112x150 with the pane
+   behind the rest, where Sonora was cropping it to the square (measured
+   2026-09-07). */
+/* A station's logo is often wider than it is tall (LifeTalk Radio's is
+   145x72) and the app draws it flush with the top of the 150px slot, not
+   centered in it: measured 2026-09-12, the app's spanned y 183..257 from a
+   slot starting at 183 while Sonora's sat at 221..294. */
+/* With a picture present the square has no color of its own: beside a
+   portrait cover the app shows the pane (#1a1a1a, measured 2026-09-08); the
+   gray stays for the no-art placeholder only. */
+/* The empty queue is plain light text over a dim note, not a link color. */
+/* Measured on the app's empty queue (2026-09-06): a 50x58 note in #2e2e2e
+   with the sentence 15px under it. */
+/* A captioned line with nothing to say keeps its caption and hides the
+   placeholder word the Mac layout would show. */
+
+/* Browse and queue rows: 48 tall, 30px icons 18px in, flat hover. */
+/* chevron.png: a 2px #868686 arrow, 10 wide and 14 tall, inside a 38x42 hit
+   cell. The shared glyph has different proportions, so it is masked out. */
+/* Hidden, not collapsed: the slot is still 10px wide, so a leaf row's caret
+   sits where a browsable row's does (measured 2026-09-12). */
+/* The chevron's ink ends 30px before the pane divider in the app (the 11px
+   gutter, then 19px), and the caret's triangle ends 70px before it whether or
+   not a chevron follows (Select a Music Source and the Spotify account menu,
+   both 2026-09-14): the 14 here, the 4 on the chevron and the row's 25px of
+   padding add up to that with the triangle centered in its 44px button. */
+/* The row's gap spaces art from text; it has no business between these
+   controls, whose distances are all measured, so each one gives it back. */
+/* The station the room is playing, tinted at rest with the hover fill, as the
+   app tints it. */
+/* bttn_dd_normal is a flat gray triangle -- #868686 measured off the app's
+   Spotify caret at rest (2026-09-11); it turns white under the pointer and
+   while its menu is open, which desktop.css already does. */
+
+/* Footers: header-gray, 31 tall under a 1px rule, flat buttons divided by
+   1px rules that only light up on hover/press. */
+
+/* ---- Settings window, as captured (843x525): a 25px light title bar, an
+   #f0f0f0 body, a 181px #e6e6e6 page list with 21px rows indented 22px and a
+   #0078d7 selection, a bold 14px page title, a classic tab strip over a white
+   #919b9c-bordered panel, flat #e1e1e1 buttons with #adadad borders. */
+/* settingswindow.xaml sets no size -- ResizeMode="CanMinimize", sized by its
+   content -- so this one has to be measured. On the app (2026-09-06, title
+   bar x 195..1038, y 120..645): 844x526, with the nav column 182 wide ending
+   at a 1px #b4b4b4 divider. Sonora was a pixel short on all three, from
+   readings that scanned body rows rather than the title bar. */
+/* Parental Controls, to the 9.1 tab's own numbers: the white panel is
+   Margin 16,20,16,20 inside its border, the paragraph has 12 under it, the
+   two buttons are Width 260 and centered, the first with 10 above and the
+   second with 20. */
+
+/* EQ sliders as the app draws them: a gray control with no readout. */
+
+/* ---- Dialogs share the app's light body; About and Keyboard Shortcuts as
+   captured (445 and 494 wide): bordered white boxes of 12px text, a footer
+   strip with the default button outlined in #0078d7. */
+/* Every one of the app's dialog frames ends the same way. CommonDialogWindow
+   and MessageWindow both put the buttons in a 58px row -- two rules, #9d9d9d
+   then #e6e6e6, over #d6d6d6 -- right-aligned with the grid 16px in and each
+   button carrying a 5px margin, so the last one ends 21px from the edge.
+   Measured on the app's Keyboard Shortcuts window (2026-09-06): footer
+   624..679 under rules at 622/623, Done 90px wide ending 21 from the right.
+   Sonora had a 12px-padded #f0f0f0 strip here, which came from the Mac
+   sheets rather than from this frame. */
+/* aboutwindow.xaml pins Width="450" MaxWidth="450" with MinHeight and
+   MaxHeight both 530, so 444x526 on screen -- the same 6x4 chrome delta as
+   the CommonDialogWindows, confirmed on the app 2026-09-06 (x 546..989,
+   y 169..694). An earlier 423x494 reading here was 21px narrow. Inside:
+   Grid Margin="20", the icon Width="100", the head Margin="0,0,0,10", and
+   the title in BaseTextBlockSizeLargeHeader, which genericfonts.xaml puts
+   at 18. */
+/* 473 wide, as the app's window measured 2026-09-06 (473x440). */
+/* Keyboard Shortcuts, measured on the app 2026-09-06: 494x496 with a 25px
+   title bar, the intro and the list inset 20 each side, the list 294 tall,
+   then 60px of body before the 58px foot -- which is exactly the XAML's
+   Margin="20,0,20,60" on the list. Sonora had it 473 wide with a 256px
+   list, neither of which came from this window. */
+/* The app's list fills the body; Sonora's gives up 36px to the line that
+   explains the three keys a browser would not let it take. */
+
+/* Group Rooms, measured on the app (s1win-screens/group-rooms.png): a 445x446
+   window whose 421px client holds one bordered white panel 20px in on every
+   side, split by a rule into a 190px art column and a 210px room list, with a
+   43px #f6f6f6 strip along its foot for Select All - Party Mode. Below the
+   panel the body is empty down to the 58px foot the app gives every dialog.
+   Sonora drew two separate boxes with the headings outside them. */
+/* groupingdialog.xaml is a CommonDialogWindow pinned to 450x450 (Min and Max
+   both), Title "Group Rooms", Done and Cancel -- so 444x446 on screen, the
+   same 6x4 chrome delta as Save Queue (also 450) and Keyboard Shortcuts
+   (500 -> 494x496). The XAML confirms the rest of what was measured from the
+   capture: content Margin="20,20,20,60", a 190px left column, the art
+   120x120, the right column's 1px #e5e5e5 left border, the headings bold
+   with the right one at Margin="6,10,0,0", and the button reading either
+   "Select All - Party Mode" or "Unselect All". Width was 445 from a reading
+   that scanned a body row rather than the title bar. */
+/* Choose Music (zones/groupingmusicpicker.xaml): a 400x300 CommonDialogWindow
+   -- 394x296 on screen -- with a bold 12px heading 20 in, a white list inset
+   20 with the app's #AAAAAA top edge, 48px rows whose 40px art sits in a 50px
+   column, and Done/Cancel in the usual 58px foot. */
+/* The panel itself. */
+/* Its foot, holding Select All - Party Mode. */
+/* The rule between the two columns, drawn from the header that starts the
+   right one because neither column is an element of its own. */
+/* The dialog foot, the same 58px the app gives every window. */
+
+/* Sleep Timer as captured: a dark rounded popover above the footer button
+   with a caret, a bold title, a prompt line and a list of durations. */
+
+/* Inside a service the header carries its logo before the name. */
+/* Pane titles sit at the left; only the browse pane inside a service centers
+   its logo and name between the back chevron and the scope label. */
+/* The app centers the icon and title on the whole header, not on the space
+   between the buttons (browsepanel.xaml headerStack, HorizontalAlignment Center). */
+/* BrowseButtonBackStyle: browse_scope_back_arrow (a 2px #d9d9d9 chevron, 9x14
+   in a 17x14 cell) with 13px either side; the divider bitmap is blank. */
+/* The home button is the word MUSIC at the right (browsepanel.xaml's
+   browseRootButton, a ThreePartButton over browse_music_btn_*.png): 20px
+   tall, transparent at rest; hovered it is a #333 tag whose left end tapers
+   to a point over 9px and whose right edge is flat; pressed it is #1a1a1a.
+   The text sits 8px in from the point and 7px from the right edge. */
+/* Rows deeper than the root: 46 tall with 40px square art inset 9 from the
+   pane, and the text 6 past the art. Measured on the app's Pandora pane
+   (art 910-949, title at 956) and on its TuneIn search results, which are
+   laid out the same (art 909-948, title at 955); the root's own rows keep
+   the wider inset their 32px service logos sit in (2026-09-07). */
+/* The album page's Shuffle row sits in the art column like Play and the
+   numbered tracks -- the app aligns all three labels (S2 Windows app,
+   2026-09-14) -- but its slot is a glyph, so the rows-with-art rule above
+   passed it by and it kept the glyph rows' wider gutter, which read as an
+   indent on every service's album page. */
+/* Written with the row class as well, to outrank the :has() rule that gives glyph rows their 7px gap. */
+/* With the row class too, to outrank the glyph-row rule that zeroes this padding. */
+/* A list's Play row wears the library's stack glyph where an album's wears
+   its cover, in the Shuffle row's 40px slot so "Play" lines up over
+   "Shuffle" (it sat 14px left of it, 2026-09-29). */
+/* The library's stack glyph, as the S2 Windows app draws its slot (sampled
+   2026-09-29): a 40px #262626 tile, the glyph's ink about 20px square in
+   #666666 at its middle -- on the library's artists, composers, genres and
+   folders and on the Songs list's Play row. Sonora's own drawing, sized and
+   colored to that. */
+/* A song in the library has an empty slot: the title keeps its indent and
+   nothing is drawn there, not even the slot's own tile. */
+/* The Songs list's letters: white on the pane itself, no band, regular
+   weight, as the S2 app sets them (2026-09-29). */
+/* A cover that is not square is fitted, not cropped: Libby's audiobook
+   covers stand 30x40 in the middle of the 40px slot in the app (WPF's Image
+   stretches Uniform unless told otherwise), 2026-09-22. */
+/* The generic tiles fill the art square, as the app's own 80px assets do
+   when it draws them into one. */
+
+/* Queue rows as captured: 46 tall with 40px art in place of a number. */
+/* Row pictures are fitted whole into their square, a portrait book cover
+   with dark margins at the sides, in the browse list and the queue alike
+   (Libby by OverDrive, 2026-09-08). */
+
+/* Context menus as captured: a light flat panel with dark text, thin
+   separators, grayed entries in #8a8a8a. */
+/* main/contextmenustyles.xaml + tile menu capture (2026-09-05): #e6e6e6
+   sheet with a 1px dark edge at the cursor, content-sized, 8px above the
+   first row; 24px rows with #242424 text 17px in (#909090 disabled); the
+   lit row is #0a97ff with #ebebfb text; separators 1px #cfcfcf. */
+/* The overlay's own box keeps the dark transient-message look inside the
+   light settings window. */
+/* The search menu as captured: 22px rows, the logo 19px in after the tick
+   column, labels the service's own name; "Recent Searches" gray, its entries
+   indented past the logo. */
+/* ---- Now Playing as captured: an (i) at the header's right, the service and
+   what it is playing under the art, Pandora's thumbs under the metadata; no
+   position counter or text link. The queue header's caret folds the queue. */
+/* nowplayingpanel.xaml gives the info button Width="35" in the 32px header,
+   right-aligned. Sonora had it 30 wide, which came from nowhere in this
+   window (2026-09-06 audit). */
+/* The line under the art (service and station, or "Next" and the coming
+   track) is nowplayingpanel.xaml's metadata4: Grid.ColumnSpan="2" with
+   Margin 5,0,12,10, so it runs the whole pane, not the art column -- a long
+   Next was being cut to 240px where the app shows it in full (2026-09-07). */
+/* np_TuneIn_radio_55x24 at its native size, bottom left of the art's row:
+   Margin="5,0,0,8" with VerticalAlignment="Bottom" in the app's XAML, which
+   lands at x 414..466, y 372..394 in a 1536x913 frame (measured 2026-09-12). */
+/* nowplayingpanel.xaml puts the mark 5px in from the art column's left edge,
+   which lands at x=412 on a 1536-wide frame; Sonora's pane box starts one
+   pixel earlier, so 6px here puts the two on the same column (measured
+   2026-09-12, where Sonora's sat 3px right of the app's). */
+/* Thumbs as the app draws them: 32px #262626 discs, white glyph, outline
+   until rated and filled once rated (Pandora's UNSELECTED / SELECTED icons). */
+/* Rated: the disc turns white and the glyph dark and filled (capture 2026-09-05). */
+/* The service's own picture at its own size, which is what the app draws.
+   Sonos' rating icons are 40x32 PNGs holding a 13x15 white glyph on
+   transparency (THUMBSUP_UNSELECTED-pcdcr.png, the only variant that
+   exists), so 1:1 puts the glyph in the middle of the 32px disc with pixels
+   on pixels. It used to be scaled 1.35, which was a measuring mistake: the
+   window captures are at 150% DPI, so matching the glyph's size in the
+   capture magnified a tiny bitmap and it came out blurred. */
+
+/* Metadata starts 34px under the header, 42px per captioned pair; the thumbs
+   sit below the third pair. */
+/* Measured against the app (header bottom = 0): captions at 34/76/118, values
+   13px under each; thumbs 158-190; the source line 190 with 13px lines. */
+
+/* Info & Options rows are 46px like the app's; the block sits on a rule. */
+/* The app lists Info & Options actions in its ordinary white row text
+   (browse rows, #FFFFFF), so the rows Sonora does not yet perform keep that
+   color too; the tooltip says where they work. */
+
+/* ---- Save Queue (445x445) and Alarms (494x494) as captured. */
+/* 444x445: the light-pixel bbox (422) clipped the footer band, which the
+   XAML puts at 60px under the content grid. */
+/* Save Queue is a CommonDialogWindow too: savequeuedialog.xaml declares
+   Width="450" Height="450" with OkButtonText="Done" and CancelButtonText
+   "Cancel". The chrome costs the same 6x4 it does on Keyboard Shortcuts
+   (500x500 measuring 494x496 on screen), so 444x446. An earlier 422 here was
+   the CLIENT height, not the window's. */
+/* Measured on the app 2026-09-06: the window is 493x469 and its table is
+   352x190 starting 20 in and 139 down. */
+/* Every one of these windows declares its size in XAML, so it converts
+   straight to CSS with the settled 6x4 chrome delta (2026-09-06 audit):
+   alarms/alarmwindow.xaml 500x500 with OkButtonText="Done". */
+/* Measured against the app (window-relative ink): heading 47..58, time
+   line 86..97, table header 124..133. */
+/* Add a service in the app's 515x520 frame with its wizard footer. */
+/* The wizard (Settings > Services > Add) is white above its footer, as the
+   app's wizard frame is; its heading is bold over the sentence. */
+/* The row whose menu is open stays lit, its caret shown. */
+
+/* ---- Transport strip to the capture's pixels (1536-wide frame, strip top =
+   0): mute glyph 22-44 x 33-48; volume track 63-234 at 41, #313131 2px,
+   16px white thumb; prev/play/next glyph centers 719/770/819 at 27 (16 and
+   22px glyphs, #333 when disabled); lower row centered on a 150px bar at
+   693-843 (y 69): repeat 584, shuffle 612, elapsed ending 686, remaining
+   from 851, crossfade 909; pill 214x24 at top 28, right 17. The two
+   dropdowns stay left of the pill by the user's decision. */
+/* The glyphs are the app's bitmap cells redrawn (Icons.jsx winTransportIcons):
+   34x44 skips, a 44x44 play whose hover is a #262626 disc. */
+/* tc_progress_{shuffle,repeat,crossfade}_normal_{off,on}.png: off is
+   #878787, on is white with a 3px dot at the bottom of the 22px cell;
+   disabled is #333333. */
+/* Modes a source cannot use stay visible, dimmed and inert. */
+/* Both times are white in the app (captured stopped, playing and paused). */
+/* tc_progressbar_scrubber_normal.png: a 6px white dot. */
+
+/* The EQ glyph's room menu: light, with the hovered room in Windows blue. */
+
+/* Mini Controller (MiniWindow.xaml / MiniPanel.xaml, 2026-09-05): a
+   borderless square of album art with 6px corners over a 10px margin that
+   holds the drop shadow (3px down, 10px blur, #333). The bottom band carries
+   the track in bold and the artist beneath, both centered, white with a soft
+   glow. The transport row under them is translated 57px down, out of the
+   clipped panel, until the pointer enters the band; then it slides up over
+   0.4s and the gradient behind it stretches to 1.9x. Buttons are white glyphs
+   with a #262626 disc on hover; disabled ones sit at 0.2 opacity. */
+/* Columns * 36 50 68 50 36 *: mute in the first, then back, play, forward,
+   info. The mute/volume control spans the five columns from the left. */
+/* mp_*_hover: a black disc at ~58% under the glyph, 32px (44px for play);
+   mp_*_disabled: a #202020 disc, 30px (40px for play), with #454545 ink.
+   The mute button dims to 20% instead. */
+/* Resize and close, top right, only while the pointer is over the window. */
+/* In the app the Now Playing art toggles the Mini Controller. */
+/* As a window of its own the square is the whole viewport: no margin for a
+   shadow, no rounded corners against the window frame. */
+
+/* Music Library Settings (settingswindow.xaml + shareslistcontrol.xaml):
+   14px bold title in a 31px row, inner tabs from 46px down, white #919b9c
+   panel with the TabControl's 4px padding and the control's 16/20 margins.
+   Header text #484848 bold, body #242424, 12px on 14px lines. */
+
+/* Favorites the system can no longer play: #8a8a8a text, the slashed
+   service mark on the art square. */
+/* The Windows app's search match (BrowseItemWrapper.cs): bold italic in
+   #CFDBE5 over the title, #1F4059 on a restricted row; on the second line
+   white, bold and italic, inside a line drawn at 60%. */
+/* Restricted rows, as ListContainerControl paints them: the title drops to
+   rgb(110,110,110) while the second line keeps the rgb(134,134,134) every
+   row's second line has, the 40x40 art plate lightens to rgb(38,38,38), and
+   restricted_track_icon and explicit_restricted_dcr are both the #666666
+   their bitmaps carry. All four sampled off the running app on Mixcloud's
+   Trending list, 2026-09-22. */
+/* Where the browser allows it (Chromium app windows), the whole square is a
+   window drag region; controls stay clickable. */
+
+/* Album page as the app draws it: Play (the art) and Shuffle (glyph on a
+   #262626 square) rows, then "01  Title" tracks with the number in #8a8a8a
+   where art would sit; no chevrons. Checkbox 16px #979797, white on hover. */
+/* browse_shuffle_all_node.png: a 40px #262626 tile with a WHITE glyph whose
+   ink is about 21x15 in it. Sonora drew the glyph gray and small, so the row
+   read as disabled beside the app's (2026-09-06). */
+/* Hovering a row that has a checkbox shows caret and checkbox in place of
+   the chevron (Plex album list capture, 2026-09-05). */
+/* The checkbox is a 16px square whose right edge sits 21px in from the
+   gutter (the row's 14px padding plus 7px of a 30px box); 22px separate it
+   from the caret's triangle, which is centered in its 44px button, so the
+   button's own 17px of slack has to be pulled back (measured on a hovered
+   track row, 2026-09-14). */
+/* Drawn edge to edge: the box is the full 16px on Windows, where the shared
+   glyph keeps a one-pixel inset for the Mac. */
+
+/* Queue rows as the app draws them (observed 2026-09-05): 40px art, title
+   over the artist alone, no duration; the current track's art slot shows the
+   transport state (play or pause glyph) on a #262626 square instead. The
+   row checkbox hides while that row's menu is open (only the caret stays). */
+/* The Windows app draws nothing over the Play row's art on hover -- no play
+   badge; the caret at the right is its only hover affordance (Plex,
+   Surf-N-Burn, 2026-09-14). The badge is the other desktop skin's. */
+
+/* Add a Radio Station (395x290 capture): #f0f0f0 body, bold heading, two
+   lines, labeled fields 12px with a blue "!" validator at the right until
+   valid, OK/Cancel footer. */
+
+/* Queue rows: caret and checkbox on hover or while selected (observed
+   2026-09-05), the selected row #333, ticked rows keep the shade. */
+
+/* "Sonos setup" wizard (515x520 like Add a service): white page with a 14px
+   bold title and 12px text 20px in; 285x70 white tiles with a 1px #ababab
+   border stacked 10px apart (the focused one #7a7a7a); path field with a
+   blue validator mark and a grayed Browse; Back / Next / Cancel footer. */
+/* wizard/wizardwindow.xaml is 520x520. */
+/* The error message window sits over the wizard page (captured). */
+
+/* TuneIn's pinned rows carry blue square icons in the app. */
+
+/* Alarm editor (494x494 capture): 110px labels, rows 10px apart from y=20;
+   On/Off radios; time spinner; 31px room dropdown; read-only music field
+   with "Select…"; schedule checkboxes in two columns; volume slider; No
+   Limit + duration; two more checkboxes; OK / Cancel. */
+/* alarms/editalarmwindow.xaml is 500x500, OK and Cancel. */
+/* The editor's grid (alarms/editalarmwindow.xaml): 390 wide at 20,20, a
+   label column of at least 110, and every label and control 10px below the
+   row above. Labels are 12px bold #484848 on a 14px line, centered on their
+   control; Schedule's sits at the top, and Duration's on its first line.
+   The rows as the app lays them out (alarm-editor.png, 2026-09-05): radios
+   16, Time 24, Room 31, Music 23, the days 4 x 16, Volume 20. The window's
+   face is its s_bloom picture at 0.75 over the dialog gray, which reads as
+   a ramp from #e9e9e9 at the top left to #d7d7d7 at the bottom right; the
+   ramp is drawn here rather than the picture carried, for the Windows theme
+   only (the skins keep their own face). */  /* the skins' dialogs carry their own ink */
+/* Schedule and Duration, the fifth and seventh labels. */  /* with the space in the markup, text 6px from its box as the app has it */  /* the app's Room pop-up is 280x31 (alarm-editor.png); its face is the pop-up rule below */  /* the first box in each column sizes itself: 15 */  /* boxes flush with the column, as the app's are */  /* the app's Duration box is as wide as its Time box */
+/* Browse to alarm music: a bordered list with a header cell "Alarm Music". */
+
+/* Service Settings: the Music Library panel's frame with a three-column table
+   (18px logos, names in link blue) and six buttons at the right. */
+/* The app's three columns are Width="Auto" (settingswindow.xaml): each is as
+   wide as its widest entry, and the header runs on empty past the last. The
+   widths measured 2026-09-06 (158 / 95) were one household's names; with
+   "Libby by OverDrive 57" the app's Name column is 125 and Sonora's fixed 95
+   cut it. So the columns hug their contents and a filler column takes
+   the rest. */
+/* The library table's fixed 100px first column is not this one's. */
+/* The Sonos Labs list: the app's bordered white well, filling the page. */
+
+/* EQ page (observed 2026-09-05): the sentence at x=115 from the panel, then
+   rows with a 98px label, a 476px slider, - and + (or L and R) 11px above
+   its ends; Loudness under the last row; Reset at the right. The app's
+   sliders (LightVolumeSliderStyle): a 3px #c8c8c8 track, a 16px white round
+   thumb with a #8a8a8a ring. */
+/* The midpoint pips (utilities/imageslider.xaml, LightVolumeSliderStyle with
+   TickPlacement="Both" on the EQ sliders): a 2px tick, #C1C1C1 with a
+   #D4D4D4 right edge, 8px tall above the track (overlapping it by one) and
+   7px below it, centred where the thumb rests at zero. The thumb is drawn
+   over them, as in the app. Reported missing 2026-10-02. */
+/* The skins draw a bigger thumb over a band of their own, which covered
+   the pips entirely; there they stand clear of the slider, above and below
+   it, so the middle still shows (2026-10-02). */
+
+/* Windows scrollbars in the dark panes (observed in the app: a 17px track
+   with arrow buttons at both ends, a #4a4a4a bar). Chromium draws these;
+   Firefox keeps its thin native bar. */
+/* The app's list keeps an 11px scrollbar gutter whether or not the list
+   scrolls (Plex, Surf-N-Burn: twelve rows, no thumb, the column still there,
+   2026-09-14). Firefox on GNOME paints overlay scrollbars, so
+   scrollbar-gutter reserves nothing there; the strip is padding instead, and
+   a thumb, when there is one, rides over it as the app's does. */
+
+/* Error Log (500x500): the text box 20px in over a 60px foot. */
+/* main/errorlogwindow.xaml is 500x500, Title "Sonos System Error Log",
+   OkButtonText="Done" -- so 494x496 on screen, not the declared 500. */
+
+/* The tile's state mark (wdcr_zm_indicator_*_enable.png): 8x9 #868686 shapes. */
+
+/* An empty container's line stands 10px higher in the Windows app than the
+   shared 128px puts it: Mixcloud's empty Followers reads "No selections are
+   available." with its ink at y=295 against Sonora's 305 (2026-09-23). */
+
+/* Browse pane messages, from browsepanel.xaml: the TextBlock that carries a
+   browse error or "No selections available." is Margin="17,120,20,0",
+   MaxWidth="360", centered, and TextpaneWhiteTextBlockStyle -- 13px white on a
+   16px line. The Line-In page's sentence comes through the same box. */
+
+/* icn_linein_*.png is one image: the dark plug already sitting on its white
+   disc, so the drawing carries the disc's padding and has to fill the badge
+   rather than sit inside it at the shared glyph size. */
+/* icn_tunein_*.png fills its disc the same way, ink about 61% across. */
+
+/* Remove Account, from utilities/messagewindow.xaml and measured on the app
+   (2026-09-06): 494 wide, a light diagonal gradient over a 58px foot whose
+   two rules are #9D9D9D then #E6E6E6 on #D6D6D6. Text is 12px #484848 on a
+   14px line, inset 20 all round; the buttons are 80x23 with 4px between them
+   and 16px of grid margin, so the last one ends 20 from the edge. */
+/* The app's own Remove Account draws its sentence in the message weight,
+   not the bold heading MessageWindow also offers, so both lines are plain. */
+
+/* The browse pane's own row menu, measured on the app (2026-09-06, right-
+   clicking each of AccuRadio's five rows and a station beneath them): a
+   160-wide #e6e6e6 sheet with no border, 1px of padding, 36px rows with the
+   label 15px in, and a #cfcfcf rule flush at every row boundary. The tile and
+   queue menus keep the tighter 24px rows they were measured at. */
+/* The app's row menus, re-measured 2026-09-07 across three captures (a
+   TuneIn station, a queue episode, Amazon's Collections): every item is 24px
+   tall, a rule is a 1px line in a 12px block (4 above, 7 below), and the
+   menu pads 9px above the first item and 6px below the last. Items divided
+   by rules therefore sit 36px apart and undivided ones 24px apart -- the
+   36px "row" the earlier measurements took was an item plus its rule. */
+/* The account list under a service row (measured on the app's Spotify row,
+   2026-09-05 capture): 122x64 for two accounts, 4px corners, 24px rows in
+   12px type, the tick 9px in and 10x11, the names 37px in. */
+
+/* ---- Audit 2026-09-06: the app's own dialog frames for Confirm ----------
+   A question wears MessageWindow (utilities/messagewindow.xaml): 494 wide,
+   the body inset 20 with a deeper 40 at its foot, over the 58px button row.
+   A name wears TextInputDialogWindow (utilities/textinputdialogwindow.xaml):
+   a CommonDialogWindow at Width="350" -- so 344 on screen -- with content
+   Margin="20", the field Height="25", and OK / Cancel. Sonora had both at an
+   inline 380 with a 12px button strip, which came from the Mac sheets. */
+/* A name dialog is the narrower TextInputDialogWindow. This has to outrank
+   the :has() rule above: a :has() argument counts toward specificity. */
+
+/* The development-only theme switcher, at the end of the menu bar past Help.
+   The app has nothing here; this is a build-time convenience and is drawn to
+   sit quietly in the bar rather than to look like part of the product. */
+
+/* The app's own controls, drawn here rather than left to the browser, which
+   on Linux draws them GTK's way. Measured off the app's Add Alarm and Group
+   Rooms windows (s1win-screens/alarm-editor.png, 2026-09-23 captures).
+   Checkbox: WPF's Aero2 CheckBox -- 13px box, 1px #707070 on white, the
+   #212121 check mark (the path from WPF's open-source Aero2.NormalColor.xaml,
+   MIT, (c) .NET Foundation and Contributors; see THIRD-PARTY-NOTICES.md),
+   #5593FF on #F3F9FF under the
+   pointer, #3C77DD on #D9ECFF pressed, #BCBCBC on #E6E6E6 disabled. */
+
+/* Radio button: Aero2's -- a 12px ring, #333333 on white, a 6px #212121 dot
+   when chosen; the same pointer and disabled colors as the checkbox. */
+
+/* Pop-up (a closed ComboBox): the app's button chrome -- a #707070 border
+   round a 1px white highlight, the face two-toned, #F2F2F2 to #ECECEC above
+   the middle and #DBDBDB to #CFCFCF below it, and a filled 7x4 arrow whose
+   center sits 9px in from the right edge. Aero's pointer colors: #3C7FB1
+   round #EAF6FD/#D9F0FC over #BEE6FD/#A7D9F5. The Settings window's own
+   pop-ups, the strip's system picker and the menu bar's theme picker keep
+   their own looks. */
+
+/* The app's TimePicker (utilities/timepicker.xaml): the parts on a white
+   face in a 1px border, the separator between them, and two 19px arrow
+   buttons stacked at the right with a filled 7x4 black triangle each;
+   disabled, a #A5FFFFFF veil over the whole (DisabledVisual). */
+/* The shared field's plain look draws its own box and masks its arrows;
+   the Windows one borders the whole and paints the arrows. */
+
+/* The Windows theme's own ink, from the app's XAML and checked side by side
+   in the VM (2026-09-29). A header's parenthesis -- "(<room> + 1)",
+   "(Not in Use)" -- is TextBlockStyleHedaerParens: white, not bold
+   (nowplayingpanel.xaml). A footer button's word is FooterButtonTextBlock-
+   Style: bold #888888 over a dark drop shadow, #454647 when disabled
+   (generic.xaml); the skins keep their own. */
+
+/* Caption buttons, against the app (2026-09-29): every glyph is 10 x 10 on
+   a 46px pitch -- the close X's strokes are 14px long, where Sonora's were
+   12 -- and the Settings and About windows, which the app lets be minimized,
+   carry Minimize and a grayed Maximize before it. Sonora cannot minimize a page's
+   window, so both are drawn in the disabled #c2c2c2 the app gives Maximize. */
+
+/* The EQ page against the running app (2026-09-29), per settingswindow.xaml
+   and its dictionary. The inner tab joins the white box below it rather than
+   standing on a rule of its own; the intro starts in the controls' column
+   (a panel paragraph rule had been resetting its indent); Bass and Treble
+   are SettingsHeaderTextBlockStyle, bold #484848; the room pop-up is the
+   app's ImageComboBox, 215 wide in the split gradient of the older Windows
+   button with a small filled arrow, its name not bold; the sliders are
+   LightVolumeSliderStyle, a 14px thumb shaded white to #e7e7e7 under a
+   #a2a2a2 rim on a 3px track; Reset is LightButtonStyle. */
+/* The page list starts 35px down (HeaderPanel Margin="2,35,-1,2") and its
+   foot ends 15px up; the EQ rows follow the intro 34px on. */
+/* Every page title is the EQ page's 30px row, whether or not a pop-up rides
+   in it; the Services page has no tab strip, so its box starts where the
+   others' tabs would; and the page's own buttons -- Add, Remove, Sonos Labs,
+   Reset -- are LightButtonStyle (the nav's Get the mobile app stays flat). */
+/* The Advanced tab against the running app (2026-09-29): the controls
+   start 161px after the labels, the first row 19px into the box and each
+   next one 21px on, every label centered on its first control; the time is
+   the app's 125 x 23 TimePicker and the pop-ups its 215 x 23 combo box. */
+
+/* Alarms against the running app (2026-09-29), per alarmwindow.xaml: the
+   CommonDialogWindow body shades #e9e9e9 to #d7d7d7 corner to corner as
+   Group Rooms' does (Save Queue is the same window); the list fills its
+   star row, 210 tall, with its column rules running the whole height; Edit
+   stands 40px under Add and Remove 8 under Edit; the buttons are
+   LightButtonStyle. */
+
+/* Sleep Timer against the running app (2026-09-29), per
+   sleeptimerpopover.xaml: a 37px title row and 6 under it, the instruction
+   8px down and 17 in, the list 16px under it and 15 above the foot, rows
+   30 tall 16 in; the beak -- drawn here as a plain wedge, not the app's
+   picture -- hangs 14px under the box, whose foot stands 28px over the
+   button (it had been clipped away, 12px over it). */  /* 6 under the title row and 8 more, one margin since they would collapse */
+/* Keyboard Shortcuts' rows are the list's default ink, a navy near
+   rgb(4,34,113) on the running app (2026-09-29), not #0033cc. */
+/* The Error Log is a CommonDialogWindow like Alarms: the same shaded body,
+   and its text box keeps errorlogwindow.xaml's Margin="20,20,20,60", so it
+   stops 60px over the foot rather than on it (2026-09-29). */
+
+/* Context menus against the running app (2026-09-29), per
+   contextmenustyles.xaml: 24px items, and between groups a separator of
+   #cfcfcf over #eeeeee with 3px above and below and 7px in at the sides --
+   8px in all where Sonora gave it 12, so every group sat 4px low; the menu
+   pads 8 over its first item and 7 under its last. A row whose menu came
+   from a right-click shows no caret; the caret lights only for its own. */
+/* The app sizes a context menu to its items: 109px for a queue row's, 158
+   for a station's (2026-09-29), not a common minimum. */
+/* The search box's clear button, per searchboxspecialized.xaml and the
+   running app (2026-09-29): a 15px button just before the magnifier while
+   the box holds text, carrying a 5px #868686 cross -- drawn here, not the
+   app's picture. */
+
+/* The Windows wizard's Authorize: one wide button centered in the page, as its
+   account buttons are (240px, 2026-09-29). */
+/* The desktop shells below 937px, the width under which the real controllers
+   refuse to shrink. Sonora reflows instead: one pane at a time behind a row
+   of three tabs, the transport strip in rows, the dialogs scrolling inside a
+   window that fits the screen. Loaded after the shell sheets, with `html` in
+   front of every selector so it outranks their positioned layout. Every skin
+   over the shared shell (Coromar, Windows, Mac, Outrun, Sedona, Hot Dog
+   Stand, Solarized) reflows through this one sheet. */
+
+/* The settings dropdown belongs to the narrow layout alone. */
+:where(:root[data-layout]) .dk-prefs-jump { display: none; }
+
+/* A person who asks for less motion gets the cut back. */

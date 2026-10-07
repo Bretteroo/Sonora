@@ -1,0 +1,157 @@
+/* The network map: a card per Sonos device with its own silhouette and a
+ * signal meter. Color comes from the theme's tokens where a token carries
+ * meaning (the quality scale) and from currentColor everywhere else, so the
+ * section reads correctly in a light settings window and a dark one alike. */
+
+.nm {
+  display: block;
+  margin-top: 22px;
+  color: inherit;
+}
+
+.nm-title {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.nm-blurb,
+.nm-note {
+  margin: 0 0 14px;
+  font-size: 12px;
+  line-height: 1.55;
+  opacity: 0.72;
+  max-width: 70ch;
+}
+
+.nm-system + .nm-system {
+  margin-top: 18px;
+}
+
+.nm-system-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 10px;
+  font-size: 12px;
+}
+
+.nm-system-head strong {
+  font-size: 13px;
+}
+
+.nm-system-head span {
+  opacity: 0.68;
+}
+
+.nm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.nm-card {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 12px;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-color: color-mix(in srgb, currentColor 20%, transparent);
+  border-left-width: 3px;
+  border-radius: var(--t-radius-sm, 10px);
+  background: rgba(128, 128, 128, 0.06);
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.nm-card[data-quality='good'] { border-left-color: var(--t-good, #35c37d); }
+.nm-card[data-quality='fair'] { border-left-color: var(--t-fair, #d9a227); }
+.nm-card[data-quality='poor'] { border-left-color: var(--t-poor, #e07a3c); }
+.nm-card[data-quality='critical'] { border-left-color: var(--t-critical, #e0574f); }
+.nm-card[data-quality='unknown'] { border-left-color: color-mix(in srgb, currentColor 35%, transparent); }
+
+.nm-card-gone { opacity: 0.65; }
+
+.nm-art {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  background: rgba(128, 128, 128, 0.1);
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.nm-art svg { width: 54px; height: 54px; }
+.nm-art img { width: 54px; height: 54px; object-fit: contain; }
+
+.nm-text { min-width: 0; }
+
+.nm-room {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nm-model {
+  margin: 1px 0 0;
+  font-size: 11px;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 560px) {
+  .nm-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* The verdict and why, first on every card; the rest folds under Details. */
+.nm-verdict { margin: 6px 0 0; font-weight: 700; font-size: 0.95em; }
+.nm-verdict[data-level='good'] { color: var(--t-good, #2f9e65); }
+.nm-verdict[data-level='watch'] { color: var(--t-fair, #b8860b); }
+.nm-verdict[data-level='problem'] { color: var(--t-critical, #d0453d); }
+.nm-why { margin: 2px 0 0; font-size: 0.85em; opacity: 0.85; }
+.nm-fix { margin: 4px 0 0; font-size: 0.8em; opacity: 0.75; font-style: italic; }
+.nm-details { margin-top: 6px; font-size: 0.82em; }
+.nm-details summary { cursor: pointer; opacity: 0.75; }
+/* Each label over its value: side by side, a long label left the value a
+   column one letter wide in a narrow card. */
+.nm-details dl { display: flex; flex-direction: column; gap: 1px; margin: 6px 0 0; }
+.nm-details dd + dt { margin-top: 5px; }
+.nm-details dt { opacity: 0.7; }
+.nm-details dt[title] { text-decoration: underline dotted; text-underline-offset: 2px; cursor: help; }
+.nm-details dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.nm-count[data-level='problem'] { color: var(--t-critical, #d0453d); font-weight: 700; }
+.nm-count[data-level='watch'] { color: var(--t-fair, #b8860b); font-weight: 700; }
+
+/* Each system's speakers by verdict, where the summary line was. */
+.nm-donut { display: flex; align-items: center; gap: 18px; margin: 10px 0 14px; }
+.nm-donut svg { width: 112px; height: 112px; flex: none; }
+.nm-donut-track { fill: none; stroke: color-mix(in srgb, currentColor 12%, transparent); stroke-width: 12; }
+.nm-donut-name { text-anchor: middle; font-size: 12px; font-weight: 700; fill: currentColor; opacity: 0.75; }
+.nm-donut-count { text-anchor: middle; font-size: 20px; font-weight: 700; fill: currentColor; }
+.nm-donut-legend { display: flex; flex-direction: column; gap: 4px; font-size: 0.9em; }
+.nm-donut-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.nm-donut-legend span[data-empty] { opacity: 0.5; }
+.nm-donut-legend i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.nm-donut-legend b { min-width: 1.5ch; text-align: right; }
+
+/* Playback dropouts, below the speakers. */
+.nm-drops { margin-top: 22px; }
+.nm-drop-list { list-style: none; margin: 0; padding: 0; font-size: 12px; }
+.nm-drop-list li {
+  display: grid; grid-template-columns: 92px minmax(70px, 140px) minmax(0, 1fr); gap: 2px 12px;
+  padding: 6px 0; border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+.nm-drop-list time { opacity: 0.7; }
+.nm-drop-list li[data-kind='failed'] > span:first-of-type { color: var(--t-critical, #d0453d); }
+.nm-drop-item { grid-column: 3; opacity: 0.72; overflow-wrap: anywhere; }
+@media (max-width: 560px) {
+  .nm-drop-list li { grid-template-columns: minmax(0, 1fr) auto; }
+  .nm-drop-list li > span, .nm-drop-item { grid-column: 1 / -1; }
+}

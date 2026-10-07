@@ -1,0 +1,67 @@
+/* Scaffolding for any shell drawn from an arrangement. Every installed theme
+   is one, so this is what holds its root to the window: without it the root
+   grew past the screen and the part at the foot of the layout sat below the
+   fold. */
+.pt-root {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.pt-root > .pt-region { flex: 1 1 0%; min-height: 0; }
+
+.pt-region { min-width: 0; min-height: 0; }
+
+/* A part fills the box the layout gave it, and whatever it renders fills the
+   part. Everything inside is painted by the shared sheets, because a part is
+   the same component here as in any other shell. */
+.pt-part { display: flex; min-width: 0; min-height: 0; }
+.pt-part > * { flex: 1 1 auto; min-width: 0; }
+
+/* A layout naming a part the theme has no component for, and a layout that
+   does not validate. Both are for whoever is writing the layout. */
+.pt-missing,
+.pt-problems {
+  margin: 12px; padding: 12px; border: 1px solid var(--t-critical, #b3261e);
+  border-radius: 6px; color: var(--t-fg, #fff); background: var(--t-surface, #222);
+  font-size: 13px;
+}
+.pt-problems ul { margin: 6px 0 0; padding-left: 18px; }
+
+/* Settings, where a layout places them. */
+.pt-settings { padding: 16px; overflow: auto; }
+.pt-settings h2 { margin: 0 0 12px; font-size: 15px; }
+.pt-settings-about { margin-top: 12px; }
+
+/* And the way out where a layout places none.
+
+   This was a 55%-opacity gray button in the bottom corner at first, which
+   overlapped whatever footer the layout had and could not be found -- the
+   first person to look for it did not see it. A safety net nobody can see is
+   not one. It is the accent color now, at full strength, with a shadow so it
+   reads above whatever is behind it, and it sits above the bottom edge rather
+   than on it. */
+.pt-escape { position: fixed; right: 16px; bottom: 16px; z-index: 9999; }
+
+.pt-escape-button {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 14px; border-radius: 999px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  color: var(--t-accent-fg, #fff);
+  background: var(--t-accent, #3399ff);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+}
+
+.pt-escape-button::before { content: '\2699'; font-size: 14px; line-height: 1; }
+.pt-escape-button:hover { filter: brightness(1.12); }
+.pt-escape-button:focus-visible { outline: 2px solid var(--t-focus, #fff); outline-offset: 2px; }
+
+.pt-escape-panel {
+  position: absolute; right: 0; bottom: 46px; width: 300px; padding: 14px;
+  border-radius: 10px; color: var(--t-fg, #fff); background: var(--t-surface, #222);
+  border: 1px solid var(--t-border-strong, var(--t-border, #555));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+}
+.pt-escape-close { margin-top: 10px; }

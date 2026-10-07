@@ -1,0 +1,33 @@
+# Dependabot opens a pull request when something Sonora depends on has a new
+# version. Minor and patch updates of each kind arrive as one grouped pull
+# request; a major version comes alone, since it can change behavior.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /app
+    schedule:
+      interval: weekly
+    groups:
+      python:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /app/frontend
+    schedule:
+      interval: weekly
+    groups:
+      frontend:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        update-types: [minor, patch]

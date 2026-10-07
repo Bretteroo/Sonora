@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+app/frontend/dist/
+.env
+*.log
+.pytest_cache/
+
+# The README screenshots' raw captures; only the .webp files are published.
+docs/screenshots/*/*.png
+docs/screenshots/_explore/
+
+# Claude Code settings for this machine only.
+.claude/settings.local.json

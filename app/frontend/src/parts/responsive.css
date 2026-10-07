@@ -1,0 +1,174 @@
+/* The layout renderer's sheet: what an installed package's `layout` is drawn
+   with. Scoped to :root[data-layout], which theme.jsx sets only while such a
+   package is chosen; no built-in theme reads this file (each carries its own
+   copy). */
+
+/* The desktop shells below 937px, the width under which the real controllers
+   refuse to shrink. Sonora reflows instead: one pane at a time behind a row
+   of three tabs, the transport strip in rows, the dialogs scrolling inside a
+   window that fits the screen. Loaded after the shell sheets, with `html` in
+   front of every selector so it outranks their positioned layout. Every skin
+   over the shared shell (Coromar, Windows, Mac, Outrun, Sedona, Hot Dog
+   Stand, Solarized) reflows through this one sheet. */
+
+:where(:root[data-layout]) .dk-pane-switch { display: none; }
+
+/* The settings dropdown belongs to the narrow layout alone. */
+
+@media (max-width: 936px) {
+  html:where([data-layout]) .win-root:not(.win-mini-root) { min-width: 0; min-height: 0; }
+  html:where([data-layout]) .dk-root { height: 100dvh; }
+
+  /* --- the pane tabs --- */
+  html:where([data-layout]) .dk-root .dk-pane-switch { display: flex; flex: none; gap: 6px; padding: 6px 8px; background: var(--t-strip-bottom, var(--t-surface)); border-bottom: 1px solid var(--t-border); }
+  html:where([data-layout]) .dk-root .dk-pane-switch button {
+    flex: 1; min-width: 0; height: 32px; padding: 0 8px; border: 1px solid var(--t-border); border-radius: 6px;
+    background: transparent; color: var(--t-fg-muted); font: inherit; font-size: 12px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  html:where([data-layout]) .dk-root .dk-pane-switch button[aria-selected='true'] {
+    color: var(--t-fg); background: var(--t-tile-selected, var(--t-surface-hover)); border-color: var(--t-tile-selected-edge, var(--t-accent));
+  }
+  /* The Windows skin's selected tile is white with dark text. */
+  html:where([data-layout]) .win-root:not(.co-root):not(.or-root):not(.sd-root):not(.hd-root):not(.sz-root) .dk-pane-switch button[aria-selected='true'] { color: #1a1a1a; }
+  /* So is the Mac skin's, and without this the label was white on white:
+     measured at contrast 1.00, which is to say invisible (2026-09-17). Every
+     other skin over this shell reads at 3.4 or better. */
+  html:where([data-layout]) .dk-root.mac-root .dk-pane-switch button[aria-selected='true'] { color: #000000; }
+
+  /* --- one pane at a time --- */
+  /* The pane arriving slides in from the side the tabs put it on, so moving
+     along the row reads as movement rather than a cut. Only the arriving one
+     moves: the one leaving is already display:none by the time React has
+     re-rendered, and animating it would need both in the layout at once.
+     Going from none to shown is what restarts the animation, so nothing has
+     to be keyed or remounted (user request 2026-09-17). */
+  html:where([data-layout]) .dk-root .dk-panes { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); overflow: hidden; }
+  html:where([data-layout]) .dk-root .dk-panes[data-slide='forward'] > .dk-pane,
+  html:where([data-layout]) .dk-root .dk-panes[data-slide='forward'] > .dk-center { animation: dk-pane-from-right--layout 260ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+  html:where([data-layout]) .dk-root .dk-panes[data-slide='back'] > .dk-pane,
+  html:where([data-layout]) .dk-root .dk-panes[data-slide='back'] > .dk-center { animation: dk-pane-from-left--layout 260ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+  html:where([data-layout]) .dk-root .dk-panes > .dk-divider { display: none; }
+  html:where([data-layout]) .dk-root .dk-panes > .dk-pane { display: none; }
+  html:where([data-layout]) .dk-root .dk-panes[data-pane='rooms'] > .dk-pane:first-child { display: flex; }
+  html:where([data-layout]) .dk-root .dk-panes[data-pane='now'] > .dk-center { display: grid; }
+  html:where([data-layout]) .dk-root .dk-panes[data-pane='music'] > .dk-pane:last-child { display: flex; }
+  html:where([data-layout]) .win-root .dk-panes > :first-child, html:where([data-layout]) .win-root .dk-panes > :last-child { margin-left: 5px; margin-right: 5px; }
+  html:where([data-layout]) .dk-root .dk-center { grid-template-rows: minmax(200px, 273px) 1px minmax(0, 1fr); }
+  html:where([data-layout]) .win-root .dk-center { grid-template-rows: 271px 0 minmax(0, 1fr); }
+  html:where([data-layout]) .win-root .dk-center[data-queue-expanded] { grid-template-rows: 0px 0 minmax(0, 1fr); }
+
+  /* --- the transport strip in rows --- */
+  html:where([data-layout]) .dk-root .dk-strip {
+    height: auto; margin-bottom: 0; display: grid; align-items: center; gap: 2px 8px; padding: 6px 10px 8px;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: "volume controls aux" "progress progress progress" "search search search";
+  }
+  html:where([data-layout]) .dk-root .dk-strip > * { position: static; width: auto; height: auto; left: auto; right: auto; top: auto; bottom: auto; transform: none; margin: 0; }
+  html:where([data-layout]) .dk-root .dk-strip-volume { grid-area: volume; display: flex; align-items: center; gap: 4px; min-width: 0; }
+  html:where([data-layout]) .dk-root .dk-strip-volume-label { display: none; }
+  html:where([data-layout]) .dk-root .dk-strip-mute { position: static; flex: none; }
+  html:where([data-layout]) .dk-root .dk-strip-slider { position: static; flex: 1; min-width: 50px; width: auto; }
+  html:where([data-layout]) .dk-root .dk-strip-controls { grid-area: controls; position: static; display: flex; align-items: center; justify-content: center; width: auto; height: auto; }
+  html:where([data-layout]) .dk-root .dk-strip-controls > button { position: static; left: auto; top: auto; }
+  html:where([data-layout]) .dk-root .dk-strip-progress { grid-area: progress; position: static; display: flex; align-items: center; width: auto; min-width: 0; justify-content: center; gap: 4px; height: 26px; }
+  html:where([data-layout]) .dk-root .dk-progress { flex: 1; width: auto; min-width: 50px; }
+  html:where([data-layout]) .dk-root .dk-time-elapsed, html:where([data-layout]) .dk-root .dk-time-total { width: auto; min-width: 40px; }
+  html:where([data-layout]) .dk-root .dk-strip-aux { grid-area: aux; position: static; display: flex; justify-content: flex-end; min-width: 0; }
+  /* The development-only theme switcher has no room at the end of the menu
+     bar here -- on the Mac skin it ran past the window's edge -- and Settings
+     still holds the real chooser. */
+  html:where([data-layout]) .dk-root .dk-menubar-aside, html:where([data-layout]) .win-root .win-menubar-aside { display: none; }
+  html:where([data-layout]) .dk-root .dk-strip-search { grid-area: search; position: static; display: flex; align-items: center; width: 100%; min-width: 0; }
+  html:where([data-layout]) .dk-root .dk-strip-search input { min-width: 0; }
+  /* The scope button asks for the pill's full height, which resolves to the
+     bare icon once the pill's own height is content-driven: the logo then sat
+     high in the row and the pill's round cap clipped it (reported
+     2026-09-09). Stretching the button back to the row centers it again. */
+  html:where([data-layout]) .dk-root .dk-strip-search .dk-strip-scope { height: auto; align-self: stretch; }
+  html:where([data-layout]) .dk-root .dk-group-volume { left: 8px; right: 8px; width: auto; top: 46px; }
+  html:where([data-layout]) .dk-root .dk-scope-menu { right: 8px; left: auto; top: auto; }
+
+  /* --- windows and dialogs fit the screen and scroll inside --- */
+  html:where([data-layout]) .dk-root .dk-window { max-width: calc(100vw - 12px); max-height: calc(100dvh - 12px); overflow: auto; }
+  html:where([data-layout]) .dk-root .dk-window-body { min-width: 0; }
+  html:where([data-layout]) .dk-root .dk-prefs { width: min(800px, calc(100vw - 12px)); }
+  /* Settings is a table of contents beside a page. Below this width there is
+     no room for both, so the contents sit above the page, as a phone would
+     lay them out. */
+  /* Settings is a table of contents beside a page, and the row that holds
+     both is the window's body rather than the window. Below this width the
+     two stack, as a phone would lay them out. */
+  html:where([data-layout]) .dk-root .dk-prefs > .dk-window-body { flex-direction: column; }
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-toc {
+    width: auto; flex: none; max-height: 34vh; border-right: 0;
+    border-bottom: 1px solid var(--t-border, #c8c8c8); overflow: auto;
+  }
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-page { min-width: 0; flex: 1; }
+  html:where([data-layout]) .win-root .win-settings { width: auto; height: auto; max-height: calc(100dvh - 12px); }
+
+  /* The column of pages gives way to a dropdown. A strip of tabs was tried
+     first and had to be scrolled sideways to be read, which the user did not
+     want (2026-09-09). */
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-toc {
+    display: block; max-height: none; padding: 8px 10px; overflow: visible;
+  }
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-toc > h4,
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-toc > h5,
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-toc > button,
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-toc > .dk-prefs-gap,
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-toc > .dk-prefs-foot,
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-toc .dk-prefs-subhead,
+  html:where([data-layout]) .win-root .win-settings .win-settings-list,
+  html:where([data-layout]) .win-root .win-settings .win-settings-foot { display: none; }
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-jump { display: block; }
+  /* Both colors come from the same pair of tokens. Taking the text color
+     from the panel by inheritance and the background from a token painted the
+     control dark on dark in the two desktop shells, whose settings window is
+     light while their surface token is not. */
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-jump select {
+    width: 100%; height: 34px; padding: 0 8px; font: inherit; font-size: 13px;
+    color: var(--t-fg, #111111); background: var(--t-surface, #ffffff);
+    border: 1px solid var(--t-border-strong, #9a9a9a); border-radius: 6px;
+  }
+  /* The Windows family paints its settings window in the app's own light
+     gray, and the app's own dropdowns there are white with dark text. */
+  html:where([data-layout]) .win-root .win-settings .dk-prefs-jump select,
+  html:where([data-layout]) .dk-root .dk-prefs .dk-prefs-jump select {
+    color: #1a1a1a; background: #ffffff; border-color: #7a7a7a;
+  }
+  /* Two skins keep that window dark, where a white control would be a bright
+     block; they take their own tokens instead. */
+  html:where([data-layout]) .or-root .win-settings .dk-prefs-jump select,
+  html:where([data-layout]) .co-root .win-settings .dk-prefs-jump select {
+    color: var(--t-fg); background: var(--t-surface); border-color: var(--t-border-strong);
+  }
+  html:where([data-layout]) .dk-root .dk-notices { left: 8px; right: 8px; width: auto; max-width: none; }
+  html:where([data-layout]) .dk-root .transient-message { left: 8px; right: 8px; width: auto; transform: none; }
+
+  /* --- the room tiles and rows have the whole width --- */
+  html:where([data-layout]) .dk-root .dk-tile-marquee { max-width: none; }
+}
+
+@media (max-width: 520px) {
+  html:where([data-layout]) .dk-root .dk-strip { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "controls controls" "progress progress" "volume aux" "search search"; }
+  html:where([data-layout]) .dk-root .dk-strip-controls { justify-content: center; }
+  html:where([data-layout]) .dk-root .dk-time-elapsed, html:where([data-layout]) .dk-root .dk-time-total { min-width: 34px; font-size: 10px; }
+  html:where([data-layout]) .dk-root .dk-pane-switch button { font-size: 11px; padding: 0 4px; }
+  html:where([data-layout]) .win-root .dk-center { grid-template-rows: 250px 0 minmax(0, 1fr); }
+}
+
+@keyframes dk-pane-from-right--layout {
+  from { transform: translateX(100%); }
+  to { transform: none; }
+}
+
+@keyframes dk-pane-from-left--layout {
+  from { transform: translateX(-100%); }
+  to { transform: none; }
+}
+
+/* A person who asks for less motion gets the cut back. */
+@media (prefers-reduced-motion: reduce) {
+  html:where([data-layout]) .dk-root .dk-panes > .dk-pane, html:where([data-layout]) .dk-root .dk-panes > .dk-center { animation: none; }
+}

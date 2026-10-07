@@ -1,0 +1,85 @@
+import React from 'react'
+
+// Hi-Fi's legends: the small symbols printed on the keys and panels. Each is
+// drawn here from lines, arcs and polygons on a 24-unit grid, in the manner
+// of the pictograms screen-printed on audio equipment -- the transport
+// triangles, the tape reels, the tone curve -- and nothing is traced from
+// anyone's artwork.
+
+const base = { width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor',
+               strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, focusable: 'false' }
+const make = (children, filled = false) => function Glyph({ className = '', style, ...rest }) {
+  return <svg {...base} {...(filled ? { fill: 'currentColor', stroke: 'none' } : {})} className={`hf-glyph ${className}`.trim()} style={style} {...rest}>{children}</svg>
+}
+
+export const Play = make(<path d="M8 5.5v13l10.5-6.5z" />, true)
+export const Pause = make(<><rect x="6.5" y="5.5" width="3.8" height="13" rx="0.6" /><rect x="13.7" y="5.5" width="3.8" height="13" rx="0.6" /></>, true)
+export const Stop = make(<rect x="6.5" y="6.5" width="11" height="11" rx="0.8" />, true)
+export const Prev = make(<><path d="M17.5 6v12L9 12z" /><rect x="5.5" y="6" width="2.4" height="12" rx="0.5" /></>, true)
+export const Next = make(<><path d="M6.5 6v12L15 12z" /><rect x="16.1" y="6" width="2.4" height="12" rx="0.5" /></>, true)
+export const Rewind = make(<><path d="M11.5 6.5v11L4 12z" /><path d="M20 6.5v11L12.5 12z" /></>, true)
+export const Forward = make(<><path d="M12.5 6.5v11L20 12z" /><path d="M4 6.5v11L11.5 12z" /></>, true)
+export const Record = make(<circle cx="12" cy="12" r="6" />, true)
+export const Eject = make(<><path d="M12 5l7 8H5z" /><rect x="5" y="15.5" width="14" height="2.6" rx="0.5" /></>, true)
+export const Shuffle = make(<><path d="M4 7h3.2c2.6 0 4 1.3 5 3.2l1.6 3.3c.9 1.9 2.4 3.5 5 3.5H20" /><path d="M4 17h3.2c1.4 0 2.5-.4 3.3-1.1" /><path d="M13.6 8.1C14.4 7.4 15.4 7 16.8 7H20" /><path d="M17.5 4.5 20 7l-2.5 2.5M17.5 14.5 20 17l-2.5 2.5" /></>)
+export const Repeat = make(<><path d="M5 11V9.5A2.5 2.5 0 0 1 7.5 7H18" /><path d="M15.5 4.5 18 7l-2.5 2.5" /><path d="M19 13v1.5a2.5 2.5 0 0 1-2.5 2.5H6" /><path d="M8.5 19.5 6 17l2.5-2.5" /></>)
+export const RepeatOne = make(<><path d="M5 11V9.5A2.5 2.5 0 0 1 7.5 7H18" /><path d="M15.5 4.5 18 7l-2.5 2.5" /><path d="M19 13v1.5a2.5 2.5 0 0 1-2.5 2.5H6" /><path d="M8.5 19.5 6 17l2.5-2.5" /><path d="M11.4 10.6 12.6 10v5" strokeWidth="1.6" /></>)
+export const Crossfade = make(<><path d="M3.5 17c5 0 6.5-10 17-10" /><path d="M3.5 7c10.5 0 12 10 17 10" /></>)
+export const Volume = make(<><path d="M4.5 9.5h3l4.5-3.8v12.6l-4.5-3.8h-3z" fill="currentColor" stroke="none" /><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" /></>)
+export const Muted = make(<><path d="M4.5 9.5h3l4.5-3.8v12.6l-4.5-3.8h-3z" fill="currentColor" stroke="none" /><path d="M15.5 9.5l5 5M20.5 9.5l-5 5" /></>)
+export const Close = make(<path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />)
+export const Check = make(<path d="M5 12.5l4.5 4.5L19 7.5" />)
+export const Chevron = make(<path d="M9.5 6l6 6-6 6" />)
+export const ChevronDown = make(<path d="M6 9.5l6 6 6-6" />)
+export const ChevronUp = make(<path d="M6 14.5l6-6 6 6" />)
+export const ArrowLeft = make(<path d="M19 12H5.5M11 6l-6 6 6 6" />)
+export const Plus = make(<path d="M12 5v14M5 12h14" />)
+export const Minus = make(<path d="M5 12h14" />)
+export const Trash = make(<><path d="M5 7h14M10 4.5h4M7 7l.8 12h8.4L17 7" /><path d="M10.5 10.5v5.5M13.5 10.5v5.5" /></>)
+export const Pencil = make(<><path d="M5 19l1-4 9.5-9.5 3 3L9 18z" /><path d="M13.5 7.5l3 3" /></>)
+export const Star = make(<path d="M12 4.2l2.4 5 5.4.6-4 3.7 1.1 5.4L12 16.2l-4.9 2.7 1.1-5.4-4-3.7 5.4-.6z" />)
+export const Heart = make(<path d="M12 19s-7-4.3-7-9.6A3.9 3.9 0 0 1 12 7a3.9 3.9 0 0 1 7 2.4C19 14.7 12 19 12 19z" />)
+export const Info = make(<><circle cx="12" cy="12" r="8" /><path d="M12 11v5.5" /><circle cx="12" cy="8" r="0.6" fill="currentColor" /></>)
+export const Search = make(<><circle cx="10.5" cy="10.5" r="5.5" /><path d="M14.7 14.7 19.5 19.5" /></>)
+export const Link = make(<><path d="M10 14a4 4 0 0 0 5.7 0l2.6-2.6a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-2.6 2.6a4 4 0 0 0 5.7 5.7l1-1" /></>)
+export const Unlink = make(<><path d="M9.5 14.5l-1.8 1.8a3 3 0 0 1-4.2-4.2l1.8-1.8M14.5 9.5l1.8-1.8a3 3 0 0 1 4.2 4.2l-1.8 1.8" /><path d="M8 4v2.5M4 8h2.5M16 20v-2.5M20 16h-2.5" /></>)
+export const Moon = make(<path d="M18.5 14.5A7 7 0 0 1 9.5 5.5a7 7 0 1 0 9 9z" />)
+export const Clock = make(<><circle cx="12" cy="12" r="8" /><path d="M12 7.5V12l3 2" /></>)
+export const Bell = make(<><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 1.5H5z" /><path d="M10 19.5a2 2 0 0 0 4 0" /></>)
+export const Folder = make(<path d="M4 7.5A1.5 1.5 0 0 1 5.5 6H10l2 2h6.5A1.5 1.5 0 0 1 20 9.5v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" />)
+export const Note = make(<><path d="M9 17.5V6.5l10-2v11" /><circle cx="7" cy="17.5" r="2.2" /><circle cx="17" cy="15.5" r="2.2" /></>)
+export const Disc = make(<><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="2.4" /><path d="M12 6.5a5.5 5.5 0 0 1 5.5 5.5" opacity="0.6" /></>)
+export const Radio = make(<><rect x="3.5" y="8.5" width="17" height="11" rx="1.5" /><path d="M7 8.5l9-4" /><circle cx="15.5" cy="14" r="2.6" /><path d="M6.5 12h4M6.5 15h4" /></>)
+export const Tv = make(<><rect x="3.5" y="5.5" width="17" height="11" rx="1.2" /><path d="M9 20h6M12 16.5V20" /></>)
+export const LineIn = make(<><path d="M4 12h7" /><rect x="11" y="9" width="5" height="6" rx="1" /><path d="M16 10.5h4M16 13.5h4" /></>)
+export const Library = make(<><path d="M5 5v14M9 5v14" /><path d="M13 5.5l4.5 13.5" /><path d="M4 19h16" /></>)
+export const Playlist = make(<><path d="M4.5 7h10M4.5 11h10M4.5 15h6" /><path d="M17 17.5V9l3-.8" /><circle cx="15.5" cy="17.5" r="1.6" /></>)
+export const Speaker = make(<><rect x="6" y="3.5" width="12" height="17" rx="1.6" /><circle cx="12" cy="14.2" r="3.4" /><circle cx="12" cy="7.3" r="1.1" /></>)
+export const Zones = make(<><rect x="3.5" y="5" width="7" height="14" rx="1.2" /><rect x="13.5" y="5" width="7" height="14" rx="1.2" /><circle cx="7" cy="14" r="2" /><circle cx="17" cy="14" r="2" /></>)
+export const Sliders = make(<><path d="M6 4v5M6 13v7M12 4v9M12 17v3M18 4v3M18 11v9" /><rect x="4" y="9" width="4" height="4" rx="0.8" /><rect x="10" y="13" width="4" height="4" rx="0.8" /><rect x="16" y="7" width="4" height="4" rx="0.8" /></>)
+export const Warning = make(<><path d="M12 4.5l8.5 15h-17z" /><path d="M12 10v4.5" /><circle cx="12" cy="17" r="0.6" fill="currentColor" /></>)
+// A thumb and its cuff, drawn hollow; a rating that is given fills it.
+const thumb = <><path d="M8.2 10.4 11.6 4.6c1.2 0 2.1 1 1.9 2.2L13 10h5.2a1.6 1.6 0 0 1 1.6 1.9l-1.3 6.4a1.6 1.6 0 0 1-1.6 1.2H8.2z" /><rect x="4.2" y="10.4" width="4" height="9.1" rx="0.8" /></>
+export const ThumbsUp = make(thumb)
+export const ThumbsDown = make(<g transform="rotate(180 12 12)">{thumb}</g>)
+export const Prohibit = make(<><circle cx="12" cy="12" r="8" /><path d="M6.4 6.4l11.2 11.2" /></>)
+export const Refresh = make(<><path d="M19 12a7 7 0 1 1-2.1-5" /><path d="M19 4.5V8h-3.5" /></>)
+export const Explicit = make(<><rect x="4.5" y="4.5" width="15" height="15" rx="2" /><path d="M14.5 8.5h-5v7h5M9.5 12h4" /></>)
+export const Person = make(<><circle cx="12" cy="8.5" r="3.5" /><path d="M5 19.5a7 7 0 0 1 14 0" /></>)
+export const Signal = make(<path d="M5 19v-3M9.7 19v-6.5M14.3 19V9M19 19V5" />)
+export const Sun = make(<><circle cx="12" cy="12" r="3.8" /><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M6 18l1.4-1.4M16.6 7.4 18 6" /></>)
+export const Keyboard = make(<><rect x="3" y="7" width="18" height="10" rx="1.5" /><path d="M6.5 10.5h1M10 10.5h1M13.5 10.5h1M17 10.5h.5M8 14h8" /></>)
+export const Grid = make(<><rect x="4.5" y="4.5" width="6" height="6" rx="0.8" /><rect x="13.5" y="4.5" width="6" height="6" rx="0.8" /><rect x="4.5" y="13.5" width="6" height="6" rx="0.8" /><rect x="13.5" y="13.5" width="6" height="6" rx="0.8" /></>)
+export const Rows = make(<path d="M4.5 7h15M4.5 12h15M4.5 17h15" />)
+export const Auto = make(<><path d="M4.5 7h6M4.5 12h6M4.5 17h6" /><rect x="13.5" y="5" width="6" height="6" rx="0.8" /><rect x="13.5" y="13" width="6" height="6" rx="0.8" /></>)
+export const Update = make(<><path d="M12 4v10.5M7.5 10 12 14.5 16.5 10" /><path d="M5 19h14" /></>)
+export const Pin = make(<><path d="M12 20s-6-5.6-6-10.2a6 6 0 0 1 12 0C18 14.4 12 20 12 20z" /><circle cx="12" cy="9.8" r="2.2" /></>)
+export const Power = make(<><path d="M12 4v7.5" /><path d="M7.4 7.2a6.5 6.5 0 1 0 9.2 0" /></>)
+export const Gear = make(<><circle cx="12" cy="12" r="3" /><path d="M12 3.8v2.4M12 17.8v2.4M3.8 12h2.4M17.8 12h2.4M6.2 6.2l1.7 1.7M16.1 16.1l1.7 1.7M6.2 17.8l1.7-1.7M16.1 7.9l1.7-1.7" /></>)
+export const Ellipsis = make(<><circle cx="6" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="18" cy="12" r="1.5" /></>, true)
+export const Tape = make(<><rect x="3" y="6" width="18" height="12" rx="1.6" /><circle cx="8.5" cy="11.5" r="2.2" /><circle cx="15.5" cy="11.5" r="2.2" /><path d="M8.5 13.7h7M7 18l1.5-2.5h7L17 18" /></>)
+export const Tuner = make(<><rect x="3" y="7" width="18" height="10" rx="1.4" /><path d="M6 12h12M7 10.2v3.6M10 10.8v2.4M13 10.8v2.4M16 10.2v3.6" /><path d="M11.5 8.5v7" strokeWidth="2.2" /></>)
+export const Timer = make(<><circle cx="12" cy="13" r="7" /><path d="M12 13V9.5M10 3.5h4M18 7l1.3-1.3" /></>)
+export const Setup = make(<><rect x="3" y="6" width="18" height="12" rx="1.2" /><circle cx="7.5" cy="12" r="2" /><circle cx="13" cy="12" r="1.3" /><circle cx="17.5" cy="12" r="1.3" /><path d="M7.5 18v2M16.5 18v2" /></>)
+export const Leave = make(<><path d="M14 5.5h3.5A1.5 1.5 0 0 1 19 7v10a1.5 1.5 0 0 1-1.5 1.5H14" /><path d="M10.5 8 6.5 12l4 4M6.5 12H15" /></>)
+export const Party = make(<><circle cx="6.5" cy="17" r="2.2" /><circle cx="17.5" cy="17" r="2.2" /><circle cx="12" cy="7" r="2.2" /><path d="M8 15.5l2.8-6.4M16 15.5l-2.8-6.4M8.7 17h6.6" /></>)

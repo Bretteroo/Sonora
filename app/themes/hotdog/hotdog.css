@@ -1,0 +1,279 @@
+/* Hot Dog Stand: the Windows 3.1 color scheme, over the desktop application.
+ *
+ * From CONTROL.INI (see tokens.js): a yellow desktop, red windows with white
+ * text, white menus with black text, a black active title bar with white
+ * text, red borders inside a black frame, gray scrollbars, the standard gray
+ * bevelled buttons (white top-left, dark gray bottom-right, black text) and a
+ * black highlight with white text. Everything is flat and square. The one
+ * liberty is the muted text: the scheme's GrayText (#808080) is unreadable on
+ * red, so secondary lines use a pale red-white instead. */
+
+.hd-root { color: #ffffff; font-family: var(--t-font); font-size: 12px; background: #ffff00; }
+.hd-root *, .hd-root *::before, .hd-root *::after { border-radius: 0 !important; box-shadow: none; text-shadow: none; }
+.hd-root ::-webkit-scrollbar { width: 16px; }
+.hd-root ::-webkit-scrollbar-thumb { background: #c0c0c0; border: 1px solid #000000; box-shadow: inset 1px 1px #ffffff, inset -1px -1px #808080; }
+.hd-root ::-webkit-scrollbar-track { background: #c0c0c0; background-image: repeating-conic-gradient(#ffffff 0 25%, #c0c0c0 0 50%); background-size: 2px 2px; }
+/* Firefox colors a scrollbar but draws no bevel, so the scheme's beveled #C0C0C0 thumb on its gray
+   track is drawn as the button-shadow gray on button-face gray, at full width. The shared desktop
+   sheet's thin #C0C0C0 thumb on a clear track vanished on every gray page: Preferences scrolled
+   with no scrollbar to show it. */
+:root[data-theme='hotdog'] .hd-root, :root[data-theme='hotdog'] .hd-root * { scrollbar-color: #808080 #c0c0c0; scrollbar-width: auto; }
+
+/* --- frame: black active title bar, red border, white menu bar ---------------------------- */
+.hd-root .win-titlebar { background: #000000; color: #ffffff; border-bottom: 1px solid #000000; font-weight: 700; }
+.hd-root .win-titlebar-home, .hd-root .win-tb-btn { color: #ffffff; }
+.hd-root .win-tb-btn:hover { background: #ff0000; color: #ffffff; }
+.hd-root .win-menubar { background: #ffffff; color: #000000; border-bottom: 1px solid #000000; }
+.hd-root .win-menubar-title { color: #000000; }
+.hd-root .win-menubar-title:hover, .hd-root .win-menubar-title[aria-expanded='true'] { background: #000000; color: #ffffff; }
+/* The Windows chrome paints its highlight on ::after; it takes the theme's. */
+.hd-root .win-menubar-title:hover::after, .hd-root .win-menubar-title[aria-expanded='true']::after { background: #000000; }
+.hd-root .win-menu { background: #ffffff; color: #000000; border: 1px solid #000000; }
+.hd-root .win-menu-item { color: #000000; }
+.hd-root .win-menu-item:hover:not(:disabled), .hd-root .win-menu-item:focus-visible { background: #000000; color: #ffffff; }
+.hd-root .win-menu-item:disabled { color: #808080; }
+.hd-root .win-menu-sep { background: #808080; }
+
+/* --- the standard button ------------------------------------------------------------------- */
+.hd-root .dk-footer button, .hd-root .dk-win-btn, .hd-root .win-dialog button, .hd-root .win-settings .dk-win-btn, .hd-root .dk-header-btn { background: #c0c0c0; color: #000000; border: 1px solid #000000; box-shadow: inset -2px -2px #808080, inset 2px 2px #ffffff; }
+.hd-root .dk-footer button:hover:not(:disabled), .hd-root .dk-win-btn:hover:not(:disabled), .hd-root .win-settings .dk-win-btn:hover:not(:disabled) { background: #d4d4d4; border-color: #000000; }
+.hd-root .dk-footer button:active:not(:disabled), .hd-root .dk-win-btn:active:not(:disabled) { box-shadow: inset 2px 2px #808080, inset -2px -2px #ffffff; }
+/* A disabled push button is the enabled one at full strength with its label in flat #808080 gray:
+   same face, bevel and black frame, no fade and no white emboss (Windows 3.1's Color dialog, the
+   Save Scheme button, measured 2026-10-05). The shared sheet fades every disabled button to 45%,
+   which over this theme's red read pink. */
+.hd-root :is(.dk-footer button, .dk-win-btn, .win-dialog button, .dk-header-btn):disabled { opacity: 1; color: #808080; text-shadow: none; }
+.hd-root .dk-header-btn:disabled svg { color: #808080; }
+.hd-root .dk-win-btn[data-default='true'] { border: 2px solid #000000; }
+.hd-root .dk-header-btn svg { color: #000000; }
+
+/* --- transport strip: part of the window, so red with white ------------------------------- */
+.hd-root .dk-strip { background: #ff0000; color: #ffffff; border-bottom: 1px solid #000000; }
+.hd-root .dk-strip svg, .hd-root .dk-strip button { color: #ffffff; }
+.hd-root .dk-strip button:disabled, .hd-root .dk-strip button:disabled svg { color: #ffd0d0; opacity: 0.55; }
+.hd-root .dk-mode[aria-pressed='true'] { color: #000000; }
+.hd-root .dk-progress-track, .hd-root .dk-slider-track { background: #c0c0c0; border: 1px solid #000000; }
+.hd-root .dk-progress-fill, .hd-root .dk-slider-fill { background: #000000; }
+.hd-root .dk-progress-thumb { background: #c0c0c0; border: 1px solid #000000; }
+.hd-root .dk-time-elapsed, .hd-root .dk-time-total, .hd-root .dk-time-remaining { color: #ffffff; }
+.hd-root .dk-strip-search { background: #ff0000; border: 1px solid #000000; }
+.hd-root .dk-strip-search input { color: #ffffff; }
+.hd-root .dk-strip-search input::placeholder { color: #ffd0d0; }
+.hd-root .dk-strip-search button { color: #ffffff; }
+
+/* --- panes: red windows, black title bars, red border in a black frame ---------------------- */
+.hd-root .dk-panes { background: #ffff00; }
+.hd-root .dk-divider { background: #ffff00; }
+.hd-root .dk-pane { background: #ff0000; color: #ffffff; border: 1px solid #000000; outline: 3px solid #ff0000; outline-offset: -4px; }
+.hd-root .dk-header { background: #000000; color: #ffffff; border-bottom: 1px solid #000000; font-weight: 700; }
+.hd-root .dk-header-sub { color: #c0c0c0; }
+.hd-root .dk-footer { background: #ff0000; border-top: 1px solid #000000; }
+
+/* --- room tiles: red, black when chosen ----------------------------------------------------- */
+.hd-root .dk-tile { background: #ff0000; border: 1px solid #000000; color: #ffffff; }
+.hd-root .dk-tile::before { display: none; }
+.hd-root .dk-tile:hover { background: #cc0000; }
+.hd-root .dk-tile[aria-pressed='true'] { background: #000000; color: #ffffff; }
+.hd-root .dk-tile-now, .hd-root .dk-tile-state-win, .hd-root .dk-tile-device, .hd-root .dk-tile[aria-pressed='true'] .dk-tile-now { color: #ffd0d0; opacity: 1; }
+.hd-root .dk-tile[aria-pressed='true'] .dk-tile-now, .hd-root .dk-tile[aria-pressed='true'] .dk-tile-device { color: #c0c0c0; }
+.hd-root .dk-tile-group, .hd-root .dk-tile-group svg, .hd-root .dk-tile-more { color: #ffffff; }
+.hd-root .dk-tile-group:hover { background: #000000; }
+
+/* --- rows ------------------------------------------------------------------------------------ */
+.hd-root .dk-browse-row, .hd-root .dk-row { color: #ffffff; border-color: #000000; }
+.hd-root .dk-browse-row:hover, .hd-root .dk-row:hover { background: #cc0000; }
+.hd-root .dk-browse-row[aria-selected='true'], .hd-root .dk-row[aria-selected='true'], .hd-root .dk-row[aria-checked='true'] { background: #000000; color: #ffffff; }
+.hd-root .dk-row[aria-current='true'] { background: #990000; }
+.hd-root .dk-browse-sub, .hd-root .dk-row-sub, .hd-root .dk-row-num, .hd-root .dk-row-dur, .hd-root .dk-browse-note, .hd-root .dk-browse-prose { color: #ffd0d0; }
+.hd-root .dk-browse-title, .hd-root .dk-row-text { color: #ffffff; }
+.hd-root .dk-browse-disclosure, .hd-root .dk-browse-actions, .hd-root .dk-browse-check, .hd-root .dk-browse-section { color: #ffffff; }
+.hd-root .dk-scopebar-tabs button { color: #ffd0d0; }
+.hd-root .dk-scopebar-tabs button[aria-selected='true'] { color: #ffffff; border-bottom-color: #000000; }
+
+/* --- now playing, popovers, notices ---------------------------------------------------------- */
+.hd-root .dk-now-line, .hd-root .dk-now-source strong { color: #ffffff; }
+.hd-root .dk-now-line[data-caption]::before, .hd-root .dk-now-muted, .hd-root .dk-now-source span { color: #ffd0d0; }
+.hd-root .dk-now-art { background: #c0c0c0; border: 1px solid #000000; }
+.hd-root .dk-now-art svg { color: #808080; }
+.hd-root .dk-empty p { color: #ffffff; }
+.hd-root .dk-empty svg { color: #ffd0d0; }
+.hd-root .dk-popover, .hd-root .dk-action-menu, .hd-root .dk-account-menu { background: #ffffff; color: #000000; border: 1px solid #000000; }
+.hd-root .dk-action-menu button, .hd-root .dk-popover button { color: #000000; }
+.hd-root .dk-action-menu button:hover:not(:disabled), .hd-root .dk-popover button:hover:not(:disabled) { background: #000000; color: #ffffff; }
+.hd-root .dk-action-menu button:disabled { color: #808080; }
+.hd-root .dk-popover-sep { background: #808080; }
+.hd-root .dk-notices .dk-notice { background: #ffffff; color: #000000; border: 1px solid #000000; }
+.hd-root .dk-notice button { color: #000000; text-decoration: underline; }
+
+/* --- windows and dialogs: red client areas under black title bars ----------------------------- */
+.hd-root .dk-window { background: #ff0000; color: #ffffff; border: 1px solid #000000; outline: 3px solid #ff0000; outline-offset: -4px; }
+.hd-root .dk-window-title { background: #000000; color: #ffffff; border-bottom: 1px solid #000000; font-weight: 700; }
+.hd-root .dk-light-close { background: #c0c0c0; color: #000000; border: 1px solid #000000; }
+.hd-root .dk-light-close:hover { background: #ffffff; }
+.hd-root .win-settings, .hd-root .win-settings .win-settings-page, .hd-root .win-settings .win-settings-body, .hd-root .win-settings .win-settings-list, .hd-root .win-about, .hd-root .win-shortcuts, .hd-root .win-savequeue, .hd-root .win-message, .hd-root .win-alarms, .hd-root .win-alarm-editor, .hd-root .win-wizard, .hd-root .win-errorlog, .hd-root .win-grouping, .hd-root .dk-confirm, .hd-root .dk-sleep, .hd-root .dk-grouping, .hd-root .dk-musicpicker, .hd-root .dk-addradio, .hd-root .dk-info, .hd-root .dk-add { background: #ff0000; color: #ffffff; }
+.hd-root .win-settings .win-settings-list button { color: #ffffff; }
+.hd-root .win-settings .win-settings-list button[aria-selected='true'], .hd-root .win-savequeue-list button[aria-selected='true'], .hd-root .dk-musicpicker-row[aria-selected='true'], .hd-root .dk-room-menu button:hover:not(:disabled) { background: #000000; color: #ffffff; }
+.hd-root .win-settings input, .hd-root .win-settings select, .hd-root .win-alarm-editor input, .hd-root .win-alarm-editor select, .hd-root .win-savequeue-field input, .hd-root .dk-addradio input { background: #ff0000; color: #ffffff; border: 1px solid #000000; }
+.hd-root .win-savequeue-field input:focus { border-color: #ffffff; }
+.hd-root .win-settings h1, .hd-root .win-settings h2, .hd-root .win-settings label, .hd-root .win-settings p, .hd-root .win-alarm-editor label, .hd-root .win-about p, .hd-root .win-shortcuts td, .hd-root .win-shortcuts th { color: #ffffff; }
+.hd-root .dk-addradio-mark, .hd-root .win-wizard-mark, .hd-root a { color: #ffffff; }
+.hd-root :focus-visible { outline: 1px dotted #ffffff; outline-offset: 1px; }
+
+/* --- the Mini Controller ------------------------------------------------------------------------ */
+.hd-root .win-mini-panel, .hd-root .win-mini { background: #ff0000; color: #ffffff; border: 1px solid #000000; }
+
+/* The chosen tile is the black highlight, so its second line goes gray; and a
+   dialog body is a dialog box, which Windows 3.1 painted button-face gray. */
+.hd-root .dk-tile[aria-pressed='true'] .dk-tile-marquee { color: #c0c0c0; }
+.hd-root .win-settings .win-settings-page, .hd-root .win-settings .win-settings-body, .hd-root .win-settings .win-settings-content, .hd-root .win-settings [class*='win-settings-pane'], .hd-root .win-settings fieldset, .hd-root .win-settings .win-eq { background: #c0c0c0; color: #000000; }
+.hd-root .win-settings .win-settings-page h1, .hd-root .win-settings .win-settings-page h2, .hd-root .win-settings .win-settings-page label, .hd-root .win-settings .win-settings-page p, .hd-root .win-settings .win-settings-page legend { color: #000000; }
+/* The settings chrome writes in white on red, and the page area writes in
+   black on gray. A shared page rendered inside .dk-prefs-page (S2 Upgrade
+   Info) inherits the black correctly for everything except its paragraphs,
+   which the white rule above still catches. */
+.hd-root .win-settings .dk-prefs-page p, .hd-root .win-settings .dk-prefs-page h1,
+.hd-root .win-settings .dk-prefs-page h2, .hd-root .win-settings .dk-prefs-page h3,
+.hd-root .win-settings .dk-prefs-page label, .hd-root .win-settings .dk-prefs-page legend { color: #000000; }
+.hd-root .win-settings .dk-prefs-page, .hd-root .win-settings .win-settings-panel, .hd-root .win-settings .win-lib-table, .hd-root .win-settings .win-lib-indexing { background: #c0c0c0; color: #000000; }
+.hd-root .win-settings .dk-tabs button { background: #c0c0c0; color: #000000; border-color: #000000; }
+.hd-root .win-settings .win-settings-foot, .hd-root .win-settings .win-settings-foot p { color: #ffffff; }
+/* the footer note sits in the gray dialog column, so it is black there */
+.hd-root .win-settings .win-settings-foot, .hd-root .win-settings .win-settings-foot p { color: #000000; }
+
+/* the Settings side column follows the dialog ground */
+.hd-root .win-settings .dk-prefs-toc { background: #c0c0c0; }
+
+/* The About card is red here, and a translucent coral wash on red reads as a
+   smudge. Windows 3.1's own control is a gray face with a hard bevel, so the
+   support link wears that; the cup keeps Ko-fi's color. */
+.hd-root .about-card a.about-support {
+  background: #c0c0c0;
+  color: #000000;
+  border: 2px solid #000000;
+  border-radius: 0;
+  box-shadow: inset -2px -2px #808080, inset 2px 2px #ffffff;
+}
+.hd-root .about-card a.about-support:hover { background: #d4d4d4; transform: none; box-shadow: inset -2px -2px #808080, inset 2px 2px #ffffff; }
+.hd-root .about-card a.about-support:active { box-shadow: inset 2px 2px #808080, inset -2px -2px #ffffff; }
+
+/* The music pane's back chevron wears the header buttons' own color. */
+.hd-root { --t-back-arrow: currentColor; }
+
+/* About My Sonos System: the speaker list's white well took Hotdog's white
+   text and read as blank. Black on white, as its other wells. */
+.hd-root .win-about-box, .hd-root .win-about-box p { background: #ffffff; color: #000000; }
+.hd-root .win-about-box .win-about-rule { color: #6a6a6a; }
+/* The other white wells took Hotdog's white text as well -- the shortcut
+   and alarm tables, Save Queue's playlists, Add a service's list -- and
+   read as blank. Black on white in all of them. */
+.hd-root .win-shortcuts-table, .hd-root .win-shortcuts-table th, .hd-root .win-shortcuts-table td,
+.hd-root .win-alarms-table, .hd-root .win-alarms-table th, .hd-root .win-alarms-table td,
+.hd-root .win-savequeue-list, .hd-root .win-savequeue-list button,
+.hd-root .dk-add-list, .hd-root .dk-add-list *, .hd-root .dk-add .dk-tabs button { color: #000000; }
+.hd-root .win-shortcuts-table td { color: #0000aa; }
+.hd-root .win-savequeue-list button[aria-selected='true'] { background: #000080; color: #ffffff; }
+/* The dialogs' 58px foot and its buttons kept the Windows grays and blue
+   ring; Hotdog's are its #C0C0C0 strip and bevelled buttons, as Add and
+   Edit already were. Group Rooms' body is the red of every other window. */
+.hd-root.win-root .win-dialog-foot, .hd-root.win-root .win-grouping .dk-grouping-actions {
+  background: #c0c0c0; border-top: 1px solid #000000; box-shadow: inset 0 1px 0 #ffffff;
+}
+.hd-root.win-root .win-dialog-foot .dk-win-btn, .hd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn, .hd-root.win-root .win-grouping .dk-grouping-all {
+  background: #c0c0c0; color: #000000; border: 1px solid #000000; border-radius: 0; box-shadow: inset -2px -2px #808080, inset 2px 2px #ffffff;
+}
+.hd-root.win-root .win-dialog-foot .dk-win-btn[data-default='true'], .hd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn[data-default='true'] { outline: 1px dotted #000000; outline-offset: -5px; }
+.hd-root.win-root .win-dialog-foot .dk-win-btn:hover:not(:disabled), .hd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn:hover, .hd-root.win-root .win-grouping .dk-grouping-all:hover { background: #d4d4d4; border-color: #000000; }
+.hd-root.win-root .win-dialog-foot .dk-win-btn:disabled { color: #808080; text-shadow: none; }
+.hd-root.win-root .win-grouping { background: #ff0000; }
+.hd-root.win-root .win-shortcuts-note, .hd-root.win-root .win-shortcuts p { color: #ffffff; }
+/* The last of the Windows grays, each traded for the Windows 3.1 scheme's own:
+   wells are white in a black frame, pop-ups and fields white with black text, every button
+   the #C0C0C0 face with its bevel, disabled text the scheme's #808080. */
+.hd-root .win-about-box, .hd-root .win-shortcuts-table, .hd-root.win-root .win-settings .win-settings-panel, .hd-root .dk-add-list,
+.hd-root .win-alarms-table, .hd-root .win-savequeue-list { border-color: #000000; }
+.hd-root .win-about-box .win-about-rule { color: #808080; }
+.hd-root .win-shortcuts-table tbody tr:first-child td { background: #c0c0c0; }
+.hd-root.win-root :is(.win-titlebar, .win-menubar-theme) select { background: #ffffff; color: #000000; border-color: #000000; }
+.hd-root.win-root :is(.win-titlebar, .win-menubar-theme) select:hover { color: #000000; border-color: #000000; background: #c0c0c0; }
+.hd-root.win-root .dk-browse-disclosure, .hd-root.win-root .dk-browse-chevron { background-color: currentColor; }
+.hd-root.win-root .win-errorlog-body .error-log { background: #ffffff; color: #000000; border-color: #000000; }
+.hd-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']), textarea) { background-color: #ffffff; color: #000000; border-color: #000000; }
+.hd-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select) {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23000000' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, #ffffff;
+  color: #000000; border-color: #000000; box-shadow: none;
+}
+.hd-root.win-root .win-alarm-editor :is(.dk-timefield, .win-alarm-time) { background-color: #ffffff; border-color: #000000; }
+.hd-root.win-root .win-settings :is(.win-eq-label, .win-eq-end, .win-lib-table th) { color: #000000; }
+.hd-root.win-root .win-settings .win-svc-name { color: #0000aa; }
+.hd-root.win-root .win-settings .dk-win-btn {
+  background: #c0c0c0; color: #000000; border: 1px solid #000000; box-shadow: inset -2px -2px #808080, inset 2px 2px #ffffff;
+}
+.hd-root.win-root .win-settings .dk-win-btn:hover:not(:disabled) { background: #d4d4d4; border-color: #000000; }
+.hd-root.win-root .win-settings .dk-win-btn:disabled, .hd-root.win-root .dk-win-btn:disabled {
+  background: #c0c0c0; color: #808080; border-color: #000000; text-shadow: none; box-shadow: inset -2px -2px #808080, inset 2px 2px #ffffff;
+}
+/* Group Rooms: its white panel is a well like the others, framed in black with a gray foot. */
+.hd-root.win-root .win-grouping::before { border-color: #000000; }
+.hd-root.win-root .win-grouping::after { background: #c0c0c0; border-top-color: #000000; }
+.hd-root.win-root .win-grouping :is(.dk-grouping-left, .dk-grouping-right, .dk-grouping-track, .dk-grouping-list label) { color: #000000; }
+.hd-root.win-root .win-grouping .dk-grouping-artist { color: #808080; }
+.hd-root.win-root .win-grouping .dk-grouping-art { background: #808080; }
+.hd-root.win-root input[type='checkbox'], .hd-root.win-root input[type='radio'] { background-color: #ffffff; border-color: #000000; }
+.hd-root.win-root input[type='checkbox']:hover:not(:disabled), .hd-root.win-root input[type='radio']:hover:not(:disabled) { background-color: #ffffff; border-color: #000000; }
+.hd-root.win-root input[type='checkbox']:disabled, .hd-root.win-root input[type='radio']:disabled { background-color: #c0c0c0; border-color: #808080; }
+/* The shared sheet fades a disabled button, and a faded gray face on red reads pink: Windows 3.1
+   draws it at full strength with its text grayed. */
+.hd-root.win-root .dk-win-btn:disabled { opacity: 1; }
+.hd-root.win-root .win-settings .dk-theme-version :is(span, em) { color: #000080; }
+/* The Sonos Upgrade Advisor fell back to a charcoal no Windows 3.1 scheme has:
+   it is a red window with white text in a black frame, like every other. */
+.hd-root .s2-dialog { background: #ff0000; color: #ffffff; border: 1px solid #000000; }
+.hd-root .s2-dialog-head { background: #000000; color: #ffffff; border-bottom-color: #000000; }
+.hd-root .s2-dialog-close { color: #ffffff; }
+.hd-root .s2-dialog-close:hover { background: #c0c0c0; color: #000000; }
+
+/* --- the last Windows 10 colors -----------------------------------------------------------------
+   The Settings tab strip and its tables, the shortcuts and alarms tables, the sleep timer's chosen
+   row and the confirmation box still wore the Windows app's own grays and blues. In the scheme a
+   frame is black, a cell rule is the button-shadow gray, the chosen row is the black highlight,
+   and a message box is a red window with white text over standard gray push buttons. */
+.hd-root.win-root .win-settings .dk-tabs { border-bottom-color: #000000; }
+/* The scheme's tabs in Settings too: the window chrome's white selected tab (written for the
+   Windows look) outranked the black one, and its white label vanished on it. */
+.hd-root.win-root .win-settings .dk-tabs button { background: #c0c0c0; color: #000000; border-color: #000000; }
+.hd-root.win-root .win-settings .dk-tabs button[aria-selected='true'] { background: #000000; color: #ffffff; }
+.hd-root.win-root :is(.win-lib-table, .win-shortcuts-table, .win-alarms-table) { border-color: #000000; }
+.hd-root.win-root :is(.win-lib-table, .win-shortcuts-table, .win-alarms-table) :is(th, td, [class*='head'] span) { border-color: #808080; }
+.hd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover { background: #cc0000; }
+.hd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: #000000; color: #ffffff; }
+.hd-root.win-root .win-message, .hd-root.win-root .win-message .dk-window-body,
+.hd-root.win-root .win-message-body, .hd-root.win-root .win-message-foot { background: #ff0000; color: #ffffff; }
+.hd-root.win-root .win-message :is(.win-message-heading, .win-message-line, .win-message-choices .dk-check) { color: #ffffff; }
+.hd-root.win-root .win-message-choices .dk-check small { color: #ffd0d0; }
+.hd-root.win-root .win-message-foot { border-top: 0; }
+.hd-root.win-root .win-message-foot .dk-win-btn {
+  background: #c0c0c0; color: #000000; border: 1px solid #000000; box-shadow: inset -2px -2px #808080, inset 2px 2px #ffffff;
+}
+.hd-root.win-root .win-message-foot .dk-win-btn:hover:not(:disabled) { background: #d4d4d4; border-color: #000000; }
+.hd-root.win-root .win-message-foot .dk-win-btn[data-default='true'] { border: 2px solid #000000; box-shadow: inset -2px -2px #808080, inset 2px 2px #ffffff; }
+/* The Upgrade Advisor's three eras: the shared red, amber and green vanish or clash on the red
+   window, so each is drawn in the scheme's own colors -- black-framed chips and bars, the oldest
+   pale, the middle yellow, the newest white. */
+.hd-root .s2-tier[data-tier] { color: #000000; background: #ffffff; box-shadow: inset 0 0 0 1px #000000; opacity: 1; }
+.hd-root .s2-tier[data-tier='legacy'] { background: #ffd0d0; }
+.hd-root .s2-tier[data-tier='s2.0'] { background: #ffff00; }
+.hd-root .s2-tl-bar[data-tier] { color: #000000; box-shadow: inset 0 0 0 1px #000000; }
+.hd-root .s2-tl-bar[data-tier='legacy'] { background: #ffd0d0; }
+.hd-root .s2-tl-bar[data-tier='s2.0'] { background: #ffff00; }
+.hd-root .s2-tl-bar[data-tier='s2.1'] { background: #ffffff; }
+/* The second-level windows, swept the same way: the share wizard is a red window like every other
+   dialog, the Add Music Services tabs are gray push-button faces in black frames with the chosen
+   one in the black highlight, the Labs list has the black frame of every well, and an option
+   button is the round one Windows 3.1 drew -- the theme's square corners are for boxes, not radios. */
+.hd-root.win-root .win-wizard-body { background: #ff0000; color: #ffffff; }
+.hd-root.win-root .win-wizard-body :is(h1, h2, h3, h4, p, label, li, span) { color: #ffffff; }
+.hd-root .dk-tabs { border-color: #000000; }
+.hd-root .dk-tabs button { background: #c0c0c0; color: #000000; border-color: #000000; }
+.hd-root .dk-tabs button[aria-selected='true'] { background: #000000; color: #ffffff; }
+.hd-root.win-root .win-svc-labs .win-svc-labs-list { border-color: #000000; }
+.hd-root.win-root input[type='radio'] { border-radius: 50% !important; }

@@ -1,0 +1,1563 @@
+/* Windows's own copy of desktop.css, which began as the sheet every desktop
+   skin shared (frontend/src/parts/). Every rule is scoped to
+   :root[data-theme='windows'] through :where(), so it weighs what it did and
+   reaches no other theme; edit it freely. */
+
+/* Sonos macOS Desktop theme.
+ *
+ * Geometry comes from the S1 desktop controller's own interface files: a
+ * 1006x750 main view split into an 80px transport strip and three panes of
+ * 264, 322 and 418 points; 32px header and footer bars; 35px device rows in
+ * the room tiles; 42px queue rows; 50px browse rows with 40px art at x=8; a
+ * 172x21 group-volume slider at x=57; transport buttons of 34/34/44/34/34 at
+ * offsets 11/55/99/154/198 in a 242px cluster; a 212x25 search field on the
+ * right. Colors are sampled from the tiles the application paints with.
+ * The Mac build's system menu bar and window title bar sit above it. */
+
+:where(:root[data-theme='windows']) .dk-root {
+  --dk-font: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--t-bg);
+  color: var(--t-fg);
+  font-family: var(--dk-font);
+  font-size: 13px;
+  line-height: 1.25;
+  user-select: none;
+}
+
+/* Zero-specificity reset, so a class on a button still wins its padding. */
+:where(:root[data-theme='windows']) :where(.dk-root) button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+:where(:root[data-theme='windows']) :where(.dk-root) button:disabled {
+  cursor: default;
+}
+
+:where(:root[data-theme='windows']) .dk-root ::-webkit-scrollbar {
+  width: 10px;
+}
+
+:where(:root[data-theme='windows']) .dk-root ::-webkit-scrollbar-thumb {
+  background: var(--t-thumb);
+  border-radius: 5px;
+}
+
+:where(:root[data-theme='windows']) .dk-root ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:where(:root[data-theme='windows']) .dk-root * {
+  scrollbar-color: var(--t-thumb) transparent;
+  scrollbar-width: thin;
+}
+
+/* --- menu bar and title bar (Mac chrome) ----------------------------------- */
+/* The system menu bar: 22px, light, 13px titles with 10px side padding, the
+   application title in bold. Menus are 13px in a rounded light panel with the
+   system blue highlight. The window's title bar is the unified 22px kind with
+   the three controls at the left and the title "Sonos" centered. */
+
+:where(:root[data-theme='windows']) .dk-menubar {
+  display: flex;
+  align-items: stretch;
+  height: 22px;
+  flex: none;
+  margin: 0;
+  padding: 0 0 0 10px;
+  background: var(--t-menubar-bg);
+  color: var(--t-menubar-fg);
+  font-size: 13px;
+  position: relative;
+  z-index: 30;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+}
+
+:where(:root[data-theme='windows']) .dk-menubar > li {
+  position: relative;
+  list-style: none;
+}
+
+:where(:root[data-theme='windows']) .dk-menubar-title {
+  height: 22px;
+  padding: 0 10px;
+  line-height: 22px;
+  border-radius: 4px;
+}
+
+:where(:root[data-theme='windows']) .dk-menubar-title[data-app='true'] {
+  font-weight: 700;
+}
+
+:where(:root[data-theme='windows']) .dk-menubar-title[aria-expanded='true'] {
+  background: var(--t-menu-hover);
+  color: #ffffff;
+}
+
+:where(:root[data-theme='windows']) .dk-menu {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  min-width: 230px;
+  margin: 0;
+  padding: 5px 0;
+  list-style: none;
+  background: var(--t-menu-bg);
+  border: 1px solid var(--t-menu-border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  color: var(--t-menubar-fg);
+}
+
+:where(:root[data-theme='windows']) .dk-menu-item {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 22px;
+  padding: 0 14px 0 22px;
+  align-items: center;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+:where(:root[data-theme='windows']) .dk-menu-item:hover:not(:disabled) {
+  background: var(--t-menu-hover);
+  color: #ffffff;
+}
+
+:where(:root[data-theme='windows']) .dk-menu-item:hover:not(:disabled) kbd {
+  color: #ffffff;
+}
+
+:where(:root[data-theme='windows']) .dk-menu-item:disabled {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+/* An item that opens a submenu ends in the arrow the system draws. */
+:where(:root[data-theme='windows']) .dk-menu-arrow { margin-left: 24px; font-size: 16px; line-height: 1; }
+
+:where(:root[data-theme='windows']) .dk-menu-item kbd {
+  font: inherit;
+  color: rgba(0, 0, 0, 0.5);
+  margin-left: 24px;
+  min-width: 42px;
+  text-align: right;
+}
+
+:where(:root[data-theme='windows']) .dk-menu-sep {
+  height: 1px;
+  margin: 5px 0;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+:where(:root[data-theme='windows']) .dk-titlebar {
+  position: relative;
+  flex: none;
+  height: 22px;
+  background: linear-gradient(#ececec, #d6d6d6);
+  border-bottom: 1px solid #b3b3b3;
+  color: #4d4d4d;
+  font-size: 13px;
+  line-height: 22px;
+  text-align: center;
+}
+
+:where(:root[data-theme='windows']) .dk-titlebar-home {
+  height: 22px;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: 22px;
+  cursor: pointer;
+}
+
+/* --- transport strip ------------------------------------------------------- */
+
+:where(:root[data-theme='windows']) .dk-strip {
+  position: relative;
+  flex: none;
+  height: 80px;
+  background: linear-gradient(var(--t-strip-top), var(--t-strip-mid) 50%, var(--t-strip-bottom));
+  border-bottom: 1px solid var(--t-border);
+}
+
+:where(:root[data-theme='windows']) .dk-strip-volume {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 240px;
+  height: 80px;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-volume-label {
+  position: absolute;
+  left: 9px;
+  top: 5px;
+  width: 221px;
+  height: 17px;
+  margin: 0;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-mute {
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-mute svg {
+  width: 22px;
+  height: 22px;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-slider {
+  position: absolute;
+  left: 57px;
+  top: 30px;
+  width: 172px;
+  height: 21px;
+}
+
+/* Five buttons at offsets 11/55/99/154/198 in a 242px cluster, 8px down. */
+:where(:root[data-theme='windows']) .dk-strip-controls {
+  position: absolute;
+  left: calc(50% - 121px);
+  top: 0;
+  width: 242px;
+  height: 58px;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-controls button {
+  position: absolute;
+  top: 8px;
+  height: 44px;
+  width: 34px;
+  display: grid;
+  place-items: center;
+  color: var(--t-fg);
+}
+
+:where(:root[data-theme='windows']) .dk-strip-controls button:disabled {
+  opacity: 0.3;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-controls button svg {
+  width: 20px;
+  height: 20px;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-controls .dk-btn-play {
+  width: 44px;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-controls .dk-btn-play svg {
+  width: 28px;
+  height: 28px;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-controls .dk-btn-back30 { left: 11px; }
+:where(:root[data-theme='windows']) .dk-strip-controls .dk-btn-prev { left: 55px; }
+:where(:root[data-theme='windows']) .dk-strip-controls .dk-btn-play { left: 99px; }
+:where(:root[data-theme='windows']) .dk-strip-controls .dk-btn-next { left: 154px; }
+:where(:root[data-theme='windows']) .dk-strip-controls .dk-btn-fwd30 { left: 198px; }
+
+/* The 448x22 progress row sits along the bottom of the strip. */
+:where(:root[data-theme='windows']) .dk-strip-progress {
+  position: absolute;
+  left: calc(50% - 224px);
+  bottom: 1px;
+  width: 448px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--t-fg-muted);
+}
+
+:where(:root[data-theme='windows']) .dk-strip-progress time {
+  width: 38px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-progress .dk-mode {
+  width: 20px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  color: var(--t-fg-dim);
+}
+
+:where(:root[data-theme='windows']) .dk-strip-progress .dk-mode[aria-pressed='true'] {
+  color: var(--t-fg);
+}
+
+:where(:root[data-theme='windows']) .dk-strip-progress .dk-mode svg {
+  width: 14px;
+  height: 14px;
+}
+
+:where(:root[data-theme='windows']) .dk-progress[data-seekable='false'] { cursor: default; }
+
+:where(:root[data-theme='windows']) .dk-progress {
+  position: relative;
+  flex: 1;
+  height: 22px;
+  cursor: pointer;
+}
+
+:where(:root[data-theme='windows']) .dk-progress-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  height: 2px;
+  background: var(--t-slider-track);
+}
+
+:where(:root[data-theme='windows']) .dk-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 10px;
+  height: 2px;
+  background: var(--t-slider-fill);
+}
+
+:where(:root[data-theme='windows']) .dk-progress-thumb {
+  position: absolute;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--t-fg);
+}
+
+:where(:root[data-theme='windows']) .dk-strip-search {
+  position: absolute;
+  right: 12px;
+  top: 26px;
+  width: 212px;
+  height: 25px;
+  display: flex;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-search input {
+  flex: 1;
+  height: 25px;
+  min-width: 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 12px 0 0 12px;
+  background: #ffffff;
+  color: #000000;
+  font: inherit;
+  outline: none;
+}
+
+/* The button sits on the pill and takes the pill's own color: both desktop
+   apps have a white pill, so painting it white here looked right in them and
+   left a white square on any theme that repaints the pill (Outrun). */
+:where(:root[data-theme='windows']) .dk-strip-search button {
+  width: 30px;
+  height: 25px;
+  border-radius: 0 12px 12px 0;
+  background: transparent;
+  color: #000000;
+  display: grid;
+  place-items: center;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-search button svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* --- panes ------------------------------------------------------------------ */
+
+:where(:root[data-theme='windows']) .dk-panes {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 264px 1px 322px 1px minmax(418px, 1fr);
+}
+
+:where(:root[data-theme='windows']) .dk-divider {
+  background: var(--t-border);
+}
+
+:where(:root[data-theme='windows']) .dk-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* 32px header: navy gradient, a black rule and a lighter line below it. */
+:where(:root[data-theme='windows']) .dk-header {
+  flex: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  background: linear-gradient(var(--t-header-top), var(--t-header-bottom) 94%, #000000 94%, #000000 97%, var(--t-header-rule) 97%);
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+:where(:root[data-theme='windows']) .dk-header-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  font: inherit;
+}
+
+:where(:root[data-theme='windows']) .dk-header-sub {
+  margin-left: 6px;
+  font-weight: 400;
+  color: var(--t-fg-muted);
+}
+
+:where(:root[data-theme='windows']) .dk-header-btn {
+  height: 32px;
+  min-width: 30px;
+  display: grid;
+  place-items: center;
+  color: var(--t-fg);
+}
+
+:where(:root[data-theme='windows']) .dk-header-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+:where(:root[data-theme='windows']) .dk-header-btn.dk-header-back {
+  width: 42px;
+  margin-left: -12px;
+}
+
+:where(:root[data-theme='windows']) .dk-header-btn.dk-header-home {
+  width: 30px;
+  margin-right: -6px;
+}
+
+:where(:root[data-theme='windows']) .dk-header-home-label { display: none; }
+
+/* The search results' scope bar, standing where the header would be: a back
+   button and a tab per category the provider searches. */
+:where(:root[data-theme='windows']) .dk-scopebar { flex: none; display: flex; align-items: stretch; height: 31px; background: var(--t-surface); overflow: hidden; }
+:where(:root[data-theme='windows']) .dk-scopebar-back { flex: none; width: 40px; display: grid; place-items: center; border: 0; background: none; color: var(--t-fg); }
+:where(:root[data-theme='windows']) .dk-scopebar-back svg { width: 14px; height: 14px; }
+:where(:root[data-theme='windows']) .dk-scopebar-tabs { flex: 1; min-width: 0; display: flex; align-items: stretch; overflow: hidden; }
+:where(:root[data-theme='windows']) .dk-scopebar-tabs button { flex: 1; min-width: 0; border: 0; background: none; color: var(--t-fg); font: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* With both systems on show, the sources belonging to the system the chosen
+   room is not on are dimmed and take no clicks (they cannot play there). */
+:where(:root[data-theme='windows']) .dk-browse-other-system { opacity: 0.4; }
+/* Collapsed with the queue's own movement: a 260ms ease on the row block's
+   grid track, so the list slides shut rather than blinking out. */
+:where(:root[data-theme='windows']) .dk-browse-section-rows { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 260ms ease; }
+:where(:root[data-theme='windows']) .dk-browse-section-rows[data-collapsed='true'] { grid-template-rows: 0fr; }
+:where(:root[data-theme='windows']) .dk-browse-section-rows > div { min-height: 0; overflow: hidden; }
+:where(:root[data-theme='windows']) .dk-browse-section { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+/* The S1 / S2 system headers collapse their section on a click, so the
+   pointer says so. */
+:where(:root[data-theme='windows']) .dk-browse-section[role='button'] { cursor: pointer; }
+:where(:root[data-theme='windows']) .dk-browse-section-caret { display: grid; place-items: center; width: 24px; height: 18px; padding: 0; border: 0; background: none; color: inherit; }
+:where(:root[data-theme='windows']) .dk-browse-section-caret svg { width: 12px; height: 12px; }
+:where(:root[data-theme='windows']) .dk-browse-other-system .dk-browse-row { pointer-events: none; cursor: default; }
+:where(:root[data-theme='windows']) .dk-browse-other-system .dk-browse-row:hover { background: none; }
+
+/* A built-in source's glyph beside the header title (white disc, like its row). */
+:where(:root[data-theme='windows']) .dk-header-glyph { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; margin-right: 6px; background: #ffffff; color: #1b1b1b; flex: none; }
+:where(:root[data-theme='windows']) .dk-header-glyph svg { width: 13px; height: 13px; }
+
+:where(:root[data-theme='windows']) .dk-footer {
+  flex: none;
+  display: flex;
+  height: 32px;
+  background: var(--t-surface);
+  border-top: 1px solid var(--t-border);
+}
+
+:where(:root[data-theme='windows']) .dk-footer button {
+  flex: 1;
+  height: 32px;
+  font-size: 13px;
+  color: var(--t-fg);
+  border-left: 1px solid var(--t-border);
+}
+
+:where(:root[data-theme='windows']) .dk-footer button:first-child {
+  border-left: 0;
+}
+
+:where(:root[data-theme='windows']) .dk-footer button:hover:not(:disabled) {
+  background: var(--t-surface-hover);
+}
+
+:where(:root[data-theme='windows']) .dk-footer button:disabled {
+  color: var(--t-fg-dim);
+}
+
+:where(:root[data-theme='windows']) .dk-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+:where(:root[data-theme='windows']) .dk-empty {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  color: var(--t-info);
+  font-size: 14px;
+}
+
+:where(:root[data-theme='windows']) .dk-empty svg {
+  width: 96px;
+  height: 96px;
+  color: var(--t-fg-dim);
+  opacity: 0.6;
+}
+
+/* --- rooms ------------------------------------------------------------------ */
+
+:where(:root[data-theme='windows']) .dk-rooms-list {
+  padding: 6px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* A tile: 25px top cap fading from the edge color into the fill, 26px
+   bottom cap, 7px/6px side radii. */
+:where(:root[data-theme='windows']) .dk-tile {
+  position: relative;
+  border-radius: 7px 6px 6px 7px;
+  background: linear-gradient(var(--t-tile-edge), var(--t-tile) 25px);
+  text-align: left;
+  color: var(--t-fg);
+  width: 100%;
+}
+
+:where(:root[data-theme='windows']) .dk-tile:hover {
+  background: linear-gradient(var(--t-tile-hover-edge), var(--t-tile-hover) 25px);
+}
+
+:where(:root[data-theme='windows']) .dk-tile[aria-pressed='true'] {
+  background: linear-gradient(var(--t-tile-selected-edge), var(--t-tile-selected) 25px);
+  /* The theme guide's promise: a theme whose selected tile is dark names its
+     text here. Only the Windows skin had read it, so an installed theme's
+     room name went navy on navy (the theme-guide test). */
+  color: var(--t-tile-selected-fg, var(--t-fg));
+}
+
+:where(:root[data-theme='windows']) .dk-tile-devices {
+  padding: 6px 48px 0 12px;
+}
+
+:where(:root[data-theme='windows']) .dk-tile-device {
+  display: flex;
+  align-items: flex-start;
+  height: 35px;
+  padding-top: 8px;
+  gap: 8px;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:where(:root[data-theme='windows']) .dk-tile-devices > .dk-tile-device:has(.dk-tile-battery) { flex-wrap: wrap; row-gap: 0; height: auto; }
+/* The battery under the name: a 20x12 glyph and the level in 9px type, 2px
+   apart, in the name's own color (zoneplayercontrol.xaml's adornment row). */
+:where(:root[data-theme='windows']) .dk-tile-battery { flex-basis: 100%; display: flex; align-items: center; gap: 2px; margin-top: 2px; font-size: 9px; line-height: 12px; }
+:where(:root[data-theme='windows']) .dk-tile-battery[data-low] .sn-battery-glyph { color: var(--t-critical, #d93025); }
+
+:where(:root[data-theme='windows']) .dk-tile-device small {
+  font-size: 11px;
+  color: var(--t-fg-muted);
+  margin-left: auto;
+  padding-left: 8px;
+}
+
+:where(:root[data-theme='windows']) .dk-tile-group {
+  position: absolute;
+  top: 11px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background: rgba(4, 46, 81, 0.8);
+  color: var(--t-fg);
+}
+
+:where(:root[data-theme='windows']) .dk-tile-group:hover {
+  background: rgba(5, 64, 112, 0.8);
+}
+
+:where(:root[data-theme='windows']) .dk-tile-group svg {
+  width: 20px;
+  height: 20px;
+}
+
+:where(:root[data-theme='windows']) .dk-tile-now {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px 0 3px;
+  gap: 0;
+}
+
+:where(:root[data-theme='windows']) .dk-tile-indicator {
+  width: 28px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  color: var(--t-fg);
+}
+
+:where(:root[data-theme='windows']) .dk-tile-indicator svg {
+  width: 9px;
+  height: 9px;
+}
+
+:where(:root[data-theme='windows']) .dk-tile-state-win {
+  display: none;
+}
+
+:where(:root[data-theme='windows']) .dk-browse-add-chev {
+  display: none;
+}
+
+:where(:root[data-theme='windows']) .dk-tile-marquee {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  line-height: 22px;
+  font-size: 12px;
+  color: var(--t-fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- now playing ----------------------------------------------------------- */
+
+:where(:root[data-theme='windows']) .dk-center {
+  display: grid;
+  grid-template-rows: 273px 1px 1fr;
+  min-height: 0;
+}
+
+:where(:root[data-theme='windows']) .dk-now {
+  position: relative;
+  height: 241px;
+}
+
+:where(:root[data-theme='windows']) .dk-now-art {
+  position: absolute;
+  left: 16px;
+  top: 20px;
+  width: 139px;
+  height: 139px;
+  background: #1e1e1e;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+:where(:root[data-theme='windows']) .dk-now-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+:where(:root[data-theme='windows']) .dk-now-art svg {
+  width: 56px;
+  height: 56px;
+  color: #6b6b6b;
+}
+
+:where(:root[data-theme='windows']) .dk-now-lines {
+  position: absolute;
+  left: 182px;
+  right: 9px;
+  top: 56px;
+}
+
+:where(:root[data-theme='windows']) .dk-now-line {
+  height: 16px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The app's explicit badge sits 5px after the title and 5px before whatever
+   follows, its baseline one pixel above the text's
+   (nowplaying/metadatacontrol.xaml: Width="11" Margin="5,0,5,1"). */
+:where(:root[data-theme='windows']) .dk-now-explicit {
+  display: inline-block;
+  vertical-align: baseline;
+  margin: 0 5px 1px 5px;
+}
+
+:where(:root[data-theme='windows']) .dk-now-line.dk-now-title {
+  color: var(--t-fg);
+  font-weight: 600;
+}
+
+:where(:root[data-theme='windows']) .dk-now-line.dk-now-muted {
+  color: var(--t-fg-muted);
+}
+
+:where(:root[data-theme='windows']) .dk-now-info {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  height: 24px;
+  padding: 0 8px 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--t-fg-muted);
+}
+
+:where(:root[data-theme='windows']) .dk-now-info svg {
+  width: 16px;
+  height: 16px;
+}
+
+:where(:root[data-theme='windows']) .dk-now-status {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 12px;
+  height: 16px;
+  font-size: 12px;
+  color: var(--t-fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- queue ------------------------------------------------------------------ */
+
+:where(:root[data-theme='windows']) .dk-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 42px;
+  padding: 0 8px 0 8px;
+  gap: 8px;
+  text-align: left;
+  color: var(--t-fg);
+  border-radius: 0 6px 6px 0;
+}
+
+:where(:root[data-theme='windows']) .dk-row:hover {
+  background: var(--t-row-hover);
+}
+
+:where(:root[data-theme='windows']) .dk-row[aria-current='true'] {
+  background: var(--t-row-playing);
+}
+
+:where(:root[data-theme='windows']) .dk-row[aria-selected='true'] {
+  background: linear-gradient(var(--t-row-selected-edge), var(--t-row-selected) 4px);
+}
+
+:where(:root[data-theme='windows']) .dk-row-num {
+  width: 26px;
+  flex: none;
+  font-size: 11px;
+  color: var(--t-fg-dim);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+:where(:root[data-theme='windows']) .dk-row-num svg {
+  width: 9px;
+  height: 9px;
+  color: var(--t-fg);
+}
+
+:where(:root[data-theme='windows']) .dk-row-text {
+  flex: 1;
+  min-width: 0;
+}
+
+:where(:root[data-theme='windows']) .dk-row-title {
+  margin: 0;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:where(:root[data-theme='windows']) .dk-row-sub {
+  margin: 1px 0 0;
+  font-size: 11px;
+  color: var(--t-fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:where(:root[data-theme='windows']) .dk-row-dur {
+  flex: none;
+  font-size: 11px;
+  color: var(--t-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- browse ----------------------------------------------------------------- */
+
+:where(:root[data-theme='windows']) .dk-browse-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+  padding: 0 12px 0 8px;
+  gap: 8px;
+  text-align: left;
+  color: var(--t-fg);
+}
+
+:where(:root[data-theme='windows']) .dk-browse-row:hover {
+  background: var(--t-row-hover);
+}
+
+/* The app paints this list with two backgrounds only: the row, and the hover
+   tint. That hover tint also covers the row whose menu is open and the row
+   last browsed into, which stays lit after you come back (#1a1a1a / #262626
+   on the S1 app's source list, 2026-09-11). */
+:where(:root[data-theme='windows']) .dk-browse-row[aria-selected='true'] {
+  background: var(--t-row-hover);
+}
+
+/* The caret goes from dim gray to solid white while its own menu is open
+   (bttn_dd_pressed, measured on the same row). */
+:where(:root[data-theme='windows']) .dk-browse-row[data-menu='open'] .dk-browse-actions {
+  opacity: 1;
+  color: var(--t-fg);
+}
+
+:where(:root[data-theme='windows']) .dk-browse-art {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: #1e1e1e;
+  overflow: hidden;
+}
+
+:where(:root[data-theme='windows']) .dk-browse-art img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}
+
+:where(:root[data-theme='windows']) .dk-browse-art svg {
+  width: 20px;
+  height: 20px;
+  color: #8a8a8a;
+}
+
+:where(:root[data-theme='windows']) .dk-browse-art.dk-browse-glyph {
+  border-radius: 50%;
+  background: #ffffff;
+  overflow: visible;
+}
+
+:where(:root[data-theme='windows']) .dk-browse-art.dk-browse-glyph svg {
+  color: #1b1b1b;
+}
+
+/* Service logos arrive already drawn as circles on their own color, so the
+   white disc is dropped behind them: painting a second circle under the first
+   leaves a pale, stepped rim where the two edges' anti-aliasing overlaps. */
+:where(:root[data-theme='windows']) .dk-browse-art.dk-browse-glyph:has(img) {
+  background: transparent;
+}
+
+:where(:root[data-theme='windows']) .dk-browse-art.dk-browse-glyph img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+:where(:root[data-theme='windows']) .dk-browse-text {
+  flex: 1;
+  min-width: 0;
+  padding-left: 8px;
+}
+
+:where(:root[data-theme='windows']) .dk-browse-title {
+  margin: 0;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The words a search matched lean, in the app's bold italic: every Pandora
+   result for "the cure" wears it over the part that matched and stands
+   upright over the rest (measured in the S1 app 2026-09-20). */
+:where(:root[data-theme='windows']) .dk-browse-title em {
+  font-style: italic;
+  font-weight: 600;
+}
+/* The second line is marked too, for the skins that lean it there; the rest
+   draw it upright. */
+:where(:root[data-theme='windows']) .dk-browse-sub em { font-style: inherit; font-weight: inherit; }
+
+:where(:root[data-theme='windows']) .dk-browse-sub {
+  margin: 1px 0 0;
+  font-size: 11px;
+  color: var(--t-fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:where(:root[data-theme='windows']) .dk-browse-disclosure {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  color: var(--t-fg-muted);
+}
+
+:where(:root[data-theme='windows']) .dk-browse-actions {
+  flex: none;
+  width: 44px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: var(--t-fg-muted);
+  border-radius: 4px;
+}
+
+:where(:root[data-theme='windows']) .dk-browse-actions:hover {
+  background: var(--t-surface-hover);
+  color: var(--t-fg);
+}
+
+:where(:root[data-theme='windows']) .dk-browse-actions svg {
+  width: 12px;
+  height: 12px;
+}
+
+:where(:root[data-theme='windows']) .dk-browse-note {
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--t-fg-muted);
+}
+
+/* An empty container's one line. The app centers it across the pane and sets
+   it about 128px below the header rather than in the middle of the height
+   (measured 2026-09-14 on a 665px pane). */
+:where(:root[data-theme='windows']) .dk-browse-empty {
+  margin: 128px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--t-fg);
+}
+
+/* The "link this service in Sonora" prompt shown when a household service has
+   no Sonora account yet. */
+:where(:root[data-theme='windows']) .dk-browse-link {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+:where(:root[data-theme='windows']) .dk-browse-link p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--t-fg-muted);
+}
+
+/* Action popover: the dark #262626 panel with 15px corners. */
+
+:where(:root[data-theme='windows']) .dk-popover-title {
+  padding: 4px 16px 8px;
+  font-size: 12px;
+  color: var(--t-fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+/* --- slider ----------------------------------------------------------------- */
+
+:where(:root[data-theme='windows']) .dk-slider {
+  position: relative;
+  height: 21px;
+  display: flex;
+  align-items: center;
+}
+
+:where(:root[data-theme='windows']) .dk-slider-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  height: 2px;
+  background: var(--t-slider-track);
+  border-radius: 1px;
+}
+
+:where(:root[data-theme='windows']) .dk-slider-fill {
+  position: absolute;
+  left: 0;
+  top: 10px;
+  height: 2px;
+  background: var(--t-slider-fill);
+  border-radius: 1px;
+}
+
+:where(:root[data-theme='windows']) .dk-slider input {
+  position: relative;
+  width: 100%;
+  height: 21px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+:where(:root[data-theme='windows']) .dk-slider input::-webkit-slider-thumb {
+  appearance: none;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+:where(:root[data-theme='windows']) .dk-slider input::-moz-range-thumb {
+  width: 19px;
+  height: 19px;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+:where(:root[data-theme='windows']) .dk-slider input:disabled::-moz-range-thumb {
+  background: #868686;
+}
+
+/* --- dialogs (Mac windows over the dark application) ------------------------ */
+
+/* Preferences: 800x500 with a 180px table of contents. */
+
+/* Mac segmented tabs. */
+
+/* The EQ tab: bold 12px captions in a 180px column, 240px sliders at x=192
+   with 11px scale labels, Loudness below, Reset centered. */
+
+/* Mac push button: white with a faint gradient, 5px corners, 13px text. */
+/* The default (blue) button keeps its blue on hover, a touch darker, the way
+   the Mac and Windows apps do. Without this the generic gray hover above wins
+   and leaves white text on gray. */
+
+:where(:root[data-theme='windows']) .dk-prefs-list {
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+  background: #ffffff;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+:where(:root[data-theme='windows']) .dk-prefs-list div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  border-bottom: 1px solid #eeeeee;
+}
+
+:where(:root[data-theme='windows']) .dk-prefs-list img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+/* Group Rooms: 480x372 with a 220x206 list at x=233. */
+
+:where(:root[data-theme='windows']) .dk-grouping-note {
+  position: absolute;
+  left: 28px;
+  right: 200px;
+  bottom: 12px;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* Notices, in the application's own dark popover style. */
+:where(:root[data-theme='windows']) .dk-notices {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 320px;
+}
+
+:where(:root[data-theme='windows']) .dk-notice {
+  padding: 10px 12px;
+  background: var(--t-surface);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+}
+
+:where(:root[data-theme='windows']) .dk-notice strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+:where(:root[data-theme='windows']) .dk-notice button {
+  margin-top: 6px;
+  color: var(--t-info);
+}
+
+/* Add Music Services: a Mac list of the catalog, then the code to enter. */
+
+/* A service the provider will not sign in from Sonora: shown, but grayed and
+   not selectable. */
+
+:where(:root[data-theme='windows']) .dk-add-waiting {
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 12px;
+}
+
+/* Parental Controls, the Windows tab's arrangement in this window's dress:
+   a paragraph, then two 260px buttons centered under it, 10 and 20 apart. */
+
+/* Selectors in the strip, sitting just left of the 212px search box: a
+   development-only theme switcher and the S1/S2 system toggle. */
+:where(:root[data-theme='windows']) .dk-strip-aux {
+  position: absolute;
+  right: 236px;
+  top: 28px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The development-only theme switcher at the end of the menu bar, past Help.
+   Pushed to the far end of the row and drawn in the bar's own colors, so it
+   reads as part of the chrome rather than as a control the app has. */
+:where(:root[data-theme='windows']) .dk-menubar-aside { list-style: none; margin-left: auto; display: flex; align-items: center; padding-right: 8px; }
+:where(:root[data-theme='windows']) .dk-menubar-theme select {
+  height: 18px;
+  max-width: 170px;
+  padding: 0 4px;
+  border: 1px solid var(--t-border, rgba(255, 255, 255, 0.18));
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  opacity: 0.75;
+}
+:where(:root[data-theme='windows']) .dk-menubar-theme select:hover, :where(:root[data-theme='windows']) .dk-menubar-theme select:focus { opacity: 1; }
+:where(:root[data-theme='windows']) .dk-menubar-theme option { color: initial; background: Canvas; }
+
+:where(:root[data-theme='windows']) .dk-strip-select {
+  height: 22px;
+}
+
+:where(:root[data-theme='windows']) .dk-strip-select select {
+  height: 22px;
+  max-width: 150px;
+  padding: 0 4px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--t-fg);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* "S1" / "S2" header above each system's music sources. */
+:where(:root[data-theme='windows']) .dk-browse-section {
+  margin: 0;
+  padding: 8px 12px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--t-fg-muted);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* A real service logo in the add list, when one is available; falls back to
+   the lettered monogram otherwise. */
+
+/* System subheader in the Preferences room list. */
+:where(:root[data-theme='windows']) .dk-prefs-subhead {
+  margin: 8px 12px 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* Loading feedback in the Add Music Services flow. */
+
+/* Blocking overlay, per main/busyskin.xaml: the window dims under #000 at
+   50%, and a transient-message box (280-410 wide, 50 tall at least) holds a
+   28px spinner 10px above the message, its 12px progress bar and Cancel
+   10px below. */
+
+/* "Add Music Services" closes the source list of the system the chosen room
+   is on: a top rule and a little breathing room set it off from the last
+   service above it. */
+:where(:root[data-theme='windows']) .dk-browse-add {
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+  padding: 0;
+  border-top: 1px solid var(--t-border);
+}
+
+:where(:root[data-theme='windows']) .dk-browse-add-main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  padding: 0 12px 0 8px;
+  text-align: left;
+  color: inherit;
+}
+
+
+/* Service Settings: a selectable list, as the application's pane is. */
+:where(:root[data-theme='windows']) .dk-prefs-list-select > div { cursor: default; border-radius: 4px; }
+:where(:root[data-theme='windows']) .dk-prefs-list-select > div[aria-selected='true'] {
+  background: #2f6fe3;
+  color: #ffffff;
+}
+:where(:root[data-theme='windows']) .dk-prefs-list-select > div[aria-selected='true'] span { color: inherit !important; }
+
+/* Checkboxes on the light dialogs: render as the Mac/Windows do — a white box
+   with a gray border unchecked, blue when checked — rather than the near-black
+   the dark color-scheme gives them. Disabled rows dim, not just go inert. */
+/* Dialogs are light panels on a dark app; every native control in them must
+   draw in the light scheme, or Firefox paints them near-black. */
+:where(:root[data-theme='windows']) .dk-root input[type="checkbox"] { color-scheme: light; accent-color: #2f6fe3; }
+
+/* Inline "add it from the other system's services" link in the linked message. */
+
+/* Caution mark on service rows, and beside the browse-pane explanations. */
+:where(:root[data-theme='windows']) .dk-browse-art { position: relative; }
+:where(:root[data-theme='windows']) .dk-browse-art .svc-caution { width: 16px; height: 16px; right: 0; bottom: 0; }
+:where(:root[data-theme='windows']) .dk-browse-art .svc-caution svg { width: 10px; height: 10px; }
+:where(:root[data-theme='windows']) .dk-caution-row { display: flex; gap: 14px; align-items: center; align-self: stretch; }
+:where(:root[data-theme='windows']) .dk-caution-row > p { margin: 0; }
+:where(:root[data-theme='windows']) .dk-browse-link .dk-caution-row + button { margin-top: 10px; }
+
+/* Date and Time Settings pane. */
+
+/* Sleep Timer and Alarms dialogs. */
+
+/* The room after "Now Playing": hidden here, shown by the Windows and Mac
+   shells (both apps print it -- "Now Playing (<room>)", 2026-09-15). */
+:where(:root[data-theme='windows']) .dk-header-room { display: none; }
+
+/* The account dropdown on a root row is always shown -- the app pins its caret
+   on without hover whenever the row's actions include a selectable one, which
+   is exactly the account picker (the S1 app's Spotify row, 2026-09-11). The
+   selector has to out-weigh the hover rule for carets further down. */
+:where(:root[data-theme='windows']) .dk-browse-row .dk-browse-actions.dk-browse-accounts { opacity: 1; }
+/* An account or scope in use is marked by its tick, not by weight. */
+
+/* The tile's group badge: the Mac glyph by default, the Windows speaker
+   outline when that theme asks for it. */
+:where(:root[data-theme='windows']) .dk-tile-group-win { display: none; }
+
+/* Title-bar app icon: Windows chrome only. */
+
+/* Group Rooms footer buttons (were inline). */
+/* Windows-only details on shared markup, hidden here. */
+:where(:root[data-theme='windows']) .dk-header-logo { display: none; }
+:where(:root[data-theme='windows']) .dk-browse-failed { display: none; }
+/* A service playlist the account only follows: shown, not to be picked. */
+:where(:root[data-theme='windows']) .dk-browse-readonly { cursor: default; }
+:where(:root[data-theme='windows']) .dk-browse-readonly .dk-browse-title, :where(:root[data-theme='windows']) .dk-browse-readonly .dk-browse-sub { color: var(--t-fg-dim); }
+:where(:root[data-theme='windows']) .dk-row-art { display: none; }
+
+/* A row's caret shows on hover (and keyboard focus), as the app's does. */
+:where(:root[data-theme='windows']) .dk-browse-row .dk-browse-actions { opacity: 0; }
+:where(:root[data-theme='windows']) .dk-browse-row:hover .dk-browse-actions,
+:where(:root[data-theme='windows']) .dk-browse-row:focus-within .dk-browse-actions,
+:where(:root[data-theme='windows']) .dk-browse-actions:focus-visible { opacity: 1; }
+:where(:root[data-theme='windows']) .dk-popover-sep { margin: 4px 0; border: 0; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+
+/* Windows-app details on the center pane, hidden until that theme shows them. */
+:where(:root[data-theme='windows']) .dk-now-info-header, :where(:root[data-theme='windows']) .dk-now-source, :where(:root[data-theme='windows']) .dk-now-rating, :where(:root[data-theme='windows']) .dk-queue-collapse { display: none; }
+/* The TuneIn wordmark under the art is a Windows-app detail, like the rest. */
+:where(:root[data-theme='windows']) .dk-now-badge { display: none; }
+/* The reserved-but-empty chevron slot is the Windows app's own layout: the
+   Mac-shaped themes keep their tighter right edge. */
+:where(:root[data-theme='windows']) .dk-browse-disclosure-blank { display: none; }
+
+/* The tile's state glyph is not a control. */
+:where(:root[data-theme='windows']) .dk-tile-indicator { pointer-events: none; background: none; border: 0; }
+
+/* Info & Options page in the browse pane (Windows theme; the Mac keeps its window). */
+:where(:root[data-theme='windows']) .dk-info-block { display: flex; gap: 14px; padding: 12px 16px 10px; }
+:where(:root[data-theme='windows']) .dk-info-art { flex: none; width: 64px; height: 64px; overflow: hidden; }
+:where(:root[data-theme='windows']) .dk-info-block dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; margin: 0; font-size: 12px; min-width: 0; }
+:where(:root[data-theme='windows']) .dk-info-block dt { color: var(--t-fg-muted); text-align: right; }
+:where(:root[data-theme='windows']) .dk-info-block dd { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:where(:root[data-theme='windows']) .dk-info-row[aria-disabled='true'] { color: var(--t-fg-dim); }
+
+/* Group volume popover under the strip's volume control. */
+:where(:root[data-theme='windows']) .dk-strip-group-toggle { background: none; border: 0; text-align: left; cursor: default; color: inherit; font: inherit; }
+:where(:root[data-theme='windows']) .dk-group-volume {
+  position: absolute; left: 8px; top: 76px; z-index: 60; width: 250px; padding: 14px 16px 6px;
+  background: #262626; color: #ffffff; border-radius: 6px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+:where(:root[data-theme='windows']) .dk-group-volume::before { content: ''; position: absolute; left: 118px; top: -10px; border: 10px solid transparent; border-bottom-color: #262626; border-top: 0; }
+:where(:root[data-theme='windows']) .dk-group-volume-row { margin-bottom: 12px; }
+:where(:root[data-theme='windows']) .dk-group-volume-row strong { display: block; margin-bottom: 6px; font-size: 13px; }
+:where(:root[data-theme='windows']) .dk-group-volume-ctl { display: flex; align-items: center; gap: 8px; }
+:where(:root[data-theme='windows']) .dk-group-volume-ctl .dk-strip-mute { position: static; width: 24px; height: 24px; flex: none; }
+:where(:root[data-theme='windows']) .dk-group-volume-ctl > :last-child { flex: 1; min-width: 0; }
+
+/* Search scope badge in the pill, and its menu under the strip. */
+/* The scope badge as the app's: the logo in a ringed circle, a small caret
+   to its right, then the placeholder. */
+:where(:root[data-theme='windows']) .dk-strip-scope { flex: none; display: flex; align-items: center; gap: 3px; height: 100%; padding: 0 3px 0 7px; border: 0; background: transparent; color: inherit; }
+:where(:root[data-theme='windows']) .dk-strip-scope img, :where(:root[data-theme='windows']) .dk-strip-scope > svg:first-child { width: 18px; height: 18px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25); padding: 0; box-sizing: border-box; }
+:where(:root[data-theme='windows']) .dk-strip-scope > svg:first-child { padding: 3px; }
+:where(:root[data-theme='windows']) .dk-strip-scope > svg:last-child { width: 8px; height: 8px; color: #6a6a6a; }
+/* As tall as its list, as the apps' menu is, down to the window's foot: at
+   360px it hid the last service (TuneIn, with 17 scopes) and the recent
+   searches behind a scroll. */
+:where(:root[data-theme='windows']) .dk-scope-menu { position: absolute; top: 54px; right: 12px; z-index: 60; min-width: 220px; max-height: calc(100vh - 70px); overflow: auto; }
+:where(:root[data-theme='windows']) .dk-scope-menu button { display: flex; align-items: center; gap: 10px; }
+:where(:root[data-theme='windows']) .dk-scope-menu button img, :where(:root[data-theme='windows']) .dk-scope-menu button svg { width: 18px; height: 18px; border-radius: 50%; flex: none; }
+/* The current scope is marked by its tick alone, as the app's menu does. */
+/* The current scope carries a tick in a 19px column ahead of the logo
+   (searchcontextmenustyles.xaml's MenuItemIconColumnGroup + capture), and
+   what was typed before follows under a "Recent Searches" heading. */
+:where(:root[data-theme='windows']) .dk-scope-check { flex: none; display: grid; place-items: center; width: 19px; }
+:where(:root[data-theme='windows']) .dk-scope-check svg { width: 11px; height: 13px; }
+:where(:root[data-theme='windows']) .dk-scope-heading { margin: 0; padding: 3px 0 3px 19px; color: var(--t-fg-dim); }
+:where(:root[data-theme='windows']) .dk-scope-menu .dk-scope-recent { padding-left: 30px; }
+
+/* Choose Music, when grouping merges rooms that are each playing something
+   (the apps' GroupingMusicPicker). */
+
+/* Transient message over the window (the app's TransientMessagePopover). */
+:where(:root[data-theme='windows']) .dk-now-rating button[aria-pressed='true'] { background: #1a1a1a !important; color: #ffffff !important; }
+
+/* The badge is not the pill's magnifier button: lay its logo and caret side by side. */
+:where(:root[data-theme='windows']) .dk-strip-search .dk-strip-scope { position: static; display: flex; width: auto; height: 100%; padding: 0 3px 0 7px; margin: 0; border-radius: 0; background: transparent; }
+
+/* Page slides in the browse pane, as the app's BrowsePanel animates them:
+   350ms, exponential ease in-out, the new list from the right (forward) or
+   the left (back) while a static copy of the old one leaves the other way. */
+:where(:root[data-theme='windows']) .dk-slide-stage { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+:where(:root[data-theme='windows']) .dk-slide-stage > .dk-scroll { flex: 1; min-height: 0; }
+:where(:root[data-theme='windows']) .dk-slide-out { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; background: inherit; }
+:where(:root[data-theme='windows']) .dk-slide-out-forward { animation: dk-slide-out-left--windows 350ms cubic-bezier(0.7, 0, 0.3, 1) forwards; }
+:where(:root[data-theme='windows']) .dk-slide-out-back { animation: dk-slide-out-right--windows 350ms cubic-bezier(0.7, 0, 0.3, 1) forwards; }
+:where(:root[data-theme='windows']) .dk-slide-in-forward { animation: dk-slide-in-from-right--windows 350ms cubic-bezier(0.7, 0, 0.3, 1); }
+:where(:root[data-theme='windows']) .dk-slide-in-back { animation: dk-slide-in-from-left--windows 350ms cubic-bezier(0.7, 0, 0.3, 1); }
+@keyframes dk-slide-out-left--windows { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@keyframes dk-slide-out-right--windows { from { transform: translateX(0); } to { transform: translateX(100%); } }
+@keyframes dk-slide-in-from-right--windows { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes dk-slide-in-from-left--windows { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+
+/* Sonos Favorites whose service has left the system: grayed, with the app's
+   missing-service mark in place of art. The rename dialog's field. */
+:where(:root[data-theme='windows']) .dk-browse-unavailable { color: var(--t-fg-dim); }
+:where(:root[data-theme='windows']) .dk-browse-unavailable .dk-browse-sub { color: var(--t-fg-dim); }
+:where(:root[data-theme='windows']) .dk-browse-missing { width: 24px; height: 24px; margin: 8px; color: #8a8a8a; opacity: 0.55; }
+:where(:root[data-theme='windows']) .dk-browse-art:has(.dk-browse-missing) { display: grid; place-items: center; background: rgba(255, 255, 255, 0.06); }
+
+/* A row the service itself refuses -- Mixcloud's subscriber-only shows, a
+   track outside the plan. Both S1 apps dim the title, leave the second line
+   at its usual gray, and draw a slashed circle in place of the cover: the
+   library substitutes SCALBUMART_RESTRICTED for the art, so the picture the
+   service sent never appears. Each skin sets the grays its own app ships. */
+:where(:root[data-theme='windows']) .dk-browse-restricted .dk-browse-title { color: var(--t-fg-dim); }
+:where(:root[data-theme='windows']) .dk-browse-art svg.dk-browse-restricted-art { width: 18px; height: 18px; color: var(--t-fg-dim); }
+:where(:root[data-theme='windows']) .dk-browse-art:has(.dk-browse-restricted-art) { display: grid; place-items: center; background: rgba(255, 255, 255, 0.06); }
+
+/* The explicit badge after a title. The app lays the row's first line out as
+   a two-column grid -- title with Margin="0,0,5,0", then an 11x11 image --
+   so the mark sits 5px past the text and centered on it. */
+:where(:root[data-theme='windows']) .dk-browse-title { display: flex; align-items: center; }
+:where(:root[data-theme='windows']) .dk-browse-title-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:where(:root[data-theme='windows']) .dk-browse-explicit { flex: none; margin-left: 5px; }
+:where(:root[data-theme='windows']) .dk-rename-input { width: 100%; box-sizing: border-box; height: 25px; margin-top: 8px; padding: 0 6px; font: inherit; }
+
+/* Album page rows and numbered tracks; the per-row checkbox shows on hover
+   or while ticked, and a ticked row keeps the selected shade. */
+:where(:root[data-theme='windows']) .dk-browse-number { display: grid; place-items: center; color: var(--t-fg-muted); font-size: 13px; background: transparent !important; }
+:where(:root[data-theme='windows']) .dk-browse-check { flex: none; width: 35px; height: 42px; display: grid; place-items: center; color: #979797; opacity: 0; padding: 0; }
+:where(:root[data-theme='windows']) .dk-browse-check svg { width: 16px; height: 16px; }
+:where(:root[data-theme='windows']) .dk-browse-row:hover .dk-browse-check, :where(:root[data-theme='windows']) .dk-browse-check[aria-checked='true'], :where(:root[data-theme='windows']) .dk-browse-row:focus-within .dk-browse-check { opacity: 1; }
+:where(:root[data-theme='windows']) .dk-browse-check:hover, :where(:root[data-theme='windows']) .dk-browse-check[aria-checked='true'] { color: #ffffff; }
+:where(:root[data-theme='windows']) .dk-browse-row[aria-checked='true'] { background: var(--t-row-selected); }
+:where(:root[data-theme='windows']) .dk-album-play .dk-browse-art { position: relative; }
+:where(:root[data-theme='windows']) .dk-album-play-badge { position: absolute; inset: 0; margin: auto; width: 22px; height: 22px; color: #ffffff; opacity: 0; filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.7)); }
+:where(:root[data-theme='windows']) .dk-album-play:hover .dk-album-play-badge { opacity: 1; }
+
+:where(:root[data-theme='windows']) .dk-row .dk-browse-actions, :where(:root[data-theme='windows']) .dk-row .dk-browse-check { opacity: 0; }
+:where(:root[data-theme='windows']) .dk-row:hover .dk-browse-actions, :where(:root[data-theme='windows']) .dk-row:hover .dk-browse-check, :where(:root[data-theme='windows']) .dk-row[aria-checked='true'] .dk-browse-check { opacity: 1; }
+:where(:root[data-theme='windows']) .dk-row[aria-selected='true'] { background: var(--t-row-selected); }
+
+/* My Radio Stations: the app's antenna mark for stations without art, and
+   the "Add New Radio Station" row pinned above the footer. */
+:where(:root[data-theme='windows']) .dk-radio-glyph { display: grid; place-items: center; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.06); color: #8a8a8a; }
+:where(:root[data-theme='windows']) .dk-radio-glyph svg { width: 22px; height: 22px; }
+:where(:root[data-theme='windows']) .dk-browse-addrow { flex: none; height: 32px; text-align: center; font-size: 13px; color: var(--t-fg); background: var(--t-surface); border-top: 1px solid var(--t-border); }
+:where(:root[data-theme='windows']) .dk-browse-addrow:hover { background: var(--t-row-hover); }
+
+/* Queue drag: rows slide to open the landing slot, the dragged row dims, a
+   50px copy of its art rides with the pointer. */
+:where(:root[data-theme='windows']) .dk-queue-list { position: relative; touch-action: none; }
+:where(:root[data-theme='windows']) .dk-queue-dragging .dk-row { transition: transform 120ms ease; user-select: none; }
+:where(:root[data-theme='windows']) .dk-queue-dragging .dk-row[data-dragging='true'] { opacity: 0.35; }
+:where(:root[data-theme='windows']) .dk-queue-ghost { position: fixed; z-index: 95; width: 50px; height: 50px; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.7); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); pointer-events: none; background: #1a1a1a; }
+:where(:root[data-theme='windows']) .dk-queue-ghost img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+:where(:root[data-theme='windows']) .dk-errorlog { padding: 16px 20px; width: 460px; }
+:where(:root[data-theme='windows']) .dk-errorlog .error-log { width: 100%; height: 320px; resize: none; font: 12px/16px inherit; box-sizing: border-box; }
+
+:where(:root[data-theme='windows']) .dk-tile-more { font-size: 12px; color: var(--t-fg-muted); text-align: left; padding: 2px 0; }
+:where(:root[data-theme='windows']) .dk-tile-more:hover { color: var(--t-fg); }
+
+/* The system picker in the Rooms header, pushed to its right edge. */
+:where(:root[data-theme='windows']) .dk-rooms-system { margin-left: auto; height: 18px; }
+:where(:root[data-theme='windows']) .dk-rooms-system select { height: 18px; padding: 0 2px; font-size: 11px; }
+
+/* A service's Description page: its own prose, as the app shows it. */
+:where(:root[data-theme='windows']) .dk-browse-prose { padding: 16px 20px; font-size: 12px; line-height: 1.55; color: var(--t-fg); }
+:where(:root[data-theme='windows']) .dk-browse-prose p { margin: 0 0 0.6em; }
+:where(:root[data-theme='windows']) .dk-browse-prose p:empty { margin: 0 0 0.4em; }
+
+/* Confirm's body and button strip, formerly inline styles that no theme
+   could override. */
+
+/* The swirl beside a share that is still being mounted. */
+
+/* The theme picker's still: a medium preview of the theme in the dropdown,
+   with the button that actually switches to it. The picture is 640x400 and
+   drawn at half that, so it stays sharp on a dense display. */
+/* Install theme... and Delete theme at the left, Apply at the right, across the
+   still's width (user's arrangement). */
+
+/* A row dragged in from the music pane: the list says it will take it. */
+:where(:root[data-theme='windows']) .dk-queue-dropping { outline: 2px dashed var(--t-accent, #5fb3a6); outline-offset: -4px; }
+
+/* The still and what the theme is, side by side: picture left, name, version,
+   description and Apply to its right (user's arrangement). */
+/* The still beside what the theme is, until there is no room for both: then
+   `.theme-about` (flex-basis 200px) drops below the still rather than being
+   squeezed into it. Without the wrap the name, version and description came
+   out as a 5px column running off the right edge of a 390px screen, which is
+   what the settings window is on a phone. */
+/* Installing and deleting are their own matter, under their own heading. */
+
+/* The connection overlay (ConnectionOverlay.jsx), from
+   main/connectionerrorsoverlay.xaml and the running Windows app: #0A0A0A
+   over every pane, the wordmark at the top, then a 290px band centring a
+   364px column of 14px white text; the transport strip above stays drawn. */
+:where(:root[data-theme='windows']) .dk-lc {
+  position: absolute; inset: 0; z-index: 30;
+  display: grid; grid-template-rows: auto 290px 1fr; justify-items: center;
+  background: var(--t-bg); color: var(--t-fg);
+}
+/* The replicas wear their app's own ground -- #0A0A0A in Windows, the
+   panes' #1A1A1A on the Mac, whose lines are 13px (both apps seen with
+   their VM's link cut, 2026-09-22) -- and Sonora's skins their theme's. */
+:root[data-theme='windows'] .dk-lc { background: #0a0a0a; color: #ffffff; }
+:where(:root[data-theme='windows']) .mac-root .dk-lc-body p { font-size: 13px; letter-spacing: 0; }
+:where(:root[data-theme='windows']) .dk-lc-mark {
+  margin: -9px 0 0; font-size: 36px; line-height: 40px; font-weight: 500;
+  letter-spacing: 0.12em; padding-left: 0.12em;
+}
+:where(:root[data-theme='windows']) .dk-lc-body { width: 615px; max-width: 100%; display: grid; place-items: center; padding-top: 16px; }
+:where(:root[data-theme='windows']) .dk-lc-body p {
+  width: 364px; max-width: 100%; margin: 0 0 20px; text-align: center;
+  font-size: 14px; line-height: 20px; letter-spacing: -0.15px;
+}
+
+
+/* The Windows app's Now Playing marquee (lib/marquee.jsx). At rest the line
+   is cut with an ellipsis 5px short of its edge (PART_TruncatedMetadataProperty
+   Margin="0,0,5,0"); while its turn runs, the whole text rides over it with
+   25px after its end (PART_MetadataProperty Margin="0,0,25,0"). */
+:where(:root[data-theme='windows']) .dk-marquee.dk-marquee-badged { max-width: calc(100% - 21px); }
+:where(:root[data-theme='windows']) .dk-now-source .dk-marquee { display: block; }
+/* The Mac app's labels: the cut one fills the line, the whole one has
+   nothing after it (SAMarqueeView). */
+
+/* The search box's clear button, which the Windows and Mac shells draw
+   (window-chrome.css, mac.css); any other shell leaves it out. */
+:where(:root[data-theme='windows']) .dk-strip-clear { display: none; }
+
+/* Where a track dragged within a Sonos Playlist will land: a rule over the
+   row it would go before, or under the last. */
+:where(:root[data-theme='windows']) .dk-browse-row[data-drop='before'] { box-shadow: inset 0 2px 0 var(--t-fg); }
+:where(:root[data-theme='windows']) .dk-browse-row[data-drop='after'] { box-shadow: inset 0 -2px 0 var(--t-fg); }
+
+/* A rating the service gives no way to undo (AccuRadio's lit star): lit,
+   and not pressable. */
+:where(:root[data-theme='windows']) .dk-now-rating button[aria-disabled='true'] { cursor: default; }

@@ -1,0 +1,25 @@
+# The build needs app/backend/, app/frontend/, app/themes/,
+# app/pyproject.toml and app/requirements.lock. Everything else is
+# either large, local, or not the container's business.
+.git
+.gitignore
+.venv
+__pycache__
+**/__pycache__
+*.pyc
+.pytest_cache
+
+# Built inside the image, from source, rather than copied in half-stale.
+app/frontend/dist
+app/frontend/node_modules
+
+# Local secrets. The key reaches the container through env_file at run time,
+# never through a layer.
+.env
+
+# Docs and tests: none of it is served.
+docs
+app/tests
+*.md
+# ...except the third-party notices, which the About windows link to.
+!THIRD-PARTY-NOTICES.md

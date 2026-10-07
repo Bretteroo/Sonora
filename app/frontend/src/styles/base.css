@@ -1,0 +1,134 @@
+/* Reset and shared primitives. Themes supply their own visual language on top
+   through --t-* custom properties; nothing here assumes a palette. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* The document scrolls, not an inner pane. Pinning every ancestor to exactly
+   the viewport height stops the page growing, which silently breaks the mouse
+   wheel: html needs a definite height for the percentages below it to resolve,
+   but body and the app root have to be free to grow past it. */
+html {
+  height: 100%;
+}
+
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--t-font, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif);
+  background: var(--t-bg, #fff);
+  color: var(--t-fg, #111);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Visible focus matters more here than usual: this is an application people
+   drive from the keyboard while music is playing. */
+:focus-visible {
+  outline: 2px solid var(--t-focus, #4c8dff);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* For a genuinely scrollable inner pane, such as a queue beside fixed
+   content. Note the absence of overscroll-behavior: contain. Setting that
+   stops scroll chaining, so if the pane ever turns out not to overflow it
+   swallows the wheel instead of passing it to the page, and the whole
+   interface appears frozen. Only add it to a pane that always overflows and
+   genuinely should trap the wheel. */
+.scroll {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* The start-up screen's "Looking for speakers..." dots: each one fades in and
+   out in turn, a fifth of a second apart, for as long as the search lasts. */
+.splash-dots span {
+  display: inline-block;
+  animation: splash-dot 1.4s infinite ease-in-out both;
+}
+.splash-dots span:nth-child(2) { animation-delay: 0.2s; }
+.splash-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes splash-dot {
+  0%, 80%, 100% { opacity: 0.15; }
+  40% { opacity: 1; }
+}
+
+/* --- the theme chooser's own pieces ----------------------------------------
+   Worn by every settings sheet, so they live here rather than in one theme's
+   stylesheet; each sheet paints them in its own colors. */
+
+/* The still on the left, what the theme is on the right. */
+.theme-about { flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column;
+               align-items: flex-start; gap: 6px; }
+
+/* Light, dark and system as one pill of three. A theme with a single look
+   shows no pill at all, which is the only thing said on the subject. */
+.theme-pill { display: inline-flex; padding: 2px; border-radius: 999px;
+              background: rgba(127, 127, 127, 0.22); }
+.theme-pill button { padding: 3px 12px; border: 0; border-radius: 999px;
+                     background: transparent; color: inherit; font: inherit; font-size: 12px;
+                     cursor: pointer; }
+.theme-pill button[aria-pressed='true'] { background: rgba(255, 255, 255, 0.92); color: #16181a;
+                                          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); font-weight: 600; }
+
+
+/* Signing in to Sonos, wherever a settings page shows it. The block stands
+   apart from whatever precedes it, and its explanation is the widest thing on
+   the page rather than a column beside a picture, since a person deciding
+   whether to type a password has to be able to read it. */
+.account-block { margin-top: 18px; }
+.account-blurb { max-width: 46em; }

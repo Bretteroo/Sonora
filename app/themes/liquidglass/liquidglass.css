@@ -1,0 +1,640 @@
+/* Liquid Glass: Apple's material applied to the reimagined shell.
+ *
+ * The design language is not a palette, it is a material, so this sheet is
+ * mostly about light. Four things make it read as glass rather than as a
+ * translucent rectangle:
+ *
+ *   the ground     color has to be behind the glass or there is nothing to
+ *                  bend, so the shell carries a fixed mesh wallpaper and the
+ *                  panels sample it as they move over it;
+ *   the blur       a wide blur with the saturation pushed up, which is what
+ *                  makes a frosted pane look lit from behind rather than
+ *                  merely faded;
+ *   the rim        a bright hairline along the top edge and a fainter one
+ *                  along the bottom, the specular highlight of a thick sheet
+ *                  of glass catching the light above it;
+ *   the lens       a diagonal sheen across the face, brightest where the
+ *                  light enters, so the surface has a direction.
+ *
+ * Radii are concentric: a panel is 26px, a card inside it 20, a row inside
+ * that 14, and anything that acts like a control is a capsule. Apple's system
+ * colors carry meaning (blue for what is live, green for a switch, red for a
+ * removal) and the artwork supplies the rest of the color on the page.
+ *
+ * Everything is keyed to the theme attribute rather than a class on the root
+ * element, because the sheets, menus, and the compact controller are rendered
+ * through portals into the document body and would not inherit a class.
+ * Tokens are re-declared on those roots too: the theming engine writes them
+ * inline on the document element, and a declaration on a descendant is what
+ * overrides an inherited value.
+ */
+
+:root[data-theme='liquidglass'] .sf-root,
+:root[data-theme='liquidglass'] .sf-layer,
+:root[data-theme='liquidglass'] .sf-menu,
+:root[data-theme='liquidglass'] .sf-mini,
+:root[data-theme='liquidglass'] .sf-queue-ghost {
+  /* the material */
+  --lg-blur: saturate(180%) blur(28px);
+  --lg-blur-thin: saturate(160%) blur(18px);
+  --lg-fill: rgba(255, 255, 255, 0.6);
+  --lg-fill-strong: rgba(255, 255, 255, 0.78);
+  --lg-fill-thin: rgba(255, 255, 255, 0.42);
+  --lg-lens: linear-gradient(155deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.24) 26%, rgba(255, 255, 255, 0) 52%, rgba(255, 255, 255, 0.14) 78%, rgba(255, 255, 255, 0.5) 100%);
+  --lg-rim: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 0 0 0.5px rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.4);
+  --lg-cast: 0 1px 2px rgba(16, 24, 40, 0.06), 0 12px 32px rgba(16, 24, 40, 0.14);
+  --lg-cast-high: 0 2px 6px rgba(16, 24, 40, 0.08), 0 28px 70px rgba(16, 24, 40, 0.26);
+  --lg-hairline: rgba(120, 130, 150, 0.22);
+  --lg-tint: rgba(0, 122, 255, 0.14);
+  --lg-tint-soft: rgba(0, 122, 255, 0.09);
+  --lg-neutral: rgba(120, 130, 150, 0.12);
+  --lg-neutral-soft: rgba(120, 130, 150, 0.08);
+  --lg-green: #34c759;
+  /* the shell's own variables, retuned to Apple's blues */
+  --sf-accent-grad: linear-gradient(140deg, #4aa3ff 0%, #007aff 46%, #5e5ce6 100%);
+  --sf-ring: 0 0 0 4px rgba(0, 122, 255, 0.28);
+  --sf-ease: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* --- dark: the same material, lit from a darker room --------------------- */
+:root[data-theme='liquidglass'][data-variant='dark'] .sf-root,
+:root[data-theme='liquidglass'][data-variant='dark'] .sf-layer,
+:root[data-theme='liquidglass'][data-variant='dark'] .sf-menu,
+:root[data-theme='liquidglass'][data-variant='dark'] .sf-mini,
+:root[data-theme='liquidglass'][data-variant='dark'] .sf-queue-ghost {
+  --lg-fill: rgba(38, 40, 48, 0.62);
+  --lg-fill-strong: rgba(46, 48, 58, 0.8);
+  --lg-fill-thin: rgba(30, 32, 40, 0.5);
+  --lg-lens: linear-gradient(155deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 28%, rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.03) 78%, rgba(255, 255, 255, 0.12) 100%);
+  --lg-rim: inset 0 1px 0 rgba(255, 255, 255, 0.24), inset 0 0 0 0.5px rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+  --lg-cast: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 34px rgba(0, 0, 0, 0.45);
+  --lg-cast-high: 0 2px 8px rgba(0, 0, 0, 0.5), 0 30px 80px rgba(0, 0, 0, 0.6);
+  --lg-hairline: rgba(255, 255, 255, 0.14);
+  --lg-tint: rgba(10, 132, 255, 0.24);
+  --lg-tint-soft: rgba(10, 132, 255, 0.14);
+  --lg-neutral: rgba(255, 255, 255, 0.1);
+  --lg-neutral-soft: rgba(255, 255, 255, 0.06);
+  --lg-green: #30d158;
+  --sf-accent-grad: linear-gradient(140deg, #5ab0ff 0%, #0a84ff 46%, #6e6bff 100%);
+  --sf-ring: 0 0 0 4px rgba(10, 132, 255, 0.36);
+
+}
+
+
+/* --- the ground ---------------------------------------------------------- */
+/* A mesh of soft color, fixed behind everything, so a panel that moves
+   samples a different part of it. It drifts slowly: glass with a static
+   backdrop looks like paint. */
+:root[data-theme='liquidglass'] .sf-root {
+  background: var(--t-bg);
+  isolation: isolate;
+}
+:root[data-theme='liquidglass'] .sf-root::before {
+  content: '';
+  position: fixed;
+  inset: -20vmax;
+  z-index: -1;
+  background:
+    radial-gradient(38vmax 32vmax at 18% 12%, rgba(0, 122, 255, 0.4), transparent 72%),
+    radial-gradient(34vmax 30vmax at 82% 8%, rgba(191, 90, 242, 0.3), transparent 74%),
+    radial-gradient(40vmax 34vmax at 88% 78%, rgba(48, 209, 88, 0.24), transparent 74%),
+    radial-gradient(36vmax 30vmax at 8% 88%, rgba(255, 159, 10, 0.26), transparent 72%),
+    radial-gradient(30vmax 26vmax at 50% 52%, rgba(255, 55, 95, 0.16), transparent 76%);
+  /* No filter: a 28px blur over a layer this size, moving under a dozen
+     backdrop-filtered panels, had Firefox repaint it in tiles, and the
+     ground flickered in both variants. The gradients already fade to
+     nothing, so they are simply drawn wider. Its own
+     compositor layer keeps the drift from repainting what sits on it. */
+  will-change: transform;
+  backface-visibility: hidden;
+  animation: lg-drift 44s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+/* It slides and never scales. A scale in the drift had Firefox raster the
+   layer afresh at every step, tile by tile, and a tile finishing late
+   showed as a flickering blotch with a hard edge (the pink one at the
+   right, still there after the blur was taken off).
+   A layer that only moves is rastered once and moved on the compositor. */
+@keyframes lg-drift {
+  from { transform: translate3d(-2%, -1%, 0); }
+  to { transform: translate3d(2%, 1.5%, 0); }
+}
+:root[data-theme='liquidglass'][data-variant='dark'] .sf-root::before {
+  background:
+    radial-gradient(38vmax 32vmax at 18% 12%, rgba(10, 132, 255, 0.5), transparent 72%),
+    radial-gradient(34vmax 30vmax at 82% 8%, rgba(191, 90, 242, 0.4), transparent 74%),
+    radial-gradient(40vmax 34vmax at 88% 78%, rgba(48, 209, 88, 0.24), transparent 74%),
+    radial-gradient(36vmax 30vmax at 8% 88%, rgba(255, 159, 10, 0.26), transparent 72%),
+    radial-gradient(30vmax 26vmax at 50% 52%, rgba(255, 55, 95, 0.22), transparent 76%);
+}
+
+
+/* --- the material, wherever a panel of it appears ------------------------ */
+:root[data-theme='liquidglass'] .sf-rail,
+:root[data-theme='liquidglass'] .sf-nowbar,
+:root[data-theme='liquidglass'] .sf-queue,
+:root[data-theme='liquidglass'] .sf-sources,
+:root[data-theme='liquidglass'] .sf-card,
+:root[data-theme='liquidglass'] .sf-group,
+:root[data-theme='liquidglass'] .sf-alarm,
+:root[data-theme='liquidglass'] .sf-sleep-card,
+:root[data-theme='liquidglass'] .sf-svc,
+:root[data-theme='liquidglass'] .sf-info-row,
+:root[data-theme='liquidglass'] .sf-root-tile,
+:root[data-theme='liquidglass'] .sf-pin,
+:root[data-theme='liquidglass'] .sf-banner,
+:root[data-theme='liquidglass'] .sf-table-wrap,
+:root[data-theme='liquidglass'] .sf-clock,
+:root[data-theme='liquidglass'] .sf-willplay,
+:root[data-theme='liquidglass'] .sf-findings li,
+:root[data-theme='liquidglass'] .sf-selection-bar,
+:root[data-theme='liquidglass'] .sf-sheet,
+:root[data-theme='liquidglass'] .sf-menu,
+:root[data-theme='liquidglass'] .sf-toast {
+  background-color: var(--lg-fill);
+  background-image: var(--lg-lens);
+  -webkit-backdrop-filter: var(--lg-blur);
+  backdrop-filter: var(--lg-blur);
+  border: 0;
+  box-shadow: var(--lg-rim), var(--lg-cast);
+}
+
+/* --- the rail as a floating dock ---------------------------------------- */
+/* Apple's chrome floats over the content rather than being welded to the
+   window edge, and the content runs behind it. */
+:root[data-theme='liquidglass'] .sf-rail {
+  margin: 12px 0 12px 12px;
+  padding: 12px 8px;
+  border-radius: 28px;
+  border-right: 0;
+}
+:root[data-theme='liquidglass'] .sf-brand img { border-radius: 12px; box-shadow: 0 6px 18px rgba(16, 24, 40, 0.28); }
+:root[data-theme='liquidglass'] .sf-brand span { color: var(--t-fg-muted); }
+:root[data-theme='liquidglass'] .sf-rail-item { border-radius: 18px; }
+:root[data-theme='liquidglass'] .sf-rail-item:hover { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-rail-item[aria-current] {
+  color: var(--t-accent);
+  background-color: var(--lg-tint);
+  background-image: var(--lg-lens);
+  box-shadow: var(--lg-rim), 0 2px 8px rgba(0, 122, 255, 0.18);
+}
+:root[data-theme='liquidglass'] .sf-rail-item[aria-current] svg { color: var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-rail-systems { border-radius: calc(var(--lg-seg) + 4px); background: var(--lg-neutral-soft); }
+:root[data-theme='liquidglass'] .sf-rail-systems button { border-radius: var(--lg-seg); }
+:root[data-theme='liquidglass'] .sf-rail-systems button:not([aria-checked='true']):hover { background: var(--lg-neutral); color: var(--t-fg); }
+:root[data-theme='liquidglass'] .sf-rail-systems button[aria-checked='true'] {
+  background-color: var(--lg-fill-strong);
+  background-image: var(--lg-lens);
+  box-shadow: var(--lg-rim), 0 1px 3px rgba(16, 24, 40, 0.16);
+}
+
+/* --- the bar along the bottom, floating too ------------------------------ */
+:root[data-theme='liquidglass'] .sf-nowbar {
+  margin: 0 12px 12px;
+  border-radius: 28px;
+  border-top: 0;
+}
+:root[data-theme='liquidglass'] .sf-now-art { border-radius: 14px; box-shadow: 0 6px 16px rgba(16, 24, 40, 0.24); }
+:root[data-theme='liquidglass'] .sf-room-chip {
+  border: 0;
+  border-radius: 999px;
+  background-color: var(--lg-fill-thin);
+  background-image: var(--lg-lens);
+  box-shadow: var(--lg-rim), 0 1px 3px rgba(16, 24, 40, 0.1);
+}
+:root[data-theme='liquidglass'] .sf-room-chip:hover:not(:disabled) { background-color: var(--lg-fill-strong); }
+:root[data-theme='liquidglass'] .sf-volume-rooms { border-radius: 999px; background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-toasts { bottom: calc(var(--sf-bar) + 28px); }
+
+/* --- panels that hold lists -------------------------------------------- */
+:root[data-theme='liquidglass'] .sf-queue {
+  margin: 12px 12px 12px 0;
+  border-radius: 28px;
+  border-left: 0;
+  overflow: hidden;
+}
+:root[data-theme='liquidglass'] .sf-sources {
+  margin: 0 0 4px;
+  padding: 12px 10px;
+  border-right: 0;
+  border-radius: 24px;
+}
+/* The library's root shows tiles alone, so the panel's own padding has to
+   go with its width or a strip of material is left behind. */
+@media (min-width: 901px) {
+  :root[data-theme='liquidglass'] .sf-library-root .sf-sources { padding-left: 0; padding-right: 0; }
+}
+:root[data-theme='liquidglass'] .sf-source { border-radius: 14px; }
+:root[data-theme='liquidglass'] .sf-room-card { border-radius: 18px; background: var(--lg-neutral); border-color: transparent; }
+:root[data-theme='liquidglass'] .sf-room-card-icon { border-radius: 12px; background: rgba(255, 255, 255, 0.5); }
+:root[data-theme='liquidglass'] .sf-source:hover { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-source[data-current] {
+  background-color: var(--lg-tint);
+  background-image: var(--lg-lens);
+  box-shadow: var(--lg-rim);
+}
+:root[data-theme='liquidglass'] .sf-source[data-current] .sf-source-title { color: var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-source-main { border-radius: 14px; }
+:root[data-theme='liquidglass'] .sf-source-icon { border-radius: 9px; background: var(--lg-neutral-soft); }
+:root[data-theme='liquidglass'] .sf-source-icon img { border-radius: 9px; }
+
+/* --- cards, tiles and rows --------------------------------------------- */
+:root[data-theme='liquidglass'] .sf-card { border-radius: 24px; }
+:root[data-theme='liquidglass'] .sf-card:hover { background-color: var(--lg-fill-strong); }
+:root[data-theme='liquidglass'] .sf-group[draggable='true']:hover { transform: translateY(-2px); }
+:root[data-theme='liquidglass'] .sf-card[data-active] {
+  box-shadow: var(--lg-rim), 0 0 0 1.5px var(--t-accent), 0 10px 30px rgba(0, 122, 255, 0.22);
+}
+:root[data-theme='liquidglass'] .sf-card[data-over] { box-shadow: var(--lg-rim), 0 0 0 2px var(--t-accent-2), 0 14px 34px rgba(94, 92, 230, 0.28); }
+:root[data-theme='liquidglass'] .sf-card-art { border-radius: 18px; box-shadow: 0 10px 24px rgba(16, 24, 40, 0.26); }
+:root[data-theme='liquidglass'] .sf-card-controls { border-top: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-quick { border-radius: 18px; }
+:root[data-theme='liquidglass'] .sf-quick:hover { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-quick-art { border-radius: 14px; box-shadow: 0 8px 20px rgba(16, 24, 40, 0.22); }
+:root[data-theme='liquidglass'] .sf-tile { border-radius: 20px; }
+:root[data-theme='liquidglass'] .sf-tile:hover, :root[data-theme='liquidglass'] .sf-tile:focus-within { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-tile-art { border-radius: 16px; box-shadow: 0 10px 26px rgba(16, 24, 40, 0.24); }
+:root[data-theme='liquidglass'] .sf-tile-logo { background: var(--lg-fill-thin); }
+:root[data-theme='liquidglass'] .sf-tile-more,
+:root[data-theme='liquidglass'] .sf-quick-open {
+  background-color: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: var(--lg-blur-thin);
+  backdrop-filter: var(--lg-blur-thin);
+  color: #12141a;
+  box-shadow: var(--lg-rim), 0 2px 6px rgba(16, 24, 40, 0.2);
+}
+:root[data-theme='liquidglass'] .sf-row { border-radius: 14px; }
+:root[data-theme='liquidglass'] .sf-row:hover,
+:root[data-theme='liquidglass'] .sf-row[aria-selected='true'] { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-row[aria-checked='true'] { background: var(--lg-tint); }
+:root[data-theme='liquidglass'] .sf-row-art { border-radius: 11px; background: var(--lg-neutral-soft); }
+:root[data-theme='liquidglass'] .sf-root-tile { border-radius: 20px; }
+:root[data-theme='liquidglass'] .sf-root-tile:hover:not(:disabled) { background-color: var(--lg-fill-strong); transform: translateY(-2px); }
+:root[data-theme='liquidglass'] .sf-root-icon { border-radius: 13px; background: var(--lg-neutral-soft); }
+:root[data-theme='liquidglass'] .sf-root-icon img { border-radius: 13px; }
+:root[data-theme='liquidglass'] .sf-pin { border-radius: 16px; }
+:root[data-theme='liquidglass'] .sf-page-icon { border-radius: 13px; background: var(--lg-fill-thin); }
+:root[data-theme='liquidglass'] .sf-hero-art { border-radius: 22px; box-shadow: 0 26px 60px rgba(16, 24, 40, 0.34); }
+:root[data-theme='liquidglass'] .sf-group { border-radius: 22px; overflow: hidden; }
+:root[data-theme='liquidglass'] .sf-group[data-active] { box-shadow: var(--lg-rim), 0 0 0 1.5px var(--t-accent), var(--lg-cast); }
+:root[data-theme='liquidglass'] .sf-group[data-over] { box-shadow: var(--lg-rim), 0 0 0 2px var(--t-accent), var(--lg-cast); }
+:root[data-theme='liquidglass'] .sf-group-head:hover { background: var(--lg-neutral-soft); }
+:root[data-theme='liquidglass'] .sf-group-art { border-radius: 12px; }
+:root[data-theme='liquidglass'] .sf-room { border-top: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-room-list { border-top: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-room-groupvol { background: var(--lg-tint-soft); }
+:root[data-theme='liquidglass'] .sf-alarm { border-radius: 22px; }
+:root[data-theme='liquidglass'] .sf-sleep-card { border-radius: 22px; }
+:root[data-theme='liquidglass'] .sf-svc { border-radius: 18px; }
+:root[data-theme='liquidglass'] .sf-svc-icon { border-radius: 12px; background: var(--lg-neutral-soft); }
+:root[data-theme='liquidglass'] .sf-svc-icon img { border-radius: 12px; }
+:root[data-theme='liquidglass'] .sf-info-row { border-radius: 16px; }
+:root[data-theme='liquidglass'] .sf-info-row:hover:not(:disabled) { background-color: var(--lg-fill-strong); }
+:root[data-theme='liquidglass'] .sf-info-art { border-radius: 16px; box-shadow: 0 12px 28px rgba(16, 24, 40, 0.26); }
+:root[data-theme='liquidglass'] .sf-banner { border-radius: 20px; }
+:root[data-theme='liquidglass'] .sf-table-wrap { border-radius: 18px; overflow: hidden; }
+:root[data-theme='liquidglass'] .sf-table th, :root[data-theme='liquidglass'] .sf-table td { border-bottom: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-clock { border-radius: 20px; }
+:root[data-theme='liquidglass'] .sf-willplay { border-radius: 18px; }
+:root[data-theme='liquidglass'] .sf-findings li { border-radius: 16px; border-left-width: 3px; border-left-style: solid; }
+:root[data-theme='liquidglass'] .sf-selection-bar { border-radius: 22px; border: 0; }
+:root[data-theme='liquidglass'] .sf-settings-tab { border-radius: 14px; }
+:root[data-theme='liquidglass'] .sf-settings-tab:hover { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-settings-tab[aria-current] {
+  color: var(--t-accent);
+  background-color: var(--lg-tint);
+  background-image: var(--lg-lens);
+  box-shadow: var(--lg-rim);
+}
+:root[data-theme='liquidglass'] .sf-settings-tab[aria-current] svg { color: var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-settings-nav-foot { border-top: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-extras { border-top: 1px solid var(--lg-hairline); }
+
+/* A list in the content column sits in its own inset panel, the way iOS
+   groups one: it gives the text a ground of its own instead of leaving it to
+   be read off the wallpaper. Lists inside a sheet are already on glass. */
+:root[data-theme='liquidglass'] .sf-content-scroll .sf-rows {
+  padding: 6px;
+  border-radius: 22px;
+  background-color: var(--lg-fill-thin);
+  background-image: var(--lg-lens);
+  -webkit-backdrop-filter: var(--lg-blur-thin);
+  backdrop-filter: var(--lg-blur-thin);
+  box-shadow: var(--lg-rim), var(--lg-cast);
+}
+:root[data-theme='liquidglass'] .sf-content-scroll .sf-rows:empty { display: none; }
+:root[data-theme='liquidglass'] .sf-content-scroll .sf-rows + .sf-rows { margin-top: 10px; }
+:root[data-theme='liquidglass'] .sf-pinned { gap: 10px; }
+
+/* --- the queue --------------------------------------------------------- */
+:root[data-theme='liquidglass'] .sf-queue .sf-sheet-head { border-bottom: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-qrow { border-radius: 14px; }
+:root[data-theme='liquidglass'] .sf-qrow:hover, :root[data-theme='liquidglass'] .sf-qrow[aria-checked='true'] { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-qrow[aria-current] { background: var(--lg-tint); }
+:root[data-theme='liquidglass'] .sf-qrow[aria-current] .sf-qrow-title { color: var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-qrow-art { border-radius: 9px; background: var(--lg-neutral-soft); }
+:root[data-theme='liquidglass'] .sf-queue-ghost {
+  border: 0; border-radius: 16px;
+  background-color: var(--lg-fill-strong); background-image: var(--lg-lens);
+  -webkit-backdrop-filter: var(--lg-blur); backdrop-filter: var(--lg-blur);
+  box-shadow: var(--lg-rim), var(--lg-cast-high);
+}
+
+/* --- layers: the scrim is glass too, as iOS dims and blurs behind a sheet */
+:root[data-theme='liquidglass'] .sf-layer {
+  background: rgba(120, 130, 150, 0.28);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  backdrop-filter: saturate(140%) blur(14px);
+}
+:root[data-theme='liquidglass'][data-variant='dark'] .sf-layer { background: rgba(0, 0, 0, 0.42); }
+
+:root[data-theme='liquidglass'] .sf-layer-full { background: var(--t-bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme='liquidglass'] .sf-sheet { border-radius: 30px; box-shadow: var(--lg-rim), var(--lg-cast-high); }
+:root[data-theme='liquidglass'] .sf-sheet-side { border-radius: 30px 0 0 30px; }
+:root[data-theme='liquidglass'] .sf-sheet-full { border-radius: 0; background: transparent; background-image: none; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
+:root[data-theme='liquidglass'] .sf-sheet-head { border-bottom: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-sheet-foot { border-top: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-menu { border-radius: 20px; box-shadow: var(--lg-rim), var(--lg-cast-high); }
+:root[data-theme='liquidglass'] .sf-menu-item { border-radius: 12px; }
+:root[data-theme='liquidglass'] .sf-menu-item:hover:not(:disabled),
+:root[data-theme='liquidglass'] .sf-menu-item:focus-visible { background: var(--lg-tint); color: var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-menu-item:hover:not(:disabled) .sf-menu-icon { color: var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-menu-item[data-danger]:hover:not(:disabled) { background: rgba(255, 59, 48, 0.14); color: var(--t-critical); }
+:root[data-theme='liquidglass'] .sf-menu-item[data-danger]:hover:not(:disabled) .sf-menu-icon { color: var(--t-critical); }
+:root[data-theme='liquidglass'] .sf-menu-sep { background: var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-toast { border-radius: 20px; border: 0; box-shadow: var(--lg-rim), var(--lg-cast-high); }
+/* The one surface that is not glass: a notice has to be legible over
+   whatever it lands on, and the lens let the page read through its own
+   words. */
+:root[data-theme='liquidglass'] .sf-toast-notice { border-left: 3px solid var(--t-critical);
+  background-color: #ffffff; background-image: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme='liquidglass'][data-variant='dark'][data-variant='dark'] .sf-toast-notice { background-color: #1c1c1e; }
+
+:root[data-theme='liquidglass'] .sf-palette-input { border-bottom: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-palette-row { border-radius: 14px; }
+:root[data-theme='liquidglass'] .sf-palette-row[aria-selected='true'] {
+  background-color: var(--lg-tint); background-image: var(--lg-lens); box-shadow: var(--lg-rim);
+}
+:root[data-theme='liquidglass'] .sf-palette-icon { border-radius: 9px; background: var(--lg-neutral-soft); }
+
+/* --- controls: capsules of glass ---------------------------------------- */
+:root[data-theme='liquidglass'] .sf-btn {
+  border: 0; border-radius: 999px;
+  background-color: var(--lg-fill-thin); background-image: var(--lg-lens);
+  -webkit-backdrop-filter: var(--lg-blur-thin); backdrop-filter: var(--lg-blur-thin);
+  box-shadow: var(--lg-rim), 0 1px 3px rgba(16, 24, 40, 0.12);
+  font-weight: 590;
+}
+:root[data-theme='liquidglass'] .sf-btn:hover:not(:disabled) { background-color: var(--lg-fill-strong); }
+:root[data-theme='liquidglass'] .sf-btn-primary {
+  background-color: var(--t-accent);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 62%);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 6px 18px rgba(0, 122, 255, 0.34);
+}
+:root[data-theme='liquidglass'] .sf-btn-primary:hover:not(:disabled) { filter: brightness(1.06); background-color: var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-btn-danger { background-color: var(--t-critical); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 18px rgba(224, 47, 40, 0.32); }
+:root[data-theme='liquidglass'] .sf-btn-quiet { background-color: transparent; background-image: none; box-shadow: inset 0 0 0 1px var(--lg-hairline); -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme='liquidglass'] .sf-btn-quiet:hover:not(:disabled) { background-color: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-icon-btn { border-radius: 999px; }
+:root[data-theme='liquidglass'] .sf-icon-btn:hover:not(:disabled) { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-icon-btn[aria-pressed='true'] { color: var(--t-accent); background: var(--lg-tint); }
+:root[data-theme='liquidglass'] .sf-badge { box-shadow: 0 1px 4px rgba(0, 122, 255, 0.4); }
+:root[data-theme='liquidglass'] .sf-play {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 60%), var(--sf-accent-grad);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 10px 26px rgba(0, 122, 255, 0.34);
+}
+:root[data-theme='liquidglass'] .sf-play:disabled { background-image: none; background-color: var(--lg-neutral); color: var(--t-fg-dim); box-shadow: inset 0 0 0 1px var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-segmented { border-radius: 999px; background: var(--lg-neutral-soft); box-shadow: inset 0 0 0 1px var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-segmented button { border-radius: 999px; }
+:root[data-theme='liquidglass'] .sf-segmented button:not([aria-selected='true']):hover { background: var(--lg-neutral); color: var(--t-fg); }
+:root[data-theme='liquidglass'] .sf-segmented button[aria-selected='true'] {
+  background-color: var(--lg-fill-strong); background-image: var(--lg-lens); color: var(--t-fg);
+  box-shadow: var(--lg-rim), 0 1px 3px rgba(16, 24, 40, 0.16);
+}
+/* The page's system filter takes the same material as the segmented control
+   it stands in for. It lies on its side, so a stadium is the right shape: the
+   container's radius is half its height, which is a pill's radius plus the
+   padding, and the end pills sit concentric inside the curve.
+
+   The rail's copy stands upright, where a stadium's radius comes from the
+   narrow side instead -- 34px against a pill's 13 -- and the first and last
+   pills' outer corners cut about 3px outside the container. Nesting corners
+   concentrically is the rule the material is built on, so that one is a
+   rounded rect of the pill's radius plus the padding rather than a stadium. */
+:root[data-theme='liquidglass'] .sf-page-systems,
+:root[data-theme='liquidglass'] .sf-rail-systems { background: var(--lg-neutral-soft); box-shadow: inset 0 0 0 1px var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-page-systems,
+:root[data-theme='liquidglass'] .sf-page-systems button { border-radius: 999px; }
+:root[data-theme='liquidglass'] .sf-rail-systems { --lg-seg: 13px; border-radius: calc(var(--lg-seg) + 4px); }
+:root[data-theme='liquidglass'] .sf-rail-systems button { border-radius: var(--lg-seg); }
+:root[data-theme='liquidglass'] .sf-page-systems button:not([aria-checked='true']):hover,
+:root[data-theme='liquidglass'] .sf-rail-systems button:not([aria-checked='true']):hover { background: var(--lg-neutral); color: var(--t-fg); }
+:root[data-theme='liquidglass'] .sf-page-systems button[aria-checked='true'],
+:root[data-theme='liquidglass'] .sf-rail-systems button[aria-checked='true'] {
+  background-color: var(--lg-fill-strong); background-image: var(--lg-lens); color: var(--t-fg);
+  box-shadow: var(--lg-rim), 0 1px 3px rgba(16, 24, 40, 0.16);
+}
+:root[data-theme='liquidglass'] .sf-chip { border: 0; border-radius: 999px; background: var(--lg-neutral-soft); box-shadow: inset 0 0 0 1px var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-chip:hover { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-chip[aria-pressed='true'] {
+  color: #fff; background: var(--t-accent); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+/* An iOS switch is green when it is on, whatever the accent is. */
+:root[data-theme='liquidglass'] .sf-toggle-track { background: var(--lg-neutral); box-shadow: inset 0 0 0 1px var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-toggle input:checked + .sf-toggle-track { background: var(--lg-green); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12); }
+:root[data-theme='liquidglass'] .sf-toggle-knob { box-shadow: 0 1px 3px rgba(16, 24, 40, 0.3), 0 0 0 0.5px rgba(0, 0, 0, 0.04); }
+:root[data-theme='liquidglass'] .sf-check span { border-color: var(--lg-hairline); border-radius: 7px; }
+:root[data-theme='liquidglass'] .sf-pick-box { border-color: var(--lg-hairline); border-radius: 7px; }
+:root[data-theme='liquidglass'] .sf-pick { border-radius: 14px; }
+:root[data-theme='liquidglass'] .sf-pick:hover { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-pick-btn[aria-selected='true'] { border-color: transparent; background: var(--lg-tint); box-shadow: inset 0 0 0 1.5px var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-input,
+:root[data-theme='liquidglass'] .sf-select {
+  border: 0; border-radius: 14px;
+  background-color: var(--lg-fill-thin);
+  box-shadow: inset 0 0 0 1px var(--lg-hairline), inset 0 1px 2px rgba(16, 24, 40, 0.06);
+}
+:root[data-theme='liquidglass'] .sf-input:focus,
+:root[data-theme='liquidglass'] .sf-select:focus { box-shadow: var(--sf-ring), inset 0 0 0 1px var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-search {
+  border: 0; border-radius: 999px;
+  background-color: var(--lg-fill-thin); background-image: var(--lg-lens);
+  -webkit-backdrop-filter: var(--lg-blur-thin); backdrop-filter: var(--lg-blur-thin);
+  box-shadow: var(--lg-rim), inset 0 0 0 1px var(--lg-hairline);
+}
+:root[data-theme='liquidglass'] .sf-search:focus-within { box-shadow: var(--sf-ring), inset 0 0 0 1px var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-search-scope { border-radius: 999px; background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-search-scope img { border-radius: 999px; }
+:root[data-theme='liquidglass'] .sf-kbd { border-radius: 7px; border-color: var(--lg-hairline); background: var(--lg-fill-thin); }
+:root[data-theme='liquidglass'] .sf-code { border-radius: 16px; background: var(--lg-fill-thin); box-shadow: inset 0 0 0 1px var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-quality { border-radius: 999px; }
+:root[data-theme='liquidglass'] .sf-quality[data-q='good'] { background: rgba(48, 209, 88, 0.16); }
+:root[data-theme='liquidglass'] .sf-quality[data-q='fair'] { background: rgba(255, 214, 10, 0.18); }
+:root[data-theme='liquidglass'] .sf-quality[data-q='poor'] { background: rgba(255, 159, 10, 0.18); }
+:root[data-theme='liquidglass'] .sf-quality[data-q='critical'],
+:root[data-theme='liquidglass'] .sf-quality[data-q='unreachable'] { background: rgba(255, 69, 58, 0.16); }
+:root[data-theme='liquidglass'] .sf-level { border-radius: 999px; background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-link:hover { background: var(--lg-tint); border-radius: 999px; }
+:root[data-theme='liquidglass'] .sf-dot[data-on] { background: var(--lg-green); box-shadow: 0 0 0 3px rgba(48, 209, 88, 0.22); }
+:root[data-theme='liquidglass'] .sf-tag { border-radius: 999px; background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-vol-row { border-radius: 16px; background: var(--lg-neutral-soft); }
+:root[data-theme='liquidglass'] .sf-vol-group { background: var(--lg-tint-soft); }
+/* A service draws its own rating icons and they are white line art, so the
+   chip under them stays dark in both schemes; a light one made the star and
+   the ban glyph disappear (light mode). */
+:root[data-theme='liquidglass'] .sf-rating {
+  border: 0; border-radius: 999px;
+  background-color: rgba(20, 22, 30, 0.68);
+  background-image: linear-gradient(155deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 55%);
+  -webkit-backdrop-filter: var(--lg-blur-thin); backdrop-filter: var(--lg-blur-thin);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 4px 12px rgba(16, 24, 40, 0.24);
+}
+:root[data-theme='liquidglass'] .sf-rating:hover { background-color: rgba(20, 22, 30, 0.82); }
+
+/* --- sliders: a capsule of liquid with a glass bead -------------------- */
+:root[data-theme='liquidglass'] .sf-slider::before { height: 6px; border-radius: 999px; background: var(--t-slider-track); }
+:root[data-theme='liquidglass'] .sf-slider::after { height: 6px; border-radius: 999px; background: var(--sf-accent-grad); box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3); }
+:root[data-theme='liquidglass'] .sf-slider input::-webkit-slider-thumb {
+  width: 18px; height: 18px; margin-top: -6px; background: #fff;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.34), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+}
+:root[data-theme='liquidglass'] .sf-slider input::-moz-range-thumb {
+  width: 18px; height: 18px; background: #fff;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.34), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+}
+:root[data-theme='liquidglass'] .sf-seek-track::before { height: 5px; border-radius: 999px; }
+:root[data-theme='liquidglass'] .sf-seek-track::after { height: 5px; border-radius: 999px; background: var(--t-fg-muted); }
+:root[data-theme='liquidglass'] .sf-seek[data-seekable] .sf-seek-track::after { background: var(--sf-accent-grad); }
+:root[data-theme='liquidglass'] .sf-seek-track input::-webkit-slider-thumb { width: 15px; height: 15px; margin-top: -5px; box-shadow: 0 1px 4px rgba(16, 24, 40, 0.34); }
+
+/* --- the stage: glass over the artwork, which is the whole point ------- */
+:root[data-theme='liquidglass'] .sf-stage-bg { filter: blur(72px) saturate(1.7) brightness(1.02); opacity: 0.9; }
+:root[data-theme='liquidglass'] .sf-stage-bg::after { background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.55)); }
+:root[data-theme='liquidglass'][data-variant='dark'] .sf-stage-bg { filter: blur(72px) saturate(1.6) brightness(0.6); }
+:root[data-theme='liquidglass'][data-variant='dark'] .sf-stage-bg::after { background: linear-gradient(180deg, rgba(11, 13, 18, 0.32), rgba(11, 13, 18, 0.78)); }
+
+:root[data-theme='liquidglass'] .sf-stage-art { border-radius: 26px; box-shadow: 0 40px 90px rgba(16, 24, 40, 0.42); }
+:root[data-theme='liquidglass'] .sf-stage-queue { border-left: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-stage-controls,
+:root[data-theme='liquidglass'] .sf-stage-lines { position: relative; z-index: 1; }
+
+/* --- the compact controller: a slab of dark glass over the art --------- */
+:root[data-theme='liquidglass'] .sf-mini { border-radius: 30px; box-shadow: var(--lg-cast-high); }
+:root[data-theme='liquidglass'] .sf-mini[data-popup] { border-radius: 0; }
+:root[data-theme='liquidglass'] .sf-mini-foot {
+  margin: 0 10px 10px; padding: 12px 14px; border-radius: 22px;
+  background-color: rgba(28, 30, 38, 0.5); background-image: var(--lg-lens);
+  -webkit-backdrop-filter: var(--lg-blur); backdrop-filter: var(--lg-blur);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme='liquidglass'] .sf-mini[data-popup] .sf-mini-foot { margin: 0; border-radius: 22px 22px 0 0; }
+:root[data-theme='liquidglass'] .sf-mini-shade { background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, transparent 26%, transparent 52%, rgba(0, 0, 0, 0.5) 100%); }
+:root[data-theme='liquidglass'] .sf-mini-btn { background: rgba(255, 255, 255, 0.16); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+:root[data-theme='liquidglass'] .sf-mini-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.3); }
+:root[data-theme='liquidglass'] .sf-mini-play { background: #fff; color: #12141a; }
+
+/* --- text weights: SF sits lighter than a web sans -------------------- */
+:root[data-theme='liquidglass'] .sf-page-head h1,
+:root[data-theme='liquidglass'] .sf-settings-nav h1,
+:root[data-theme='liquidglass'] .sf-page-titles h1 { font-weight: 700; letter-spacing: -0.02em; }
+:root[data-theme='liquidglass'] .sf-stage-title .sf-value { font-weight: 700; letter-spacing: -0.03em; }
+:root[data-theme='liquidglass'] .sf-caption,
+:root[data-theme='liquidglass'] .sf-info-lines dt { letter-spacing: 0.04em; }
+
+/* --- narrow: the dock detaches from the bottom edge ------------------- */
+@media (max-width: 900px) {
+  :root[data-theme='liquidglass'] .sf-rail {
+    /* the same double-count as Sonofuture's rail: no safe-area inset here */
+    margin: 0 10px 10px;
+    padding: 6px;
+    border-radius: 26px;
+    border-top: 0;
+  }
+  :root[data-theme='liquidglass'] .sf-nowbar { margin: 0 10px 8px; border-radius: 24px; }
+  :root[data-theme='liquidglass'] .sf-queue { margin: 0; border-radius: 26px 26px 0 0; }
+  :root[data-theme='liquidglass'] .sf-sources { border-radius: 0 26px 26px 0; }
+  :root[data-theme='liquidglass'] .sf-sheet-side { border-radius: 30px 30px 0 0; }
+  :root[data-theme='liquidglass'] .sf-toasts { bottom: calc(var(--sf-bar) + 86px); }
+}
+
+/* --- when the browser cannot blur, the material becomes frosted paint -- */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  :root[data-theme='liquidglass'] .sf-root,
+  :root[data-theme='liquidglass'] .sf-layer,
+  :root[data-theme='liquidglass'] .sf-menu,
+  :root[data-theme='liquidglass'] .sf-mini {
+    --lg-fill: rgba(255, 255, 255, 0.92);
+    --lg-fill-strong: rgba(255, 255, 255, 0.97);
+    --lg-fill-thin: rgba(255, 255, 255, 0.85);
+  }
+  :root[data-theme='liquidglass'][data-variant='dark'] .sf-root,
+  :root[data-theme='liquidglass'][data-variant='dark'] .sf-layer,
+  :root[data-theme='liquidglass'][data-variant='dark'] .sf-menu,
+  :root[data-theme='liquidglass'][data-variant='dark'] .sf-mini {
+    --lg-fill: rgba(32, 34, 42, 0.95);
+    --lg-fill-strong: rgba(44, 46, 56, 0.98);
+    --lg-fill-thin: rgba(32, 34, 42, 0.88);
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme='liquidglass'] .sf-root::before { animation: none; }
+  :root[data-theme='liquidglass'] .sf-group[draggable='true']:hover,
+  :root[data-theme='liquidglass'] .sf-root-tile:hover:not(:disabled) { transform: none; }
+}
+
+/* Someone who has asked for more contrast gets the glass closed up. */
+@media (prefers-contrast: more) {
+  :root[data-theme='liquidglass'] .sf-root,
+  :root[data-theme='liquidglass'] .sf-layer,
+  :root[data-theme='liquidglass'] .sf-menu,
+  :root[data-theme='liquidglass'] .sf-mini {
+    --lg-fill: rgba(255, 255, 255, 0.94);
+    --lg-fill-strong: rgba(255, 255, 255, 1);
+    --lg-fill-thin: rgba(255, 255, 255, 0.88);
+    --lg-hairline: rgba(60, 66, 80, 0.5);
+  }
+  :root[data-theme='liquidglass'] .sf-root::before { opacity: 0.45; }
+}
+
+/* --- the shared About card ---------------------------------------------- */
+/* Its ground is --t-surface, which is translucent here, so without a blur of
+   its own the settings list behind it showed through the text. */
+:root[data-theme='liquidglass'] .about-backdrop {
+  background: rgba(120, 130, 150, 0.3);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  backdrop-filter: saturate(140%) blur(14px);
+}
+:root[data-theme='liquidglass'] .about-card {
+  border: 0;
+  border-radius: 30px;
+  /* Closed up past a panel's fill: this card is all text, and the page
+     behind it was still legible through --lg-fill-strong. */
+  background-color: rgba(255, 255, 255, 0.88);
+  background-image: var(--lg-lens);
+  -webkit-backdrop-filter: var(--lg-blur);
+  backdrop-filter: var(--lg-blur);
+  box-shadow: var(--lg-rim), var(--lg-cast-high);
+}
+:root[data-theme='liquidglass'] .about-icon { border-radius: 50%; }
+:root[data-theme='liquidglass'] .about-close { border-radius: 999px; }
+:root[data-theme='liquidglass'] .about-close:hover { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'][data-variant='dark'] .about-backdrop { background: rgba(0, 0, 0, 0.45); }
+:root[data-theme='liquidglass'][data-variant='dark'] .about-card { background-color: rgba(44, 46, 56, 0.9); }
+
+
+/* The sleep timer rows as glass: the selected room's row lit, the others
+   frosted, corners rounded like the cards around them. */
+:root[data-theme='liquidglass'] .sf-sleep-row { border-radius: 16px; }
+:root[data-theme='liquidglass'] .sf-sleep-row[data-active='true'] { background: color-mix(in srgb, var(--t-accent-2) 18%, transparent); backdrop-filter: blur(18px); }
+:root[data-theme='liquidglass'] .sf-sleep-others .sf-sleep-row { background: color-mix(in srgb, var(--t-fg) 5%, transparent); }
+
+/* Where a track dragged within a Sonos Playlist will land. */
+.sf-row[data-drop='before'] { box-shadow: inset 0 2px 0 var(--t-fg); }
+.sf-row[data-drop='after'] { box-shadow: inset 0 -2px 0 var(--t-fg); }
+
+/* A rating the service gives no way to undo: lit, and not pressable. */
+:root[data-theme='liquidglass'] .sf-rating[aria-disabled='true'] { cursor: default; }

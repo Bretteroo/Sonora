@@ -1,0 +1,72 @@
+# The Docker image, for x64 and arm64, published to GitHub's container
+# registry as ghcr.io/bretteroo/sonora.
+#
+#   push to main     -> :edge and :sha-<short>
+#   tag v1.2.3       -> :1.2.3, :1.2 and :latest
+#   pull request     -> built for both platforms, not published
+#
+# :latest is what docker-compose.yml pulls, so it moves only on a release;
+# :edge is the newest work, for anyone who wants it.
+#
+# The frontend stage runs on the runner's own platform (the Dockerfile pins it
+# to $BUILDPLATFORM), so only the Python stage is emulated for arm64.
+name: Docker image
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/bretteroo/sonora
+          tags: |
+            type=raw,value=edge,enable={{is_default_branch}}
+            type=sha,prefix=sha-,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+          labels: |
+            org.opencontainers.image.title=Sonora
+            org.opencontainers.image.description=Web controller for Sonos S1 and S2 systems
+            org.opencontainers.image.licenses=AGPL-3.0-only
+
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,0 +1,2024 @@
+/* Outrun's own copy of window-chrome.css, which began as the sheet every desktop
+   skin shared (frontend/src/parts/). Every rule is scoped to
+   :root[data-theme='outrun'] through :where(), so it weighs what it did and
+   reaches no other theme; edit it freely. */
+
+/* Windows chrome over the shared desktop content styles (desktop.css is
+   imported first). Only the window frame is restyled: a light title bar with
+   the controls on the right, a classic menu bar, and Segoe UI throughout. */
+
+:where(:root[data-theme='outrun']) .win-root {
+  --dk-font: 'Segoe UI', 'Segoe UI Variable', Tahoma, Geneva, sans-serif;
+  font-family: var(--dk-font);
+}
+
+/* Title bar: icon and title on the left, window controls on the right. */
+:where(:root[data-theme='outrun']) .win-titlebar {
+  flex: none;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  height: 30px;
+  background: var(--t-win-titlebar);
+  color: var(--t-win-titlebar-fg);
+  border-bottom: 1px solid var(--t-win-titlebar-border);
+}
+:where(:root[data-theme='outrun']) .win-titlebar-id {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 8px;
+}
+:where(:root[data-theme='outrun']) .win-titlebar-icon {
+  width: 16px;
+  height: 16px;
+  color: #4d4d4d;
+}
+:where(:root[data-theme='outrun']) .win-titlebar-home {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  padding: 0 4px;
+  height: 30px;
+  cursor: pointer;
+}
+
+:where(:root[data-theme='outrun']) .win-titlebar-buttons {
+  display: flex;
+  align-items: stretch;
+}
+:where(:root[data-theme='outrun']) .win-tb-btn {
+  width: 46px;
+  border: 0;
+  background: none;
+  color: var(--t-win-titlebar-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+:where(:root[data-theme='outrun']) .win-tb-btn svg { width: 12px; height: 12px; }
+:where(:root[data-theme='outrun']) .win-tb-btn:hover { background: var(--t-win-btn-hover); }
+:where(:root[data-theme='outrun']) .win-tb-close:hover { background: var(--t-win-close-hover); color: #ffffff; }
+
+/* Classic Windows menu bar under the title bar. */
+:where(:root[data-theme='outrun']) .win-menubar {
+  display: flex;
+  align-items: stretch;
+  height: 24px;
+  flex: none;
+  margin: 0;
+  padding: 0 2px;
+  list-style: none;
+  background: var(--t-win-menubar-bg);
+  color: var(--t-win-menubar-fg);
+  font-size: 12px;
+  position: relative;
+  z-index: 30;
+  border-bottom: 1px solid var(--t-win-titlebar-border);
+}
+:where(:root[data-theme='outrun']) .win-menubar > li { position: relative; list-style: none; }
+:where(:root[data-theme='outrun']) .win-menubar-title {
+  height: 24px;
+  padding: 0 9px;
+  line-height: 24px;
+  border: 1px solid transparent;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: default;
+}
+:where(:root[data-theme='outrun']) .win-menubar-title[aria-expanded='true'],
+:where(:root[data-theme='outrun']) .win-menubar-title:hover {
+  background: var(--t-win-menu-hover);
+  border-color: #b3d3f5;
+}
+
+:where(:root[data-theme='outrun']) .win-menu {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  min-width: 220px;
+  margin: 0;
+  padding: 2px;
+  list-style: none;
+  background: var(--t-win-menu-bg);
+  border: 1px solid var(--t-win-menu-border);
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.28);
+  color: var(--t-win-menubar-fg);
+}
+:where(:root[data-theme='outrun']) .win-menu-sep {
+  height: 1px;
+  margin: 3px 1px;
+  background: #e0e0e0;
+}
+:where(:root[data-theme='outrun']) .win-menu-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  height: 24px;
+  padding: 0 10px 0 12px;
+  align-items: center;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 12px;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: default;
+}
+:where(:root[data-theme='outrun']) .win-menu-item:hover:not(:disabled) {
+  background: var(--t-win-menu-hover);
+  color: var(--t-win-menu-hover-fg);
+}
+:where(:root[data-theme='outrun']) .win-menu-item:disabled { color: #a0a0a0; }
+:where(:root[data-theme='outrun']) .win-menu-item kbd {
+  font: inherit;
+  color: #6b6b6b;
+}
+:where(:root[data-theme='outrun']) .win-menu-item:hover:not(:disabled) kbd { color: #33475f; }
+
+/* Dialogs: the shared Window component draws a Mac title bar (centered title,
+   traffic lights). Under Windows chrome it gets square corners, a light title
+   bar with the title on the left, and a single close button on the right. */
+:where(:root[data-theme='outrun']) .win-root .dk-window { position: relative; }
+:where(:root[data-theme='outrun']) .win-root .dk-window {
+  border-radius: 0;
+  box-shadow: 0 0 0 1px var(--t-win-titlebar-border), 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+:where(:root[data-theme='outrun']) .win-root .dk-window-title {
+  height: 25px;
+  justify-content: flex-start;
+  padding-left: 10px;
+  background: var(--t-win-titlebar);
+  color: var(--t-win-titlebar-fg);
+  border-bottom: 0;
+  font-size: 12px;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-window-title > span { text-align: left; }
+:where(:root[data-theme='outrun']) .win-root .dk-window-icon { display: block; width: 16px; height: 16px; margin-right: 8px; flex: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-window-title { padding-left: 8px; }
+:where(:root[data-theme='outrun']) .win-root .dk-lights {
+  left: auto;
+  right: 0;
+  top: 0;
+  gap: 0;
+  /* The title bar's height inside its border, so a skin's rule under the
+     title (Solarized, Coromar, Hotdog, Outrun) runs the window's full width
+     instead of stopping at a painted close button. */
+  height: 100%;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-light-min,
+:where(:root[data-theme='outrun']) .win-root .dk-light-zoom { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-light-close {
+  position: relative;
+  width: 46px;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--t-win-titlebar-fg);
+  cursor: default;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-light-close::before,
+:where(:root[data-theme='outrun']) .win-root .dk-light-close::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 1px;
+  background: currentColor;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+:where(:root[data-theme='outrun']) .win-root .dk-light-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+:where(:root[data-theme='outrun']) .win-root .dk-light-close:hover { background: var(--t-win-close-hover); color: #ffffff; }
+
+/* ---- Fidelity pass: the decompiled Windows app (s1win-xaml) checked against
+   a 1667x859 capture of the real client, maximized
+   (sonos-apps/s1win-screens/main-window.png). Where the two disagree the
+   capture wins; several XAML numbers were read without knowing which element
+   they belonged to. Measured: 23px light title bar; 22px dark menu row; flat
+   #0a0a0a transport 83 tall with a 5px gap below; panels 5px in from the
+   edges with 5px splitters; 32px headers over a 1px black rule; Rooms tiles
+   65 tall on an 81 pitch, 18px below the header, 4px corners, white when
+   selected; Now Playing 239 tall with 150px art at 16,16 and gray 11px
+   captions over 12px values; browse rows 48 tall with 30px icons 18px in;
+   31px footers under a 1px rule with 1px dividers between the buttons. */
+:where(:root[data-theme='outrun']) .win-root { font-size: 12px; background: var(--t-bg); scrollbar-width: thin; scrollbar-color: #333333 transparent; }
+:where(:root[data-theme='outrun']) .win-root .win-titlebar { height: 23px; border-bottom: 0; }
+/* The caption buttons as Windows 11 draws them on the app (measured 2026-09-14
+   at 100%): three 45x21 buttons from the top of the 23px bar, 1px apart, 2px
+   short of the right edge, a 10px glyph centered in each. Hover fills the
+   whole button; pressing it fills a shade lighter. */
+:where(:root[data-theme='outrun']) .win-root .win-titlebar-buttons { align-items: flex-start; gap: 1px; padding-right: 2px; }
+:where(:root[data-theme='outrun']) .win-root .win-tb-btn { width: 45px; height: 21px; padding: 0; color: #000000; }
+:where(:root[data-theme='outrun']) .win-root .win-tb-btn svg { width: 10px; height: 11px; display: block; }
+/* Windows itself sets the square and the X one pixel further left than the
+   line (1443+17 and 1489+17 against 1397+18 on the app's bar). */
+:where(:root[data-theme='outrun']) .win-root .win-tb-btn:not(:first-child) svg { margin-right: 1px; }
+:where(:root[data-theme='outrun']) .win-root .win-tb-close:hover { color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .win-tb-btn:active { background: var(--t-win-btn-active, var(--t-win-btn-hover)); }
+:where(:root[data-theme='outrun']) .win-root .win-tb-close:active { background: var(--t-win-close-active, var(--t-win-close-hover)); color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .win-menubar { height: 22px; font-size: 12px; border-bottom: 0; padding: 0 3px; }
+:where(:root[data-theme='outrun']) .win-root .win-menubar-title { height: 22px; line-height: 22px; }
+:where(:root[data-theme='outrun']) .win-root .win-menu { top: 22px; }
+
+/* Menus as measured in the app (mainmenustyles.xaml + captures, 2026-09-05):
+   a title's gray box (#5d5d5d to #424242) is inset 3px each side, starts 6px
+   below the bar's top and runs 1px into the dropdown; titles are #cccccc,
+   #f5f5f5 when lit. The dropdown opens 5px right of that box with a 1px
+   #242424 edge, a #4d4d4d-to-#3b3b3b gradient, 5px bottom corners, 15px
+   above the first row and 12px below the last. Rows are 21px, text 22px in
+   (#e5e5e5, #959595 disabled), a #adadad row highlight with black text, a
+   two-tone 2px separator in a 20px block. Edit is the only menu that shows
+   shortcuts: 30px after the label, 21px before the edge. */
+/* Measured with the pointer over Edit (2026-09-06): the highlight is the
+   whole 22px row, 23..44, flat #4f4f4f, and it sits 6px clear of its
+   neighbor's. Sonora drew a gradient starting 6px down the row and
+   overhanging the bottom by a pixel, with only 4px between items. */
+:where(:root[data-theme='outrun']) .win-root .win-menubar-title { position: relative; z-index: 2; padding: 0 5px; margin: 0 3px; border: 0; color: #cccccc; background: none; }
+:where(:root[data-theme='outrun']) .win-root .win-menubar-title[aria-expanded='true'],
+:where(:root[data-theme='outrun']) .win-root .win-menubar-title:hover { background: none; color: #f5f5f5; }
+:where(:root[data-theme='outrun']) .win-root .win-menubar-title[aria-expanded='true']::after,
+:where(:root[data-theme='outrun']) .win-root .win-menubar-title:hover::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
+  z-index: -1;
+  background: #4f4f4f;
+}
+:where(:root[data-theme='outrun']) .win-root .win-menu {
+  top: 21px;
+  left: 7px;
+  min-width: 0;
+  padding: 15px 1px 12px;
+  background: linear-gradient(#4d4d4d, #3b3b3b);
+  border: 1px solid #242424;
+  border-radius: 0 0 5px 5px;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.55);
+  color: #e5e5e5;
+}
+:where(:root[data-theme='outrun']) .win-root .win-menu-item { height: 21px; padding: 0 50px 0 20px; gap: 30px; color: #e5e5e5; }
+:where(:root[data-theme='outrun']) .win-root .win-menu-item:has(kbd) { padding-right: 19px; }
+:where(:root[data-theme='outrun']) .win-root .win-menu-item:hover:not(:disabled) { background: #adadad; color: #000000; }
+:where(:root[data-theme='outrun']) .win-root .win-menu-item:disabled { color: #959595; opacity: 1; }
+:where(:root[data-theme='outrun']) .win-root .win-menu-item kbd { color: inherit; }
+:where(:root[data-theme='outrun']) .win-root .win-menu-sep { height: 2px; margin: 9px 0; background: linear-gradient(#292929 50%, #595959 50%); }
+
+/* Transport: flat, 83 tall, a 5px gap below. The app puts no caption over
+   the volume slider and has no 30-second skips; its search field is white. */
+:where(:root[data-theme='outrun']) .win-root .dk-strip { height: 83px; margin-bottom: 5px; border-bottom: 0; background: var(--t-bg); }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-volume { height: 83px; }
+/* The caption shows only for a group, as the app's "Group Volume" does. */
+/* No caption over the slider, grouped or not; a group's per-room popover
+   opens on a press or keyboard focus (GroupVolumeControl.cs), never on hover. */
+:where(:root[data-theme='outrun']) .win-root .dk-strip-volume-label { display: none; }
+/* While the popover is open the app shows "Group Volume" over the slider
+   (the popover's own copy of the control, #656565 at 23,54). */
+:where(:root[data-theme='outrun']) .win-root .dk-strip-group-toggle[aria-expanded='true'] { display: block; position: absolute; left: 23px; top: 7px; padding: 0; margin: 0; border: 0; background: none; color: #656565; font-size: 12px; line-height: 14px; }
+/* groupvolumepopover.xaml as captured: a #262626 box 248 wide at 25,65 (from
+   the strip's top) with a 34x14 beak, rooms 18px in: a 12px bold name, 5px,
+   then the 34px mute cell, 12px, and a 147px slider; rows 8px apart with a
+   #1a1a1a rule 3px below and 10px above the next name; 12px at the bottom.
+   The beak paints 15x7 of its 34x16 bitmap. */
+:where(:root[data-theme='outrun']) .win-root .dk-group-volume { left: 25px; top: 68px; width: 248px; padding: 18px 15px 9px; border-radius: 8px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6); }
+:where(:root[data-theme='outrun']) .win-root .dk-group-volume::before { left: calc(50% - 8px); top: -7px; border: 8px solid transparent; border-bottom: 7px solid #262626; border-top: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-group-volume-row { margin: 0 0 11px; }
+:where(:root[data-theme='outrun']) .win-root .dk-group-volume-row + .dk-group-volume-row { margin-top: 3px; padding-top: 10px; border-top: 1px solid #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .dk-group-volume-row strong { margin: 0 0 4px 3px; font-size: 12px; line-height: 16px; }
+:where(:root[data-theme='outrun']) .win-root .dk-group-volume-ctl { gap: 12px; height: 34px; }
+:where(:root[data-theme='outrun']) .win-root .dk-group-volume-ctl .dk-strip-mute { width: 34px; height: 34px; }
+:where(:root[data-theme='outrun']) .win-root .dk-group-volume-ctl > :last-child { flex: 1; min-width: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-btn-back30,
+:where(:root[data-theme='outrun']) .win-root .dk-btn-fwd30 { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-progress { font-size: 10px; }
+/* searchboxspecialized.xaml: 25 tall, columns 33 | text | 52 (a 30px button
+   at the end); the provider's 18px logo at 2,2 with an 8x5 #868686 caret 3px
+   after it; the prompt text #484848 5px into its column. */
+/* transportbar.xaml: SearchBoxSpecialized is Width="214" with
+   Margin="0,22,18,0", so 214 wide and 18 clear of the right edge. Sonora had
+   213 and 17 (2026-09-06 audit). */
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search { width: 214px; height: 25px; background: #ffffff; border: 0; border-radius: 12.5px; color: #1a1a1a; overflow: hidden; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search .dk-strip-scope { width: 33px; padding: 0 0 0 2px; gap: 3px; color: #1a1a1a; }
+/* The service's own logo, 18px and round: the app draws them as circles in
+   the pill and in its scope menu (checked against Sonos Radio's, 2026-09-06),
+   even though searchboxspecialized.xaml's Image element is square. */
+:where(:root[data-theme='outrun']) .win-root .dk-strip-scope img, :where(:root[data-theme='outrun']) .win-root .dk-strip-scope > svg:first-child { width: 18px; height: 18px; border-radius: 50%; box-shadow: none; }
+/* Both sit on the pill's own middle line: the app centers them, whatever
+   the XAML's cell margins suggest (measured 2026-09-06: pill interior
+   73..96, caret ink 84..87). */
+:where(:root[data-theme='outrun']) .win-root .dk-strip-scope > svg:last-child { width: 8px; height: 5px; color: #868686; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-scope { align-items: center; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search input { height: 25px; padding: 0 0 0 5px; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search button[type='submit'] { width: 30px; height: 25px; padding: 0; color: #868686; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search button[type='submit'] svg { width: 30px; height: 25px; }
+:where(:root[data-theme='outrun']) .win-root .dk-scope-menu { top: 50px; right: 18px; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search input { color: #1a1a1a; background: transparent; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search input::placeholder { color: #484848; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search button { color: #1a1a1a; }
+
+/* The app refuses to shrink below 937x668 (MainWindow.SetDefaultDimensions,
+   57.23). The page keeps that as its minimum and scrolls below it rather than
+   squashing the panes. */
+:where(:root[data-theme='outrun']) .win-root:not(.win-mini-root) { min-width: 937px; min-height: 668px; }
+
+/* Three panels with 5px splitters, 5px in from the window edges. */
+:where(:root[data-theme='outrun']) .win-root .dk-panes {
+  grid-template-columns: minmax(0, 264fr) 5px minmax(0, 322fr) 5px minmax(0, 418fr);
+  padding: 0 0 5px;
+  background: var(--t-bg);
+}
+:where(:root[data-theme='outrun']) .win-root .dk-panes > :first-child { margin-left: 5px; }
+:where(:root[data-theme='outrun']) .win-root .dk-panes > :last-child { margin-right: 5px; }
+:where(:root[data-theme='outrun']) .win-root .dk-divider { background: transparent; }
+:where(:root[data-theme='outrun']) .win-root .dk-pane { background: var(--t-surface); }
+/* 33px header + 239px body, as measured (the XAML's 271). The queue caret
+   slides the queue up over Now Playing, as the app animates it. */
+:where(:root[data-theme='outrun']) .win-root .dk-center { grid-template-rows: 271px 0 1fr; transition: grid-template-rows 260ms ease; }
+:where(:root[data-theme='outrun']) .win-root .dk-center > .dk-pane:first-child { min-height: 0; overflow: hidden; }
+:where(:root[data-theme='outrun']) .win-root .dk-center[data-queue-expanded] { grid-template-rows: 0px 0 1fr; }
+
+/* Panel headers: flat #262626, 32 tall over a 1px black rule, 12px bold
+   white, 8px in; the room name after "Now Playing" is regular weight. */
+:where(:root[data-theme='outrun']) .win-root .dk-header {
+  height: 33px;
+  padding: 0 8px;
+  background: var(--t-header-top);
+  border: 0;
+  border-bottom: 1px solid #000000;
+  box-shadow: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-header-sub { color: #ffffff; font-weight: 700; font-size: 12px; opacity: 1; }
+/* browse/scopebar.xaml: 31 tall, #303030 -> #1E1E1E, a 43px back button and
+   one tab per searchable category, each with a 1px divider on its right
+   edge; the showing tab inverts the gradient inside a #2F2F2F border, hover
+   is #505050 -> #303030. */
+:where(:root[data-theme='outrun']) .win-root .dk-scopebar { height: 31px; background: linear-gradient(#303030, #1e1e1e); }
+:where(:root[data-theme='outrun']) .win-root .dk-scopebar-back { position: relative; width: 43px; color: #ffffff; }
+/* browse_scope_divider.png, right-aligned in the back button and in every
+   tab: 2x28, a 50% black line beside a 10% white one, centred in the bar. */
+:where(:root[data-theme='outrun']) .win-root .dk-scopebar-back::after,
+:where(:root[data-theme='outrun']) .win-root .dk-scopebar-tabs button::after {
+  content: ''; position: absolute; right: 0; top: 50%; width: 2px; height: 28px; transform: translateY(-50%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.5) 50%, rgba(255, 255, 255, 0.1) 50%);
+}
+:where(:root[data-theme='outrun']) .win-root .dk-scopebar-back svg { width: 17px; height: 14px; }
+/* Each tab is its label plus 20px plus an equal share of what is left
+   (ScopeBar.cs SeparateScopeItems: ScopeItemMargin = leftover / 2n + 10 a
+   side), which is flex-grow over the label's own width; equal widths cut
+   "Podcasts & Shows" (2026-10-02). Search rows are 46 tall with 30px art 10px in, smaller than the
+   40px art of a browsed album's rows. */
+:where(:root[data-theme='outrun']) .win-root .dk-scopebar-tabs button { position: relative; flex: 1 1 auto; min-width: 0; height: 30px; padding: 0 10px; font-size: 12px; font-weight: 700; color: #bdbdbd; border: 1px solid transparent; background: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:where(:root[data-theme='outrun']) .win-root .dk-search-results .dk-browse-row { height: 46px; padding-left: 10px; }
+
+:where(:root[data-theme='outrun']) .win-root .dk-scopebar-tabs button:hover:not([aria-selected='true']) { background: linear-gradient(#505050, #303030); }
+:where(:root[data-theme='outrun']) .win-root .dk-scopebar-tabs button[aria-selected='true'] {
+  /* BackgroundBrushPressed inside the BackgroundBrushBorderPressed border,
+     #2F2F2F at the top to black at the foot. */
+  background: linear-gradient(#1e1e1e, #303030) padding-box, linear-gradient(#2f2f2f, #000000) border-box;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-header-room { display: inline; }
+
+/* Rooms: tiles in a 16px gutter, 18px below the header, 16px apart, 65 tall
+   (taller only when a group lists several devices), 4px corners, flat
+   fills; the selected tile is white with dark text (the app inverts it). */
+/* zones/zonespanel.xaml: the header is Height="32" with its title
+   Margin="8,8,0,8", the list of tiles Margin="0,0,0,12", the footer
+   Height="31". Each tile (zonegroupcontrol.xaml) is Margin="16,16,16,0", so
+   16 all round and 16 between tiles, with 12 under the list. Sonora had 18
+   at the top and nothing at the bottom. */
+:where(:root[data-theme='outrun']) .win-root .dk-rooms-list { padding: 16px 16px 12px; gap: 16px; scrollbar-gutter: stable; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile { min-height: 65px; border-radius: 4px; background: var(--t-tile); }
+:where(:root[data-theme='outrun']) .win-root .dk-tile:hover { background: var(--t-tile-hover); }
+/* The Windows skin's selected tile is white, so its text is dark. That was
+   written as a literal, which meant any theme wearing this shell with a dark
+   selected tile got dark on dark -- contrast 1.00, measured while writing
+   THEMING.md against the guide's own example. The default is unchanged. */
+:where(:root[data-theme='outrun']) .win-root .dk-tile[aria-pressed='true'] { background: var(--t-tile-selected); color: var(--t-tile-selected-fg, #1a1a1a); }
+:where(:root[data-theme='outrun']) .win-root .dk-tile[aria-pressed='true'] .dk-tile-marquee,
+:where(:root[data-theme='outrun']) .win-root .dk-tile[aria-pressed='true'] .dk-tile-indicator,
+:where(:root[data-theme='outrun']) .win-root .dk-tile[aria-pressed='true'] .dk-tile-device small { color: #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-devices { padding: 10px 48px 9px 9px; min-height: 39px; box-sizing: border-box; }
+/* A one-room tile is 65 tall and each extra room adds 21 (measured on the
+   app 2026-09-06: a two-room tile is 86), so only the rooms after the first
+   carry the taller line. */
+:where(:root[data-theme='outrun']) .win-root .dk-tile-device { font-size: 14px; font-weight: 700; height: 16px; line-height: 16px; padding-top: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-device + .dk-tile-device { height: 16px; line-height: 16px; margin-top: 9px; }
+/* "Offline" ends clear of the room glyph, which is centered in a 34px button
+   30px from the tile's right edge (its ink spans 39-55px in). */
+:where(:root[data-theme='outrun']) .win-root .dk-tile-device small { margin-right: 12px; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-now { height: 26px; padding: 0 10px; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-indicator { width: 8px; height: 9px; margin-right: 6px; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-state-mac { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-state-win { display: block; opacity: 0.8; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-indicator svg { width: 8px; height: 9px; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-marquee { font-size: 12px; color: rgba(255, 255, 255, 0.8); height: 14px; line-height: 14px; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-group { top: 5px; right: 30px; width: 34px; height: 34px; background: transparent; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-group-mac { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-group-win { display: block; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-group svg { width: 16px; height: 16px; }
+/* The selected (white) tile inverts everything on it, its buttons included. */
+:where(:root[data-theme='outrun']) .win-root .dk-tile[aria-pressed='true'] .dk-tile-group,
+:where(:root[data-theme='outrun']) .win-root .dk-tile[aria-pressed='true'] .dk-tile-group svg { color: #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile[aria-pressed='true'] .dk-tile-group:hover { background: rgba(0, 0, 0, 0.08); }
+
+/* Now Playing: 150px art at 16,16; each line carries a gray 11px caption
+   (Song / Artist / Album) over a regular 12px value, 42px per pair. The app
+   shows no position counter here. */
+:where(:root[data-theme='outrun']) .win-root .dk-now-art { left: 16px; top: 17px; width: 150px; height: 150px; background: #262626; }
+/* The app fits the whole picture inside the 150px square, flush left: a
+   portrait book cover (Libby by OverDrive) shows 112x150 with the pane
+   behind the rest, where Sonora was cropping it to the square (measured
+   2026-09-07). */
+/* A station's logo is often wider than it is tall (LifeTalk Radio's is
+   145x72) and the app draws it flush with the top of the 150px slot, not
+   centered in it: measured 2026-09-12, the app's spanned y 183..257 from a
+   slot starting at 183 while Sonora's sat at 221..294. */
+:where(:root[data-theme='outrun']) .win-root .dk-now-art img { width: 150px; height: 150px; object-fit: contain; object-position: left top; }
+/* With a picture present the square has no color of its own: beside a
+   portrait cover the app shows the pane (#1a1a1a, measured 2026-09-08); the
+   gray stays for the no-art placeholder only. */
+:where(:root[data-theme='outrun']) .win-root .dk-now-art:has(img) { background: transparent; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-line { height: 27px; font-size: 12px; font-weight: 400; color: #ffffff; line-height: 14px; margin: 0 0 15px; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-line[data-caption]::before {
+  content: attr(data-caption);
+  display: block;
+  font-size: 11px;
+  line-height: 13px;
+  margin-bottom: -1px;
+  color: #868686;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-now-status { display: none; }
+/* The empty queue is plain light text over a dim note, not a link color. */
+/* Measured on the app's empty queue (2026-09-06): a 50x58 note in #2e2e2e
+   with the sentence 15px under it. */
+:where(:root[data-theme='outrun']) .win-root .dk-empty { gap: 15px; }
+:where(:root[data-theme='outrun']) .win-root .dk-empty p { color: #e5e5e5; }
+:where(:root[data-theme='outrun']) .win-root .dk-empty svg { width: 50px; height: 58px; color: #2e2e2e; opacity: 1; }
+/* A captioned line with nothing to say keeps its caption and hides the
+   placeholder word the Mac layout would show. */
+:where(:root[data-theme='outrun']) .win-root .dk-now-placeholder { color: transparent; }
+
+/* Browse and queue rows: 48 tall, 30px icons 18px in, flat hover. */
+:where(:root[data-theme='outrun']) .win-root .dk-panes > :last-child .dk-scroll { padding-top: 3px; }
+:where(:root[data-theme='outrun']) .win-root .dk-panes > :last-child .dk-scroll:has(.dk-info-block) { padding-top: 0; }
+/* chevron.png: a 2px #868686 arrow, 10 wide and 14 tall, inside a 38x42 hit
+   cell. The shared glyph has different proportions, so it is masked out. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-disclosure {
+  width: 10px;
+  height: 14px;
+  background: #868686;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 14'%3E%3Cpath d='M1.5 1.5L8.5 7L1.5 12.5' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E") center / 10px 14px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 14'%3E%3Cpath d='M1.5 1.5L8.5 7L1.5 12.5' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E") center / 10px 14px no-repeat;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-browse-disclosure path { display: none; }
+/* Hidden, not collapsed: the slot is still 10px wide, so a leaf row's caret
+   sits where a browsable row's does (measured 2026-09-12). */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-disclosure-blank { display: block; visibility: hidden; }
+/* The chevron's ink ends 30px before the pane divider in the app (the 11px
+   gutter, then 19px), and the caret's triangle ends 70px before it whether or
+   not a chevron follows (Select a Music Source and the Spotify account menu,
+   both 2026-09-14): the 14 here, the 4 on the chevron and the row's 25px of
+   padding add up to that with the triangle centered in its 44px button. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-disclosure { margin-right: 4px; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-actions { margin-right: 14px; }
+/* The row's gap spaces art from text; it has no business between these
+   controls, whose distances are all measured, so each one gives it back. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row > :is(.dk-browse-check, .dk-browse-accounts, .dk-browse-disclosure) { margin-left: calc(-1 * var(--win-row-gap)); }
+/* The station the room is playing, tinted at rest with the hover fill, as the
+   app tints it. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row[aria-current='true'] { background: var(--t-row-hover); }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-actions svg { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-actions::after {
+  content: ''; width: 11px; height: 6px; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'%3E%3Cpath d='M0 0h11L5.5 6z' fill='%23000'/%3E%3C/svg%3E") center / 11px 6px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'%3E%3Cpath d='M0 0h11L5.5 6z' fill='%23000'/%3E%3C/svg%3E") center / 11px 6px no-repeat;
+}
+
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row { --win-row-gap: 9px; height: 48px; padding: 0 14px 0 18px; gap: var(--win-row-gap); font-size: 13px; box-sizing: border-box; border-top: 3px solid transparent; border-bottom: 3px solid transparent; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row:hover { background: var(--t-row-hover); }
+/* bttn_dd_normal is a flat gray triangle -- #868686 measured off the app's
+   Spotify caret at rest (2026-09-11); it turns white under the pointer and
+   while its menu is open, which desktop.css already does. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-actions { color: #868686; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art { width: 30px; height: 30px; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art img { width: 30px; height: 30px; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art.dk-browse-glyph,
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art.dk-browse-glyph img { width: 32px; height: 32px; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row:has(.dk-browse-glyph) { --win-row-gap: 7px; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row:has(.dk-browse-glyph) .dk-browse-text { padding-left: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-row { border-radius: 0; height: 48px; }
+:where(:root[data-theme='outrun']) .win-root .dk-row:hover { background: var(--t-row-hover); }
+
+/* Footers: header-gray, 31 tall under a 1px rule, flat buttons divided by
+   1px rules that only light up on hover/press. */
+:where(:root[data-theme='outrun']) .win-root .dk-footer { height: 32px; background: var(--t-header-top); border-top: 1px solid #0a0a0a; }
+:where(:root[data-theme='outrun']) .win-root .dk-footer button { height: 31px; border-left: 0; font-size: 12px; background: transparent; }
+:where(:root[data-theme='outrun']) .win-root .dk-footer button + button { border-left: 1px solid #0a0a0a; }
+:where(:root[data-theme='outrun']) .win-root .dk-footer button:hover:not(:disabled) { background: var(--t-surface-hover); }
+:where(:root[data-theme='outrun']) .win-root .dk-footer button:active:not(:disabled) { background: var(--t-surface-active); }
+
+/* ---- Settings window, as captured (843x525): a 25px light title bar, an
+   #f0f0f0 body, a 181px #e6e6e6 page list with 21px rows indented 22px and a
+   #0078d7 selection, a bold 14px page title, a classic tab strip over a white
+   #919b9c-bordered panel, flat #e1e1e1 buttons with #adadad borders. */
+/* settingswindow.xaml sets no size -- ResizeMode="CanMinimize", sized by its
+   content -- so this one has to be measured. On the app (2026-09-06, title
+   bar x 195..1038, y 120..645): 844x526, with the nav column 182 wide ending
+   at a 1px #b4b4b4 divider. Sonora was a pixel short on all three, from
+   readings that scanned body rows rather than the title bar. */
+:where(:root[data-theme='outrun']) .win-root .win-settings { width: 844px; height: 526px; background: #f0f0f0; color: #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-prefs-toc {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 182px;
+  padding: 22px 0 8px;
+  background: #e6e6e6;
+  border-right: 0;
+}
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-list button {
+  display: block;
+  width: 100%;
+  height: 21px;
+  padding: 0 0 0 22px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #1a1a1a;
+  font-size: 12px;
+  line-height: 21px;
+  text-align: left;
+}
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-list button[aria-selected='true'] { background: #0078d7; color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-foot { padding: 0 16px; font-size: 12px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-foot p { margin: 0 0 10px; line-height: 15px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-foot .dk-win-btn { width: 100%; height: 21px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-prefs-page { padding: 24px 20px 20px; background: #f0f0f0; color: #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-prefs-page h3 { margin: 0 0 20px; font-size: 14px; font-weight: 700; color: #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-for { display: flex; align-items: center; gap: 8px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-for select { height: 27px; min-width: 214px; padding: 0 6px; font-size: 12px; background: #ffffff; color: #1a1a1a; border: 1px solid #7a7a7a; border-radius: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-room > h3 { display: none; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-tabs { display: flex; gap: 0; margin: 0 0 12px; padding: 0 0 0 2px; border: 0; border-bottom: 1px solid #919b9c; background: transparent; border-radius: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-tabs button {
+  height: 22px;
+  padding: 0 7px;
+  margin: 0 -1px 0 0;
+  border: 1px solid #919b9c;
+  border-bottom: 0;
+  border-radius: 0;
+  background: #f0f0f0;
+  color: #1a1a1a;
+  font-size: 12px;
+}
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-tabs button[aria-selected='true'] { background: #ffffff; height: 23px; margin-bottom: -1px; position: relative; z-index: 1; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-panel { padding: 20px; background: #ffffff; border: 1px solid #919b9c; font-size: 12px; line-height: 14px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-panel p { margin: 0 0 8px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-panel strong { display: block; margin: 8px 0 14px; font-weight: 700; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-beta { display: grid; grid-template-columns: 96px 1fr; gap: 0 10px; margin-bottom: 18px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-beta strong { margin: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-beta .dk-win-btn { display: block; width: 214px; height: 21px; margin: 8px auto 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-check { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-settings-panel a { color: #0000ee; }
+/* Parental Controls, to the 9.1 tab's own numbers: the white panel is
+   Margin 16,20,16,20 inside its border, the paragraph has 12 under it, the
+   two buttons are Width 260 and centered, the first with 10 above and the
+   second with 20. */
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-parental-panel { padding: 20px 16px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-parental-body { margin: 0 0 12px; white-space: normal; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-parental-btn { display: block; width: 260px; max-width: 100%; margin: 10px auto 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-parental-more { margin-top: 20px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-parental-note { margin: 10px 0 0; text-align: center; color: #6b6b6b; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-win-btn { min-width: 90px; height: 21px; padding: 0 12px; border: 1px solid #adadad; border-radius: 0; background: #e1e1e1; color: #1a1a1a; font-size: 12px; box-shadow: none; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-win-btn:hover:not(:disabled) { background: #e5f1fb; border-color: #0078d7; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-win-btn:disabled { color: #838383; background: #cccccc; border-color: #bfbfbf; }
+
+/* EQ sliders as the app draws them: a gray control with no readout. */
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-eq-slider { accent-color: #8a8a8a; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-eq-value { display: none; }
+
+/* ---- Dialogs share the app's light body; About and Keyboard Shortcuts as
+   captured (445 and 494 wide): bordered white boxes of 12px text, a footer
+   strip with the default button outlined in #0078d7. */
+:where(:root[data-theme='outrun']) .win-root .dk-window { background: #f0f0f0; color: #1a1a1a; }
+/* Every one of the app's dialog frames ends the same way. CommonDialogWindow
+   and MessageWindow both put the buttons in a 58px row -- two rules, #9d9d9d
+   then #e6e6e6, over #d6d6d6 -- right-aligned with the grid 16px in and each
+   button carrying a 5px margin, so the last one ends 21px from the edge.
+   Measured on the app's Keyboard Shortcuts window (2026-09-06): footer
+   624..679 under rules at 622/623, Done 90px wide ending 21 from the right.
+   Sonora had a 12px-padded #f0f0f0 strip here, which came from the Mac
+   sheets rather than from this frame. */
+:where(:root[data-theme='outrun']) .win-root .win-dialog-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  height: 58px;
+  padding: 0 21px 0 0;
+  background: #d6d6d6;
+  border-top: 1px solid #9d9d9d;
+  box-shadow: inset 0 1px 0 #e6e6e6;
+}
+:where(:root[data-theme='outrun']) .win-root .win-dialog-foot .dk-win-btn {
+  min-width: 90px;
+  height: 23px;
+  padding: 0 8px;
+  border: 1px solid #ababab;
+  border-radius: 4px;
+  background: linear-gradient(#f7f7f7, #e6e6e6);
+  color: #1a1a1a;
+  font-size: 12px;
+  box-shadow: none;
+}
+:where(:root[data-theme='outrun']) .win-root .win-dialog-foot .dk-win-btn:hover:not(:disabled) { background: linear-gradient(#eaf5fd, #d9edfb); border-color: #3c99dc; }
+:where(:root[data-theme='outrun']) .win-root .win-dialog-foot .dk-win-btn[data-default='true'] { border-color: #0a97ff; box-shadow: inset 0 0 0 1px rgba(10, 151, 255, 0.35); }
+:where(:root[data-theme='outrun']) .win-root .win-dialog-foot .dk-win-btn:disabled { color: #838383; background: #cccccc; border-color: #bfbfbf; }
+:where(:root[data-theme='outrun']) .win-root .dk-win-btn[data-default='true'] { background: #e1e1e1; color: #1a1a1a; border-color: #0078d7; box-shadow: inset 0 0 0 1px #0078d7; }
+:where(:root[data-theme='outrun']) .win-root .win-about .dk-window-body,
+:where(:root[data-theme='outrun']) .win-root .win-shortcuts .dk-window-body { display: flex; flex-direction: column; }
+/* aboutwindow.xaml pins Width="450" MaxWidth="450" with MinHeight and
+   MaxHeight both 530, so 444x526 on screen -- the same 6x4 chrome delta as
+   the CommonDialogWindows, confirmed on the app 2026-09-06 (x 546..989,
+   y 169..694). An earlier 423x494 reading here was 21px narrow. Inside:
+   Grid Margin="20", the icon Width="100", the head Margin="0,0,0,10", and
+   the title in BaseTextBlockSizeLargeHeader, which genericfonts.xaml puts
+   at 18. */
+:where(:root[data-theme='outrun']) .win-root .win-about { width: 444px; height: 526px; }
+:where(:root[data-theme='outrun']) .win-root .win-about-body { flex: 1; min-height: 0; padding: 20px; font-size: 12px; }
+:where(:root[data-theme='outrun']) .win-root .win-about-head { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+:where(:root[data-theme='outrun']) .win-root .win-about-head img { width: 100px; height: 100px; flex: none; }
+:where(:root[data-theme='outrun']) .win-root .win-about-head h3 { margin: 4px 0 10px; font-size: 18px; font-weight: 700; }
+:where(:root[data-theme='outrun']) .win-root .win-about-head dl { display: grid; grid-template-columns: max-content 1fr; gap: 3px 10px; margin: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-about-head dd { margin: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-about-box { height: 245px; overflow: auto; padding: 8px 10px; background: #ffffff; border: 1px solid #919b9c; line-height: 16px; }
+:where(:root[data-theme='outrun']) .win-root .win-about-box p { margin: 0; white-space: nowrap; }
+:where(:root[data-theme='outrun']) .win-root .win-about-rule { color: #6a6a6a; }
+:where(:root[data-theme='outrun']) .win-root .win-about-legal { margin: 12px 0 14px; font-size: 11px; }
+:where(:root[data-theme='outrun']) .win-root .win-about-foot { display: flex; justify-content: center; }
+:where(:root[data-theme='outrun']) .win-root .win-about-foot .dk-win-btn { min-width: 214px; }
+/* 473 wide, as the app's window measured 2026-09-06 (473x440). */
+/* Keyboard Shortcuts, measured on the app 2026-09-06: 494x496 with a 25px
+   title bar, the intro and the list inset 20 each side, the list 294 tall,
+   then 60px of body before the 58px foot -- which is exactly the XAML's
+   Margin="20,0,20,60" on the list. Sonora had it 473 wide with a 256px
+   list, neither of which came from this window. */
+:where(:root[data-theme='outrun']) .win-root .win-shortcuts { width: 494px; height: 496px; }
+:where(:root[data-theme='outrun']) .win-root .win-shortcuts-body { flex: 1; min-height: 0; padding: 20px 20px 0; font-size: 12px; }
+:where(:root[data-theme='outrun']) .win-root .win-shortcuts-note { margin: 8px 0 0; font-size: 11px; line-height: 14px; color: #6a6a6a; }
+:where(:root[data-theme='outrun']) .win-root .win-shortcuts-body p { margin: 0 0 22px; }
+/* The app's list fills the body; Sonora's gives up 36px to the line that
+   explains the three keys a browser would not let it take. */
+:where(:root[data-theme='outrun']) .win-root .win-shortcuts-table { height: 294px; overflow: auto; background: #ffffff; border: 1px solid #919b9c; }
+:where(:root[data-theme='outrun']) .win-root .win-shortcuts-table table { width: 100%; border-collapse: collapse; }
+:where(:root[data-theme='outrun']) .win-root .win-shortcuts-table th { position: sticky; top: 0; padding: 0 6px; height: 20px; text-align: left; font-weight: 400; background: #ffffff; border-bottom: 1px solid #e5e5e5; border-right: 1px solid #e5e5e5; }
+:where(:root[data-theme='outrun']) .win-root .win-shortcuts-table th:last-child { border-right: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-shortcuts-table td { padding: 0 8px; height: 20px; color: #0033cc; white-space: nowrap; }
+:where(:root[data-theme='outrun']) .win-root .win-shortcuts-table tbody tr:first-child td { background: #f0f0f0; }
+
+/* Group Rooms, measured on the app (s1win-screens/group-rooms.png): a 445x446
+   window whose 421px client holds one bordered white panel 20px in on every
+   side, split by a rule into a 190px art column and a 210px room list, with a
+   43px #f6f6f6 strip along its foot for Select All - Party Mode. Below the
+   panel the body is empty down to the 58px foot the app gives every dialog.
+   Sonora drew two separate boxes with the headings outside them. */
+/* groupingdialog.xaml is a CommonDialogWindow pinned to 450x450 (Min and Max
+   both), Title "Group Rooms", Done and Cancel -- so 444x446 on screen, the
+   same 6x4 chrome delta as Save Queue (also 450) and Keyboard Shortcuts
+   (500 -> 494x496). The XAML confirms the rest of what was measured from the
+   capture: content Margin="20,20,20,60", a 190px left column, the art
+   120x120, the right column's 1px #e5e5e5 left border, the headings bold
+   with the right one at Margin="6,10,0,0", and the button reading either
+   "Select All - Party Mode" or "Unselect All". Width was 445 from a reading
+   that scanned a body row rather than the title bar. */
+/* Choose Music (zones/groupingmusicpicker.xaml): a 400x300 CommonDialogWindow
+   -- 394x296 on screen -- with a bold 12px heading 20 in, a white list inset
+   20 with the app's #AAAAAA top edge, 48px rows whose 40px art sits in a 50px
+   column, and Done/Cancel in the usual 58px foot. */
+:where(:root[data-theme='outrun']) .win-root .win-musicpicker-window { width: 394px; height: 296px; }
+:where(:root[data-theme='outrun']) .win-root .win-musicpicker-window .dk-window-body { display: flex; flex-direction: column; }
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker {
+  position: relative; width: 100%; height: 100%; padding: 0; gap: 0;
+  background: linear-gradient(135deg, #e9e9e9, #d7d7d7);
+  font: 12px/14px 'Segoe UI', Tahoma, sans-serif; color: #242424;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker h4 { position: absolute; left: 20px; top: 20px; margin: 0; font-size: 12px; font-weight: 700; color: #242424; }
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker-list {
+  position: absolute; left: 20px; right: 20px; top: 40px; bottom: 78px; max-height: none;
+  box-sizing: border-box; overflow: auto; background: #ffffff;
+  border: 1px solid #cccccc; border-top-color: #aaaaaa; border-radius: 0;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker-row { height: 48px; padding: 0; gap: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker-art { width: 50px; height: 40px; display: grid; place-items: center; }
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker-art img, :where(:root[data-theme='outrun']) .win-root .dk-musicpicker-art svg {
+  width: 40px; height: 40px; box-sizing: border-box; border: 1px solid #e5e5e5; border-radius: 0;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker-title { margin: 0 4px 2px 0; font-size: 12px; color: inherit; }
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker-sub { margin: 0 4px 0 0; font-size: 11px; color: #808080; }
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker-row[aria-selected='true'] { background: #3399ff; color: #ebebeb; }
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker-row[aria-selected='true'] .dk-musicpicker-sub { color: #ebebeb; }
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker .dk-grouping-actions {
+  position: absolute; left: 0; right: 0; bottom: 0; top: auto;
+  height: 58px; display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+  padding-right: 22px; background: #d6d6d6; border-top: 1px solid #9d9d9d;
+  box-shadow: inset 0 1px 0 #e6e6e6;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker .dk-grouping-actions .dk-win-btn {
+  min-width: 90px; height: 23px; padding: 0 8px; border: 1px solid #ababab; border-radius: 4px;
+  background: linear-gradient(#f7f7f7, #e6e6e6); color: #1a1a1a; font-size: 12px; box-shadow: none;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker .dk-grouping-actions .dk-win-btn:hover:not(:disabled) { background: linear-gradient(#eaf5fd, #d9edfb); border-color: #3c99dc; }
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker .dk-grouping-actions .dk-win-btn:disabled { color: #838383; background: #f4f4f4; }
+:where(:root[data-theme='outrun']) .win-root .dk-musicpicker .dk-grouping-actions .dk-win-btn[data-default='true']:not(:disabled) { border-color: #0a97ff; box-shadow: inset 0 0 0 1px rgba(10, 151, 255, 0.35); }
+:where(:root[data-theme='outrun']) .win-root .win-grouping-window { width: 444px; height: 446px; }
+:where(:root[data-theme='outrun']) .win-root .win-grouping-window .dk-window-body { display: flex; flex-direction: column; }
+:where(:root[data-theme='outrun']) .win-root .win-grouping {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #e9e9e9, #d7d7d7);
+  font: 12px/14px 'Segoe UI', Tahoma, sans-serif;
+  color: #484848;
+}
+/* The panel itself. */
+:where(:root[data-theme='outrun']) .win-root .win-grouping::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  width: 404px;
+  height: 283px;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  border-top-color: #aaaaaa;
+}
+/* Its foot, holding Select All - Party Mode. */
+:where(:root[data-theme='outrun']) .win-root .win-grouping::after {
+  content: '';
+  position: absolute;
+  left: 21px;
+  top: 259px;
+  width: 402px;
+  height: 43px;
+  background: #f6f6f6;
+  border-top: 1px solid #e5e5e5;
+}
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-left,
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-right { top: 33px; font-size: 12px; font-weight: 700; color: #484848; }
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-left { left: 21px; width: 190px; text-align: center; }
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-right { left: 219px; width: 196px; text-align: left; }
+/* The rule between the two columns, drawn from the header that starts the
+   right one because neither column is an element of its own. */
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-right::after {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: -12px;
+  width: 1px;
+  height: 237px;
+  background: #e5e5e5;
+}
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-art { left: 57px; top: 60px; width: 120px; height: 120px; background: #262626; border-radius: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-track { margin: 0; left: 21px; top: 190px; width: 190px; text-align: center; font-weight: 400; font-size: 12px; color: #484848; }
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-artist { margin: 0; display: block; left: 21px; top: 209px; width: 190px; text-align: center; font-size: 12px; color: #848484; }
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-list { left: 212px; top: 58px; width: 210px; height: 200px; border: 0; border-radius: 0; background: transparent; padding: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-list label { height: 20px; gap: 6px; padding: 0 0 0 5px; font-size: 12px; color: #484848; }
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-all {
+  /* Above ::after, which paints the strip it sits on. */
+  z-index: 1;
+  left: 153px; top: 269px; transform: none; width: 138px; height: 23px;
+  padding: 0 8px; border: 1px solid #ababab; border-radius: 4px;
+  background: linear-gradient(#f7f7f7, #e6e6e6); color: #1a1a1a; font-size: 12px;
+  box-shadow: none; white-space: nowrap;
+}
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-all:hover { background: linear-gradient(#eaf5fd, #d9edfb); border-color: #3c99dc; }
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-note { display: none; }
+/* The dialog foot, the same 58px the app gives every window. */
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-actions {
+  left: 0; right: 0; bottom: 0; top: auto;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-right: 22px;
+  background: #d6d6d6;
+  border-top: 1px solid #9d9d9d;
+  box-shadow: inset 0 1px 0 #e6e6e6;
+}
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-actions .dk-win-btn {
+  min-width: 90px; height: 23px; padding: 0 8px;
+  border: 1px solid #ababab; border-radius: 4px;
+  background: linear-gradient(#f7f7f7, #e6e6e6); color: #1a1a1a; font-size: 12px; box-shadow: none;
+}
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-actions .dk-win-btn:hover { background: linear-gradient(#eaf5fd, #d9edfb); border-color: #3c99dc; }
+:where(:root[data-theme='outrun']) .win-root .win-grouping .dk-grouping-actions .dk-win-btn[data-default='true'] { border-color: #0a97ff; box-shadow: inset 0 0 0 1px rgba(10, 151, 255, 0.35); }
+
+/* Sleep Timer as captured: a dark rounded popover above the footer button
+   with a caret, a bold title, a prompt line and a list of durations. */
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window { width: 250px; background: #262626; color: #ffffff; border-radius: 6px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6); }
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window .dk-window-title { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window::after { content: ''; position: absolute; left: var(--caret-x, 50%); bottom: -10px; margin-left: -10px; border: 10px solid transparent; border-top-color: #262626; border-bottom: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window .dk-sleep { padding: 14px 16px 12px; width: 100%; min-width: 0; box-sizing: border-box; color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window .dk-sleep > p:not(.dk-sleep-choose) { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window .dk-sleep-title { display: block; margin: 0 0 12px; text-align: center; font-size: 14px; font-weight: 700; }
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window .dk-sleep-choose { display: block; margin: 0 0 14px; font-size: 12px; line-height: 15px; white-space: normal; }
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window .dk-sleep-choices { display: block; margin: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn {
+  position: relative; display: block; width: 100%; height: 30px; margin: 0; padding: 0 15px;
+  box-sizing: border-box; border: 0; border-left: 7px solid transparent; border-right: 7px solid transparent;
+  background-clip: padding-box;
+  text-align: left; font-weight: 700; font-size: 13px; line-height: 16px; color: #ffffff;
+  background: transparent; border-radius: 0; box-shadow: none;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn::before {
+  content: ''; position: absolute; left: 9px; right: 9px; top: 0; height: 1px; background: #1a1a1a;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover { background: #333333; }
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: #333333; }
+:where(:root[data-theme='outrun']) .win-root .dk-sleep-window .dk-add-actions { display: none; }
+
+/* Inside a service the header carries its logo before the name. */
+:where(:root[data-theme='outrun']) .win-root .dk-header-logo { display: inline-block; width: 24px; height: 24px; border-radius: 50%; margin: 0 5px; vertical-align: middle; }
+:where(:root[data-theme='outrun']) .win-root .dk-header-glyph { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; margin: 0 5px; background: #ffffff; color: #1b1b1b; vertical-align: middle; flex: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-header-glyph svg { width: 14px; height: 14px; }
+/* Pane titles sit at the left; only the browse pane inside a service centers
+   its logo and name between the back chevron and the scope label. */
+:where(:root[data-theme='outrun']) .win-root .dk-header-title { display: flex; align-items: center; justify-content: flex-start; }
+/* The app centers the icon and title on the whole header, not on the space
+   between the buttons (browsepanel.xaml headerStack, HorizontalAlignment Center). */
+:where(:root[data-theme='outrun']) .win-root .dk-header:has(.dk-header-back) .dk-header-title { position: absolute; left: 80px; right: 80px; top: 0; bottom: 0; justify-content: center; margin: 0; }
+/* BrowseButtonBackStyle: browse_scope_back_arrow (a 2px #d9d9d9 chevron, 9x14
+   in a 17x14 cell) with 13px either side; the divider bitmap is blank. */
+:where(:root[data-theme='outrun']) .win-root .dk-header-btn.dk-header-back { width: 43px; margin-left: -7px; padding: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-header-back svg { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-header-back::before {
+  content: ''; display: block; width: 17px; height: 14px;
+  /* A mask, so a skin can paint it: --t-back-arrow, the app's #d9d9d9 unless
+     the skin says otherwise (the light ones take their button color). */
+  background: var(--t-back-arrow, #d9d9d9);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 14'%3E%3Cpath d='M11 1 4 7l7 6' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E") no-repeat center;
+}
+/* The home button is the word MUSIC at the right (browsepanel.xaml's
+   browseRootButton, a ThreePartButton over browse_music_btn_*.png): 20px
+   tall, transparent at rest; hovered it is a #333 tag whose left end tapers
+   to a point over 9px and whose right edge is flat; pressed it is #1a1a1a.
+   The text sits 8px in from the point and 7px from the right edge. */
+:where(:root[data-theme='outrun']) .win-root .dk-header-home svg { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-header-home {
+  width: auto;
+  height: 20px;
+  min-width: 0;
+  margin-left: auto;
+  margin-right: -5px;
+  margin-top: 1px;
+  padding: 0 10px 0 17px;
+  border-radius: 0;
+  clip-path: polygon(0 50%, 9px 0, 100% 0, 100% 100%, 9px 100%);
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 700;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-header-home:hover { background: #333333; }
+:where(:root[data-theme='outrun']) .win-root .dk-header-home:active { background: #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .dk-header-home-label { display: inline; }
+/* Rows deeper than the root: 46 tall with 40px square art inset 9 from the
+   pane, and the text 6 past the art. Measured on the app's Pandora pane
+   (art 910-949, title at 956) and on its TuneIn search results, which are
+   laid out the same (art 909-948, title at 955); the root's own rows keep
+   the wider inset their 32px service logos sit in (2026-09-07). */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row:has(.dk-browse-art:not(.dk-browse-glyph)) {
+  height: 46px;
+  padding-left: 9px;
+  --win-row-gap: 0px;
+  /* The app's highlight on these rows is 42px in a 46px pitch, two pixels
+     short at top and bottom, with the art and text centered in it (Plex,
+     Surf-N-Burn, measured 2026-09-14: band 263-304 under a 46px cell). The
+     transparent borders make the gap, and the background stops at them. */
+  border-top-width: 2px;
+  border-bottom-width: 2px;
+  background-clip: padding-box;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row:has(.dk-browse-art:not(.dk-browse-glyph)) .dk-browse-text {
+  padding-left: 6px;
+}
+/* The album page's Shuffle row sits in the art column like Play and the
+   numbered tracks -- the app aligns all three labels (S2 Windows app,
+   2026-09-14) -- but its slot is a glyph, so the rows-with-art rule above
+   passed it by and it kept the glyph rows' wider gutter, which read as an
+   indent on every service's album page. */
+/* Written with the row class as well, to outrank the :has() rule that gives glyph rows their 7px gap. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row.dk-album-shuffle, :where(:root[data-theme='outrun']) .win-root .dk-browse-row.dk-album-play { height: 46px; padding-left: 9px; --win-row-gap: 0px; border-top-width: 2px; border-bottom-width: 2px; background-clip: padding-box; }
+/* With the row class too, to outrank the glyph-row rule that zeroes this padding. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row.dk-album-shuffle .dk-browse-text { padding-left: 6px; }
+/* A list's Play row wears the library's stack glyph where an album's wears
+   its cover, in the Shuffle row's 40px slot so "Play" lines up over
+   "Shuffle" (it sat 14px left of it, 2026-09-29). */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row.dk-album-play .dk-browse-art.dk-browse-glyph { width: 40px; height: 40px; display: grid; place-items: center; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row.dk-album-play:has(.dk-browse-glyph) .dk-browse-text { padding-left: 6px; }
+/* The library's stack glyph, as the S2 Windows app draws its slot (sampled
+   2026-09-29): a 40px #262626 tile, the glyph's ink about 20px square in
+   #666666 at its middle -- on the library's artists, composers, genres and
+   folders and on the Songs list's Play row. Sonora's own drawing, sized and
+   colored to that. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art:has(> .dk-browse-stack) { width: 40px; height: 40px; border-radius: 0; background: #262626; display: grid; place-items: center; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art > svg.dk-browse-stack, :where(:root[data-theme='outrun']) .win-root .dk-browse-art:not(.dk-browse-glyph) > svg.dk-browse-stack { width: 30px; height: 30px; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-stack > rect:first-child { display: none; }
+/* A song in the library has an empty slot: the title keeps its indent and
+   nothing is drawn there, not even the slot's own tile. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art:empty { background: transparent; }
+/* The Songs list's letters: white on the pane itself, no band, regular
+   weight, as the S2 app sets them (2026-09-29). */
+
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art:not(.dk-browse-glyph),
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art:not(.dk-browse-glyph) img { width: 40px; height: 40px; }
+/* A cover that is not square is fitted, not cropped: Libby's audiobook
+   covers stand 30x40 in the middle of the 40px slot in the app (WPF's Image
+   stretches Uniform unless told otherwise), 2026-09-22. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art:not(.dk-browse-glyph) img { object-fit: contain; }
+/* The generic tiles fill the art square, as the app's own 80px assets do
+   when it draws them into one. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art:not(.dk-browse-glyph) > svg { width: 40px; height: 40px; }
+:where(:root[data-theme='outrun']) .win-root .dk-header-title .dk-header-room { margin-left: 4px; }
+
+/* Queue rows as captured: 46 tall with 40px art in place of a number. */
+:where(:root[data-theme='outrun']) .win-root .dk-row { height: 46px; padding: 0 8px; gap: 8px; }
+:where(:root[data-theme='outrun']) .win-root .dk-row-num { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-row-art { display: block; width: 40px; height: 40px; flex: none; overflow: hidden; }
+/* Row pictures are fitted whole into their square, a portrait book cover
+   with dark margins at the sides, in the browse list and the queue alike
+   (Libby by OverDrive, 2026-09-08). */
+:where(:root[data-theme='outrun']) .win-root .dk-row-art img { width: 40px; height: 40px; object-fit: contain; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art img { object-fit: contain; }
+:where(:root[data-theme='outrun']) .win-root .dk-row-sub { color: #9a9a9a; }
+
+/* Context menus as captured: a light flat panel with dark text, thin
+   separators, grayed entries in #8a8a8a. */
+/* main/contextmenustyles.xaml + tile menu capture (2026-09-05): #e6e6e6
+   sheet with a 1px dark edge at the cursor, content-sized, 8px above the
+   first row; 24px rows with #242424 text 17px in (#909090 disabled); the
+   lit row is #0a97ff with #ebebfb text; separators 1px #cfcfcf. */
+:where(:root[data-theme='outrun']) .win-root .dk-popover { min-width: 0; padding: 7px 0 6px; background: #e6e6e6; border: 1px solid #1a1a1a; border-radius: 1px; color: #242424; box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.5); }
+:where(:root[data-theme='outrun']) .win-root .dk-popover-title { display: none; }
+/* The overlay's own box keeps the dark transient-message look inside the
+   light settings window. */
+:where(:root[data-theme='outrun']) .win-root .dk-busy-box, :where(:root[data-theme='outrun']) .win-root .dk-busy-box p { color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .transient-message { padding: 15px 20px; font-size: 13px; line-height: 19px; color: #e5e5e5; box-shadow: 0 0 30px #000000; }
+:where(:root[data-theme='outrun']) .win-root .dk-popover button { height: 24px; padding: 0 9px 0 17px; font-size: 12px; color: #242424; }
+:where(:root[data-theme='outrun']) .win-root .dk-popover button:hover:not(:disabled) { background: #0a97ff; color: #ebebfb; }
+:where(:root[data-theme='outrun']) .win-root .dk-popover button:disabled { color: #909090; }
+:where(:root[data-theme='outrun']) .win-root .dk-popover-sep { margin: 3px 0; border-top: 1px solid #cfcfcf; }
+/* The search menu as captured: 22px rows, the logo 19px in after the tick
+   column, labels the service's own name; "Recent Searches" gray, its entries
+   indented past the logo. */
+:where(:root[data-theme='outrun']) .win-root .dk-scope-menu { min-width: 242px; }
+:where(:root[data-theme='outrun']) .win-root .dk-scope-menu button { height: 22px; padding: 0 9px 0 0; gap: 6px; }
+:where(:root[data-theme='outrun']) .win-root .dk-scope-check { width: 19px; }
+:where(:root[data-theme='outrun']) .win-root .dk-scope-menu button img, :where(:root[data-theme='outrun']) .win-root .dk-scope-menu button > svg { width: 18px; height: 18px; border-radius: 50%; }
+:where(:root[data-theme='outrun']) .win-root .dk-scope-heading { padding: 2px 0 2px 44px; font-size: 12px; color: #909090; }
+:where(:root[data-theme='outrun']) .win-root .dk-scope-menu .dk-scope-recent { padding-left: 55px; }
+/* ---- Now Playing as captured: an (i) at the header's right, the service and
+   what it is playing under the art, Pandora's thumbs under the metadata; no
+   position counter or text link. The queue header's caret folds the queue. */
+:where(:root[data-theme='outrun']) .win-root .dk-now-info { display: none; }
+/* nowplayingpanel.xaml gives the info button Width="35" in the 32px header,
+   right-aligned. Sonora had it 30 wide, which came from nowhere in this
+   window (2026-09-06 audit). */
+:where(:root[data-theme='outrun']) .win-root .dk-now-info-header { display: grid; place-items: center; margin-left: auto; margin-right: -8px; width: 35px; height: 32px; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-info-header svg {
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M8 0a8 8 0 100 16A8 8 0 008 0zM7 3h2v2H7zM7 6h2v7H7z'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M8 0a8 8 0 100 16A8 8 0 008 0zM7 3h2v2H7zM7 6h2v7H7z'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-now-info-header svg > * { display: none; }
+/* The line under the art (service and station, or "Next" and the coming
+   track) is nowplayingpanel.xaml's metadata4: Grid.ColumnSpan="2" with
+   Margin 5,0,12,10, so it runs the whole pane, not the art column -- a long
+   Next was being cut to 240px where the app shows it in full (2026-09-07). */
+:where(:root[data-theme='outrun']) .win-root .dk-now-source { display: block; position: absolute; left: 16px; right: 12px; top: 174px; margin: 0; font-size: 12px; line-height: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* np_TuneIn_radio_55x24 at its native size, bottom left of the art's row:
+   Margin="5,0,0,8" with VerticalAlignment="Bottom" in the app's XAML, which
+   lands at x 414..466, y 372..394 in a 1536x913 frame (measured 2026-09-12). */
+/* nowplayingpanel.xaml puts the mark 5px in from the art column's left edge,
+   which lands at x=412 on a 1536-wide frame; Sonora's pane box starts one
+   pixel earlier, so 6px here puts the two on the same column (measured
+   2026-09-12, where Sonora's sat 3px right of the app's). */
+:where(:root[data-theme='outrun']) .win-root .dk-now-badge { display: block; position: absolute; left: 6px; bottom: 8px; margin: 0; font-size: 12px; font-weight: 700; line-height: 16px; letter-spacing: 0.02em; color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-source strong { display: block; color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-source span { color: #9a9a9a; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-rating { display: flex; gap: 12px; position: absolute; left: 230px; top: 158px; }
+/* Thumbs as the app draws them: 32px #262626 discs, white glyph, outline
+   until rated and filled once rated (Pandora's UNSELECTED / SELECTED icons). */
+:where(:root[data-theme='outrun']) .win-root .dk-now-rating button { width: 32px; height: 32px; border-radius: 50%; border: 0; background: #262626; color: #ffffff; display: grid; place-items: center; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-rating button:disabled { color: #555555; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-rating button:hover:not(:disabled) { background: #333333; }
+/* Rated: the disc turns white and the glyph dark and filled (capture 2026-09-05). */
+:where(:root[data-theme='outrun']) .win-root .dk-now-rating button[aria-pressed='true'] { background: #ffffff !important; color: #1a1a1a !important; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-rating button[aria-pressed='true'] svg path { fill: currentColor; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-rating svg { width: 16px; height: 16px; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-rating button { position: relative; overflow: visible; }
+/* The service's own picture at its own size, which is what the app draws.
+   Sonos' rating icons are 40x32 PNGs holding a 13x15 white glyph on
+   transparency (THUMBSUP_UNSELECTED-pcdcr.png, the only variant that
+   exists), so 1:1 puts the glyph in the middle of the 32px disc with pixels
+   on pixels. It used to be scaled 1.35, which was a measuring mistake: the
+   window captures are at 150% DPI, so matching the glyph's size in the
+   capture magnified a tiny bitmap and it came out blurred. */
+:where(:root[data-theme='outrun']) .win-root .dk-now-rating button img {
+  position: absolute; left: 50%; top: 50%; width: 40px; height: 32px; max-width: none;
+  transform: translate(-50%, -50%);
+}
+:where(:root[data-theme='outrun']) .win-root .dk-now-rating svg { width: 15px; height: 15px; }
+:where(:root[data-theme='outrun']) .win-root .dk-queue-collapse { display: grid; margin-left: 6px; height: 32px; }
+
+/* Metadata starts 34px under the header, 42px per captioned pair; the thumbs
+   sit below the third pair. */
+/* Measured against the app (header bottom = 0): captions at 34/76/118, values
+   13px under each; thumbs 158-190; the source line 190 with 13px lines. */
+:where(:root[data-theme='outrun']) .win-root .dk-now-lines { top: 32px; left: 186px; right: 12px; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-rating { top: 158px; left: 230px; }
+:where(:root[data-theme='outrun']) .win-root .dk-now-source { top: 187px; line-height: 13px; }
+
+/* Info & Options rows are 46px like the app's; the block sits on a rule. */
+:where(:root[data-theme='outrun']) .win-root .dk-info-block { height: 92px; box-sizing: border-box; align-items: center; gap: 0; padding: 0 16px 0 17px; border-bottom: 1px solid #000000; }
+:where(:root[data-theme='outrun']) .win-root .dk-info-art, :where(:root[data-theme='outrun']) .win-root .dk-info-art img, :where(:root[data-theme='outrun']) .win-root .dk-info-art svg { width: 56px; height: 56px; }
+:where(:root[data-theme='outrun']) .win-root .dk-info-block dl { margin-left: 30px; gap: 5px 10px; font-size: 11px; line-height: 13px; }
+:where(:root[data-theme='outrun']) .win-root .dk-info-block dt { color: #868686; }
+:where(:root[data-theme='outrun']) .win-root .dk-info-row { height: 46px; padding-left: 12px; }
+:where(:root[data-theme='outrun']) .win-root .dk-info-row .dk-browse-text { padding-left: 0; }
+/* The app lists Info & Options actions in its ordinary white row text
+   (browse rows, #FFFFFF), so the rows Sonora does not yet perform keep that
+   color too; the tooltip says where they work. */
+:where(:root[data-theme='outrun']) .win-root .dk-info-row[aria-disabled='true'] { color: #ffffff; }
+
+/* ---- Save Queue (445x445) and Alarms (494x494) as captured. */
+/* 444x445: the light-pixel bbox (422) clipped the footer band, which the
+   XAML puts at 60px under the content grid. */
+/* Save Queue is a CommonDialogWindow too: savequeuedialog.xaml declares
+   Width="450" Height="450" with OkButtonText="Done" and CancelButtonText
+   "Cancel". The chrome costs the same 6x4 it does on Keyboard Shortcuts
+   (500x500 measuring 494x496 on screen), so 444x446. An earlier 422 here was
+   the CLIENT height, not the window's. */
+:where(:root[data-theme='outrun']) .win-root .win-savequeue { width: 444px; height: 446px; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue .dk-window-body,
+:where(:root[data-theme='outrun']) .win-root .win-alarms .dk-window-body,
+:where(:root[data-theme='outrun']) .win-root .dk-window:has(.dk-add) .dk-window-body { display: flex; flex-direction: column; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue-body { flex: 1; min-height: 0; padding: 20px 20px 0; font-size: 12px; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue-body { display: flex; flex-direction: column; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue-body p { margin: 0 0 20px; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue-body p:last-of-type { margin-bottom: 10px; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue-field { display: block; margin-bottom: 15px; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue-field span { display: block; margin-bottom: 10px; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue-field input { width: 100%; height: 28px; padding: 0 4px; border: 1px solid #7a7a7a; border-radius: 0; font-size: 12px; color: #1a1a1a; background: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue-field input:focus { outline: 0; border-color: #0078d7; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue-list { height: 155px; overflow: auto; background: #ffffff; border: 1px solid #919b9c; padding: 2px 0; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue-list button { display: block; width: 100%; height: 19px; padding: 0 6px; border: 0; background: none; text-align: left; font-size: 12px; color: #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .win-savequeue-list button[aria-selected='true'] { background: #0078d7; color: #ffffff; }
+/* Measured on the app 2026-09-06: the window is 493x469 and its table is
+   352x190 starting 20 in and 139 down. */
+/* Every one of these windows declares its size in XAML, so it converts
+   straight to CSS with the settled 6x4 chrome delta (2026-09-06 audit):
+   alarms/alarmwindow.xaml 500x500 with OkButtonText="Done". */
+:where(:root[data-theme='outrun']) .win-root .win-alarms { width: 494px; height: 496px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-body { flex: 1; padding: 20px; font-size: 12px; }
+/* Measured against the app (window-relative ink): heading 47..58, time
+   line 86..97, table header 124..133. */
+:where(:root[data-theme='outrun']) .win-root .win-alarms-body h3 { margin: 0 0 22px; font-size: 12px; font-weight: 700; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-time { margin: 0 0 22px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-main { display: flex; gap: 10px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-table { flex: 1; height: 190px; overflow: auto; background: #ffffff; border: 1px solid #919b9c; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-head, :where(:root[data-theme='outrun']) .win-root .win-alarms-row { display: grid; grid-template-columns: 150px 1fr 56px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-head span { padding: 2px 6px; border-bottom: 1px solid #e5e5e5; border-right: 1px solid #e5e5e5; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-head span:last-child { border-right: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-row span { padding: 2px 6px; height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-row[aria-selected='true'] span { background: #cce4f7; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-buttons { display: grid; grid-template-rows: 22px 30px 22px 22px; gap: 9px; align-content: start; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-buttons .dk-win-btn { width: 90px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarms-help { margin: 24px 0 0; line-height: 15px; }
+/* Add a service in the app's 515x520 frame with its wizard footer. */
+:where(:root[data-theme='outrun']) .win-root .dk-window:has(.dk-add) { width: 515px; height: 520px; }
+:where(:root[data-theme='outrun']) .win-root .dk-add { flex: 1; min-height: 0; width: auto; display: flex; flex-direction: column; padding: 20px 20px 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-add-intro { font-size: 12px; margin: 0 0 12px; }
+/* The wizard (Settings > Services > Add) is white above its footer, as the
+   app's wizard frame is; its heading is bold over the sentence. */
+:where(:root[data-theme='outrun']) .win-root .dk-window.dk-add-wizard, :where(:root[data-theme='outrun']) .win-root .dk-add-wizard .dk-window-body, :where(:root[data-theme='outrun']) .win-root .dk-add-wizard .dk-add { background: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .dk-add-heading { margin: 2px 0 26px; font-size: 15px; font-weight: 700; color: #242424; }
+:where(:root[data-theme='outrun']) .win-root .dk-add-list { flex: 1; min-height: 0; overflow: auto; background: #ffffff; border: 1px solid #919b9c; }
+:where(:root[data-theme='outrun']) .win-root .dk-add-actions { margin: 0 -20px; padding: 12px 20px; background: #f0f0f0; border-top: 1px solid #dfdfdf; justify-content: center; gap: 10px; }
+/* The row whose menu is open stays lit, its caret shown. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row[aria-selected='true'] { background: var(--t-row-hover); }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row[aria-selected='true'] .dk-browse-actions { opacity: 1; }
+
+/* ---- Transport strip to the capture's pixels (1536-wide frame, strip top =
+   0): mute glyph 22-44 x 33-48; volume track 63-234 at 41, #313131 2px,
+   16px white thumb; prev/play/next glyph centers 719/770/819 at 27 (16 and
+   22px glyphs, #333 when disabled); lower row centered on a 150px bar at
+   693-843 (y 69): repeat 584, shuffle 612, elapsed ending 686, remaining
+   from 851, crossfade 909; pill 214x24 at top 28, right 17. The two
+   dropdowns stay left of the pill by the user's decision. */
+:where(:root[data-theme='outrun']) .win-root .dk-strip-mute { left: 17px; top: 24px; width: 34px; height: 34px; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-mute svg { width: 34px; height: 34px; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-slider { left: 63px; top: 30px; width: 171px; height: 23px; }
+:where(:root[data-theme='outrun']) .win-root .dk-slider { height: 23px; }
+:where(:root[data-theme='outrun']) .win-root .dk-slider input { height: 23px; }
+:where(:root[data-theme='outrun']) .win-root .dk-slider-track { top: 11px; background: rgba(255, 255, 255, 0.161); height: 2px; }
+:where(:root[data-theme='outrun']) .win-root .dk-slider-fill { top: 11px; background: #e5e5e5; height: 2px; }
+:where(:root[data-theme='outrun']) .win-root .dk-slider input::-moz-range-thumb { width: 18px; height: 18px; background: #ffffff; border: 0; border-radius: 50%; box-shadow: 0 0 3px rgba(255, 255, 255, 0.5); }
+:where(:root[data-theme='outrun']) .win-root .dk-slider input::-webkit-slider-thumb { width: 18px; height: 18px; background: #ffffff; border: 0; border-radius: 50%; box-shadow: 0 0 3px rgba(255, 255, 255, 0.5); }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-controls { top: -2px; left: calc(50% - 120px); }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-controls .dk-btn-back30 { left: 9px; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-controls .dk-btn-prev { left: 54px; }
+/* The glyphs are the app's bitmap cells redrawn (Icons.jsx winTransportIcons):
+   34x44 skips, a 44x44 play whose hover is a #262626 disc. */
+:where(:root[data-theme='outrun']) .win-root .dk-btn-prev svg, :where(:root[data-theme='outrun']) .win-root .dk-btn-next svg { width: 34px; height: 44px; }
+:where(:root[data-theme='outrun']) .win-root .dk-btn-play svg { width: 44px; height: 44px; }
+:where(:root[data-theme='outrun']) .win-root .dk-btn-play:hover:not(:disabled) { background: #262626; border-radius: 50%; }
+:where(:root[data-theme='outrun']) .win-root .dk-btn-prev:disabled, :where(:root[data-theme='outrun']) .win-root .dk-btn-next:disabled, :where(:root[data-theme='outrun']) .win-root .dk-btn-play:disabled { color: #333333; opacity: 1; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-progress { left: calc(50% - 184px); width: 384px; top: 58px; height: 22px; justify-content: flex-start; gap: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-progress .dk-mode { width: 20px; min-width: 20px; height: 22px; padding: 0; color: #333333; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-progress .dk-mode svg { width: 20px; height: 22px; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-progress .dk-mode-crossfade, :where(:root[data-theme='outrun']) .win-root .dk-strip-progress .dk-mode-eq { width: 21px; min-width: 21px; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-progress .dk-mode-crossfade svg, :where(:root[data-theme='outrun']) .win-root .dk-strip-progress .dk-mode-eq svg { width: 21px; height: 22px; }
+/* tc_progress_{shuffle,repeat,crossfade}_normal_{off,on}.png: off is
+   #878787, on is white with a 3px dot at the bottom of the 22px cell;
+   disabled is #333333. */
+:where(:root[data-theme='outrun']) .win-root .dk-strip-progress .dk-mode { color: #878787; position: relative; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-progress .dk-mode[aria-pressed='true'] { color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-progress .dk-mode[aria-pressed='true']:not(:disabled)::after {
+  content: ''; position: absolute; left: 50%; bottom: 0; width: 3px; height: 3px; margin-left: -1.5px; background: #ffffff;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-mode-repeat { order: 1; margin-left: -3px; margin-right: 8px; }
+:where(:root[data-theme='outrun']) .win-root .dk-mode-shuffle { order: 2; }
+:where(:root[data-theme='outrun']) .win-root .dk-time-elapsed { order: 3; width: 64px; padding-right: 8px; text-align: right; box-sizing: border-box; }
+:where(:root[data-theme='outrun']) .win-root .dk-progress { order: 4; width: 150px; flex: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-time-total { order: 5; width: 63px; padding-left: 8px; text-align: left; box-sizing: border-box; }
+:where(:root[data-theme='outrun']) .win-root .dk-mode-crossfade { order: 6; }
+:where(:root[data-theme='outrun']) .win-root .dk-mode-eq { order: 7; margin-left: 10px; color: #868686 !important; }
+:where(:root[data-theme='outrun']) .win-root .dk-mode-eq:disabled { color: #333333 !important; }
+/* Modes a source cannot use stay visible, dimmed and inert. */
+:where(:root[data-theme='outrun']) .win-root .dk-strip-progress .dk-mode:disabled { color: #333333; opacity: 1; pointer-events: none; }
+/* Both times are white in the app (captured stopped, playing and paused). */
+:where(:root[data-theme='outrun']) .win-root .dk-strip-progress time { font-size: 11px; color: #ffffff; line-height: 22px; }
+:where(:root[data-theme='outrun']) .win-root .dk-progress-track { top: 11px; background: #333333; }
+:where(:root[data-theme='outrun']) .win-root .dk-progress-fill { top: 11px; background: #9a9a9a; }
+/* tc_progressbar_scrubber_normal.png: a 6px white dot. */
+:where(:root[data-theme='outrun']) .win-root .dk-progress-thumb { width: 6px; height: 6px; top: 9px; background: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search { top: 27px; right: 18px; }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-aux { top: 28px; right: 240px; }
+
+/* The EQ glyph's room menu: light, with the hovered room in Windows blue. */
+:where(:root[data-theme='outrun']) .win-root .dk-room-menu { min-width: 130px; padding: 2px 0; background: #f0f0f0; border: 1px solid #9a9a9a; }
+:where(:root[data-theme='outrun']) .win-root .dk-room-menu button { height: 22px; padding: 0 10px; font-size: 12px; }
+:where(:root[data-theme='outrun']) .win-root .dk-room-menu button:hover:not(:disabled) { background: #0078d7; color: #ffffff; }
+
+/* Mini Controller (MiniWindow.xaml / MiniPanel.xaml, 2026-09-05): a
+   borderless square of album art with 6px corners over a 10px margin that
+   holds the drop shadow (3px down, 10px blur, #333). The bottom band carries
+   the track in bold and the artist beneath, both centered, white with a soft
+   glow. The transport row under them is translated 57px down, out of the
+   clipped panel, until the pointer enters the band; then it slides up over
+   0.4s and the gradient behind it stretches to 1.9x. Buttons are white glyphs
+   with a #262626 disc on hover; disabled ones sit at 0.2 opacity. */
+:where(:root[data-theme='outrun']) .win-root .win-mini {
+  position: fixed; z-index: 80; padding: 10px; box-sizing: border-box; touch-action: none;
+  user-select: none; cursor: default;
+}
+:where(:root[data-theme='outrun']) .win-root .win-mini-panel {
+  position: relative; overflow: hidden; border-radius: 6px; background: #1a1a1a;
+  box-shadow: 0 3px 10px #333333;
+}
+:where(:root[data-theme='outrun']) .win-root .win-mini-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-shade {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 80px; transform-origin: 50% 100%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.53) 50%, rgba(0, 0, 0, 0.87) 100%);
+  transition: transform 0.4s cubic-bezier(0.55, 0, 1, 0.45);
+}
+:where(:root[data-theme='outrun']) .win-root .win-mini-bottom {
+  position: absolute; left: 0; right: 0; bottom: 0; padding-bottom: 7px;
+  transform: translateY(57px); transition: transform 0.4s cubic-bezier(0.55, 0, 1, 0.45);
+}
+:where(:root[data-theme='outrun']) .win-root .win-mini-bottom:hover { transform: translateY(0); transition-timing-function: cubic-bezier(0, 0.55, 0.45, 1); }
+:where(:root[data-theme='outrun']) .win-root .win-mini-bottom:hover ~ .win-mini-shade,
+:where(:root[data-theme='outrun']) .win-root .win-mini-panel:has(.win-mini-bottom:hover) .win-mini-shade { transform: scaleY(1.9); transition-timing-function: cubic-bezier(0, 0.55, 0.45, 1); }
+:where(:root[data-theme='outrun']) .win-root .win-mini-track, :where(:root[data-theme='outrun']) .win-root .win-mini-artist {
+  margin: 0 13px; text-align: center; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 0 10px #333333, 0 0 4px #333333;
+}
+:where(:root[data-theme='outrun']) .win-root .win-mini-track { font-size: 14px; font-weight: 700; line-height: 18px; margin-bottom: 2px; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-artist { font-size: 11px; line-height: 14px; margin-bottom: 12px; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-track:only-of-type { margin-bottom: 12px; }
+/* Columns * 36 50 68 50 36 *: mute in the first, then back, play, forward,
+   info. The mute/volume control spans the five columns from the left. */
+:where(:root[data-theme='outrun']) .win-root .win-mini-row { position: relative; width: 240px; height: 44px; margin: 0 auto; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-transport {
+  position: absolute; inset: 0; display: grid; grid-template-columns: 36px 50px 68px 50px 36px; align-items: center;
+  transition: opacity 0.4s cubic-bezier(0.55, 0, 1, 0.45);
+}
+:where(:root[data-theme='outrun']) .win-root .win-mini-prev { grid-column: 2; justify-self: end; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-play { grid-column: 3; justify-self: center; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-next { grid-column: 4; justify-self: start; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-info { grid-column: 5; justify-self: start; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-volume { position: absolute; left: 2px; top: 0; height: 44px; display: flex; align-items: center; z-index: 1; pointer-events: none; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-mute { pointer-events: auto; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-volume:hover ~ .win-mini-transport { opacity: 0; transition-duration: 0.2s; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-slider {
+  width: 190px; margin-left: 4px; opacity: 0; pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.55, 0, 1, 0.45);
+}
+:where(:root[data-theme='outrun']) .win-root .win-mini-volume:hover .win-mini-slider { opacity: 1; pointer-events: auto; transition-duration: 0.2s; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-btn {
+  width: 34px; height: 44px; display: grid; place-items: center; border-radius: 0; color: #ffffff; padding: 0; background: none;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.6));
+}
+:where(:root[data-theme='outrun']) .win-root .win-mini-btn.win-mini-play { width: 44px; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-btn svg { width: 34px; height: 44px; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-btn.win-mini-play svg { width: 44px; height: 44px; }
+/* mp_*_hover: a black disc at ~58% under the glyph, 32px (44px for play);
+   mp_*_disabled: a #202020 disc, 30px (40px for play), with #454545 ink.
+   The mute button dims to 20% instead. */
+:where(:root[data-theme='outrun']) .win-root .win-mini-btn:hover:not(:disabled) { background: radial-gradient(circle, rgba(0, 0, 0, 0.58) 15.5px, transparent 16.5px); filter: none; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-btn.win-mini-play:hover:not(:disabled) { background: rgba(0, 0, 0, 0.58); border-radius: 50%; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-btn:active:not(:disabled) { background: radial-gradient(circle, rgba(0, 0, 0, 0.75) 15.5px, transparent 16.5px); }
+:where(:root[data-theme='outrun']) .win-root .win-mini-btn.win-mini-play:active:not(:disabled) { background: rgba(0, 0, 0, 0.75); }
+:where(:root[data-theme='outrun']) .win-root .win-mini-btn:disabled { color: #454545; background: radial-gradient(circle, #202020 14.5px, transparent 15.5px); filter: none; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-btn.win-mini-play:disabled { background: radial-gradient(circle, #202020 19.5px, transparent 20.5px); }
+:where(:root[data-theme='outrun']) .win-root .win-mini-btn.win-mini-mute:disabled { color: #ffffff; background: none; opacity: 0.2; }
+/* Resize and close, top right, only while the pointer is over the window. */
+:where(:root[data-theme='outrun']) .win-root .win-mini-chrome { position: absolute; top: 16px; right: 16px; display: flex; gap: 6px; opacity: 0; transition: opacity 0.15s; }
+:where(:root[data-theme='outrun']) .win-root .win-mini:hover .win-mini-chrome { opacity: 1; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-chrome-btn {
+  width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; color: #ffffff;
+  background: rgba(0, 0, 0, 0.3); padding: 0;
+}
+:where(:root[data-theme='outrun']) .win-root .win-mini-chrome-btn svg { width: 22px; height: 22px; }
+:where(:root[data-theme='outrun']) .win-root .win-mini-chrome-btn:hover { background: rgba(0, 0, 0, 0.58); }
+/* In the app the Now Playing art toggles the Mini Controller. */
+:where(:root[data-theme='outrun']) .win-root .dk-now-art-button { cursor: pointer; }
+/* As a window of its own the square is the whole viewport: no margin for a
+   shadow, no rounded corners against the window frame. */
+:where(:root[data-theme='outrun']) .win-root.win-mini-root { width: 100vw; height: 100vh; overflow: hidden; background: #000000; }
+:where(:root[data-theme='outrun']) .win-root .win-mini[data-popup='true'] { padding: 0; }
+:where(:root[data-theme='outrun']) .win-mini-root .win-mini[data-popup='true'] { position: fixed; inset: 0; width: 100% !important; height: 100% !important; }
+:where(:root[data-theme='outrun']) .win-root .win-mini[data-popup='true'] .win-mini-panel { width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
+:where(:root[data-theme='outrun']) .win-root .win-mini[data-popup='true'] .win-mini-chrome { top: 6px; right: 6px; }
+
+/* Music Library Settings (settingswindow.xaml + shareslistcontrol.xaml):
+   14px bold title in a 31px row, inner tabs from 46px down, white #919b9c
+   panel with the TabControl's 4px padding and the control's 16/20 margins.
+   Header text #484848 bold, body #242424, 12px on 14px lines. */
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-prefs-page:has(.win-lib-panel) { display: flex; flex-direction: column; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-prefs-page:has(.win-lib-panel) > .dk-tabs, :where(:root[data-theme='outrun']) .win-root .win-settings .dk-prefs-page:has(.win-lib-panel) > h3 { flex: none; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 24px 20px 20px; box-sizing: border-box; overflow: auto; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-panel p { margin: 0 0 12px; color: #242424; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-title { font-weight: 700; color: #484848; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-grid { display: flex; gap: 10px; flex: 1; min-height: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-table { position: relative; flex: 1; min-width: 0; overflow: auto; border: 1px solid #828790; background: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-table table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-table th {
+  height: 22px; padding: 0 6px; text-align: left; font-weight: 400; color: #242424;
+  background: #ffffff; border-right: 1px solid #e5e5e5; border-bottom: 1px solid #d5d5d5; position: sticky; top: 0;
+}
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-table th:first-child { width: 100px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-table th:last-child { border-right: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-table td { height: 20px; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-table td svg { width: 16px; height: 16px; vertical-align: -3px; margin-right: 4px; color: #6d6d6d; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-table tr[role='option']:hover td { background: #e5f3ff; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-table tr[aria-selected='true'] td { background: #cce8ff; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-indexing { position: absolute; left: 1px; right: 1px; top: 23px; bottom: 1px; background: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-indexing p { position: absolute; left: 0; right: 0; top: 50%; margin: 0; text-align: center; color: #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-indexing-1 { transform: translateY(-50%); }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-indexing-2 { transform: translateY(calc(-50% + 20px)); }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-swirl { position: absolute; left: 50%; top: 50%; transform: translate(-50%, calc(-50% - 30px)); color: #666666; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-swirl.swirl { animation: swirl-turn-raised--outrun 1.1s steps(10, end) infinite; transform-origin: 50% 50%; }
+@keyframes swirl-turn-raised--outrun {
+  from { transform: translate(-50%, calc(-50% - 30px)) rotate(0deg); }
+  to { transform: translate(-50%, calc(-50% - 30px)) rotate(360deg); }
+}
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-buttons { display: flex; flex-direction: column; flex: none; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-buttons .dk-win-btn:first-child { margin-bottom: 20px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-buttons .dk-win-btn { height: 23px; border-radius: 4px; border-color: #ababab; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-add { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-add input { flex: 1; height: 21px; padding: 0 4px; border: 1px solid #7a7a7a; font: inherit; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-foot { margin: 20px 0 0 !important; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-system { margin-bottom: 8px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-advanced { padding: 4px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-items { margin: 0; padding: 0 0 10px; border: 0; min-width: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-item { display: grid; grid-template-columns: 168px 1fr; column-gap: 20px; padding: 10px 16px 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-item-head { margin: 0 !important; font-weight: 700; color: #484848; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-item-body { display: flex; flex-direction: column; gap: 8px; min-width: 0; align-items: flex-start; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-item-body input[type='time'] { width: 110px; height: 21px; padding: 0 4px; border: 1px solid #7a7a7a; font: inherit; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-item-body p { margin: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-inline { display: flex; align-items: center; gap: 8px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-inline select { height: 21px; padding: 0 4px; border: 1px solid #7a7a7a; border-radius: 0; background: #ffffff; color: #1a1a1a; font: inherit; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-item-body > select { width: 214px; height: 23px; padding: 0 4px; border: 1px solid #7a7a7a; border-radius: 0; background: #ffffff; color: #1a1a1a; font: inherit; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-note { color: #6d6d6d; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-error { margin: 8px 0 0; color: #a2413c; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-item[aria-disabled='true'] { color: #8a8a8a; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-item[aria-disabled='true'] .win-lib-item-head { color: #8a8a8a; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-lib-item-body .dk-win-btn { height: 23px; border-radius: 4px; border-color: #ababab; }
+
+/* Favorites the system can no longer play: #8a8a8a text, the slashed
+   service mark on the art square. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-unavailable, :where(:root[data-theme='outrun']) .win-root .dk-browse-unavailable .dk-browse-sub { color: #8a8a8a; }
+/* The Windows app's search match (BrowseItemWrapper.cs): bold italic in
+   #CFDBE5 over the title, #1F4059 on a restricted row; on the second line
+   white, bold and italic, inside a line drawn at 60%. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-title em { font-weight: 700; color: #cfdbe5; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-unavailable .dk-browse-title em { color: #1f4059; }
+:where(:root[data-theme='outrun']) .win-root .dk-search-results .dk-browse-sub em { font-style: italic; font-weight: 700; color: #ffffff; }
+/* Restricted rows, as ListContainerControl paints them: the title drops to
+   rgb(110,110,110) while the second line keeps the rgb(134,134,134) every
+   row's second line has, the 40x40 art plate lightens to rgb(38,38,38), and
+   restricted_track_icon and explicit_restricted_dcr are both the #666666
+   their bitmaps carry. All four sampled off the running app on Mixcloud's
+   Trending list, 2026-09-22. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-restricted .dk-browse-title { color: #6e6e6e; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art:not(.dk-browse-glyph) > svg.dk-browse-restricted-art
+  { width: 18px; height: 18px; color: #666666; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art:has(.dk-browse-restricted-art) { background: #262626; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-restricted .dk-browse-explicit { fill: #666666; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-missing { width: 26px; height: 26px; margin: 7px; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-art:has(.dk-browse-missing) { background: #2b2b2b; }
+:where(:root[data-theme='outrun']) .win-root .dk-rename-input { border: 1px solid #7a7a7a; color: #484848; background: #ffffff; }
+/* Where the browser allows it (Chromium app windows), the whole square is a
+   window drag region; controls stay clickable. */
+:where(:root[data-theme='outrun']) .win-root .win-mini[data-popup='true'] .win-mini-panel { app-region: drag; -webkit-app-region: drag; }
+:where(:root[data-theme='outrun']) .win-root .win-mini[data-popup='true'] button, :where(:root[data-theme='outrun']) .win-root .win-mini[data-popup='true'] .dk-slider, :where(:root[data-theme='outrun']) .win-root .win-mini[data-popup='true'] .win-mini-chrome { app-region: no-drag; -webkit-app-region: no-drag; }
+
+/* Album page as the app draws it: Play (the art) and Shuffle (glyph on a
+   #262626 square) rows, then "01  Title" tracks with the number in #8a8a8a
+   where art would sit; no chevrons. Checkbox 16px #979797, white on hover. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row.dk-browse-numbered { height: 46px; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-number { color: #8a8a8a; font-size: 13px; }
+:where(:root[data-theme='outrun']) .win-root .dk-album-play, :where(:root[data-theme='outrun']) .win-root .dk-album-shuffle { height: 46px; }
+/* browse_shuffle_all_node.png: a 40px #262626 tile with a WHITE glyph whose
+   ink is about 21x15 in it. Sonora drew the glyph gray and small, so the row
+   read as disabled beside the app's (2026-09-06). */
+:where(:root[data-theme='outrun']) .win-root .dk-album-shuffle .dk-browse-art.dk-browse-glyph { width: 40px; height: 40px; border-radius: 0; background: #262626; color: #ffffff; display: grid; place-items: center; }
+:where(:root[data-theme='outrun']) .win-root .dk-album-shuffle .dk-browse-art.dk-browse-glyph svg { width: 24px; height: 24px; color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .dk-album-shuffle[data-on='true'] .dk-browse-art.dk-browse-glyph { color: #ffffff; }
+/* Hovering a row that has a checkbox shows caret and checkbox in place of
+   the chevron (Plex album list capture, 2026-09-05). */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row:has(.dk-browse-check):hover .dk-browse-disclosure { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-album-shuffle .dk-browse-glyph svg { width: 22px; height: 22px; }
+/* The checkbox is a 16px square whose right edge sits 21px in from the
+   gutter (the row's 14px padding plus 7px of a 30px box); 22px separate it
+   from the caret's triangle, which is centered in its 44px button, so the
+   button's own 17px of slack has to be pulled back (measured on a hovered
+   track row, 2026-09-14). */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-check { color: #979797; width: 30px; }
+/* Drawn edge to edge: the box is the full 16px on Windows, where the shared
+   glyph keeps a one-pixel inset for the Mac. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-check svg rect { x: 0.5px; y: 0.5px; width: 15px; height: 15px; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row:has(.dk-browse-check) .dk-browse-actions { margin-right: -2px; }
+
+/* Queue rows as the app draws them (observed 2026-09-05): 40px art, title
+   over the artist alone, no duration; the current track's art slot shows the
+   transport state (play or pause glyph) on a #262626 square instead. The
+   row checkbox hides while that row's menu is open (only the caret stays). */
+:where(:root[data-theme='outrun']) .win-root .dk-row-album, :where(:root[data-theme='outrun']) .win-root .dk-row-dur { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-row[aria-current='true'] .dk-row-art { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-row[aria-current='true'] .dk-row-num { display: grid; place-items: center; width: 40px; height: 40px; flex: none; background: #262626; color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .dk-row[aria-current='true'] .dk-row-num svg { width: 16px; height: 16px; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row[aria-selected='true'] .dk-browse-check { display: none; }
+/* The Windows app draws nothing over the Play row's art on hover -- no play
+   badge; the caret at the right is its only hover affordance (Plex,
+   Surf-N-Burn, 2026-09-14). The badge is the other desktop skin's. */
+:where(:root[data-theme='outrun']) .win-root .dk-album-play-badge { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-album-play .dk-browse-actions { opacity: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-album-play:hover .dk-browse-actions, :where(:root[data-theme='outrun']) .win-root .dk-album-play[aria-selected='true'] .dk-browse-actions { opacity: 1; }
+
+/* Add a Radio Station (395x290 capture): #f0f0f0 body, bold heading, two
+   lines, labeled fields 12px with a blue "!" validator at the right until
+   valid, OK/Cancel footer. */
+:where(:root[data-theme='outrun']) .win-root .dk-addradio { width: 395px; height: 290px; }
+:where(:root[data-theme='outrun']) .win-root .dk-addradio .dk-window-body { display: flex; flex-direction: column; }
+:where(:root[data-theme='outrun']) .win-root .dk-addradio-body { flex: 1; padding: 14px 20px 0; font-size: 12px; line-height: 14px; }
+:where(:root[data-theme='outrun']) .win-root .dk-addradio-body p { margin: 0 0 4px; }
+:where(:root[data-theme='outrun']) .win-root .dk-addradio-body p strong { font-size: 14px; }
+:where(:root[data-theme='outrun']) .win-root .dk-addradio-field { display: block; position: relative; margin-top: 16px; padding-right: 14px; }
+:where(:root[data-theme='outrun']) .win-root .dk-addradio-field span { display: block; margin-bottom: 4px; }
+:where(:root[data-theme='outrun']) .win-root .dk-addradio-field input { width: 100%; box-sizing: border-box; height: 23px; padding: 0 4px; border: 1px solid #7a7a7a; font: inherit; background: #ffffff; color: #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .dk-addradio-mark { position: absolute; right: 0; bottom: 3px; color: #0078d7; font-style: normal; font-weight: 700; }
+
+/* Queue rows: caret and checkbox on hover or while selected (observed
+   2026-09-05), the selected row #333, ticked rows keep the shade. */
+:where(:root[data-theme='outrun']) .win-root .dk-row { position: relative; }
+:where(:root[data-theme='outrun']) .win-root .dk-row .dk-browse-actions, :where(:root[data-theme='outrun']) .win-root .dk-row .dk-browse-check { opacity: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-row:hover .dk-browse-actions, :where(:root[data-theme='outrun']) .win-root .dk-row[aria-selected='true'] .dk-browse-actions, :where(:root[data-theme='outrun']) .win-root .dk-row:hover .dk-browse-check, :where(:root[data-theme='outrun']) .win-root .dk-row[aria-checked='true'] .dk-browse-check { opacity: 1; }
+:where(:root[data-theme='outrun']) .win-root .dk-row[aria-selected='true'] .dk-browse-check:not([aria-checked='true']) { opacity: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-row[aria-selected='true'], :where(:root[data-theme='outrun']) .win-root .dk-row[aria-checked='true'] { background: #333333; }
+:where(:root[data-theme='outrun']) .win-root .dk-row .dk-row-text { flex: 1; min-width: 0; }
+
+:where(:root[data-theme='outrun']) .win-root .dk-radio-glyph { background: #262626; color: #8a8a8a; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-add { margin-top: 0; border-top: 3px solid transparent; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-add .dk-browse-add-main { padding: 0; gap: 7px; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-add-chev { display: block; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-add .dk-browse-glyph { background: transparent; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-add .dk-browse-glyph svg {
+  width: 32px;
+  height: 32px;
+  background: #ffffff;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill-rule='evenodd' d='M16 0a16 16 0 100 32A16 16 0 0016 0zM15 10h2v5h5v2h-5v5h-2v-5h-5v-2h5z'/%3E%3C/svg%3E") center / 32px 32px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill-rule='evenodd' d='M16 0a16 16 0 100 32A16 16 0 0016 0zM15 10h2v5h5v2h-5v5h-2v-5h-5v-2h5z'/%3E%3C/svg%3E") center / 32px 32px no-repeat;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-browse-add .dk-browse-glyph svg > * { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-addrow { height: 31px; margin: 0 8px 4px; background: #262626; border: 0; font-size: 12px; color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-addrow:hover { background: #333333; }
+
+/* "Sonos setup" wizard (515x520 like Add a service): white page with a 14px
+   bold title and 12px text 20px in; 285x70 white tiles with a 1px #ababab
+   border stacked 10px apart (the focused one #7a7a7a); path field with a
+   blue validator mark and a grayed Browse; Back / Next / Cancel footer. */
+/* wizard/wizardwindow.xaml is 520x520. */
+:where(:root[data-theme='outrun']) .win-root .win-wizard { width: 514px; height: 516px; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard .dk-window-body { display: flex; flex-direction: column; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-body { flex: 1; min-height: 0; padding: 20px; background: #ffffff; color: #1a1a1a; font-size: 12px; line-height: 14px; position: relative; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-body h3 { margin: 0 0 30px; font-size: 14px; font-weight: 700; color: #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-body p { margin: 0 0 12px; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-pathrow { display: flex; align-items: center; gap: 10px; margin: 14px 0 24px; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-pathrow input { flex: 1; height: 23px; padding: 0 4px; border: 1px solid #7a7a7a; font: inherit; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-mark { color: #0078d7; font-weight: 700; font-style: normal; margin-left: -4px; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-pathrow .dk-win-btn { width: 90px; height: 23px; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-example { margin-bottom: 24px; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-cred { display: grid; grid-template-columns: 138px 1fr; align-items: center; margin: 0 12px 30px 0; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-cred input { height: 23px; padding: 0 4px; border: 1px solid #7a7a7a; font: inherit; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-spinner { display: grid; place-items: center; height: 300px; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-foot { justify-content: flex-end; gap: 16px; padding: 18px 12px; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-foot .dk-win-btn { width: 90px; height: 23px; }
+/* The error message window sits over the wizard page (captured). */
+:where(:root[data-theme='outrun']) .win-root .win-wizard-error { position: absolute; left: 10px; right: 10px; top: 130px; background: #f0f0f0; border: 1px solid #9a9a9a; box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3); }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-error-title { height: 25px; line-height: 25px; padding: 0 8px; background: #f3f3f3; font-size: 12px; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-error-body { display: flex; gap: 14px; padding: 16px 20px 6px; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-error-body p { margin: 0 0 10px; }
+:where(:root[data-theme='outrun']) .win-root .win-wizard-error-icon { flex: none; width: 32px; height: 32px; border-radius: 50%; background: #d83b3b; color: #ffffff; display: grid; place-items: center; font-weight: 700; font-size: 18px; }
+
+/* TuneIn's pinned rows carry blue square icons in the app. */
+
+/* Alarm editor (494x494 capture): 110px labels, rows 10px apart from y=20;
+   On/Off radios; time spinner; 31px room dropdown; read-only music field
+   with "Select…"; schedule checkboxes in two columns; volume slider; No
+   Limit + duration; two more checkboxes; OK / Cancel. */
+/* alarms/editalarmwindow.xaml is 500x500, OK and Cancel. */
+:where(:root[data-theme='outrun']) .win-root .win-alarm-editor { width: 494px; height: 496px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-editor .dk-window-body { display: flex; flex-direction: column; }
+/* The editor's grid (alarms/editalarmwindow.xaml): 390 wide at 20,20, a
+   label column of at least 110, and every label and control 10px below the
+   row above. Labels are 12px bold #484848 on a 14px line, centered on their
+   control; Schedule's sits at the top, and Duration's on its first line.
+   The rows as the app lays them out (alarm-editor.png, 2026-09-05): radios
+   16, Time 24, Room 31, Music 23, the days 4 x 16, Volume 20. The window's
+   face is its s_bloom picture at 0.75 over the dialog gray, which reads as
+   a ramp from #e9e9e9 at the top left to #d7d7d7 at the bottom right; the
+   ramp is drawn here rather than the picture carried, for the Windows theme
+   only (the skins keep their own face). */
+:where(:root[data-theme='outrun']) .win-root .win-alarm-body { flex: 1; min-height: 0; padding: 20px 20px 0; font-size: 12px; }  /* the skins' dialogs carry their own ink */
+:where(:root[data-theme='outrun']) .win-root .win-alarm-body h3 { margin: 0 0 24px; font-size: 14px; font-weight: 700; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-grid { display: grid; grid-template-columns: 110px 1fr; row-gap: 0; align-items: start; width: 390px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-grid > * { margin-top: 10px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-label { align-self: center; font-weight: 700; line-height: 14px; }
+/* Schedule and Duration, the fifth and seventh labels. */
+:where(:root[data-theme='outrun']) .win-root .win-alarm-grid > .win-alarm-label:nth-of-type(5), :where(:root[data-theme='outrun']) .win-root .win-alarm-grid > .win-alarm-label:nth-of-type(7) { align-self: start; padding-top: 1px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-radios { display: flex; gap: 100px; height: 16px; align-items: center; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-radios label, :where(:root[data-theme='outrun']) .win-root .win-alarm-days label, :where(:root[data-theme='outrun']) .win-root .win-alarm-duration label { display: flex; align-items: center; gap: 3px; }  /* with the space in the markup, text 6px from its box as the app has it */
+:where(:root[data-theme='outrun']) .win-root .win-alarm-time { width: 100px; height: 23px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-grid > div:not(.win-alarm-duration):has(> .win-alarm-time) { height: 24px; display: flex; align-items: center; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-room { width: 280px; height: 31px; }  /* the app's Room pop-up is 280x31 (alarm-editor.png); its face is the pop-up rule below */
+:where(:root[data-theme='outrun']) .win-root .win-alarm-music { display: flex; gap: 10px; align-items: center; height: 23px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-music input { width: 180px; height: 23px; box-sizing: border-box; padding: 0 4px; border: 1px solid #7a7a7a; font: inherit; background: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-music .dk-win-btn { height: 23px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-days { display: grid; grid-template-columns: 140px 140px; grid-template-rows: 15px repeat(3, 16px); grid-auto-flow: column; }  /* the first box in each column sizes itself: 15 */
+:where(:root[data-theme='outrun']) .win-root .win-alarm-days label { height: 16px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-radios input, :where(:root[data-theme='outrun']) .win-root .win-alarm-days input, :where(:root[data-theme='outrun']) .win-root .win-alarm-duration input { margin-left: 0; }  /* boxes flush with the column, as the app's are */
+:where(:root[data-theme='outrun']) .win-root .win-alarm-grid > div:has(> .win-alarm-volume) { height: 20px; display: flex; align-items: center; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-length { width: 100px; }  /* the app's Duration box is as wide as its Time box */
+:where(:root[data-theme='outrun']) .win-root .win-alarm-foot .dk-win-btn[data-default] { width: auto; min-width: 90px; padding: 0 10px; white-space: nowrap; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-volume { width: 270px; accent-color: #8a8a8a; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-duration { display: flex; flex-direction: column; gap: 10px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-duration label { height: 16px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-foot { justify-content: flex-end; gap: 10px; padding: 14px 20px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-foot .dk-win-btn { width: 90px; height: 23px; }
+/* Browse to alarm music: a bordered list with a header cell "Alarm Music". */
+:where(:root[data-theme='outrun']) .win-root .win-alarm-picker { width: 364px; height: 300px; display: flex; flex-direction: column; border: 0; background: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-picker-head { position: relative; flex: none; height: 28px; display: grid; place-items: center; background: #ededed; border: 0; border-bottom: 1px solid #e0e0e0; font-size: 12px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-picker-back { position: absolute; left: 0; top: 0; width: 37px; height: 28px; display: grid; place-items: center; color: #1a1a1a; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-picker-back svg { width: 12px; height: 12px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-picker-list { flex: 1; overflow: auto; padding: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-picker-row { display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; width: 100%; height: 28px; padding: 0 11px 0 7px; font-size: 12px; color: #242424; text-align: left; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-picker-row:hover { background: #f2f8fd; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-picker-row[aria-selected='true'] { background: #e5f3fb; border-top: 1px solid #70c0e7; border-bottom: 1px solid #70c0e7; color: #242424; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-picker-row svg { width: 10px; height: 10px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-picker-note { margin: 8px; color: #6d6d6d; }
+
+/* Service Settings: the Music Library panel's frame with a three-column table
+   (18px logos, names in link blue) and six buttons at the right. */
+:where(:root[data-theme='outrun']) .win-root .win-settings .dk-prefs-page:has(.win-svc-panel) { display: flex; flex-direction: column; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 20px 20px 16px; box-sizing: border-box; margin-top: 12px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-panel > p { margin: 0 0 12px; color: #242424; }
+/* The app's three columns are Width="Auto" (settingswindow.xaml): each is as
+   wide as its widest entry, and the header runs on empty past the last. The
+   widths measured 2026-09-06 (158 / 95) were one household's names; with
+   "Libby by OverDrive 57" the app's Name column is 125 and Sonora's fixed 95
+   cut it. So the columns hug their contents and a filler column takes
+   the rest. */
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-table table { table-layout: auto; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-table th:not(.win-col-fill),
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-table td:not(.win-col-fill) { width: 1%; padding-right: 12px; }
+/* The library table's fixed 100px first column is not this one's. */
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-table th:first-child { width: 1%; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-table td { overflow: visible; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-table td { height: 23px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-table td img, :where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-table td svg { display: inline-block; width: 18px; height: 18px; border-radius: 50%; vertical-align: -4px; margin-right: 4px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-table td { white-space: nowrap; line-height: 23px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-name { color: #0645ad; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-table tr[aria-selected='true'] td { background: #e5e5e5; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-buttons { display: flex; flex-direction: column; gap: 8px; }
+/* The Sonos Labs list: the app's bordered white well, filling the page. */
+:where(:root[data-theme='outrun']) .win-root .win-svc-labs .win-svc-labs-list { height: 310px; margin-top: 14px; padding: 8px; overflow: auto;
+  background: #ffffff; border: 1px solid #828790; }
+:where(:root[data-theme='outrun']) .win-root .win-svc-labs-row { display: block; width: 100%; padding: 5px 8px; text-align: left; background: none; border: 0; font: inherit; color: #0645ad; }
+:where(:root[data-theme='outrun']) .win-root .win-svc-labs-row small { display: block; color: #444444; }
+:where(:root[data-theme='outrun']) .win-root .win-svc-labs-row[aria-selected='true'] { background: #cce8ff; }
+
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-buttons .dk-win-btn:first-child { margin-bottom: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-svc-gap { height: 70px; }
+
+:where(:root[data-theme='outrun']) .win-root .dk-playlist-glyph svg { width: 20px; height: 20px; }
+
+/* EQ page (observed 2026-09-05): the sentence at x=115 from the panel, then
+   rows with a 98px label, a 476px slider, - and + (or L and R) 11px above
+   its ends; Loudness under the last row; Reset at the right. The app's
+   sliders (LightVolumeSliderStyle): a 3px #c8c8c8 track, a 16px white round
+   thumb with a #8a8a8a ring. */
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-panel { padding: 26px 20px 20px; margin-top: 0; min-height: 370px; position: relative; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-intro { margin: 0 0 12px 98px; color: #242424; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-row { display: grid; grid-template-columns: 98px 1fr; align-items: center; height: 43px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-label { color: #242424; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-track { position: relative; height: 43px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-end { position: absolute; top: 6px; font-size: 11px; color: #242424; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-low { left: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-high { right: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-track .win-slider { position: absolute; left: 0; right: 0; top: 20px; width: 100%; z-index: 1; }
+/* The midpoint pips (utilities/imageslider.xaml, LightVolumeSliderStyle with
+   TickPlacement="Both" on the EQ sliders): a 2px tick, #C1C1C1 with a
+   #D4D4D4 right edge, 8px tall above the track (overlapping it by one) and
+   7px below it, centred where the thumb rests at zero. The thumb is drawn
+   over them, as in the app. Reported missing 2026-10-02. */
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-track::before,
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-track::after {
+  content: ''; position: absolute; left: calc(50% - 1px); width: 1px; z-index: 0;
+  background: #c1c1c1; border-right: 1px solid #d4d4d4;
+}
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-track::before { top: 20px; height: 8px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-track::after { top: 30px; height: 7px; }
+/* The skins draw a bigger thumb over a band of their own, which covered
+   the pips entirely; there they stand clear of the slider, above and below
+   it, so the middle still shows (2026-10-02). */
+:root:not([data-theme='windows']):where([data-theme='outrun']) .win-root .win-settings .win-eq-track::before { top: 14px; height: 6px; }
+:root:not([data-theme='windows']):where([data-theme='outrun']) .win-root .win-settings .win-eq-track::after { top: 36px; height: 6px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-loudness { display: flex; align-items: center; gap: 6px; margin: 4px 0 0 98px; color: #242424; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-reset { display: flex; justify-content: flex-end; margin-top: 22px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-reset .dk-win-btn { width: 90px; height: 23px; }
+/* The Line-in tab: the source's name and the autoplay room on the EQ rows' 98px label column. */
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-linein { margin: 0; padding: 0; border: 0; min-width: 0; }
+/* The extra tabs' labels are longer than EQ's ("Line-In Source Name"), so their column is wider. */
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-panel:not([data-tab='eq']) .win-eq-row, :where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-panel:not([data-tab='eq']) .win-eq-linein .win-eq-field { grid-template-columns: 170px minmax(0, 1fr); }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-panel:not([data-tab='eq']) .win-eq-loudness { margin-left: 170px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-panel:not([data-tab='eq']) .win-eq-linein .win-eq-field { grid-template-columns: 170px minmax(0, 260px); }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-panel:not([data-tab='eq']) .win-eq-label { padding-right: 12px; }
+/* A slider not centered on zero has no middle tick. */
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-track[data-plain]::before, :where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-track[data-plain]::after { display: none; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-linein .win-eq-field { display: grid; grid-template-columns: 98px minmax(0, 260px); align-items: center; gap: 0; min-height: 43px; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-linein .win-eq-field > span { text-align: left; }
+:where(:root[data-theme='outrun']) .win-root .win-settings .win-eq-linein .win-eq-field :is(input, select) { height: 23px; box-sizing: border-box; }
+:where(:root[data-theme='outrun']) .win-root .win-slider { -webkit-appearance: none; appearance: none; height: 16px; background: transparent; margin: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-slider::-webkit-slider-runnable-track { height: 3px; background: #c8c8c8; border-radius: 2px; }
+:where(:root[data-theme='outrun']) .win-root .win-slider::-moz-range-track { height: 3px; background: #c8c8c8; border-radius: 2px; }
+:where(:root[data-theme='outrun']) .win-root .win-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6.5px; border-radius: 50%; background: #ffffff; border: 1px solid #8a8a8a; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
+:where(:root[data-theme='outrun']) .win-root .win-slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #ffffff; border: 1px solid #8a8a8a; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-volume { -webkit-appearance: none; appearance: none; height: 16px; background: transparent; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-volume::-webkit-slider-runnable-track { height: 3px; background: #c8c8c8; border-radius: 2px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-volume::-moz-range-track { height: 3px; background: #c8c8c8; border-radius: 2px; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-volume::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6.5px; border-radius: 50%; background: #ffffff; border: 1px solid #8a8a8a; }
+:where(:root[data-theme='outrun']) .win-root .win-alarm-volume::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #ffffff; border: 1px solid #8a8a8a; }
+
+/* Windows scrollbars in the dark panes (observed in the app: a 17px track
+   with arrow buttons at both ends, a #4a4a4a bar). Chromium draws these;
+   Firefox keeps its thin native bar. */
+:where(:root[data-theme='outrun']) .win-root .dk-scroll::-webkit-scrollbar, :where(:root[data-theme='outrun']) .win-root .dk-queue-list::-webkit-scrollbar { width: 11px; }
+:where(:root[data-theme='outrun']) .win-root .dk-scroll::-webkit-scrollbar-track, :where(:root[data-theme='outrun']) .win-root .dk-queue-list::-webkit-scrollbar-track { background: transparent; }
+:where(:root[data-theme='outrun']) .win-root .dk-scroll::-webkit-scrollbar-thumb, :where(:root[data-theme='outrun']) .win-root .dk-queue-list::-webkit-scrollbar-thumb { background: #333333; border-left: 1px solid transparent; border-right: 1px solid transparent; background-clip: padding-box; border-radius: 5px; }
+:where(:root[data-theme='outrun']) .win-root .dk-scroll::-webkit-scrollbar-thumb:hover, :where(:root[data-theme='outrun']) .win-root .dk-queue-list::-webkit-scrollbar-thumb:hover { background: #444444; background-clip: padding-box; }
+:where(:root[data-theme='outrun']) .win-root .dk-scroll::-webkit-scrollbar-button, :where(:root[data-theme='outrun']) .win-root .dk-queue-list::-webkit-scrollbar-button { display: block; height: 17px; background: transparent center / 9px 6px no-repeat; }
+:where(:root[data-theme='outrun']) .win-root .dk-scroll::-webkit-scrollbar-button:vertical:decrement, :where(:root[data-theme='outrun']) .win-root .dk-queue-list::-webkit-scrollbar-button:vertical:decrement { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 6'%3E%3Cpath d='M0 6l4.5-6L9 6z' fill='%23333333'/%3E%3C/svg%3E"); }
+:where(:root[data-theme='outrun']) .win-root .dk-scroll::-webkit-scrollbar-button:vertical:increment, :where(:root[data-theme='outrun']) .win-root .dk-queue-list::-webkit-scrollbar-button:vertical:increment { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 6'%3E%3Cpath d='M0 0l4.5 6L9 0z' fill='%23333333'/%3E%3C/svg%3E"); }
+:where(:root[data-theme='outrun']) .win-root .dk-scroll::-webkit-scrollbar-button:horizontal, :where(:root[data-theme='outrun']) .win-root .dk-queue-list::-webkit-scrollbar-button:horizontal { display: none; }
+:where(:root[data-theme='outrun']) .win-root .dk-scroll, :where(:root[data-theme='outrun']) .win-root .dk-queue-list { scrollbar-width: thin; scrollbar-color: #333333 transparent; }
+/* The app's list keeps an 11px scrollbar gutter whether or not the list
+   scrolls (Plex, Surf-N-Burn: twelve rows, no thumb, the column still there,
+   2026-09-14). Firefox on GNOME paints overlay scrollbars, so
+   scrollbar-gutter reserves nothing there; the strip is padding instead, and
+   a thumb, when there is one, rides over it as the app's does. */
+:where(:root[data-theme='outrun']) .win-root .dk-scroll .dk-browse-row { padding-right: 25px; }
+
+/* Error Log (500x500): the text box 20px in over a 60px foot. */
+/* main/errorlogwindow.xaml is 500x500, Title "Sonos System Error Log",
+   OkButtonText="Done" -- so 494x496 on screen, not the declared 500. */
+:where(:root[data-theme='outrun']) .win-root .win-errorlog { width: 494px; height: 496px; }
+:where(:root[data-theme='outrun']) .win-root .win-errorlog .dk-window-body { display: flex; flex-direction: column; }
+:where(:root[data-theme='outrun']) .win-root .win-errorlog-body { flex: 1; min-height: 0; padding: 20px 20px 0; display: flex; }
+:where(:root[data-theme='outrun']) .win-root .win-errorlog-body .error-log { flex: 1; resize: none; font: 12px/16px 'Segoe UI', Tahoma, sans-serif; padding: 4px 6px; border: 1px solid #7a7a7a; background: #ffffff; color: #1a1a1a; }
+
+/* The tile's state mark (wdcr_zm_indicator_*_enable.png): 8x9 #868686 shapes. */
+:where(:root[data-theme='outrun']) .win-root .dk-tile-indicator { color: #868686; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-indicator svg { width: 8px; height: 9px; }
+:where(:root[data-theme='outrun']) .win-root .dk-tile-more { margin: 10px 0 0 1px; padding: 0; font-size: 14px; font-weight: 700; line-height: 16px; color: #ffffff; }
+
+/* An empty container's line stands 10px higher in the Windows app than the
+   shared 128px puts it: Mixcloud's empty Followers reads "No selections are
+   available." with its ink at y=295 against Sonora's 305 (2026-09-23). */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-empty { margin-top: 118px; }
+
+/* Browse pane messages, from browsepanel.xaml: the TextBlock that carries a
+   browse error or "No selections available." is Margin="17,120,20,0",
+   MaxWidth="360", centered, and TextpaneWhiteTextBlockStyle -- 13px white on a
+   16px line. The Line-In page's sentence comes through the same box. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-note {
+  margin: 120px auto 0;
+  padding: 0 20px 0 17px;
+  max-width: 394px;
+  font: 13px/16px 'Segoe UI', Tahoma, sans-serif;
+  color: #ffffff;
+  text-align: center;
+}
+
+/* icn_linein_*.png is one image: the dark plug already sitting on its white
+   disc, so the drawing carries the disc's padding and has to fill the badge
+   rather than sit inside it at the shared glyph size. */
+:where(:root[data-theme='outrun']) .win-root .dk-header-glyph .win-linein { width: 24px; height: 24px; }
+/* icn_tunein_*.png fills its disc the same way, ink about 61% across. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-glyph .win-linein { width: 30px; height: 30px; }
+
+/* Remove Account, from utilities/messagewindow.xaml and measured on the app
+   (2026-09-06): 494 wide, a light diagonal gradient over a 58px foot whose
+   two rules are #9D9D9D then #E6E6E6 on #D6D6D6. Text is 12px #484848 on a
+   14px line, inset 20 all round; the buttons are 80x23 with 4px between them
+   and 16px of grid margin, so the last one ends 20 from the edge. */
+:where(:root[data-theme='outrun']) .win-root .win-message { width: 494px; min-height: 157px; }
+:where(:root[data-theme='outrun']) .win-root .win-message .dk-window-body { display: flex; flex-direction: column; }
+:where(:root[data-theme='outrun']) .win-root .win-message-body {
+  /* messagewindow.xaml's StackPanel is Margin="20,20,20,40": the foot of the
+     text block is deeper than its head, which is what makes a one-line
+     dialog 74px tall rather than 54 (measured 2026-09-06). */
+  padding: 20px 20px 40px;
+  background: linear-gradient(135deg, #e1e1e1, #d6d6d6);
+  font: 12px/14px 'Segoe UI', Tahoma, sans-serif;
+  color: #484848;
+}
+/* The app's own Remove Account draws its sentence in the message weight,
+   not the bold heading MessageWindow also offers, so both lines are plain. */
+:where(:root[data-theme='outrun']) .win-root .win-message-heading { margin: 0 0 10px; }
+:where(:root[data-theme='outrun']) .win-root .win-message-line { margin: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-message-choices { margin-top: 2px; }
+:where(:root[data-theme='outrun']) .win-root .win-message-choices .dk-check { margin-top: 8px; font-size: 12px; color: #484848; }
+:where(:root[data-theme='outrun']) .win-root .win-message-choices .dk-check small { color: #6d6d6d; }
+:where(:root[data-theme='outrun']) .win-root .win-message-foot {
+  flex: none;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-right: 20px;
+  background: #d6d6d6;
+  border-top: 1px solid #9d9d9d;
+  box-shadow: inset 0 1px 0 #e6e6e6;
+}
+:where(:root[data-theme='outrun']) .win-root .win-message-foot .dk-win-btn {
+  min-width: 80px;
+  height: 23px;
+  padding: 0 8px;
+  border: 1px solid #ababab;
+  border-radius: 4px;
+  background: linear-gradient(#f7f7f7, #e6e6e6);
+  color: #1a1a1a;
+  font-size: 12px;
+  box-shadow: none;
+}
+:where(:root[data-theme='outrun']) .win-root .win-message-foot .dk-win-btn:hover:not(:disabled) { background: linear-gradient(#eaf5fd, #d9edfb); border-color: #3c99dc; }
+:where(:root[data-theme='outrun']) .win-root .win-message-foot .dk-win-btn[data-default='true'] { border-color: #0a97ff; box-shadow: inset 0 0 0 1px rgba(10, 151, 255, 0.35); }
+:where(:root[data-theme='outrun']) .win-root .win-message-foot .dk-win-btn:disabled { color: #838383; background: #cccccc; border-color: #bfbfbf; }
+
+/* The browse pane's own row menu, measured on the app (2026-09-06, right-
+   clicking each of AccuRadio's five rows and a station beneath them): a
+   160-wide #e6e6e6 sheet with no border, 1px of padding, 36px rows with the
+   label 15px in, and a #cfcfcf rule flush at every row boundary. The tile and
+   queue menus keep the tighter 24px rows they were measured at. */
+/* The app's row menus, re-measured 2026-09-07 across three captures (a
+   TuneIn station, a queue episode, Amazon's Collections): every item is 24px
+   tall, a rule is a 1px line in a 12px block (4 above, 7 below), and the
+   menu pads 9px above the first item and 6px below the last. Items divided
+   by rules therefore sit 36px apart and undivided ones 24px apart -- the
+   36px "row" the earlier measurements took was an item plus its rule. */
+:where(:root[data-theme='outrun']) .win-root .dk-action-menu { min-width: 158px; padding: 9px 0 6px; border: 0; box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.55); }
+:where(:root[data-theme='outrun']) .win-root .dk-action-menu button { height: 24px; line-height: 24px; padding: 0 9px 0 15px; }
+:where(:root[data-theme='outrun']) .win-root .dk-action-menu .dk-popover-sep { margin: 4px 0 7px; }
+/* The account list under a service row (measured on the app's Spotify row,
+   2026-09-05 capture): 122x64 for two accounts, 4px corners, 24px rows in
+   12px type, the tick 9px in and 10x11, the names 37px in. */
+:where(:root[data-theme='outrun']) .win-root .dk-account-menu { min-width: 122px; padding: 6px 0 10px; border-radius: 4px; }
+:where(:root[data-theme='outrun']) .win-root .dk-account-menu button { display: flex; align-items: center; height: 24px; padding: 0 12px 0 0; font-size: 12px; line-height: 24px; }
+:where(:root[data-theme='outrun']) .win-root .dk-account-menu .dk-scope-check { width: 37px; height: 24px; justify-items: start; align-items: center; padding-left: 9px; box-sizing: border-box; }
+:where(:root[data-theme='outrun']) .win-root .dk-account-menu .dk-scope-check svg { width: 10px; height: 11px; }
+
+/* ---- Audit 2026-09-06: the app's own dialog frames for Confirm ----------
+   A question wears MessageWindow (utilities/messagewindow.xaml): 494 wide,
+   the body inset 20 with a deeper 40 at its foot, over the 58px button row.
+   A name wears TextInputDialogWindow (utilities/textinputdialogwindow.xaml):
+   a CommonDialogWindow at Width="350" -- so 344 on screen -- with content
+   Margin="20", the field Height="25", and OK / Cancel. Sonora had both at an
+   inline 380 with a 12px button strip, which came from the Mac sheets. */
+:where(:root[data-theme='outrun']) .win-root .dk-window:has(.dk-confirm) { width: 494px; min-height: 157px; }
+:where(:root[data-theme='outrun']) .win-root .dk-window:has(.dk-confirm) .dk-window-body { display: flex; flex-direction: column; }
+:where(:root[data-theme='outrun']) .win-root .dk-confirm {
+  flex: 1;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px 40px;
+  background: linear-gradient(135deg, #e1e1e1, #d6d6d6);
+  font: 12px/14px 'Segoe UI', Tahoma, sans-serif;
+  color: #484848;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-confirm .dk-check { margin-top: 8px; font-size: 12px; color: #484848; }
+:where(:root[data-theme='outrun']) .win-root .dk-confirm .dk-check small { color: #6d6d6d; }
+:where(:root[data-theme='outrun']) .win-root .dk-confirm-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  /* The app puts the action button left of Cancel; the shared markup has
+     them the other way round. */
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  gap: 10px;
+  height: 58px;
+  margin: auto -20px -40px;
+  padding: 0 21px 0 0;
+  background: #d6d6d6;
+  border-top: 1px solid #9d9d9d;
+  box-shadow: inset 0 1px 0 #e6e6e6;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-confirm-foot .dk-win-btn {
+  min-width: 90px; height: 23px; padding: 0 8px;
+  border: 1px solid #ababab; border-radius: 4px;
+  background: linear-gradient(#f7f7f7, #e6e6e6);
+  color: #1a1a1a; font-size: 12px; box-shadow: none;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-confirm-foot .dk-win-btn:hover:not(:disabled) { background: linear-gradient(#eaf5fd, #d9edfb); border-color: #3c99dc; }
+:where(:root[data-theme='outrun']) .win-root .dk-confirm-foot .dk-win-btn[data-default='true'] { border-color: #0a97ff; box-shadow: inset 0 0 0 1px rgba(10, 151, 255, 0.35); }
+:where(:root[data-theme='outrun']) .win-root .dk-confirm-foot .dk-win-btn:disabled { color: #838383; background: #cccccc; border-color: #bfbfbf; }
+/* A name dialog is the narrower TextInputDialogWindow. This has to outrank
+   the :has() rule above: a :has() argument counts toward specificity. */
+:where(:root[data-theme='outrun']) .win-root .dk-window.win-textdialog:has(.dk-confirm) { width: 344px; }
+:where(:root[data-theme='outrun']) .win-root .win-textdialog .dk-confirm { padding: 20px 20px 40px; }
+:where(:root[data-theme='outrun']) .win-root .dk-rename-input { width: 100%; height: 25px; margin-top: 12px; box-sizing: border-box; }
+
+/* The development-only theme switcher, at the end of the menu bar past Help.
+   The app has nothing here; this is a build-time convenience and is drawn to
+   sit quietly in the bar rather than to look like part of the product. */
+:where(:root[data-theme='outrun']) .win-root .win-menubar-aside { list-style: none; margin-left: auto; display: flex; align-items: center; padding-right: 6px; }
+:where(:root[data-theme='outrun']) .win-root .win-menubar-theme select {
+  height: 18px;
+  max-width: 170px;
+  padding: 0 3px;
+  border: 1px solid #3f3f3f;
+  border-radius: 0;
+  background: #1a1a1a;
+  color: #cccccc;
+  font: inherit;
+  font-size: 11px;
+}
+:where(:root[data-theme='outrun']) .win-root .win-menubar-theme select:hover { color: #f5f5f5; border-color: #5a5a5a; }
+
+/* The app's own controls, drawn here rather than left to the browser, which
+   on Linux draws them GTK's way. Measured off the app's Add Alarm and Group
+   Rooms windows (s1win-screens/alarm-editor.png, 2026-09-23 captures).
+   Checkbox: WPF's Aero2 CheckBox -- 13px box, 1px #707070 on white, the
+   #212121 check mark (the path from WPF's open-source Aero2.NormalColor.xaml,
+   MIT, (c) .NET Foundation and Contributors; see THIRD-PARTY-NOTICES.md),
+   #5593FF on #F3F9FF under the
+   pointer, #3C77DD on #D9ECFF pressed, #BCBCBC on #E6E6E6 disabled. */
+:where(:root[data-theme='outrun']) .win-root input[type='checkbox'] {
+  appearance: none;
+  -moz-appearance: none;
+  box-sizing: border-box;
+  width: 13px;
+  height: 13px;
+  flex: none;
+  vertical-align: -2px;
+  border: 1px solid #707070;
+  border-radius: 0;
+  background-color: #ffffff;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px 9px;
+}
+:where(:root[data-theme='outrun']) .win-root input[type='checkbox']:hover:not(:disabled) { border-color: #5593ff; background-color: #f3f9ff; }
+:where(:root[data-theme='outrun']) .win-root input[type='checkbox']:active:not(:disabled) { border-color: #3c77dd; background-color: #d9ecff; }
+:where(:root[data-theme='outrun']) .win-root input[type='checkbox']:checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 9.1'%3E%3Cpath fill='%23212121' d='M9.975 1.223 4.698 9.098H4.522L0 5.193 1.277 3.522 4.255 6.088 8.333 0Z'/%3E%3C/svg%3E");
+}
+:where(:root[data-theme='outrun']) .win-root input[type='checkbox']:disabled { border-color: #bcbcbc; background-color: #e6e6e6; }
+:where(:root[data-theme='outrun']) .win-root input[type='checkbox']:disabled:checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 9.1'%3E%3Cpath fill='%23707070' d='M9.975 1.223 4.698 9.098H4.522L0 5.193 1.277 3.522 4.255 6.088 8.333 0Z'/%3E%3C/svg%3E");
+}
+:where(:root[data-theme='outrun']) .win-root input[type='checkbox']:focus-visible { outline: 1px dotted #000000; outline-offset: 1px; }
+
+/* Radio button: Aero2's -- a 12px ring, #333333 on white, a 6px #212121 dot
+   when chosen; the same pointer and disabled colors as the checkbox. */
+:where(:root[data-theme='outrun']) .win-root input[type='radio'] {
+  appearance: none;
+  -moz-appearance: none;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  flex: none;
+  vertical-align: -2px;
+  border: 1px solid #333333;
+  border-radius: 50%;
+  background: #ffffff;
+}
+:where(:root[data-theme='outrun']) .win-root input[type='radio']:hover:not(:disabled) { border-color: #5593ff; background-color: #f3f9ff; }
+:where(:root[data-theme='outrun']) .win-root input[type='radio']:active:not(:disabled) { border-color: #3c77dd; background-color: #d9ecff; }
+:where(:root[data-theme='outrun']) .win-root input[type='radio']:checked { background-image: radial-gradient(circle, #212121 0 3px, transparent 3.5px); }
+:where(:root[data-theme='outrun']) .win-root input[type='radio']:disabled { border-color: #bcbcbc; background-color: #e6e6e6; }
+:where(:root[data-theme='outrun']) .win-root input[type='radio']:disabled:checked { background-image: radial-gradient(circle, #707070 0 3px, transparent 3.5px); }
+:where(:root[data-theme='outrun']) .win-root input[type='radio']:focus-visible { outline: 1px dotted #000000; outline-offset: 1px; }
+
+/* Pop-up (a closed ComboBox): the app's button chrome -- a #707070 border
+   round a 1px white highlight, the face two-toned, #F2F2F2 to #ECECEC above
+   the middle and #DBDBDB to #CFCFCF below it, and a filled 7x4 arrow whose
+   center sits 9px in from the right edge. Aero's pointer colors: #3C7FB1
+   round #EAF6FD/#D9F0FC over #BEE6FD/#A7D9F5. The Settings window's own
+   pop-ups, the strip's system picker and the menu bar's theme picker keep
+   their own looks. */
+:where(:root[data-theme='outrun']) .win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select) {
+  appearance: none;
+  -moz-appearance: none;
+  box-sizing: border-box;
+  min-height: 23px;
+  padding: 0 22px 0 6px;
+  border: 1px solid #707070;
+  border-radius: 0;
+  color: #000000;
+  font: inherit;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23000000' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px,
+    linear-gradient(#f2f2f2, #ececec 50%, #dbdbdb 50%, #cfcfcf);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.85);
+}
+:where(:root[data-theme='outrun']) .win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select):hover:not(:disabled) {
+  border-color: #3c7fb1;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23000000' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px,
+    linear-gradient(#eaf6fd, #d9f0fc 50%, #bee6fd 50%, #a7d9f5);
+}
+:where(:root[data-theme='outrun']) .win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select):disabled {
+  color: #838383;
+  border-color: #adb2b5;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23adb2b5' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px,
+    #f4f4f4;
+}
+
+/* The app's TimePicker (utilities/timepicker.xaml): the parts on a white
+   face in a 1px border, the separator between them, and two 19px arrow
+   buttons stacked at the right with a filled 7x4 black triangle each;
+   disabled, a #A5FFFFFF veil over the whole (DisabledVisual). */
+:where(:root[data-theme='outrun']) .win-root .win-timepicker {
+  display: inline-flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  padding: 0 0 0 4px;
+  border: 1px solid #707070;
+  background: #ffffff;
+  color: #000000;
+  font: inherit;
+  position: relative;
+}
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-box { flex: 1; display: flex; align-items: center; min-width: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-part {
+  width: 2ch; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: center; outline: none;
+}
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-part:focus, :where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-ampm:focus { background: #3399ff; color: #ffffff; }
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-sep { padding: 0 1px; }
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-ampm { margin-left: 6px; padding: 0 1px; border: 0; background: transparent; color: inherit; font: inherit; outline: none; }
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-arrows { display: flex; flex-direction: column; width: 19px; margin: 0 2px; }
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-arrows button {
+  flex: 1; width: 19px; padding: 0; border: 0; background: transparent no-repeat center / 7px 4px;
+}
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-up { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath d='M0 4 3.5 0 7 4Z'/%3E%3C/svg%3E") !important; }
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-down { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath d='M0 0 3.5 4 7 0Z'/%3E%3C/svg%3E") !important; }
+:where(:root[data-theme='outrun']) .win-root .win-timepicker[aria-disabled]::after { content: ''; position: absolute; inset: 0; background: rgba(255, 255, 255, 0.65); pointer-events: none; }
+/* The shared field's plain look draws its own box and masks its arrows;
+   the Windows one borders the whole and paints the arrows. */
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-box { padding: 0; border: 0; border-radius: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-arrows button { opacity: 1; -webkit-mask: none; mask: none; background-color: transparent; }
+:where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-part:focus, :where(:root[data-theme='outrun']) .win-root .win-timepicker .dk-timefield-ampm:focus { border-radius: 0; }
+:where(:root[data-theme='outrun']) .win-root .win-timepicker[aria-disabled] { opacity: 1; }
+
+/* The Windows theme's own ink, from the app's XAML and checked side by side
+   in the VM (2026-09-29). A header's parenthesis -- "(<room> + 1)",
+   "(Not in Use)" -- is TextBlockStyleHedaerParens: white, not bold
+   (nowplayingpanel.xaml). A footer button's word is FooterButtonTextBlock-
+   Style: bold #888888 over a dark drop shadow, #454647 when disabled
+   (generic.xaml); the skins keep their own. */
+
+/* Caption buttons, against the app (2026-09-29): every glyph is 10 x 10 on
+   a 46px pitch -- the close X's strokes are 14px long, where Sonora's were
+   12 -- and the Settings and About windows, which the app lets be minimized,
+   carry Minimize and a grayed Maximize before it. Sonora cannot minimize a page's
+   window, so both are drawn in the disabled #c2c2c2 the app gives Maximize. */
+
+/* The EQ page against the running app (2026-09-29), per settingswindow.xaml
+   and its dictionary. The inner tab joins the white box below it rather than
+   standing on a rule of its own; the intro starts in the controls' column
+   (a panel paragraph rule had been resetting its indent); Bass and Treble
+   are SettingsHeaderTextBlockStyle, bold #484848; the room pop-up is the
+   app's ImageComboBox, 215 wide in the split gradient of the older Windows
+   button with a small filled arrow, its name not bold; the sliders are
+   LightVolumeSliderStyle, a 14px thumb shaded white to #e7e7e7 under a
+   #a2a2a2 rim on a 3px track; Reset is LightButtonStyle. */
+/* The page list starts 35px down (HeaderPanel Margin="2,35,-1,2") and its
+   foot ends 15px up; the EQ rows follow the intro 34px on. */
+/* Every page title is the EQ page's 30px row, whether or not a pop-up rides
+   in it; the Services page has no tab strip, so its box starts where the
+   others' tabs would; and the page's own buttons -- Add, Remove, Sonos Labs,
+   Reset -- are LightButtonStyle (the nav's Get the mobile app stays flat). */
+/* The Advanced tab against the running app (2026-09-29): the controls
+   start 161px after the labels, the first row 19px into the box and each
+   next one 21px on, every label centered on its first control; the time is
+   the app's 125 x 23 TimePicker and the pop-ups its 215 x 23 combo box. */
+
+/* Alarms against the running app (2026-09-29), per alarmwindow.xaml: the
+   CommonDialogWindow body shades #e9e9e9 to #d7d7d7 corner to corner as
+   Group Rooms' does (Save Queue is the same window); the list fills its
+   star row, 210 tall, with its column rules running the whole height; Edit
+   stands 40px under Add and Remove 8 under Edit; the buttons are
+   LightButtonStyle. */
+
+/* Sleep Timer against the running app (2026-09-29), per
+   sleeptimerpopover.xaml: a 37px title row and 6 under it, the instruction
+   8px down and 17 in, the list 16px under it and 15 above the foot, rows
+   30 tall 16 in; the beak -- drawn here as a plain wedge, not the app's
+   picture -- hangs 14px under the box, whose foot stands 28px over the
+   button (it had been clipped away, 12px over it). */  /* 6 under the title row and 8 more, one margin since they would collapse */
+/* Keyboard Shortcuts' rows are the list's default ink, a navy near
+   rgb(4,34,113) on the running app (2026-09-29), not #0033cc. */
+/* The Error Log is a CommonDialogWindow like Alarms: the same shaded body,
+   and its text box keeps errorlogwindow.xaml's Margin="20,20,20,60", so it
+   stops 60px over the foot rather than on it (2026-09-29). */
+
+/* Context menus against the running app (2026-09-29), per
+   contextmenustyles.xaml: 24px items, and between groups a separator of
+   #cfcfcf over #eeeeee with 3px above and below and 7px in at the sides --
+   8px in all where Sonora gave it 12, so every group sat 4px low; the menu
+   pads 8 over its first item and 7 under its last. A row whose menu came
+   from a right-click shows no caret; the caret lights only for its own. */
+:where(:root[data-theme='outrun']) .win-root .dk-action-menu { padding: 8px 0 7px; }
+:where(:root[data-theme='outrun']) .win-root .dk-action-menu .dk-popover-sep { margin: 3px 7px; height: 2px; box-sizing: border-box; }
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row[data-menu='context'] .dk-browse-actions { opacity: 0; }
+:where(:root[data-theme='outrun']) .win-root .dk-row[data-menu='context'] .dk-browse-actions { opacity: 0; }
+/* The app sizes a context menu to its items: 109px for a queue row's, 158
+   for a station's (2026-09-29), not a common minimum. */
+:where(:root[data-theme='outrun']) .win-root .dk-action-menu { min-width: 0; }
+/* The search box's clear button, per searchboxspecialized.xaml and the
+   running app (2026-09-29): a 15px button just before the magnifier while
+   the box holds text, carrying a 5px #868686 cross -- drawn here, not the
+   app's picture. */
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search .dk-strip-clear {
+  display: block; position: relative; flex: none; align-self: center; width: 15px; height: 15px; margin: 0 2px 0 5px; padding: 0;
+  border: 0; background: none; color: #868686; cursor: default;
+}
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search .dk-strip-clear::before,
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search .dk-strip-clear::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 1px; background: currentColor;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search .dk-strip-clear::after { transform: translate(-50%, -50%) rotate(-45deg); }
+:where(:root[data-theme='outrun']) .win-root .dk-strip-search .dk-strip-clear:active { color: #4a4a4a; }
+
+/* The Windows wizard's Authorize: one wide button centered in the page, as its
+   account buttons are (240px, 2026-09-29). */
+:where(:root[data-theme='outrun']) .win-root .dk-add-flow .dk-add-authorize { display: block; width: 240px; margin: 18px auto 12px; }

@@ -1,0 +1,1147 @@
+/* The Mac skin of the desktop shell, over desktop.css.
+ *
+ * Every number here was measured on the Sonos S1 Controller running on macOS
+ * Tahoe on 2026-09-15, window content 1014x696 (Rooms 264, center 322, Music
+ * 418, 5px dividers). The application is black chrome and dark gray panes,
+ * with the window's traffic lights in the transport header and no title text;
+ * the system menu bar and its menus are Tahoe's light translucent kind. Only
+ * .mac-root wears this sheet, so the Windows shell, which shares desktop.css,
+ * is untouched. */
+
+/* --- the system menu bar and its menus ------------------------------------ */
+.mac-root .dk-menubar { height: 30px; padding-left: 12px; background: #dadada; border-bottom: 0; }
+.mac-root .dk-menubar-logo {
+  display: flex; align-items: center; justify-content: center; width: 32px; height: 24px; padding: 0;
+  border: 0; border-radius: 12px; background: none; cursor: default;
+}
+.mac-root .dk-menubar-logo:hover, .mac-root .dk-menubar-logo:focus-visible { background: rgba(0, 0, 0, 0.1); }
+.mac-root .dk-menubar-logo img { display: block; width: 16px; height: 16px; border-radius: 3px; }
+/* The titles in the 30pt bar, as Tahoe sets them (2x, 2026-09-28): the
+   highlight capsule 24pt tall from 3pt down, the caps from 9 to 18.5, so
+   the words sit 1pt above the capsule's middle; the logo centered at 14.25. */
+.mac-root .dk-menubar > li { display: flex; align-items: center; }
+.mac-root .dk-menubar-title { height: 24px; line-height: 21.5px; padding: 0 10px 2.5px; box-sizing: border-box; border-radius: 12px; }
+.mac-root .dk-menubar-logo { padding-bottom: 3px; box-sizing: border-box; }
+/* A phone is narrower than the menu titles: the app's name gives way, cut
+   short on one line as macOS cuts it, and the other titles keep their words. */
+.mac-root .dk-menubar-title { white-space: nowrap; }
+.mac-root .dk-menubar > li:has(> .dk-menubar-title[data-app]) { min-width: 0; }
+.mac-root .dk-menubar-title[data-app] { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.mac-root .dk-menubar-title[aria-expanded='true'] { background: rgba(0, 0, 0, 0.1); color: #000000; }
+.mac-root .dk-menu {
+  top: 31px; min-width: 240px; padding: 5px;
+  background: rgba(219, 219, 219, 0.96); border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.mac-root .dk-menu-item { height: 24px; padding: 0 10px 0 22px; border-radius: 5px; }
+.mac-root .dk-menu-sep { margin: 5px 10px; background: rgba(0, 0, 0, 0.12); }
+
+/* --- the window head: lights in the black header, no title ------------------ */
+.mac-root .dk-titlebar { height: 30px; background: #0a0a0a; border-bottom: 0; }
+.mac-root .dk-lights { left: 9px; top: 7px; gap: 8px; }
+/* The dev theme switcher at the right of the title row, in its grays. */
+.mac-root .mac-titlebar-theme { position: absolute; right: 16px; top: 6px; }
+.mac-root .mac-titlebar-theme select { height: 18px; max-width: 190px; padding: 0 6px; border: 1px solid #3a3a3a; border-radius: 5px;
+  background: #1a1a1a; color: #c8c8c8; font: inherit; font-size: 11px; opacity: 0.8; }
+.mac-root .mac-titlebar-theme select:hover, .mac-root .mac-titlebar-theme select:focus { opacity: 1; }
+.mac-root .mac-titlebar-theme option { color: initial; background: Canvas; }
+.mac-root .dk-lights span { border-color: rgba(0, 0, 0, 0.25); }
+
+/* --- the transport strip: 76px under the 30px head, 106 in all ------------- */
+.mac-root .dk-strip { height: 76px; background: #0a0a0a; border-bottom: 0; }
+.mac-root .dk-strip-volume { height: 76px; }
+.mac-root .dk-strip-volume-label { display: none; }
+/* the speaker, its ink at x 21..43.5 and 26..41.5 down the strip (2x, 2026-09-28) */
+.mac-root .dk-strip-mute { left: 15.5px; top: 17px; }
+.mac-root .dk-strip-mute svg { width: 24px; height: 24px; }
+/* the 2px rail from x 62 to 233, 33pt down the strip (2x, 2026-09-28; read
+   at 1x as 50 to 226) */
+.mac-root .dk-strip-slider { left: 62px; top: 23px; width: 171px; }
+.mac-root .dk-slider-track { height: 2px; background: #313131; }
+.mac-root .dk-slider-fill { height: 2px; background: #ffffff; }
+.mac-root .dk-slider-thumb { width: 12px; height: 12px; background: #ffffff; box-shadow: none; }
+/* previous, play, next, remeasured at 2x in 1920 and 1200pt windows (2026-09-28):
+   the skip glyphs 15.5pt square with their centers 51.75pt left and 47.25pt
+   right of the window's, play and stop 2pt left of it, all centered 20.75pt
+   down the strip. Read at 1x on 2026-09-15 as 9pt left, which made the
+   group lopsided. */
+.mac-root .dk-strip-controls { left: calc(50% - 129px); top: -9px; }
+.mac-root .dk-strip-controls .dk-btn-back30, .mac-root .dk-strip-controls .dk-btn-fwd30 { display: none; }
+.mac-root .dk-strip-controls .dk-btn-prev { left: 61px; }
+.mac-root .dk-strip-controls .dk-btn-play { left: 106px; }
+.mac-root .dk-strip-controls .dk-btn-next { left: 160px; }
+.mac-root .dk-strip-controls .dk-btn-prev svg, .mac-root .dk-strip-controls .dk-btn-next svg { width: 25px; height: 25px; }
+.mac-root .dk-strip-controls button:disabled { opacity: 1; color: #333333; }
+/* the second row, 370px wide and centered with the play button, its ink
+   centered 58.5px down the strip: repeat, shuffle, elapsed, the rail,
+   remaining, crossfade, equalizer */
+.mac-root .dk-strip-progress { left: calc(50% - 194px); bottom: auto; top: 52px; width: 380px; height: 21px; gap: 0; color: #ffffff; font-size: 13px; }
+/* The app keeps every piece of the row where it is whatever the times read:
+   elapsed ends at 432, the rail runs 447-575, remaining starts at 580, the
+   crossfade glyph at 641 and EQ at 674 (content x, 2026-09-15). */
+/* At 2x (2026-09-28) the rail is 151.5pt whatever the window's width, from
+   885 to 1036.5 in a 1920pt one, with elapsed ending 9.5 before it and remaining 6 after. The
+   times go gray when paused as well as stopped. */
+.mac-root .dk-strip-progress .dk-progress { flex: none; width: 151.5px; }
+.mac-root .dk-strip-progress .dk-mode { width: 20px; height: 21px; color: #ffffff; }
+/* Three states, as the app draws them (2026-09-23): #333333 when there is
+   nothing for the control to do, #868686 when it is there but off, white
+   when on. Off had been drawn as dark as disabled. */
+.mac-root .dk-strip-progress .dk-mode { color: #868686; }
+.mac-root .dk-strip-progress .dk-mode:disabled { color: #333333; opacity: 1; }
+.mac-root .dk-strip-progress .dk-mode[aria-pressed='true'] { color: #ffffff; }
+.mac-root .dk-mode-repeat { order: 1; margin-left: 9px; margin-right: 12px; }
+.mac-root .dk-mode-shuffle { order: 2; margin-right: 17px; }
+/* Stopped, the times are #868686 digits 8.75pt tall (2x, 2026-09-24);
+   repeat and shuffle start 9pt further in than read at 1x. */
+.mac-root .dk-strip-progress .dk-time-elapsed, .mac-root .dk-strip-progress .dk-time-total { font-size: 11.5px; }
+.mac-root .dk-strip-progress:is([data-stopped], [data-paused]) .dk-time-elapsed,
+.mac-root .dk-strip-progress:is([data-stopped], [data-paused]) .dk-time-total { color: #868686; }
+.mac-root .dk-time-elapsed { order: 3; width: 32.5px; min-width: 0; text-align: right; margin-right: 8.5px; overflow: visible; white-space: nowrap; direction: rtl; }
+.mac-root .dk-progress { order: 4; }
+.mac-root .dk-time-total { order: 5; width: 46.5px; min-width: 0; text-align: left; margin-left: 5.5px; overflow: visible; white-space: nowrap; }  /* a long remaining time runs on, as the app's -105:34:45 does */
+.mac-root .dk-mode-crossfade { order: 6; margin-left: 2px; }
+.mac-root .dk-strip-progress .dk-mode-crossfade svg { width: 16px; height: 16px; }
+.mac-root .dk-mode-eq { order: 7; margin-left: 13px; }
+.mac-root .dk-progress-track { height: 2px; background: #333333; }
+.mac-root .dk-progress-fill { height: 2px; background: #ffffff; }
+.mac-root .dk-progress-thumb { width: 6px; height: 6px; background: #ffffff; }
+/* the search field: a 212x22 white pill 16.5pt in from the window's right
+   and 21pt down, at 1200 and 1920pt alike (2x, 2026-09-28) */
+.mac-root .dk-strip-search { right: 16px; top: 21px; width: 212px; height: 22px; border-radius: 11px; background: #ffffff; overflow: hidden; }
+.mac-root .dk-strip-search input { height: 22px; font-size: 13px; padding-left: 6px; }
+.mac-root .dk-strip-search input::placeholder { color: #8b8b8b; }
+.mac-root .dk-strip-search button { height: 22px; width: 26px; }
+.mac-root .dk-strip-search .dk-strip-scope { height: 22px; }
+.mac-root .dk-strip-aux { top: 21px; }
+
+/* --- panes ------------------------------------------------------------------ */
+/* The three panes share the window's width in the ratio of their minimums,
+   264:322:418 -- a full-screen window (1900px of panes) gave 500, 609 and
+   791 (2026-09-15) -- with 5px dividers between, and 5px of the window's
+   black at either side (1920 = 5 + 500 + 5 + 609 + 5 + 791 + 5; measured
+   at 2x, 2026-09-23). */
+.mac-root .dk-panes { grid-template-columns: minmax(264px, 264fr) 5px minmax(322px, 322fr) 5px minmax(418px, 418fr); padding: 0 5px; }
+.mac-root .dk-divider { background: #0a0a0a; }
+.mac-root .dk-pane { background: #1a1a1a; }
+/* 32px flat headers, the title 13px bold 19px in, the room in gray */
+.mac-root .dk-header { height: 32px; padding: 0 12px 0 19px; background: #262626; font-weight: 700; }
+.mac-root .dk-header-sub { color: #9a9a9a; font-weight: 400; }
+.mac-root .dk-header-btn { color: #ffffff; }
+.mac-root .dk-header-btn svg { width: 16px; height: 16px; }
+/* Inside a source the browse header is the Windows app's (the Mac bundle's
+   browse_btn_back / browse_btn_music images are the same drawings), read at
+   2x on 2026-09-23: the back chevron's ink 8 x 14.5pt with a 1.5pt stroke,
+   16.5pt in from the pane; the source's 24pt disc and its name centered
+   between the two buttons, 6.5pt apart; "Music" in bold at the right, its
+   ink ending 13.5pt short of the pane's edge, a #333 tag tapering to the
+   left when hovered and #1b1b1b pressed. */
+.mac-root .dk-header-btn.dk-header-back { width: 43px; margin-left: -19px; padding-left: 11px; display: flex; justify-content: flex-start; align-items: center; }
+.mac-root .dk-header-back svg { width: 21px; height: 21px; }
+.mac-root .dk-header-back svg path { stroke-width: 1.15; }
+.mac-root .dk-header:has(.dk-header-back) .dk-header-title { display: flex; align-items: center; justify-content: center; margin-left: -6px; position: relative; top: -1px; }  /* the app's center sits 3pt left of the gap between the buttons, and 1pt high */
+.mac-root .dk-header-glyph, .mac-root .dk-header-logo { width: 24px; height: 24px; margin: 0 6px 0 0; }
+.mac-root .dk-header-logo { display: inline-block; border-radius: 50%; flex: none; }  /* the service's disc before a page's name (Brain Food, 2026-09-23) */
+.mac-root .dk-header-glyph svg { width: 14px; height: 14px; }
+.mac-root .dk-header-btn.dk-header-home { width: auto; min-width: 0; height: 20px; margin-right: -8.5px; padding: 0 10px 0 17px; border-radius: 0;
+  clip-path: polygon(0 50%, 9px 0, 100% 0, 100% 100%, 9px 100%); font-size: 13px; font-weight: 700; }
+.mac-root .dk-header-home svg { display: none; }
+.mac-root .dk-header-home-label { display: inline; }
+.mac-root .dk-header-home:hover { background: #333333; }
+.mac-root .dk-header-home:active { background: #1b1b1b; }
+/* the foot: 32px of #262626 over the window's 5px black bottom edge (it
+   was 27, read at 1x; 64px at 2x on 2026-09-23), 13px bold labels, a 1px
+   #1a1a1a rule between buttons, gray when disabled */
+.mac-root .dk-footer { height: 37px; box-sizing: border-box; background: #262626; border-top: 0; border-bottom: 5px solid #0a0a0a; }
+.mac-root .dk-footer button { height: 32px; font-weight: 700; color: #e5e5e5; border-left: 1px solid #1a1a1a; }
+.mac-root .dk-footer button:first-child { border-left: 0; }
+.mac-root .dk-footer button:hover:not(:disabled) { background: #333333; }
+.mac-root .dk-footer button:disabled { color: #434343; }
+/* scrollbars: an 8px #333333 thumb 2px in from the pane's edge */
+.mac-root ::-webkit-scrollbar { width: 12px; }
+.mac-root ::-webkit-scrollbar-thumb { background: #333333; border-radius: 4px; border: 2px solid #1a1a1a; }
+.mac-root * { scrollbar-color: #333333 transparent; }
+
+/* --- room tiles: 228x64 on a 76px pitch, white when selected ---------------- */
+.mac-root .dk-rooms-list { padding: 18px 23px 8px 13px; gap: 12px; }
+.mac-root .dk-tile { border-radius: 5px; background: #262626; color: #ffffff; }
+.mac-root .dk-tile:hover { background: #444444; }
+.mac-root .dk-tile[aria-pressed='true'] { background: #ffffff; color: #000000; }
+.mac-root .dk-tile-devices { padding: 10px 40px 0 13px; }
+.mac-root .dk-tile-device { height: 22px; padding-top: 0; font-size: 13px; font-weight: 700; align-items: center; }
+.mac-root .dk-tile-device small { color: #838383; font-weight: 400; }
+.mac-root .dk-tile[aria-pressed='true'] .dk-tile-device small { color: #868686; }
+.mac-root .dk-tile-group { top: 8px; right: 12px; width: 18px; height: 18px; background: none; color: inherit; }
+.mac-root .dk-tile-group:hover { background: none; opacity: 0.7; }
+.mac-root .dk-tile-group svg { width: 16px; height: 16px; }
+/* The tile's grouping button wears the Windows app's room speaker rather
+   than the Mac app's own glyph: a deliberate choice, knowing the Mac app
+   differs. */
+.mac-root .dk-tile-group-mac { display: none; }
+.mac-root .dk-tile-group-win { display: block; }
+.mac-root .dk-tile-now { height: 22px; margin: 6px 0 10px; padding: 0 13px 0 0; }
+.mac-root .dk-tile-indicator { width: 28px; height: 22px; color: #838383; }
+.mac-root .dk-tile[aria-pressed='true'] .dk-tile-indicator { color: #868686; }
+.mac-root .dk-tile-indicator svg { width: 7px; height: 7px; }
+.mac-root .dk-tile-marquee { font-size: 11px; color: #838383; height: 22px; line-height: 22px; padding-left: 12px; }
+.mac-root .dk-tile[aria-pressed='true'] .dk-tile-marquee { color: #868686; }
+.mac-root .dk-tile-more { color: inherit; }
+
+/* --- queue rows: 50px, 40px art 8px in, text at 56, caret, and checkbox on hover */
+.mac-root .dk-row { height: 50px; padding: 0 12px 0 8px; gap: 8px; border-radius: 0; }
+.mac-root .dk-row:hover, .mac-root .dk-row[aria-current='true'], .mac-root .dk-row[aria-selected='true'] { background: #262626; }
+.mac-root .dk-row-art { display: block; width: 40px; height: 40px; flex: none; overflow: hidden; }
+.mac-root .dk-row-art img { width: 40px; height: 40px; object-fit: cover; }
+.mac-root .dk-row-num { display: none; }
+.mac-root .dk-row-title { font-size: 13px; color: #ffffff; }
+.mac-root .dk-row-sub { font-size: 11px; color: #8a8a8a; }
+.mac-root .dk-row-dur { display: none; }
+.mac-root .dk-row .dk-browse-actions, .mac-root .dk-row .dk-browse-check { opacity: 0; }
+.mac-root .dk-row:hover .dk-browse-actions, .mac-root .dk-row:hover .dk-browse-check,
+.mac-root .dk-row[aria-checked='true'] .dk-browse-check { opacity: 1; }
+
+/* --- browse rows: 50px, a 32px disc 12px in, text at 56, a gray chevron 25 from the right */
+.mac-root .dk-browse-row { height: 50px; padding: 0 25px 0 12px; gap: 12px; }
+.mac-root .dk-browse-row:hover, .mac-root .dk-browse-row[aria-selected='true'] { background: #262626; }
+.mac-root .dk-browse-art.dk-browse-glyph, .mac-root .dk-browse-art.dk-browse-glyph img { width: 32px; height: 32px; }
+.mac-root .dk-browse-art.dk-browse-glyph svg { width: 16px; height: 16px; }
+
+/* A row the service refuses. The Mac app dims the title AND the second line
+   to rgb(102,102,102) -- it carries both browseLabelRestrictedColor and
+   browseSubLabelRestrictedColor, where the Windows one dims only the title
+   and leaves the subtitle at its usual gray -- and its
+   restricted_track_icon.tiff is #868686 against Windows' #666666, on the
+   same rgb(38,38,38) plate. Sampled off the running Mac app on Mixcloud's
+   Trending list, 2026-09-22; the explicit mark's restricted variant is
+   #333333 in Resources/explicit_restricted.tiff. */
+.mac-root .dk-browse-restricted .dk-browse-title,
+.mac-root .dk-browse-restricted .dk-browse-sub { color: #666666; }
+.mac-root .dk-browse-art svg.dk-browse-restricted-art { width: 18px; height: 18px; color: #868686; }
+.mac-root .dk-browse-art:has(.dk-browse-restricted-art) { background: #262626; }
+.mac-root .dk-browse-restricted .dk-browse-explicit { fill: #333333; }
+/* The Mac app draws the badge a little smaller than Windows and further from
+   the title: 8px of ink, about 9px past the last letter, its foot on the
+   baseline -- measured on "Creep" in a Spotify mix, 2026-09-22. */
+.mac-root .dk-browse-explicit { width: 10px; height: 10px; margin-left: 6px; align-self: flex-end; margin-bottom: 3px; }
+.mac-root .dk-browse-text { padding-left: 0; }
+.mac-root .dk-browse-title { font-size: 13px; }
+/* Below the root the rows carry 40pt art, and the app sets it 8pt in with the
+   text 8pt past it (art 8-48, title ink from 57; Sonos Favorites at 2x,
+   2026-09-23), where the root's discs sit 12 in. A picture that is not
+   square is fitted inside the square, not cropped to it (LifeTalk Radio's
+   wide logo). Of two lines, the title's cap top is 10pt into the row and
+   the second line's top 24.5. */
+.mac-root .dk-browse-row:has(> .dk-browse-art:not(.dk-browse-glyph)) { padding-left: 8px; gap: 8px; }
+.mac-root .dk-browse-art:not(.dk-browse-glyph) img { object-fit: contain; }
+/* A playable row's hover caret: a filled #868686 triangle, 10.5 x 5.5pt,
+   centered 31.75pt short of the pane's edge (80s80s Alternative, 2x). */
+.mac-root .dk-browse-row > .dk-browse-actions { margin-right: -15px; color: #868686; }
+.mac-root .dk-browse-row > .dk-browse-actions svg { width: 19px; height: 19px; }
+/* A browse the service refused: "Unable to browse music" in #868686,
+   centered across the pane with its cap top 312pt below the header (Brain
+   Food, 2x, 2026-09-23), in place of the service's own message. */
+/* An album page (Hamilton, 2x): Shuffle is a white glyph, 21.5 x 16.5pt, on
+   a 40pt #262626 square set in like the art above it, and the track numbers
+   are #868686 digits 10.5pt tall, centered a point below the row's middle. */
+.mac-root .dk-browse-row.dk-album-shuffle { padding-left: 8px; gap: 8px; }
+.mac-root .dk-album-shuffle .dk-browse-art.dk-browse-glyph { width: 40px; height: 40px; border-radius: 0; background: #262626; color: #ffffff; }
+.mac-root .dk-album-shuffle .dk-browse-art.dk-browse-glyph svg { width: 24px; height: 24px; color: #ffffff; }
+.mac-root .dk-browse-number { font-size: 14.5px; color: #868686; position: relative; top: 1px; left: 1.5px; }
+/* The app's menus carry no title line: a track's, a tile's, the queue's (2026-09-23). */
+/* Info & Options (Alexander Hamilton, 2x, 2026-09-23): a 92pt block over a
+   #222222 rule, the 56pt art 17pt in and centered with the lines beside it;
+   the labels right-aligned to 139pt, the values from 154.5, 18pt apart. The
+   rows under it carry their text 8pt in. */
+.mac-root .dk-info-block { height: 92px; box-sizing: border-box; align-items: center; gap: 0; padding: 0 16px 0 17px; border-bottom: 1px solid #222222; margin-bottom: 5px; }
+.mac-root .dk-info-art, .mac-root .dk-info-art img, .mac-root .dk-info-art svg { width: 56px; height: 56px; }
+.mac-root .dk-info-block dl { grid-template-columns: 67px 1fr; gap: 0 14.5px; font-size: 12px; line-height: 18px; position: relative; top: 1px; }
+.mac-root .dk-info-block dt { color: #868686; }
+.mac-root .dk-info-row { padding-left: 8px; }
+.mac-root .dk-info-row .dk-browse-text { padding-left: 0; }
+.mac-root .dk-popover-title { display: none; }
+.mac-root .dk-browse-readonly .dk-browse-title, .mac-root .dk-browse-readonly .dk-browse-sub { color: #666666; }
+.mac-root .dk-browse-readonly:hover { background: transparent; }
+.mac-root .dk-browse-fault { display: none; }
+.mac-root .dk-browse-failed { display: block; margin: 308px 0 0; font-size: 13px; line-height: 16px; color: #868686; }
+.mac-root .dk-browse-text:has(.dk-browse-sub) { position: relative; top: 1px; }
+.mac-root .dk-browse-text:has(.dk-browse-sub) .dk-browse-title { margin-bottom: -2px; }
+.mac-root .dk-browse-sub { font-size: 11px; color: #8a8a8a; }
+/* The app's chevron is 7.5 x 13pt of ink in #868686, a 1.5pt stroke, its
+   right end 26pt in from the pane's edge (2026-09-23, at 2x). The shared
+   16-unit chevron at 1.2x draws that. */
+.mac-root .dk-browse-disclosure { width: 19px; height: 19px; color: #868686; margin-right: -5px; }
+.mac-root .dk-browse-disclosure path { stroke-width: 1.25; }
+/* "Add Music Services" is an ordinary row in the app: flush with the services
+   above it, on the same 50px pitch with no rule or gap over it, and carrying
+   the same chevron (2026-09-15). The shared sheet insets it by the button's
+   own padding and hides the chevron, which the Windows theme undoes for
+   itself and this one had not. */
+.mac-root .dk-browse-add { margin-top: 0; border-top: 0; }
+.mac-root .dk-browse-add .dk-browse-add-main { padding: 0; gap: 12px; }
+.mac-root .dk-browse-add-chev { display: block; }
+
+/* --- popovers and context menus: Tahoe's light panels ----------------------- */
+.mac-root .dk-popover, .mac-root .dk-action-menu, .mac-root .dk-account-menu {
+  padding: 5px; background: rgba(219, 219, 219, 0.97); color: #000000;
+  border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.mac-root .dk-popover button, .mac-root .dk-action-menu button { color: #000000; border-radius: 5px; padding: 0 12px; height: 24px; font-size: 13px; }
+.mac-root .dk-popover button:hover:not(:disabled), .mac-root .dk-action-menu button:hover:not(:disabled) { background: #2f6fe3; color: #ffffff; }
+.mac-root .dk-popover button:disabled, .mac-root .dk-action-menu button:disabled { color: rgba(0, 0, 0, 0.3); }
+.mac-root .dk-popover-sep { background: rgba(0, 0, 0, 0.12); margin: 5px 10px; }
+
+/* ---- Preferences: the Mac app's window, measured 2026-09-15 -------------
+   798x528. A 28px flat title bar; a 178px table of contents on #dedede with
+   the chosen page on a blue band that runs from 4px in to the divider; the
+   page on #ececec, its title 15px bold at 32px, its group box #e5e5e5 from
+   71px down to 20px above the bottom. */
+.mac-root .dk-window { background: #ececec; border-radius: 10px; }
+.mac-root .dk-window-title {
+  height: 28px; background: #ececec; border-bottom: 1px solid #cbcbcb;
+  color: #262626; font-size: 13px; font-weight: 700;
+}
+.mac-root .dk-window-title .dk-lights { left: 7px; top: 8px; }
+.mac-root .dk-prefs { width: 798px; height: 528px; }
+/* Preferences can be closed, not minimized or zoomed: the app draws those two
+   lights #e5e5e5 (2026-09-24). */
+.mac-root .dk-prefs .dk-lights span:not(:first-child) { background: #e5e5e5; border-color: rgba(0, 0, 0, 0.12); }
+.mac-root .dk-prefs-toc {
+  display: flex; flex-direction: column; width: 178px; padding-top: 18px;
+  background: #dedede; border-right: 1px solid #c8c8c8; overflow: hidden;
+}
+/* The rows run from the list's left edge, the text 19pt in (2x, 2026-09-24;
+   read at 1x as 4px in with the text at 22). */
+.mac-root .dk-prefs-toc > button {
+  flex: none; width: 100%; height: 23px; margin-left: 0; padding: 0 0 0 18px;
+  border-radius: 0; font-size: 13px; line-height: 23px; color: #262626;
+}
+.mac-root .dk-prefs-toc > button[aria-selected='true'] {
+  background: linear-gradient(#80b6f2, #0083d3); color: #ffffff; font-weight: 700;
+}
+.mac-root .dk-prefs-toc > button:hover:not([aria-selected='true']) { background: rgba(0, 0, 0, 0.05); }
+.mac-root .dk-prefs-gap { flex: none; height: 8px; }
+.mac-root .dk-prefs-foot { margin-top: auto; padding: 0 12px 20px 19px; }
+.mac-root .dk-prefs-foot p { width: 128px; margin: 0 0 19px; font-size: 13px; line-height: 17px; color: #262626; }  /* wraps after "app" and "to", as the app's does */
+.mac-root .dk-prefs-foot .dk-win-btn { width: 149px; margin-left: -5px; }
+
+.mac-root .dk-prefs-page { display: flex; flex-direction: column; padding: 0 18px 20px 20px; overflow: hidden; }
+.mac-root .dk-prefs-head { display: flex; flex: none; align-items: center; gap: 9px; height: 71px; padding: 0 0 7px 3px; }
+.mac-root .dk-prefs-head h3 { margin: 0; font-size: 15px; font-weight: 700; color: #262626; white-space: nowrap; }
+/* Remeasured at 2x (2026-09-24): 30pt tall, 13px text. Redrawn against the
+   running app (2026-09-29): the S1 Mac app's pop-up is the older AppKit
+   one, white for its top fifth and shading to #ececec by 60%, under a
+   #a0a0a0 edge, with two filled #454545 triangles 5 x 3.5pt, 3pt apart,
+   centered 9.25pt from the right edge. */
+.mac-root .dk-prefs-popup {
+  height: 30px; min-width: 226px; padding: 0 30px 0 10px;
+  border: 1px solid #a4a4a4; border-bottom-color: #9d9d9d; border-radius: 5px;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='5' height='10' viewBox='0 0 5 10'><path d='M2.5 0 5 3.5H0zM0 6.5h5L2.5 10z' fill='%23454545'/></svg>") no-repeat right 6.75px center,
+    linear-gradient(#ffffff 0%, #ffffff 20%, #ececec 60%, #efefef 100%);
+  color: #262626; font: inherit; font-size: 13px; appearance: none; -moz-appearance: none;
+}
+.mac-root .dk-prefs-box {
+  position: relative; display: flex; flex: 1; flex-direction: column; min-height: 0;
+  padding: 22px 20px 20px; background: #e5e5e5; border: 1px solid #dddddd; border-radius: 5px; color: #262626;
+}
+.mac-root .dk-prefs-box-scroll { overflow-y: auto; }
+.mac-root .dk-box-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+.mac-root .dk-prefs-box > p { margin: 0 0 10px; }
+.mac-root .dk-prefs-boxtitle { flex: none; margin: 0; font-size: 13px; font-weight: 700; line-height: 20px; }
+.mac-root .dk-prefs-note { flex: none; margin: 10px 0 0; font-size: 11px; line-height: 14px; color: #6d6d6d; }
+.mac-root .dk-lib-add { display: grid; gap: 8px; margin-top: 10px; }
+
+/* Tahoe's segmented control: a gray pill, the chosen segment white. The
+   Folders / Advanced one sits on the group box's top edge. */
+.mac-root .dk-tabs {
+  display: inline-flex; align-items: center; height: 21px; margin: 0; padding: 1px;
+  border: 0; border-radius: 6px; background: #d9d9d9; overflow: visible;
+}
+.mac-root .dk-tabs button { height: 19px; padding: 0 12px; border: 0; border-radius: 5px; font-size: 13px; line-height: 19px; color: #262626; }
+.mac-root .dk-tabs button[aria-selected='true'] {
+  background: #ffffff; color: #262626;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.mac-root .dk-prefs-straddle { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); }
+
+/* Tables: white, a 27px header, 19px rows, the highlighted row on the blue. */
+.mac-root .dk-table {
+  display: flex; flex: 1; flex-direction: column; min-height: 80px; margin-top: 12px;
+  background: #ffffff; border: 1px solid #d6d6d6; border-radius: 3px; overflow: hidden;
+}
+.mac-root .dk-table-head, .mac-root .dk-table [role='option'] { display: grid; align-items: center; }
+.mac-root .dk-table-head { flex: none; height: 27px; border-bottom: 1px solid #e6e6e6; font-size: 13px; color: #262626; }
+.mac-root .dk-table-head > span { padding-left: 6px; border-left: 1px solid #e6e6e6; line-height: 16px; }
+.mac-root .dk-table-head > span:first-child { border-left: 0; }
+.mac-root .dk-table-body { flex: 1; min-height: 0; padding: 2px 0; overflow-y: auto; }
+.mac-root .dk-table [role='option'] { height: 19px; font-size: 13px; cursor: default; }
+.mac-root .dk-table [role='option'] > span { padding-left: 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.mac-root .dk-table [role='option'] > img,
+.mac-root .dk-table [role='option'] > svg { width: 16px; height: 16px; margin-left: 12px; border-radius: 50%; }
+.mac-root .dk-table [role='option'][aria-selected='true'] { background: linear-gradient(#80b6f2, #0083d3); color: #ffffff; }
+.mac-root .dk-table-empty { margin: 8px 12px; font-size: 13px; color: #6d6d6d; }
+.mac-root .dk-svc-anon { color: #9a9a9a; }
+.mac-root .dk-table [role='option'][aria-selected='true'] .dk-svc-anon { color: rgba(255, 255, 255, 0.75); }
+.mac-root .dk-lib-table .dk-table-head, .mac-root .dk-lib-table [role='option'] { grid-template-columns: 33px 128px 1fr; }
+.mac-root .dk-svc-table .dk-table-head, .mac-root .dk-svc-table [role='option'] { grid-template-columns: 33px 152px 102px 1fr; }
+/* The two tables stand at the app's heights rather than filling the box:
+   Music Library's 257pt and Services' 243pt, with the box's floor showing
+   under the buttons (2x, 2026-09-24). An empty library table is just empty:
+   the app writes nothing in it. */
+.mac-root .dk-lib-table { flex: none; height: 257px; }
+.mac-root .dk-svc-table { flex: none; height: 243px; }
+.mac-root .dk-lib-table .dk-table-empty { display: none; }
+.mac-root .dk-pm button:first-child { font-weight: 700; }
+
+/* The + / - pair under a table: square-cornered, 47 x 17pt (Tahoe,
+   2026-09-28). */
+.mac-root .dk-pm {
+  display: inline-flex; flex: none; align-self: flex-start; margin-top: 7px;
+  border: 1px solid #c4c4c4; border-radius: 0; background: #ffffff; overflow: hidden;
+}
+.mac-root .dk-pm button {
+  width: 23px; height: 15px; padding: 0; border: 0; border-left: 1px solid #d6d6d6;
+  background: transparent; color: #262626; font-size: 15px; line-height: 16px;
+}
+.mac-root .dk-pm button:first-child { border-left: 0; }
+.mac-root .dk-pm button:disabled { color: #b5b5b5; }
+/* The + and - are drawn rather than typed. As text they sat on the font's
+   line box, which is taller than the 15px button and different in every
+   fallback font, so the + rested on the bottom edge. Two bars centered on
+   the button put both glyphs in the middle whatever font is installed. */
+.mac-root .dk-pm button:not(.dk-pm-gear) { position: relative; font-size: 0; color: #262626; }
+.mac-root .dk-pm button:not(.dk-pm-gear):disabled { color: #b5b5b5; }
+.mac-root .dk-pm button:not(.dk-pm-gear)::before,
+.mac-root .dk-pm button:first-child::after {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  width: 9px; height: 1.5px; background: currentColor; transform: translate(-50%, -50%);
+}
+.mac-root .dk-pm button:first-child::before,
+.mac-root .dk-pm button:first-child::after { height: 2px; }
+.mac-root .dk-pm button:first-child::after { width: 2px; height: 9px; }
+
+/* Push buttons: Tahoe's 20px white pill. */
+.mac-root .dk-win-btn {
+  min-width: 72px; height: 20px; padding: 0 12px; border: 0; border-radius: 6px; background: #ffffff;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.16), 0 1px 1px rgba(0, 0, 0, 0.14);
+  color: #262626; font-size: 13px; line-height: 20px;
+}
+.mac-root .dk-win-btn:hover:not(:disabled) { background: #f7f7f7; }
+.mac-root .dk-win-btn:disabled { color: rgba(0, 0, 0, 0.3); background: #f2f2f2; }
+.mac-root .dk-win-btn[data-default='true'] { background: linear-gradient(#5f9cf5, #2f6fe3); color: #ffffff; }
+/* Hovered it stays blue, a touch darker; disabled it grays like any other.
+   The gray hover above outranked it and left white text on white. */
+.mac-root .dk-win-btn[data-default='true']:hover:not(:disabled) { background: linear-gradient(#4f8cf0, #1f5fd0); }
+.mac-root .dk-win-btn[data-default='true']:disabled { background: #f2f2f2; color: rgba(0, 0, 0, 0.3); }
+
+/* EQ: the caption centered 32px down the box; Bass / Treble rows 52px apart,
+   labels right-aligned to 191px, 236px sliders from 201px with a 4px rail and
+   an 8x20 white knob; Loudness and Reset are placed by the page below the
+   last row. */
+.mac-root .dk-eq { position: relative; flex: 1; height: auto; }
+.mac-root .dk-eq-caption { position: absolute; top: -1px; left: 0; right: 0; margin: 0; text-align: center; font-size: 13px; color: #262626; }
+.mac-root .dk-eq-row { height: 40px; }
+.mac-root .dk-eq-row label { left: 0; top: 4px; width: 171px; text-align: right; font-size: 13px; }
+.mac-root .dk-eq-row .dk-eq-slider {
+  /* 181.5px, so the thumb's centre at zero (299.5px) is the middle of a
+     pixel at 1x as well as at 2x, where the tick below it can sit exactly;
+     at 181px the two rounded a pixel apart on a 1x screen. */
+  left: 181.5px; top: 4px; width: 236px; height: 20px; margin: 0;
+  appearance: none; -moz-appearance: none; background: transparent;
+}
+.mac-root .dk-eq-slider::-moz-range-track { height: 4px; border-radius: 2px; background: #d9d9d9; }
+.mac-root .dk-eq-slider::-moz-range-thumb {
+  width: 8px; height: 20px; border: 0; border-radius: 4px; background: #ffffff;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.mac-root .dk-eq-slider::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: #d9d9d9; }
+.mac-root .dk-eq-slider::-webkit-slider-thumb {
+  appearance: none; width: 8px; height: 20px; margin-top: -8px; border-radius: 4px; background: #ffffff;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.mac-root .dk-eq-row .dk-eq-min, .mac-root .dk-eq-row .dk-eq-max { top: 27px; font-size: 11px; }
+.mac-root .dk-eq-row .dk-eq-min { left: 182px; }
+.mac-root .dk-eq-row .dk-eq-max { left: 317px; width: 100px; text-align: right; }
+.mac-root .dk-eq-row .dk-eq-value { display: none; }
+/* The midpoint tick every EQ slider has in the Mac app, Balance included
+   (measured 2026-10-02 at 2x): 1pt of #ACACAC under the centre of the
+   travel, showing 3.5pt below the thumb when it rests at zero. The thumb is
+   drawn over it. */
+.mac-root .dk-eq-row .dk-eq-slider { z-index: 1; }
+.mac-root .dk-eq-row::after {
+  content: ''; position: absolute; left: 299px; top: 18px; width: 1px; height: 9.5px; background: #acacac;
+}
+/* Every other slider in Preferences (Room Settings' levels) is the same
+   macOS slider: a 4pt track and a white capsule thumb, not the browser's. */
+.mac-root .dk-prefs input[type='range']:not(.dk-eq-slider) { appearance: none; -moz-appearance: none; background: transparent; height: 20px; margin: 0; }
+.mac-root .dk-prefs input[type='range']:not(.dk-eq-slider)::-moz-range-track { height: 4px; border-radius: 2px; background: #d9d9d9; }
+.mac-root .dk-prefs input[type='range']:not(.dk-eq-slider)::-moz-range-progress { background: transparent; }
+.mac-root .dk-prefs input[type='range']:not(.dk-eq-slider)::-moz-range-thumb {
+  width: 8px; height: 20px; border: 0; border-radius: 4px; background: #ffffff;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.mac-root .dk-prefs input[type='range']:not(.dk-eq-slider)::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: #d9d9d9; }
+.mac-root .dk-prefs input[type='range']:not(.dk-eq-slider)::-webkit-slider-thumb {
+  appearance: none; width: 8px; height: 20px; margin-top: -8px; border-radius: 4px; background: #ffffff;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.mac-root .dk-eq-loudness { left: 182px; gap: 0; font-size: 13px; }  /* the label 7pt past the box, with the markup's space */
+.mac-root .dk-eq-loudness input { width: 14px; height: 14px; margin: 0; }
+.mac-root .dk-eq-reset { left: 318px; width: 90px; min-width: 0; }
+
+/* Field rows in the boxed pages share one caption column. */
+.mac-root .dk-prefs-box .dk-field > span:first-child { width: 147px; }
+
+/* ---- Sheets and windows (S1 Mac app, 2026-09-15) -------------------------
+   Alarms, Save Queue, Confirm, Group Rooms and Add a Radio Station are
+   sheets: they hang under the transport strip with a 22px flat title bar and
+   no lights. Preferences and About are windows of their own, centered. */
+/* Remeasured at 2x (2026-09-24): Alarms and Group Rooms are centered in the
+   window, under a 27pt #c9c9c9 title with a rule, on an #e9e9e9 body -- read
+   on 2026-09-15 as sheets hung under the transport with a 22px title. The
+   window's area is the viewport below the 30px menu bar. */
+.mac-root .dk-modal-backdrop { place-items: center; padding-top: 30px; box-sizing: border-box; }
+.mac-root .dk-modal-backdrop:has(.dk-prefs),
+.mac-root .dk-modal-backdrop:has(.dk-about-window),
+.mac-root .dk-modal-backdrop:has(.dk-sleep-window) { place-items: center; padding-top: 0; }
+.mac-root .dk-window { border-radius: 0 0 10px 10px; }
+.mac-root .dk-prefs, .mac-root .dk-about-window { border-radius: 10px; }
+.mac-root .dk-window:not(.dk-prefs):not(.dk-about-window) .dk-lights { display: none; }
+.mac-root .dk-window:not(.dk-prefs):not(.dk-about-window) .dk-window-title {
+  height: 27px; box-sizing: border-box; background: #c9c9c9; border-bottom: 1px solid #a8a8a8; color: #4d4d4d; font-weight: 400;
+}
+.mac-root .dk-confirm-foot .dk-win-btn { min-width: 90px; }
+
+/* Confirm: a 450px sheet, the question 25px down, the buttons 22px in. */
+.mac-root .dk-confirm { position: relative; box-sizing: border-box; width: 450px; min-height: 117px; padding: 25px 22px 62px; font-size: 13px; }
+.mac-root .dk-confirm input[type='text'] { margin-top: 10px; width: 100%; box-sizing: border-box; }
+.mac-root .dk-confirm-foot { position: absolute; right: 22px; bottom: 22px; margin: 0; }
+
+/* Group Rooms, the app's at 2x (2026-09-24): centered in the window, a 27pt
+   #cfcfcf title, and on the #e9e9e9 body a white panel 20pt in holding both
+   columns -- a light divider between them at 224, and at its foot a #f6f6f6
+   band under a rule carrying Select All - Party Mode. The 118pt art on
+   #262626 shows the app's note when there is no picture; the room list is
+   221.5 x 206 at the right. Cancel (90) and Done (88) end 22pt in. */
+.mac-root .dk-grouping { height: 431px; }  /* 27 + 431 = the app's 458 */
+.mac-root .dk-grouping::after {
+  content: ''; position: absolute; left: 20.5px; top: 20.5px; width: 438.5px; height: 292px; z-index: 0; pointer-events: none;
+  box-shadow: 0 0 0 0.5px rgba(80, 40, 40, 0.18);
+  background:
+    linear-gradient(#e0e0e0, #e0e0e0) 0 248.5px / 100% 1px no-repeat,
+    linear-gradient(#f6f6f6, #f6f6f6) 0 249.5px / 100% 42.5px no-repeat,
+    linear-gradient(#eeeeee, #eeeeee) 203.5px 0.5px / 1px 248px no-repeat,
+    #ffffff;
+}
+.mac-root .dk-grouping > * { z-index: 1; }
+.mac-root .dk-grouping h4 { top: 31px; font-size: 13px; color: #262626; }
+.mac-root .dk-grouping .dk-grouping-left { left: 20.5px; width: 204px; padding-left: 9px; box-sizing: border-box; }
+.mac-root .dk-grouping .dk-grouping-right { left: 236.5px; width: 214px; }
+.mac-root .dk-grouping-art { left: 59.5px; top: 58px; width: 118px; height: 118px; background: #262626; }
+.mac-root .dk-grouping-art svg { width: 64px; height: 64px; color: #6e6e6e; }
+.mac-root .dk-grouping-track { margin: 0; top: 188px; left: 20.5px; width: 204px; padding: 0 10px; box-sizing: border-box; text-align: center; font-size: 13px; color: #262626; }
+.mac-root .dk-grouping-artist { margin: 0; top: 205px; left: 20.5px; width: 204px; padding: 0 10px; box-sizing: border-box; text-align: center; font-size: 13px; color: #868686; }
+.mac-root .dk-grouping-list { left: 233.5px; top: 56.5px; width: 221.5px; height: 206px; box-sizing: border-box; padding-top: 9.5px; border-color: #c8c8c8; border-radius: 3px; }
+.mac-root .dk-grouping-list label { padding: 2.75px 16px; gap: 7px; font-size: 13px; line-height: 16px; }
+.mac-root .dk-grouping-list input { margin: 0; }
+.mac-root .dk-grouping-list:focus-within { box-shadow: 0 0 0 3.5px #83b5fa; }  /* the focused list's ring */
+.mac-root .dk-grouping-all { left: 100px; top: 281px; width: 279px; height: 20px; }
+.mac-root .dk-grouping-actions { right: 22px; bottom: 20px; gap: 14px; }
+.mac-root .dk-grouping-actions .dk-win-btn { min-width: 88px; height: 20px; }
+.mac-root .dk-grouping-note { bottom: 22px; right: 220px; }
+
+/* Alarms: 500 x 484, 457 under the title; its parts where the app puts them
+   at 2x (2026-09-24), the table's columns 175 / 223 / the rest, ruled through. */
+.mac-root .dk-alarms-window .dk-window-body { display: block; }
+.mac-root .dk-alarms { position: relative; box-sizing: border-box; width: 500px; height: 457px; min-width: 0; padding: 0; }
+.mac-root .dk-alarms-heading { position: absolute; left: 20px; top: 22px; margin: 0; font-size: 13px; font-weight: 700; }
+.mac-root .dk-alarms-time { position: absolute; left: 20px; top: 58px; margin: 0; font-size: 13px; }
+.mac-root .dk-alarms-table { position: absolute; left: 20px; top: 92px; width: 460px; height: 253px; margin: 0; }
+.mac-root .dk-alarms-table .dk-table-head { background: #f6f6f6; }
+.mac-root .dk-alarms-table .dk-table-body { background: linear-gradient(#e2e2e2, #e2e2e2) 175px 0 / 1px 100% no-repeat, linear-gradient(#e2e2e2, #e2e2e2) 398px 0 / 1px 100% no-repeat, #ffffff; }
+.mac-root .dk-alarms-table .dk-table-head { height: 25px; }
+.mac-root .dk-alarms-table .dk-table-head,
+.mac-root .dk-alarms-table [role='option'] { grid-template-columns: 175px 223px 1fr; }
+.mac-root .dk-alarms-table [role='option'] input { width: 13px; height: 13px; margin: 0 0 0 8px; vertical-align: middle; }
+.mac-root .dk-alarms-tools { position: absolute; left: 21px; top: 348px; display: flex; align-items: center; gap: 12px; }
+.mac-root .dk-alarms-tools .dk-pm { margin: 0; }
+.mac-root .dk-alarms-edit { min-width: 0; width: 34px; height: 18px; padding: 0; font-size: 11px; line-height: 18px; }
+.mac-root .dk-alarms-done { position: absolute; right: 22px; bottom: 19px; width: 88px; }
+
+/* Save Queue: a 416px sheet, 434 under the title. */
+.mac-root .dk-savequeue { position: relative; box-sizing: border-box; width: 416px; height: 429px; padding: 0 18px; font-size: 12px; color: #262626; }
+.mac-root .dk-savequeue p { margin: 0; }
+.mac-root .dk-savequeue-intro { position: absolute; top: 29px; left: 18px; }
+.mac-root .dk-savequeue-name { position: absolute; top: 63px; left: 18px; right: 18px; }
+.mac-root .dk-savequeue-name span { display: block; margin-bottom: 11px; }
+.mac-root .dk-savequeue-name input { width: 100%; height: 20px; box-sizing: border-box; padding: 0 5px; border: 1px solid #b5b5b5; border-radius: 3px; background: #fff; font: inherit; }
+.mac-root .dk-savequeue-or { position: absolute; top: 129px; left: 18px; }
+.mac-root .dk-savequeue-list { position: absolute; top: 152px; left: 18px; right: 18px; height: 168px; overflow-y: auto; background: #fff; border: 1px solid #c8c8c8; padding: 2px 0; }
+.mac-root .dk-savequeue-list [role='option'] { padding: 0 6px; font-size: 12px; line-height: 17px; cursor: default; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mac-root .dk-savequeue-list [role='option'][aria-selected='true'] { background: linear-gradient(#80b6f2, #0083d3); color: #fff; }
+.mac-root .dk-savequeue-foot { position: absolute; right: 20px; bottom: 18px; margin: 0; }
+
+/* Add a Radio Station: a 460px sheet. */
+.mac-root .dk-addradio .dk-window-body { display: block; width: 460px; }
+.mac-root .dk-addradio-body { padding: 20px 30px 4px 24px; font-size: 13px; }
+.mac-root .dk-addradio-body > p:first-child { display: none; }
+.mac-root .dk-addradio-body p { margin: 0 0 22px; line-height: 17px; }
+.mac-root .dk-addradio-field { margin: 0 0 14px; }
+.mac-root .dk-addradio-field span { margin-bottom: 6px; }
+.mac-root .dk-addradio-field input { height: 22px; padding: 0 6px; border: 1px solid #b5b5b5; border-radius: 4px; background: #fff; font: inherit; }
+.mac-root .dk-addradio-mark { right: -16px; bottom: 3px; }
+.mac-root .dk-addradio-foot { flex-direction: row-reverse; justify-content: flex-start; margin-top: 4px; padding: 14px 24px 18px; border-top: 1px solid #d0d0d0; }
+.mac-root .dk-addradio-foot .dk-win-btn { min-width: 88px; }
+
+/* Sleep Timer: the app's dark popover on the footer, 262 wide, 32px rows. */
+.mac-root .dk-sleep-window { width: 262px; border-radius: 8px; background: #262626; color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.6); }
+.mac-root .dk-sleep-window .dk-window-title { display: none; }
+.mac-root .dk-sleep-window .dk-sleep { min-width: 0; padding: 12px 0 14px; color: #ffffff; }
+.mac-root .dk-sleep-window .dk-sleep-title { display: block; margin: 0 21px 7px; font-size: 13px; font-weight: 700; }
+.mac-root .dk-sleep-window .dk-sleep-choose { display: block; margin: 0 21px 9px; font-size: 12px; line-height: 15px; color: #d0d0d0; }
+.mac-root .dk-sleep-window .dk-sleep > p:not(.dk-sleep-choose), .mac-root .dk-sleep-window .dk-add-actions { display: none; }
+.mac-root .dk-sleep-window .dk-sleep-choices { display: block; margin: 0; }
+.mac-root .dk-sleep-window .dk-sleep-choices .dk-win-btn {
+  display: block; width: 100%; height: 32px; min-width: 0; padding: 0 21px; border: 0; border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0; background: transparent; box-shadow: none; color: #ffffff; font-size: 13px; font-weight: 700; line-height: 32px; text-align: left;
+}
+.mac-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); }
+.mac-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: transparent; }
+
+/* About My Sonos System: the app's 450px window. */
+.mac-root .dk-about-window .dk-window-body { display: block; }
+.mac-root .dk-about-window .dk-window-title { background: #ffffff; border-bottom: 0; }
+.mac-root .dk-about-window { background: #ffffff; }
+.mac-root .dk-about { width: 450px; padding: 0; color: #262626; }
+.mac-root .dk-about-head { display: flex; gap: 24px; padding: 19px 30px 0; }
+.mac-root .dk-about-icon { width: 80px; height: 80px; border-radius: 18px; flex: none; }
+.mac-root .dk-about-facts h3 { margin: 6px 0 8px; font-size: 14px; font-weight: 700; }
+.mac-root .dk-about-facts dl { display: grid; grid-template-columns: 100px 1fr; margin: 0; font-size: 13px; line-height: 19px; }
+.mac-root .dk-about-facts dd { margin: 0; }
+.mac-root .dk-about-box { box-sizing: border-box; height: 256px; margin: 12px 20px 0; padding: 6px 8px; overflow-y: auto; background: #ffffff;
+  border: 1px solid #c8c8c8; font: inherit; font-size: 12px; line-height: 14px; white-space: pre-wrap; }
+.mac-root .dk-about-legal { margin: 8px 20px 0; font-size: 12px; line-height: 15px; }
+.mac-root .dk-about-legal a { color: #1a7fd9; text-decoration: none; }
+.mac-root .dk-about-foot { display: grid; place-items: center; height: 59px; margin-top: 12px; background: #d6d6d6; border-top: 1px solid #c4c4c4; }
+.mac-root .dk-about-foot .dk-win-btn { width: 232px; }
+
+/* Sheets carry a darker 58px footer band under a rule, the buttons on it. */
+.mac-root .dk-window:not(.dk-prefs):not(.dk-about-window):not(.dk-sleep-window) { background: #e9e9e9; }
+.mac-root .dk-alarms::before, .mac-root .dk-savequeue::before, .mac-root .dk-grouping::before {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 58px; background: #d6d6d6; border-top: 1px solid #ababab; pointer-events: none;
+}
+.mac-root .dk-grouping-actions, .mac-root .dk-alarms-done, .mac-root .dk-savequeue-foot { z-index: 1; }
+
+/* Both Mac apps print the room after "Now Playing" in the header's gray, and
+   the empty queue's line is gray under its glyph, not the accent (S2 Mac app,
+   2026-09-15). */
+.mac-root .dk-header-room { display: inline; margin-left: 4px; }
+.mac-root .dk-empty { color: #838383; font-size: 13px; }
+
+/* The Mac app's own controls, drawn rather than left to the browser, which
+   on Linux draws them GTK's way. Measured off the S1 Mac app's Add Alarm on
+   macOS 26 in the VM (2026-09-23, a 2x screen, so each figure is half the
+   pixels). Checkbox: 14pt with 3pt corners, a hairline #CFCFCF on white, and
+   when ticked filled #1686FF with a white check and no rim. */
+.mac-root input[type='checkbox'] {
+  appearance: none; -moz-appearance: none; box-sizing: border-box; flex: none;
+  width: 14px; height: 14px; margin: 0 6px 0 0; vertical-align: -2px;
+  border: 1px solid #cfcfcf; border-radius: 3px; background: #ffffff no-repeat center / 10px 8px;
+  box-shadow: 0 0.5px 0.5px rgba(0, 0, 0, 0.06);
+}
+.mac-root input[type='checkbox']:checked {
+  border-color: #1686ff; background-color: #1686ff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 8'%3E%3Cpath d='M1.2 4.2 3.8 6.6 8.8 1.2' fill='none' stroke='%23ffffff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.mac-root input[type='checkbox']:disabled { border-color: #e2e2e2; background-color: #f5f5f5; box-shadow: none; }
+.mac-root input[type='checkbox']:disabled:checked { border-color: #b9d6fb; background-color: #b9d6fb; }
+.mac-root input[type='checkbox']:focus-visible, .mac-root input[type='radio']:focus-visible { outline: 3px solid rgba(22, 134, 255, 0.45); outline-offset: 0; }
+
+/* Radio button: 14pt, the same hairline on white; chosen, #1686FF with a
+   5.5pt white dot. */
+.mac-root input[type='radio'] {
+  appearance: none; -moz-appearance: none; box-sizing: border-box; flex: none;
+  width: 14px; height: 14px; margin: 0 6px 0 0; vertical-align: -2px;
+  border: 1px solid #cbcbcb; border-radius: 50%; background: #ffffff;
+  box-shadow: 0 0.5px 0.5px rgba(0, 0, 0, 0.06);
+}
+.mac-root input[type='radio']:checked {
+  border-color: #1686ff;
+  background: radial-gradient(circle, #ffffff 0 2.75px, transparent 3.25px), #1686ff;
+}
+.mac-root input[type='radio']:disabled { border-color: #e2e2e2; background-color: #f5f5f5; }
+
+/* Pop-up: a rounded 31pt button, a 1pt #A0A0A0 rim, the face white fading
+   to #ECECEC below the middle, and the up-and-down chevrons at its right.
+   The Preferences pop-ups keep their own measured look (.dk-prefs-popup). */
+.mac-root select:not(.dk-prefs-popup):not(.dk-lib-popup):not(.dk-strip-select select):not(.mac-titlebar-theme select) {
+  appearance: none; -moz-appearance: none; box-sizing: border-box;
+  height: 31px; padding: 0 28px 0 9px;
+  border: 1px solid #a0a0a0; border-radius: 6px; color: #262626; font: inherit; font-size: 13px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='14' viewBox='0 0 10 14'%3E%3Cpath d='M2 5.5 5 2.5l3 3M2 8.5l3 3 3-3' fill='none' stroke='%23555555' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 8px center,
+    linear-gradient(#ffffff 15%, #ececec 55%);
+}
+.mac-root select:not(.dk-prefs-popup):not(.dk-lib-popup):not(.dk-strip-select select):not(.mac-titlebar-theme select):disabled { color: #a8a8a8; border-color: #d0d0d0; }
+
+/* Time field: an 84 x 23pt box in a hairline #D4D4D4, square, the part in
+   focus in the selection blue; beside it, 4pt off, a 12 x 20pt stepper of
+   its own, white in a hairline #DBDBDB with a rule across the middle and a
+   small chevron in each half. */
+.mac-root :is(.alarm-time, .dk-lib-time) { gap: 4px; align-items: center; }
+.mac-root :is(.alarm-time, .dk-lib-time) .dk-timefield-box {
+  box-sizing: border-box; width: 84px; height: 23px; padding: 0 5px;
+  border: 1px solid #d4d4d4; border-radius: 0; background: #ffffff; color: #000000; font-size: 13px;
+}
+.mac-root :is(.alarm-time, .dk-lib-time) .dk-timefield-part:focus, .mac-root :is(.alarm-time, .dk-lib-time) .dk-timefield-ampm:focus { background: #1686ff; color: #ffffff; border-radius: 2px; }
+.mac-root :is(.alarm-time, .dk-lib-time) .dk-timefield-arrows {
+  box-sizing: border-box; width: 12px; height: 20px;
+  border: 1px solid #dbdbdb; border-radius: 4px; background: #ffffff; overflow: hidden;
+}
+.mac-root :is(.alarm-time, .dk-lib-time) .dk-timefield-arrows button { opacity: 1; background-color: #3c3c3c; -webkit-mask-size: 6px 4px; mask-size: 6px 4px; }
+.mac-root :is(.alarm-time, .dk-lib-time) .dk-timefield-up { border-bottom: 1px solid #d6d6d6; }
+.mac-root :is(.alarm-time, .dk-lib-time) .dk-timefield-up {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 4'%3E%3Cpath d='M.8 3.3 3 1 5.2 3.3' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 4'%3E%3Cpath d='M.8 3.3 3 1 5.2 3.3' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.mac-root :is(.alarm-time, .dk-lib-time) .dk-timefield-down {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 4'%3E%3Cpath d='M.8.7 3 3 5.2.7' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 4'%3E%3Cpath d='M.8.7 3 3 5.2.7' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.mac-root :is(.alarm-time, .dk-lib-time)[aria-disabled] { opacity: 0.45; }
+
+/* Add Alarm, as the Mac app's sheet lays it out (watched 2026-09-23 on
+   macOS 26): the labels right-aligned in #262626 ending 158.5pt in, the
+   controls from 166pt, 36pt rows, the Music name in a white text field
+   with a Select... push button after it, no volume figure, and Cancel then
+   a blue OK at the bottom right. The sheet itself carries the title, so
+   the form's own heading goes. The shared alarm.css takes the theme's
+   dark tokens, which on this light sheet read gray on gray. */
+.mac-root .alarm-form { padding: 20px 20px 14px 0; color: #262626; font-size: 13px; }
+.mac-root .alarm-form h3 { display: none; }
+.mac-root .alarm-grid { grid-template-columns: 158px 1fr; column-gap: 8px; row-gap: 13px; align-items: center; }
+.mac-root .alarm-grid > label { padding: 0; text-align: right; color: #262626; }
+.mac-root .alarm-grid > label:nth-of-type(5), .mac-root .alarm-grid > label:nth-of-type(7) { align-self: start; padding-top: 1px; }
+.mac-root .alarm-inline { gap: 60px; }
+.mac-root .alarm-inline label, .mac-root .alarm-days label, .mac-root .alarm-stack label { gap: 0; color: #262626; }
+.mac-root .alarm-days { row-gap: 5px; column-gap: 24px; grid-template-columns: 150px 120px; }
+.mac-root .alarm-stack { display: flex; flex-direction: column; align-items: flex-start; gap: 9px; }
+.mac-root .alarm-music {
+  box-sizing: border-box; width: 150px; min-width: 0; height: 21px; padding: 0 4px; line-height: 19px;
+  border: 1px solid #d4d4d4; border-radius: 0; background: #ffffff; color: #000000;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.mac-root .alarm-inline:has(.alarm-music) { gap: 10px; }
+.mac-root .alarm-value { display: none; }
+.mac-root .alarm-form input[type='range'] { width: 210px; }
+.mac-root .alarm-btn {
+  height: 22px; min-width: 80px; padding: 0 12px;
+  border: 1px solid #c8c8c8; border-radius: 6px; background: #ffffff; color: #262626;
+  font: inherit; font-size: 13px; box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.12);
+}
+.mac-root .alarm-btn-primary { border-color: #1686ff; background: #1686ff; color: #ffffff; }
+.mac-root .alarm-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 18px; }
+.mac-root .alarm-form select { width: 210px; height: 29px; }
+/* The volume slider: a thin #D9D9D9 track filled #1686FF to the knob, and a
+   20pt white round knob with a soft shadow. */
+.mac-root .alarm-form input[type='range'] { appearance: none; -moz-appearance: none; height: 22px; background: transparent; }
+.mac-root .alarm-form input[type='range']::-moz-range-track { height: 4px; border-radius: 2px; background: #d9d9d9; }
+.mac-root .alarm-form input[type='range']::-moz-range-progress { height: 4px; border-radius: 2px; background: #1686ff; }
+.mac-root .alarm-form input[type='range']::-moz-range-thumb {
+  width: 20px; height: 20px; border: 0; border-radius: 50%; background: #ffffff;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.mac-root .alarm-form input[type='range']::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: #d9d9d9; }
+.mac-root .alarm-form input[type='range']::-webkit-slider-thumb {
+  appearance: none; width: 20px; height: 20px; margin-top: -8px; border-radius: 50%; background: #ffffff;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Now Playing as the Mac app draws it (macOS 26, 2026-09-23, two
+   rooms side by side with Sonora). The generic desktop layout had kept
+   the header's (i), the line under the art, the rating buttons and the
+   queue's chevron for the Windows theme alone; the Mac app has all four.
+   No placeholder where there is no art: the column stays empty. The three
+   lines 20pt apart from 64pt down, 13px -- the title bold, the artist white,
+   the album gray -- and no "Song [n/m]" line or Info & Options link at the
+   foot. The source line sits under the art column: its name gray over what
+   is playing in white, 11px, 20pt in. */
+.mac-root .dk-now-art:not(:has(img)) { background: transparent; }
+.mac-root .dk-now-art:not(:has(img)) > * { display: none; }
+.mac-root .dk-now-lines { top: 54px; left: 182px; right: 12px; }
+.mac-root .dk-now-line { height: 20px; margin: 0; font-size: 13px; line-height: 20px; }
+.mac-root .dk-now-line.dk-now-title { color: #ffffff; font-weight: 700; }
+.mac-root .dk-now-line:nth-child(2) { color: #ffffff; }
+.mac-root .dk-now-line:nth-child(3) { color: #8a8a8a; }
+.mac-root .dk-now-status, .mac-root .dk-now-info { display: none; }
+.mac-root .dk-now-info-header { display: grid; place-items: center; margin-left: auto; margin-right: -8px; width: 35px; height: 32px; }
+.mac-root .dk-now-source {
+  display: block; position: absolute; left: 20px; right: 12px; top: 196px; margin: 0;
+  font-size: 11px; line-height: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mac-root .dk-now-source strong { display: block; font-weight: 400; color: #8a8a8a; }
+.mac-root .dk-now-source span, .mac-root .dk-now-source .dk-marquee { color: #ffffff; }
+.mac-root .dk-now-rating { display: flex; gap: 12px; position: absolute; left: 182px; top: 116px; }
+.mac-root .dk-queue-collapse { display: grid; margin-left: 6px; height: 32px; }
+
+/* Room tiles, as the app's: 64pt tall, the name's line then the status
+   line 3pt under it, the state square 15pt in and the status text 5pt
+   after it (it had 70pt tiles and the text 12pt further right). */
+.mac-root .dk-tile-now { height: 22px; margin: 3px 0 7px; padding: 0 13px 0 15px; }
+.mac-root .dk-tile-indicator { width: 7px; justify-items: start; }
+.mac-root .dk-tile-marquee { padding-left: 5px; }
+.mac-root .dk-center[data-queue-expanded] { grid-template-rows: 0px 0 1fr; }
+.mac-root .dk-center[data-queue-expanded] > :first-child { overflow: hidden; }
+/* With nothing playing the app shows "[No music selected]" alone, and for a
+   plain web stream no source line: there is no service to name. */
+.mac-root .dk-now-lines[data-idle] .dk-now-line:not(.dk-now-title) { display: none; }
+.mac-root .dk-now-source[data-generic] { display: none; }
+
+/* ---- Service Settings' tools and the Edit service window (2x, 2026-09-24) --
+   Under the table: + | - | gear-with-caret joined at the left, "Visit Sonos
+   Labs" at the right. The gear's menu is Change Name / Reauthorize Account.
+   The table's highlighted row is the flat #0064e1 of a focused Tahoe table. */
+.mac-root .dk-table [role='option'][aria-selected='true'] { background: #0064e1; }
+.mac-root .dk-svc-tools { position: relative; display: flex; align-items: flex-start; justify-content: space-between; flex: none; }
+.mac-root .dk-pm .dk-pm-gear { display: inline-flex; align-items: center; justify-content: center; gap: 1px; width: 30px; color: #6d6d6d; }
+.mac-root .dk-pm .dk-pm-gear:disabled { color: #b5b5b5; }
+.mac-root .dk-gear-menu { position: absolute; left: 46px; top: 29px; z-index: 5; min-width: 158px; }
+/* Visit Sonos Labs: a square bezel like the + / - pair's, the title bold
+   (Tahoe, 2026-09-28). */
+.mac-root .dk-svc-labs { margin-top: 7px; height: 20px; min-width: 113px; padding: 0 7px;
+  border: 1px solid #c4c4c4; border-radius: 0; background: #ffffff; box-shadow: none; font-weight: 700; }
+
+/* Edit service: a centered 500 x 504 window of its own, white, a 28px title
+   with its three lights gray (it cannot be closed, minimized or zoomed), the
+   heading's cap 52pt down and the prompt's 95.5, a 22pt Name field from 180
+   to 466 with its label right-aligned to 170, and under a #ababab rule a
+   #d6d6d6 band holding Cancel (22), Back (286) and Done (390), 20pt tall,
+   19pt below the rule. */
+.mac-root .dk-modal-backdrop:has(.dk-editsvc) { place-items: center; padding-top: 0; }
+.mac-root .dk-window.dk-editsvc { width: 500px; height: 504px; border-radius: 10px; background: #ffffff; display: flex; flex-direction: column; }
+.mac-root .dk-modal-backdrop .dk-window.dk-editsvc .dk-window-title { height: 28px; background: #ffffff; border-bottom: 1px solid #d9d9d9; color: #262626; font-weight: 700; }
+.mac-root .dk-modal-backdrop .dk-window.dk-editsvc .dk-lights { display: flex; }
+.mac-root .dk-modal-backdrop .dk-window.dk-editsvc .dk-lights span { background: #e5e5e5; border-color: rgba(0, 0, 0, 0.12); pointer-events: none; }
+.mac-root .dk-editsvc .dk-window-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.mac-root .dk-editsvc-body { flex: 1; padding: 21px 23px 0; font-size: 13px; color: #262626; }
+.mac-root .dk-editsvc-body h3 { margin: 0; font-size: 13px; font-weight: 700; line-height: 16px; }
+.mac-root .dk-editsvc-body p { margin: 27px 0 0; line-height: 16px; }
+.mac-root .dk-editsvc-field { display: flex; align-items: center; gap: 10px; margin-top: 11px; }
+.mac-root .dk-editsvc-field > span { width: 147px; text-align: right; }
+.mac-root .dk-editsvc-field input { width: 286px; height: 22px; box-sizing: border-box; font: inherit; }
+.mac-root .dk-editsvc-foot { flex: none; display: flex; align-items: flex-start; height: 57px; box-sizing: border-box; padding: 19px 22px 0; background: #d6d6d6; border-top: 1px solid #ababab; }
+.mac-root .dk-editsvc-foot .dk-win-btn { height: 20px; min-width: 86px; }
+.mac-root .dk-editsvc-foot .dk-win-btn + .dk-win-btn { margin-left: 14px; }
+.mac-root .dk-editsvc-gap { flex: 1; }
+.mac-root .dk-modal-backdrop .dk-window.dk-editsvc .dk-light-close { background: #e5e5e5; border-color: rgba(0, 0, 0, 0.12); pointer-events: none; }
+.mac-root .dk-window.dk-editsvc .dk-window-body { background: #ffffff; }
+/* While it is up the app's Preferences window is gone from the screen; the
+   Edit window stands alone. */
+.mac-root .dk-prefs:has(.dk-editsvc) { visibility: hidden; }
+.mac-root .dk-prefs .dk-modal-backdrop:has(.dk-editsvc) { visibility: visible; background: transparent; }
+
+/* A picker page -- Add Song to <service> Playlist, Add to Sonos Playlist --
+   as the app draws it (2x, 2026-09-24): the service's disc and the title
+   centered in the header with a plain "Cancel" at the right, and the New
+   Playlist bar pinned 10pt above the pane's foot, 30pt of #262626 inset
+   9.5pt either side, whether the list is short or scrolls. */
+.mac-root .dk-header:has(.dk-header-cancel) .dk-header-title { display: flex; align-items: center; justify-content: center; margin-left: 2px; }
+.mac-root .dk-header-cancel { font-weight: 400; font-size: 13px; color: #ffffff; margin-right: 6px; }
+.mac-root .dk-scroll:has(> .dk-browse-addrow) { display: flex; flex-direction: column; }
+.mac-root .dk-browse-addrow { position: sticky; bottom: 10px; margin: auto 9.5px 10px; flex: none; height: 30px; border: 0; border-radius: 4px; background: #262626; color: #ffffff; font-size: 13px; }
+.mac-root .dk-browse-addrow:hover:not(:disabled) { background: #333333; }
+
+/* Visit Sonos Labs: the Edit window's dress, 2pt taller, with a 60pt foot
+   and under the prompt a white well 20pt in from either side, 118pt from the
+   window's top and 300 tall, edged in #e5e5e5 (the S1 Mac app, 2x,
+   2026-09-29). Preferences steps aside for it as it does for Edit. */
+.mac-root .dk-window.dk-editsvc.dk-labs { height: 506px; }
+.mac-root .dk-labs .dk-editsvc-foot { height: 60px; padding: 20px 21px 0; }
+.mac-root .dk-labs .dk-editsvc-foot .dk-win-btn { min-width: 89px; }
+.mac-root .dk-labs-well { height: 300px; margin: 10px -3px 0; box-sizing: border-box; overflow-y: auto; border: 1px solid #e5e5e5; background: #ffffff; }
+.mac-root .dk-labs-well [role='option'] { display: flex; gap: 8px; align-items: baseline; padding: 2px 8px; line-height: 16px; }
+.mac-root .dk-labs-well [role='option'][aria-selected='true'] { background: #0064e1; color: #ffffff; }
+.mac-root .dk-labs-well [role='option'] > small { color: #6d6d6d; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.mac-root .dk-labs-well [role='option'][aria-selected='true'] > small { color: inherit; }
+.mac-root .dk-editsvc-body .dk-labs-note { margin: 8px; color: #6d6d6d; }
+.mac-root .dk-prefs:has(.dk-labs) { visibility: hidden; }
+.mac-root .dk-prefs .dk-modal-backdrop:has(.dk-labs) { visibility: visible; background: transparent; }
+
+
+
+/* The Mini Controller: SMNowPlayingMiniViewController's 256pt square, every
+   position below from it, doubled when zoomed. */
+.mac-mini { --s: 1; position: fixed; z-index: 60; overflow: hidden; background: #1a1a1a; color: #ffffff;
+  border-radius: 6px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); user-select: none; font-size: calc(13px * var(--s)); }
+.mac-mini[data-large='true'] { --s: 2; }
+.mac-mini[data-popup='true'] { border-radius: 0; box-shadow: none; }
+.mac-mini-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mac-mini-gradient { position: absolute; left: 0; right: 0; bottom: 0; height: calc(103px * var(--s));
+  background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.87)); pointer-events: none; }
+.mac-mini-meta { position: absolute; left: calc(17px * var(--s)); right: calc(18px * var(--s)); bottom: calc(60px * var(--s)); }
+.mac-mini-meta p { margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); }
+.mac-mini-track { height: calc(18px * var(--s)); font-weight: 700; line-height: calc(18px * var(--s)); }
+.mac-mini-artist { height: calc(16px * var(--s)); margin-top: calc(1px * var(--s)); font-size: calc(12px * var(--s)); line-height: calc(16px * var(--s)); color: rgba(255, 255, 255, 0.8); }
+.mac-mini-hud { position: absolute; left: 0; right: 0; bottom: 0; height: calc(62px * var(--s)); }
+.mac-mini-btn { position: absolute; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%;
+  background: none; color: #ffffff; cursor: default; }
+.mac-mini-btn:hover:not(:disabled) { background: rgba(0, 0, 0, 0.32); }
+.mac-mini-btn:active:not(:disabled) { background: rgba(0, 0, 0, 0.45); }
+.mac-mini-btn:disabled { opacity: 0.35; }
+.mac-mini-btn svg { width: calc(18px * var(--s)); height: calc(18px * var(--s)); }
+/* Top of the strip is 194 in the square, so each y below is its nib y - 194. */
+.mac-mini-mute { left: calc(10px * var(--s)); top: calc(13px * var(--s)); width: calc(34px * var(--s)); height: calc(34px * var(--s)); }
+.mac-mini-back { left: calc(59px * var(--s)); top: calc(8px * var(--s)); width: calc(34px * var(--s)); height: calc(44px * var(--s)); border-radius: 17px; }
+.mac-mini-play { left: calc(106px * var(--s)); top: calc(8px * var(--s)); width: calc(44px * var(--s)); height: calc(44px * var(--s)); }
+.mac-mini-play svg { width: calc(26px * var(--s)); height: calc(26px * var(--s)); }
+.mac-mini-forward { left: calc(163px * var(--s)); top: calc(8px * var(--s)); width: calc(34px * var(--s)); height: calc(44px * var(--s)); border-radius: 17px; }
+.mac-mini-info { left: calc(211px * var(--s)); top: calc(11px * var(--s)); width: calc(36px * var(--s)); height: calc(36px * var(--s)); }
+/* The slider (57, 214, 189x21) shows while the pointer is over the mute
+   button or the slider, and the transport buttons step aside for it. */
+.mac-mini-volume { position: absolute; inset: 0 auto 0 0; width: calc(246px * var(--s)); pointer-events: none; }
+.mac-mini-volume .mac-mini-mute { pointer-events: auto; }
+.mac-mini-slider { position: absolute; left: calc(57px * var(--s)); top: calc(20px * var(--s)); width: calc(189px * var(--s)); height: calc(21px * var(--s));
+  display: flex; align-items: center; opacity: 0; transition: opacity 0.2s; }
+.mac-mini-slider .dk-slider { flex: 1; }
+.mac-mini-volume:has(.mac-mini-mute:hover) .mac-mini-slider,
+.mac-mini-slider:hover { opacity: 1; pointer-events: auto; }
+.mac-mini-transport { transition: opacity 0.2s; }
+.mac-mini-hud:has(.mac-mini-mute:hover) .mac-mini-transport,
+.mac-mini-hud:has(.mac-mini-slider:hover) .mac-mini-transport { opacity: 0; pointer-events: none; }
+.mac-mini-chrome { position: absolute; top: calc(6px * var(--s)); width: calc(20px * var(--s)); height: calc(20px * var(--s));
+  display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: rgba(0, 0, 0, 0.32);
+  color: #ffffff; opacity: 0; transition: opacity 0.15s; cursor: default; }
+.mac-mini-chrome svg { width: calc(12px * var(--s)); height: calc(12px * var(--s)); }
+.mac-mini:hover .mac-mini-chrome { opacity: 1; }
+.mac-mini-close { left: calc(6px * var(--s)); }
+.mac-mini-zoom { left: calc(30px * var(--s)); }
+.mac-mini-root { margin: 0; overflow: hidden; background: #1a1a1a; }
+
+/* Music Library > Advanced, as the app's setting components lay a page out:
+   a bold 12pt #242424 caption right-aligned in a 174pt column, the control
+   from 179 (a checkbox) or 181 (a combo or time), a button's bezel from 175.
+   Rows stand at the components' own heights. */
+.mac-root .dk-setrows { border: 0; padding: 4px 0 0; margin: 0; min-width: 0; }
+.mac-root .dk-setrow { display: flex; align-items: center; min-height: 23px; margin-bottom: 4px; }
+/* Remeasured on Tahoe (2026-09-28): a pop-up row stands 12pt clear of the
+   row above, and the checkbox after it 6pt more; a checkbox sits on the
+   first line of a label that wraps. */
+.mac-root .dk-setrow:has(.dk-lib-popup) { margin-top: 12px; }
+.mac-root .dk-setrow:has(.dk-lib-popup) + .dk-setrow:not(:has(.dk-lib-popup)) { margin-top: 6px; align-items: flex-start; }
+.mac-root .dk-setrow-cap { flex: none; width: 174px; padding-right: 5px; box-sizing: border-box; text-align: right;
+  font-size: 12px; font-weight: 700; color: #242424; }
+.mac-root .dk-setrow-ctl { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-left: 3px; font-size: 12px; color: #242424; }
+.mac-root .dk-setrow-ctl .dk-check { display: inline-flex; align-items: flex-start; gap: 6px; }
+.mac-root .dk-setrow-ctl .dk-check input { margin-top: 1px; }
+/* Its pop-ups, as Tahoe draws them there (2026-09-28): a 237 x 19pt white
+   face under a soft rim, and at its right, 2pt in, a 16 x 15pt blue capsule
+   carrying the chevrons in white. */
+.mac-root .dk-setrow-ctl .dk-lib-popup {
+  appearance: none; -moz-appearance: none; box-sizing: border-box; width: 237px; height: 19px; padding: 0 24px 0 8px;
+  border: 0; border-radius: 5px; box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.22), 0 0.5px 1.5px rgba(0, 0, 0, 0.18);
+  color: #000000; font: inherit; font-size: 13px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='15' viewBox='0 0 16 15'%3E%3Crect width='16' height='15' rx='4' fill='%231283ff'/%3E%3Cpath d='M5.5 6 8 3.6 10.5 6M5.5 9 8 11.4 10.5 9' fill='none' stroke='%23fff' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 2px center,
+    #ffffff;
+}
+.mac-root .dk-setrow-ctl .dk-lib-popup:disabled { color: #a8a8a8; }
+.mac-root .dk-setrow-ctl .dk-check span { max-width: 232px; font-size: 13px; line-height: 16px; }
+.mac-root .dk-setrow-note { color: #6d6d6d; }
+
+/* The add-a-music-folder wizard as Tahoe shows it (2026-09-28): the Edit
+   service window's frame, 500 x 506, white under a 28pt white title with its
+   lights gray; the heading bold 14 at 22,21 and the prompt 25pt under it. A
+   labeled field is the WizardTextComboBoxView row: the label at 20 in a
+   223pt column, the field at 249. */
+.mac-root .dk-modal-backdrop:has(.dk-sharewiz) { place-items: center; padding-top: 0; }
+.mac-root .dk-window.dk-sharewiz:not(.dk-prefs) { width: 500px; height: 506px; border-radius: 10px; background: #ffffff; display: flex; flex-direction: column; }
+.mac-root .dk-modal-backdrop .dk-window.dk-sharewiz .dk-window-title { height: 28px; background: #ffffff; border-bottom: 1px solid #d9d9d9; color: #262626; font-weight: 700; }
+.mac-root .dk-modal-backdrop .dk-window.dk-sharewiz .dk-lights { display: flex; }
+.mac-root .dk-modal-backdrop .dk-window.dk-sharewiz .dk-lights > * { background: #e5e5e5; border-color: rgba(0, 0, 0, 0.12); pointer-events: none; }
+.mac-root .dk-sharewiz .dk-window-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.mac-root .dk-sharewiz-page { flex: 1; min-height: 0; padding: 21px 22px 0; box-sizing: border-box;
+  background: #ffffff; font-size: 13px; color: #262626; overflow-y: auto; }
+.mac-root .dk-sharewiz-page h3 { margin: 0; font-size: 14px; font-weight: 700; line-height: 18px; }
+.mac-root .dk-sharewiz-page p { margin: 25px 0 0; line-height: 17px; }
+/* The cards: 292pt wide from 103.5, the first two 63pt tall with a 47pt
+   glyph 10pt in and the words at 64, 12pt apart; the third a 20pt strip. */
+.mac-root .dk-sharewiz-cards { display: flex; flex-direction: column; gap: 12px; width: 292px; margin: 59px 0 0 81px; }
+.mac-root .dk-sharewiz-card { display: flex; align-items: center; gap: 7px; height: 63px; padding: 0 10px; box-sizing: border-box;
+  border: 0; border-radius: 6px; background: #ffffff; color: #262626; font: inherit; font-size: 13px; text-align: left; cursor: default;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.12); }
+.mac-root .dk-sharewiz-card > svg { flex: none; }
+.mac-root .dk-sharewiz-card:disabled { color: #a8a8a8; background: #ffffff; opacity: 1; }
+.mac-root .dk-sharewiz-card:disabled > svg { opacity: 0.45; }
+.mac-root .dk-sharewiz-card:not(:disabled):active { background: #e8e8e8; }
+.mac-root .dk-sharewiz-card-plain { height: 20px; padding: 0 8px; border-radius: 5px; margin-top: -1px; }
+.mac-root .dk-sharewiz-note { font-size: 11px; color: #6d6d6d; }
+/* The path: a 447 x 23pt field 8pt under the prompt, the mark 6pt right of
+   it, the examples 10pt below, and Back refused on this page, as the app
+   has it (2026-09-28). */
+.mac-root .dk-sharewiz-pathrow { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.mac-root .dk-sharewiz-path { flex: none; width: 447px; height: 23px; box-sizing: border-box; margin: 0; }
+.mac-root .dk-sharewiz-mark { width: 4px; color: #1283ff; font-size: 15px; font-weight: 700; }
+.mac-root .dk-sharewiz-page .dk-sharewiz-examples { margin-top: 10px; white-space: pre-line; color: #262626; }
+.mac-root .dk-sharewiz-row { display: flex; align-items: center; height: 38px; margin-left: 0; }
+.mac-root .dk-sharewiz-row > span { flex: none; width: 223px; }
+.mac-root .dk-sharewiz-row > input { width: 185px; }
+.mac-root .dk-sharewiz-progress { display: flex; align-items: center; gap: 8px; }
+/* The foot: a 60pt #d6d6d6 band under a rule, Cancel 21pt in, Back and Next
+   14pt apart at the right, all 89 x 20pt. */
+.mac-root .dk-sharewiz-foot { flex: none; display: flex; align-items: center; height: 60px; box-sizing: border-box; padding: 0 21px;
+  background: #d6d6d6; border-top: 1px solid #ababab; }
+.mac-root .dk-sharewiz-foot .dk-win-btn { height: 20px; min-width: 89px; }
+.mac-root .dk-sharewiz-foot .dk-win-btn + .dk-win-btn { margin-left: 14px; }
+.mac-root .dk-sharewiz-gap { flex: 1; }
+
+/* Tahoe's menu icons: a 16px column where a group has any, the group's
+   other items indented to it; flush left where a group has none (the S1
+   app's menus, 2026-09-28). */
+.mac-root .dk-menu-item { padding-left: 12px; }
+.mac-root .dk-menu-icon { flex: none; display: grid; place-items: center; width: 16px; height: 16px; margin-right: 7px; color: currentColor; }
+.mac-root .dk-menu-icon svg { width: 15px; height: 15px; }
+.mac-root .dk-menu-item > span:not(.dk-menu-icon):not(.dk-menu-arrow) { flex: 1; text-align: left; }
+.mac-root .dk-menu-search { padding: 6px 6px 9px; list-style: none; }
+.mac-root .dk-menu-search input {
+  width: 100%; box-sizing: border-box; height: 20px; padding: 0 8px 0 26px; border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px; outline: none; background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='4.5' fill='none' stroke='%231a1a1a' stroke-width='1.6'/%3E%3Cpath d='M10.4 10.4 14 14' stroke='%231a1a1a' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 7px center / 13px;
+  font-size: 13px; color: #000000;
+}
+
+/* As the real mini shows itself on Tahoe (2026-09-28): at rest the art, a
+   bold title centered about 36pt above the foot and the artist in bold light
+   gray about 18pt above it, nothing else. Over the art the close and zoom
+   discs come up; over the bottom band the transport strip does, and the two
+   lines rise to the nib's places above it (track at 160, artist at 179).
+   With no artist the title keeps its place and the artist's line stays
+   empty. The discs are 20pt and darken the art by about a third. */
+.mac-mini-meta { text-align: center; bottom: calc(9px * var(--s)); transition: bottom 0.2s; }
+.mac-mini-track { font-size: calc(13px * var(--s)); }
+.mac-mini-artist { font-weight: 700; color: rgba(255, 255, 255, 0.7); font-size: calc(12px * var(--s)); }
+.mac-mini-hud { opacity: 0; transition: opacity 0.2s; }
+.mac-mini-hud:hover, .mac-mini-hud:focus-within { opacity: 1; }
+.mac-mini:has(.mac-mini-hud:hover) .mac-mini-meta,
+.mac-mini:has(.mac-mini-hud:focus-within) .mac-mini-meta { bottom: calc(60px * var(--s)); }
+
+/* Music Library with no folders shared: two centered lines of #868686 13pt
+   text 33pt apart, the second naming Music Library Settings as a #0068da
+   link, sitting 52pt above the pane's middle (the S1 Mac app, 2x,
+   2026-09-29). */
+.mac-root .dk-scroll:has(> .dk-browse-nofolders) { display: flex; flex-direction: column; }
+.mac-root .dk-browse-nofolders { margin: auto 0; transform: translateY(-52px); padding: 0 20px; text-align: center; font-size: 13px; line-height: 16px; color: #868686; }
+.mac-root .dk-browse-nofolders p { margin: 0; }
+.mac-root .dk-browse-nofolders p + p { margin-top: 17px; }
+.mac-root .dk-browse-nofolders .dk-link { padding: 0; border: 0; background: none; font: inherit; color: #0068da; cursor: pointer; }
+.mac-root .dk-browse-nofolders .dk-link:hover { text-decoration: underline; }
+
+/* Group Rooms, walked again against the running app (2x, 2026-09-29): its
+   window keeps rounded top corners (5pt) and a title shaded from #cdcdcd to
+   #c1c1c1; the art wears a 0.5pt #e5e5e5 edge; the rooms stand 22pt apart
+   with each name 6.5pt after its box. */
+.mac-root .dk-window:not(.dk-prefs):not(.dk-about-window):has(.dk-grouping) { border-radius: 5px 5px 10px 10px; }
+.mac-root .dk-window:not(.dk-prefs):not(.dk-about-window):has(.dk-grouping) .dk-window-title { border-radius: 5px 5px 0 0; background: linear-gradient(#cdcdcd, #c1c1c1); }
+.mac-root .dk-grouping-art { box-shadow: 0 0 0 0.5px #e5e5e5; }
+.mac-root .dk-grouping-list label { padding-top: 3px; padding-bottom: 3px; gap: 0; }
+.mac-root .dk-grouping-list:focus { outline: none; }
+
+/* The search field's clear button, as the S1 Mac app draws it while the
+   field holds text (2x, 2026-09-29): a plain 6 x 6pt #868686 cross, not a
+   circled one, its center 29pt left of the magnifier's. Drawn here. */
+.mac-root .dk-strip-search .dk-strip-clear {
+  display: block; position: relative; flex: none; align-self: center; width: 15px; height: 15px; margin: 0 9.5px 0 4px; padding: 0;
+  border: 0; background: none; color: #868686;
+}
+.mac-root .dk-strip-search .dk-strip-clear::before,
+.mac-root .dk-strip-search .dk-strip-clear::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 8.5px; height: 1.2px; background: currentColor;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.mac-root .dk-strip-search .dk-strip-clear::after { transform: translate(-50%, -50%) rotate(-45deg); }
+/* The magnifier is the cross's gray, not black; and the scope pill sizes to
+   its logo and caret -- the 26px given every button in the field had been
+   clipping the caret the app shows after the logo (2026-09-29). */
+.mac-root .dk-strip-search button[type='submit'] { color: #868686; }
+.mac-root .dk-strip-search .dk-strip-scope { width: auto; }
+/* Measured at 2x beside the app (2026-09-29): the caret 2pt after the logo,
+   the text 4pt after the caret, a 13.5pt magnifier. */
+.mac-root .dk-strip-search .dk-strip-scope { gap: 1px; padding-right: 2px; }
+.mac-root .dk-strip-search .dk-strip-scope + input { padding-left: 3px; }
+.mac-root .dk-strip-search button[type='submit'] svg { width: 17px; height: 17px; }
+/* The search's category tabs, as the S1 Mac app draws them (2x,
+   2026-09-29): bold white words on #2d2d2d, the chosen tab sunk to
+   #1a1a1a. */
+.mac-root .dk-scopebar { background: #2d2d2d; }
+.mac-root .dk-scopebar-tabs button { font-weight: 700; color: #ffffff; }
+.mac-root .dk-scopebar-tabs button[aria-selected='true'] { background: #1a1a1a; }
+.mac-root .dk-scopebar-tabs button { font-size: 12px; padding-top: 6px; }
+.mac-root .dk-scopebar-back svg { width: 20px; height: 20px; margin-top: 4px; }
+/* A context menu is as wide as its items: 170.5pt for a Pandora artist's
+   (the S1 Mac app, 2026-09-29), where the pop-overs' 200px minimum had held
+   it wider. */
+.mac-root .dk-action-menu { min-width: 0; }
+/* So is every other pop-up menu: a room tile's is 185pt for one
+   with a long name (2026-09-29). */
+.mac-root .dk-popover[role='menu'] { min-width: 0; }
+
+/* ---- A phone's width ------------------------------------------------------
+   The sheets above keep the app's point geometry, which is wider than a
+   phone. There the shared layer caps each window at the screen and would
+   scroll the rest sideways; these rules fold the parts in instead, keeping
+   their order and look (Firefox on Android at 411px). */
+@media (max-width: 936px) {
+  .mac-root .dk-alarms,
+  .mac-root .dk-window.dk-editsvc,
+  .mac-root .dk-window.dk-sharewiz:not(.dk-prefs) { width: min(500px, calc(100vw - 14px)); }
+  .mac-root .dk-addradio .dk-window-body { width: min(460px, calc(100vw - 14px)); }
+  .mac-root .dk-confirm { width: min(450px, calc(100vw - 14px)); }
+  .mac-root .dk-savequeue { width: min(416px, calc(100vw - 14px)); }
+  .mac-root .dk-sharewiz-path { width: 100%; }
+
+  /* EQ: the heading's room pop-up takes what the words leave, and the
+     rows narrow their caption column so the sliders keep the rest. */
+  .mac-root .dk-prefs-head { flex-wrap: wrap; height: auto; min-height: 50px; padding: 10px 0 10px 3px; row-gap: 6px; }
+  .mac-root .dk-prefs-head .dk-prefs-popup { flex: 1; min-width: 0; max-width: 100%; }
+  .mac-root .dk-eq-row label { width: 60px; }
+  .mac-root .dk-eq-row .dk-eq-slider { left: 70px; width: calc(100% - 70px); }
+  /* The midpoint tick follows the slider's middle; it had stayed at the wide layout's 299px. */
+  .mac-root .dk-eq-row::after { left: calc(70px + (100% - 70px) / 2 - 0.5px); }
+  .mac-root .dk-eq-row .dk-eq-min { left: 71px; }
+  .mac-root .dk-eq-row .dk-eq-max { left: auto; right: 0; }
+  .mac-root .dk-eq-loudness { left: 71px; }
+  .mac-root .dk-eq-reset { left: auto; right: 0; }
+
+  /* Alarms: the time may take two lines, and the columns share the width
+     with ON kept to its checkbox. */
+  .mac-root .dk-alarms-heading { top: 16px; }
+  .mac-root .dk-alarms-time { top: 44px; right: 20px; line-height: 17px; }
+  .mac-root .dk-alarms-table { width: auto; right: 20px; }
+  .mac-root .dk-alarms-table .dk-table-head,
+  .mac-root .dk-alarms-table [role='option'] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px; }
+  .mac-root .dk-alarms-table .dk-table-body {
+    background: linear-gradient(#e2e2e2, #e2e2e2) calc((100% - 44px) / 2) 0 / 1px 100% no-repeat,
+      linear-gradient(#e2e2e2, #e2e2e2) calc(100% - 44px) 0 / 1px 100% no-repeat, #ffffff;
+  }
+}
+
+/* ---- The Music Library, as the S2 Mac app draws it (2026-09-29, at 2x) ----
+   Artists, composers, genres and folders wear the stack glyph, and the
+   library's root rows its folder, each #666666 about 20pt across on a 40pt
+   #262626 tile set in like the art below the root. The Songs list's Play row
+   wears the stack on the same tile as Shuffle; its letters are plain white
+   on the pane; its songs carry their covers (librarySongArt). The root rows
+   do not light up under the pointer, and a row showing its caret and
+   checkbox drops the chevron. Sonora's own glyphs, sized and colored to
+   that. */
+.mac-root .dk-browse-art:has(> .dk-browse-stack),
+.mac-root .dk-browse-art:has(> .dk-browse-folder) { width: 40px; height: 40px; border-radius: 0; background: #262626; display: grid; place-items: center; }
+.mac-root .dk-browse-art > svg.dk-browse-stack,
+.mac-root .dk-browse-art.dk-browse-glyph > svg.dk-browse-stack { width: 30px; height: 30px; }
+.mac-root .dk-browse-art > svg.dk-browse-folder { width: 40px; height: 40px; }
+.mac-root .dk-browse-stack > rect:first-child { display: none; }
+.mac-root .dk-browse-stack > rect:not(:first-child), .mac-root .dk-browse-stack > path { stroke: #666666; }
+.mac-root .dk-browse-row.dk-album-play { padding-left: 8px; gap: 8px; }
+.mac-root .dk-album-play .dk-browse-art.dk-browse-glyph { width: 40px; height: 40px; border-radius: 0; background: #262626; }
+.mac-root .dk-browse-index { background: none; color: #ffffff; font-weight: 400; font-size: 13px; letter-spacing: 0; }
+.mac-root .dk-browse-row[data-library='root']:hover { background: transparent; }
+.mac-root .dk-browse-row:has(.dk-browse-check):hover .dk-browse-disclosure { display: none; }

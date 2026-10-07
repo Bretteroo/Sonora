@@ -1,0 +1,467 @@
+/* Coromar: the building the theme is named for.
+ *
+ * The application below is the Windows theme's (desktop.css + windows.css);
+ * this sheet is the skin, and everything in it comes off a photograph of 301
+ * Coromar Drive in Goleta. Grounds are sunlit tilt-up concrete, scored with
+ * the panel reveals that run across the real walls. Chrome -- the top bar, the
+ * transport strip, window titles -- is the deep navy vision glass of the
+ * corner curtain wall, gridded by aluminium mullions. The entry's stacked
+ * sandstone veneer marks section labels and the foot of the top bar, the white
+ * steel trellis over the walkway shows through empty panes, and the cobalt sky
+ * sits in the top corner of the window. Corners are square: the building has
+ * no curves on it anywhere. */
+
+.co-root {
+  /* z-index 0 makes this a stacking context, so the ground floor's -1 sits
+     over the concrete ground instead of behind it */
+  position: relative; z-index: 0;
+  /* materials, mixed once and used throughout */
+  --co-reveals:
+    repeating-linear-gradient(90deg, transparent 0 147px, rgba(12, 44, 58, 0.055) 147px 148px),
+    repeating-linear-gradient(180deg, transparent 0 95px, rgba(12, 44, 58, 0.035) 95px 96px);
+  /* The glazing is drawn unbroken. The building's curtain wall is gridded by
+     aluminium mullions and this sheet used to draw them across every glazed
+     surface, but on screen those vertical lines cut through the volume
+     slider, the transport buttons and the chosen room's name, and read as
+     borders between windows rather than as an elevation. */
+  --co-glass: linear-gradient(180deg, #125c79 0%, #0d4459 55%, #082e3f 100%);
+  --co-panel: linear-gradient(180deg, #fdfdfb, #f4f4ef);
+  /* the panes are glazed, not solid: the stone behind them reads through */
+  --co-panel-glass: linear-gradient(180deg, rgba(253, 253, 251, 0.79), rgba(245, 245, 240, 0.7));
+  --co-stone:
+    repeating-linear-gradient(90deg, rgba(12, 44, 58, 0.16) 0 1px, transparent 1px 13px),
+    repeating-linear-gradient(180deg, #b6a37f 0 2px, #a89573 2px 4px, #9c8a68 4px 6px);
+  /* The stacked sandstone veneer off the entry piers: courses 6px deep, each
+     with a joint rhythm of its own so the stones break between courses,
+     ledge shadows, and the lighter and gray-green pieces the mix carries.
+     Every layer tiles, so the band can be any height. */
+  /* The stacked sandstone veneer off the entry piers, drawn as a tile that
+     repeats both ways: courses 6px deep, stones of varied length and tone
+     with the gray-green and lighter pieces the mix carries, each stone
+     jointed on its right edge and each course shadowed on its ledge.
+     Gradients cannot do this -- a 90deg joint line would run the whole
+     tile height and the band read as plaid. */
+  /* The stacked sandstone of the entry piers, generated
+     by a script from a fixed seed: varied course heights,
+     stone lengths and colors over a 340px tile, because the first version
+     was six equal courses 180px wide and read as a grid rather than a wall.
+     Regenerate it; do not hand-edit. */
+  --co-veneer: url("data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20width='520'%20height='118'><rect%20y='0'%20width='520'%20height='6'%20fill='%235d4a30'/><rect%20x='-45'%20y='0'%20width='43'%20height='5'%20fill='%23a89573'/><rect%20x='-1'%20y='0'%20width='57'%20height='5'%20fill='%23cbb997'/><rect%20x='57'%20y='0'%20width='12'%20height='5'%20fill='%239aa093'/><rect%20x='70'%20y='0'%20width='57'%20height='5'%20fill='%23ae9b78'/><rect%20x='128'%20y='0'%20width='81'%20height='5'%20fill='%23bfa87f'/><rect%20x='210'%20y='0'%20width='67'%20height='5'%20fill='%23b3a181'/><rect%20x='278'%20y='0'%20width='15'%20height='5'%20fill='%23e2d6b8'/><rect%20x='294'%20y='0'%20width='33'%20height='5'%20fill='%23a4906c'/><rect%20x='328'%20y='0'%20width='9'%20height='5'%20fill='%23d5c7a6'/><rect%20x='338'%20y='0'%20width='12'%20height='5'%20fill='%23c8b691'/><rect%20x='351'%20y='0'%20width='18'%20height='5'%20fill='%23dbcdae'/><rect%20x='370'%20y='0'%20width='49'%20height='5'%20fill='%23ae9b78'/><rect%20x='420'%20y='0'%20width='21'%20height='5'%20fill='%238a7a58'/><rect%20x='442'%20y='0'%20width='33'%20height='5'%20fill='%23a4906c'/><rect%20x='476'%20y='0'%20width='33'%20height='5'%20fill='%23a89573'/><rect%20x='510'%20y='0'%20width='29'%20height='5'%20fill='%23b3a181'/><rect%20y='6'%20width='520'%20height='9'%20fill='%235d4a30'/><rect%20x='-57'%20y='6'%20width='18'%20height='8'%20fill='%239aa093'/><rect%20x='-38'%20y='6'%20width='37'%20height='8'%20fill='%23dbcdae'/><rect%20x='0'%20y='6'%20width='15'%20height='8'%20fill='%23b3a181'/><rect%20x='16'%20y='6'%20width='12'%20height='8'%20fill='%23b3a181'/><rect%20x='29'%20y='6'%20width='33'%20height='8'%20fill='%23c8b691'/><rect%20x='63'%20y='6'%20width='21'%20height='8'%20fill='%23c8b691'/><rect%20x='85'%20y='6'%20width='15'%20height='8'%20fill='%23ae9b78'/><rect%20x='101'%20y='6'%20width='67'%20height='8'%20fill='%239aa093'/><rect%20x='169'%20y='6'%20width='12'%20height='8'%20fill='%23c8b691'/><rect%20x='182'%20y='6'%20width='81'%20height='8'%20fill='%239aa093'/><rect%20x='264'%20y='6'%20width='18'%20height='8'%20fill='%23e2d6b8'/><rect%20x='283'%20y='6'%20width='43'%20height='8'%20fill='%238d9587'/><rect%20x='327'%20y='6'%20width='67'%20height='8'%20fill='%23e2d6b8'/><rect%20x='395'%20y='6'%20width='43'%20height='8'%20fill='%2396896a'/><rect%20x='439'%20y='6'%20width='18'%20height='8'%20fill='%23a4906c'/><rect%20x='458'%20y='6'%20width='15'%20height='8'%20fill='%23736b5c'/><rect%20x='474'%20y='6'%20width='18'%20height='8'%20fill='%23b3a181'/><rect%20x='493'%20y='6'%20width='33'%20height='8'%20fill='%23c6b28f'/><rect%20y='15'%20width='520'%20height='5'%20fill='%235d4a30'/><rect%20x='-51'%20y='15'%20width='29'%20height='4'%20fill='%23dbcdae'/><rect%20x='-21'%20y='15'%20width='81'%20height='4'%20fill='%23ae9b78'/><rect%20x='61'%20y='15'%20width='57'%20height='4'%20fill='%23b3a181'/><rect%20x='119'%20y='15'%20width='29'%20height='4'%20fill='%23d5c7a6'/><rect%20x='149'%20y='15'%20width='12'%20height='4'%20fill='%23e2d6b8'/><rect%20x='162'%20y='15'%20width='9'%20height='4'%20fill='%23cbb997'/><rect%20x='172'%20y='15'%20width='12'%20height='4'%20fill='%23cbb997'/><rect%20x='185'%20y='15'%20width='49'%20height='4'%20fill='%23c6b28f'/><rect%20x='235'%20y='15'%20width='9'%20height='4'%20fill='%23a4906c'/><rect%20x='245'%20y='15'%20width='33'%20height='4'%20fill='%2396896a'/><rect%20x='279'%20y='15'%20width='18'%20height='4'%20fill='%23a19583'/><rect%20x='298'%20y='15'%20width='67'%20height='4'%20fill='%2396896a'/><rect%20x='366'%20y='15'%20width='21'%20height='4'%20fill='%23e2d6b8'/><rect%20x='388'%20y='15'%20width='49'%20height='4'%20fill='%23d0bd9a'/><rect%20x='438'%20y='15'%20width='33'%20height='4'%20fill='%23bfa87f'/><rect%20x='472'%20y='15'%20width='15'%20height='4'%20fill='%23a19583'/><rect%20x='488'%20y='15'%20width='15'%20height='4'%20fill='%23b3a181'/><rect%20x='504'%20y='15'%20width='12'%20height='4'%20fill='%23a19583'/><rect%20x='517'%20y='15'%20width='37'%20height='4'%20fill='%23b3a181'/><rect%20y='20'%20width='520'%20height='7'%20fill='%235d4a30'/><rect%20x='-57'%20y='20'%20width='9'%20height='6'%20fill='%239a8b69'/><rect%20x='-47'%20y='20'%20width='67'%20height='6'%20fill='%23a4906c'/><rect%20x='21'%20y='20'%20width='29'%20height='6'%20fill='%23c8b691'/><rect%20x='51'%20y='20'%20width='12'%20height='6'%20fill='%23a4906c'/><rect%20x='64'%20y='20'%20width='18'%20height='6'%20fill='%239a8b69'/><rect%20x='83'%20y='20'%20width='81'%20height='6'%20fill='%23d0bd9a'/><rect%20x='165'%20y='20'%20width='81'%20height='6'%20fill='%23b3a181'/><rect%20x='247'%20y='20'%20width='25'%20height='6'%20fill='%23e2d6b8'/><rect%20x='273'%20y='20'%20width='33'%20height='6'%20fill='%23a19583'/><rect%20x='307'%20y='20'%20width='15'%20height='6'%20fill='%23b3a181'/><rect%20x='323'%20y='20'%20width='9'%20height='6'%20fill='%23a89573'/><rect%20x='333'%20y='20'%20width='43'%20height='6'%20fill='%23e2d6b8'/><rect%20x='377'%20y='20'%20width='67'%20height='6'%20fill='%23d5c7a6'/><rect%20x='445'%20y='20'%20width='67'%20height='6'%20fill='%23b3a181'/><rect%20x='513'%20y='20'%20width='49'%20height='6'%20fill='%23dbcdae'/><rect%20y='27'%20width='520'%20height='4'%20fill='%235d4a30'/><rect%20x='-4'%20y='27'%20width='29'%20height='3'%20fill='%23cbb997'/><rect%20x='26'%20y='27'%20width='81'%20height='3'%20fill='%238d9587'/><rect%20x='108'%20y='27'%20width='67'%20height='3'%20fill='%23e2d6b8'/><rect%20x='176'%20y='27'%20width='29'%20height='3'%20fill='%23ae9b78'/><rect%20x='206'%20y='27'%20width='25'%20height='3'%20fill='%23c6b28f'/><rect%20x='232'%20y='27'%20width='43'%20height='3'%20fill='%23a19583'/><rect%20x='276'%20y='27'%20width='25'%20height='3'%20fill='%23b3a181'/><rect%20x='302'%20y='27'%20width='67'%20height='3'%20fill='%238a7a58'/><rect%20x='370'%20y='27'%20width='49'%20height='3'%20fill='%239aa093'/><rect%20x='420'%20y='27'%20width='9'%20height='3'%20fill='%239aa093'/><rect%20x='430'%20y='27'%20width='25'%20height='3'%20fill='%23a89573'/><rect%20x='456'%20y='27'%20width='18'%20height='3'%20fill='%23736b5c'/><rect%20x='475'%20y='27'%20width='33'%20height='3'%20fill='%23a89573'/><rect%20x='509'%20y='27'%20width='33'%20height='3'%20fill='%23a89573'/><rect%20y='31'%20width='520'%20height='8'%20fill='%235d4a30'/><rect%20x='-34'%20y='31'%20width='37'%20height='7'%20fill='%239a8b69'/><rect%20x='4'%20y='31'%20width='49'%20height='7'%20fill='%23a19583'/><rect%20x='54'%20y='31'%20width='9'%20height='7'%20fill='%23a4906c'/><rect%20x='64'%20y='31'%20width='21'%20height='7'%20fill='%23cbb997'/><rect%20x='86'%20y='31'%20width='43'%20height='7'%20fill='%23736b5c'/><rect%20x='130'%20y='31'%20width='9'%20height='7'%20fill='%23a4906c'/><rect%20x='140'%20y='31'%20width='67'%20height='7'%20fill='%23bfa87f'/><rect%20x='208'%20y='31'%20width='67'%20height='7'%20fill='%23a4906c'/><rect%20x='276'%20y='31'%20width='33'%20height='7'%20fill='%23d0bd9a'/><rect%20x='310'%20y='31'%20width='18'%20height='7'%20fill='%239a8b69'/><rect%20x='329'%20y='31'%20width='67'%20height='7'%20fill='%238d9587'/><rect%20x='397'%20y='31'%20width='15'%20height='7'%20fill='%23d0bd9a'/><rect%20x='413'%20y='31'%20width='18'%20height='7'%20fill='%23e2d6b8'/><rect%20x='432'%20y='31'%20width='18'%20height='7'%20fill='%239a8b69'/><rect%20x='451'%20y='31'%20width='49'%20height='7'%20fill='%23a4906c'/><rect%20x='501'%20y='31'%20width='43'%20height='7'%20fill='%239a8b69'/><rect%20y='39'%20width='520'%20height='6'%20fill='%235d4a30'/><rect%20x='-38'%20y='39'%20width='25'%20height='5'%20fill='%23ab9c7c'/><rect%20x='-12'%20y='39'%20width='15'%20height='5'%20fill='%23dbcdae'/><rect%20x='4'%20y='39'%20width='29'%20height='5'%20fill='%23d0bd9a'/><rect%20x='34'%20y='39'%20width='67'%20height='5'%20fill='%23ab9c7c'/><rect%20x='102'%20y='39'%20width='43'%20height='5'%20fill='%23e2d6b8'/><rect%20x='146'%20y='39'%20width='18'%20height='5'%20fill='%23c8b691'/><rect%20x='165'%20y='39'%20width='33'%20height='5'%20fill='%238a7a58'/><rect%20x='199'%20y='39'%20width='33'%20height='5'%20fill='%23c6b28f'/><rect%20x='233'%20y='39'%20width='43'%20height='5'%20fill='%23ae9b78'/><rect%20x='277'%20y='39'%20width='29'%20height='5'%20fill='%238d9587'/><rect%20x='307'%20y='39'%20width='57'%20height='5'%20fill='%23d0bd9a'/><rect%20x='365'%20y='39'%20width='81'%20height='5'%20fill='%23b3a181'/><rect%20x='447'%20y='39'%20width='57'%20height='5'%20fill='%23ae9b78'/><rect%20x='505'%20y='39'%20width='15'%20height='5'%20fill='%2396896a'/><rect%20y='45'%20width='520'%20height='10'%20fill='%235d4a30'/><rect%20x='-58'%20y='45'%20width='18'%20height='9'%20fill='%23b3a181'/><rect%20x='-39'%20y='45'%20width='49'%20height='9'%20fill='%239a8b69'/><rect%20x='11'%20y='45'%20width='57'%20height='9'%20fill='%23736b5c'/><rect%20x='69'%20y='45'%20width='18'%20height='9'%20fill='%23cbb997'/><rect%20x='88'%20y='45'%20width='43'%20height='9'%20fill='%238a7a58'/><rect%20x='132'%20y='45'%20width='15'%20height='9'%20fill='%23ae9b78'/><rect%20x='148'%20y='45'%20width='15'%20height='9'%20fill='%23dbcdae'/><rect%20x='164'%20y='45'%20width='9'%20height='9'%20fill='%23a89573'/><rect%20x='174'%20y='45'%20width='49'%20height='9'%20fill='%23dbcdae'/><rect%20x='224'%20y='45'%20width='57'%20height='9'%20fill='%23bfa87f'/><rect%20x='282'%20y='45'%20width='81'%20height='9'%20fill='%23e2d6b8'/><rect%20x='364'%20y='45'%20width='43'%20height='9'%20fill='%238d9587'/><rect%20x='408'%20y='45'%20width='57'%20height='9'%20fill='%239a8b69'/><rect%20x='466'%20y='45'%20width='12'%20height='9'%20fill='%23ae9b78'/><rect%20x='479'%20y='45'%20width='57'%20height='9'%20fill='%23c8b691'/><rect%20y='55'%20width='520'%20height='5'%20fill='%235d4a30'/><rect%20x='-9'%20y='55'%20width='67'%20height='4'%20fill='%2396896a'/><rect%20x='59'%20y='55'%20width='29'%20height='4'%20fill='%23dbcdae'/><rect%20x='89'%20y='55'%20width='81'%20height='4'%20fill='%23cbb997'/><rect%20x='171'%20y='55'%20width='12'%20height='4'%20fill='%23e2d6b8'/><rect%20x='184'%20y='55'%20width='49'%20height='4'%20fill='%23ab9c7c'/><rect%20x='234'%20y='55'%20width='57'%20height='4'%20fill='%23ab9c7c'/><rect%20x='292'%20y='55'%20width='37'%20height='4'%20fill='%23a89573'/><rect%20x='330'%20y='55'%20width='12'%20height='4'%20fill='%2396896a'/><rect%20x='343'%20y='55'%20width='81'%20height='4'%20fill='%2396896a'/><rect%20x='425'%20y='55'%20width='49'%20height='4'%20fill='%23bfa87f'/><rect%20x='475'%20y='55'%20width='18'%20height='4'%20fill='%23736b5c'/><rect%20x='494'%20y='55'%20width='21'%20height='4'%20fill='%23c6b28f'/><rect%20x='516'%20y='55'%20width='43'%20height='4'%20fill='%23dbcdae'/><rect%20y='60'%20width='520'%20height='7'%20fill='%235d4a30'/><rect%20x='-37'%20y='60'%20width='81'%20height='6'%20fill='%23a4906c'/><rect%20x='45'%20y='60'%20width='57'%20height='6'%20fill='%23736b5c'/><rect%20x='103'%20y='60'%20width='12'%20height='6'%20fill='%23dbcdae'/><rect%20x='116'%20y='60'%20width='25'%20height='6'%20fill='%23dbcdae'/><rect%20x='142'%20y='60'%20width='37'%20height='6'%20fill='%23d5c7a6'/><rect%20x='180'%20y='60'%20width='33'%20height='6'%20fill='%23d5c7a6'/><rect%20x='214'%20y='60'%20width='33'%20height='6'%20fill='%239a8b69'/><rect%20x='248'%20y='60'%20width='43'%20height='6'%20fill='%23ab9c7c'/><rect%20x='292'%20y='60'%20width='12'%20height='6'%20fill='%23a4906c'/><rect%20x='305'%20y='60'%20width='49'%20height='6'%20fill='%23cbb997'/><rect%20x='355'%20y='60'%20width='33'%20height='6'%20fill='%239a8b69'/><rect%20x='389'%20y='60'%20width='33'%20height='6'%20fill='%23c8b691'/><rect%20x='423'%20y='60'%20width='33'%20height='6'%20fill='%23bfa87f'/><rect%20x='457'%20y='60'%20width='49'%20height='6'%20fill='%238d9587'/><rect%20x='507'%20y='60'%20width='33'%20height='6'%20fill='%23e2d6b8'/><rect%20y='67'%20width='520'%20height='6'%20fill='%235d4a30'/><rect%20x='-56'%20y='67'%20width='25'%20height='5'%20fill='%23d0bd9a'/><rect%20x='-30'%20y='67'%20width='37'%20height='5'%20fill='%239a8b69'/><rect%20x='8'%20y='67'%20width='67'%20height='5'%20fill='%238a7a58'/><rect%20x='76'%20y='67'%20width='15'%20height='5'%20fill='%23a19583'/><rect%20x='92'%20y='67'%20width='18'%20height='5'%20fill='%23d5c7a6'/><rect%20x='111'%20y='67'%20width='21'%20height='5'%20fill='%23a4906c'/><rect%20x='133'%20y='67'%20width='9'%20height='5'%20fill='%23d5c7a6'/><rect%20x='143'%20y='67'%20width='21'%20height='5'%20fill='%2396896a'/><rect%20x='165'%20y='67'%20width='81'%20height='5'%20fill='%23d0bd9a'/><rect%20x='247'%20y='67'%20width='29'%20height='5'%20fill='%2396896a'/><rect%20x='277'%20y='67'%20width='15'%20height='5'%20fill='%238a7a58'/><rect%20x='293'%20y='67'%20width='25'%20height='5'%20fill='%23a19583'/><rect%20x='319'%20y='67'%20width='9'%20height='5'%20fill='%23e2d6b8'/><rect%20x='329'%20y='67'%20width='81'%20height='5'%20fill='%23a19583'/><rect%20x='411'%20y='67'%20width='81'%20height='5'%20fill='%23a4906c'/><rect%20x='493'%20y='67'%20width='81'%20height='5'%20fill='%23e2d6b8'/><rect%20y='73'%20width='520'%20height='4'%20fill='%235d4a30'/><rect%20x='-60'%20y='73'%20width='33'%20height='3'%20fill='%23b3a181'/><rect%20x='-26'%20y='73'%20width='81'%20height='3'%20fill='%23c8b691'/><rect%20x='56'%20y='73'%20width='43'%20height='3'%20fill='%23d0bd9a'/><rect%20x='100'%20y='73'%20width='37'%20height='3'%20fill='%23d0bd9a'/><rect%20x='138'%20y='73'%20width='37'%20height='3'%20fill='%23bfa87f'/><rect%20x='176'%20y='73'%20width='25'%20height='3'%20fill='%23a89573'/><rect%20x='202'%20y='73'%20width='81'%20height='3'%20fill='%23d0bd9a'/><rect%20x='284'%20y='73'%20width='57'%20height='3'%20fill='%23dbcdae'/><rect%20x='342'%20y='73'%20width='15'%20height='3'%20fill='%23ae9b78'/><rect%20x='358'%20y='73'%20width='9'%20height='3'%20fill='%23bfa87f'/><rect%20x='368'%20y='73'%20width='81'%20height='3'%20fill='%23b3a181'/><rect%20x='450'%20y='73'%20width='29'%20height='3'%20fill='%23dbcdae'/><rect%20x='480'%20y='73'%20width='18'%20height='3'%20fill='%238a7a58'/><rect%20x='499'%20y='73'%20width='33'%20height='3'%20fill='%239a8b69'/><rect%20y='77'%20width='520'%20height='9'%20fill='%235d4a30'/><rect%20x='-12'%20y='77'%20width='18'%20height='8'%20fill='%23bfa87f'/><rect%20x='7'%20y='77'%20width='81'%20height='8'%20fill='%23e2d6b8'/><rect%20x='89'%20y='77'%20width='37'%20height='8'%20fill='%23c8b691'/><rect%20x='127'%20y='77'%20width='57'%20height='8'%20fill='%238d9587'/><rect%20x='185'%20y='77'%20width='29'%20height='8'%20fill='%238d9587'/><rect%20x='215'%20y='77'%20width='49'%20height='8'%20fill='%239aa093'/><rect%20x='265'%20y='77'%20width='25'%20height='8'%20fill='%23cbb997'/><rect%20x='291'%20y='77'%20width='67'%20height='8'%20fill='%23ab9c7c'/><rect%20x='359'%20y='77'%20width='67'%20height='8'%20fill='%23b3a181'/><rect%20x='427'%20y='77'%20width='43'%20height='8'%20fill='%23cbb997'/><rect%20x='471'%20y='77'%20width='67'%20height='8'%20fill='%23ae9b78'/><rect%20y='86'%20width='520'%20height='6'%20fill='%235d4a30'/><rect%20x='-21'%20y='86'%20width='12'%20height='5'%20fill='%23b3a181'/><rect%20x='-8'%20y='86'%20width='9'%20height='5'%20fill='%23e2d6b8'/><rect%20x='2'%20y='86'%20width='18'%20height='5'%20fill='%23ae9b78'/><rect%20x='21'%20y='86'%20width='33'%20height='5'%20fill='%2396896a'/><rect%20x='55'%20y='86'%20width='43'%20height='5'%20fill='%239aa093'/><rect%20x='99'%20y='86'%20width='33'%20height='5'%20fill='%23bfa87f'/><rect%20x='133'%20y='86'%20width='37'%20height='5'%20fill='%238d9587'/><rect%20x='171'%20y='86'%20width='81'%20height='5'%20fill='%23d5c7a6'/><rect%20x='253'%20y='86'%20width='29'%20height='5'%20fill='%23d0bd9a'/><rect%20x='283'%20y='86'%20width='57'%20height='5'%20fill='%239a8b69'/><rect%20x='341'%20y='86'%20width='67'%20height='5'%20fill='%23ae9b78'/><rect%20x='409'%20y='86'%20width='12'%20height='5'%20fill='%23e2d6b8'/><rect%20x='422'%20y='86'%20width='25'%20height='5'%20fill='%23a89573'/><rect%20x='448'%20y='86'%20width='67'%20height='5'%20fill='%238d9587'/><rect%20x='516'%20y='86'%20width='25'%20height='5'%20fill='%238d9587'/><rect%20y='92'%20width='520'%20height='7'%20fill='%235d4a30'/><rect%20x='-41'%20y='92'%20width='57'%20height='6'%20fill='%238d9587'/><rect%20x='17'%20y='92'%20width='57'%20height='6'%20fill='%23736b5c'/><rect%20x='75'%20y='92'%20width='9'%20height='6'%20fill='%23d0bd9a'/><rect%20x='85'%20y='92'%20width='33'%20height='6'%20fill='%23736b5c'/><rect%20x='119'%20y='92'%20width='33'%20height='6'%20fill='%23dbcdae'/><rect%20x='153'%20y='92'%20width='67'%20height='6'%20fill='%23d0bd9a'/><rect%20x='221'%20y='92'%20width='18'%20height='6'%20fill='%23ae9b78'/><rect%20x='240'%20y='92'%20width='67'%20height='6'%20fill='%23bfa87f'/><rect%20x='308'%20y='92'%20width='21'%20height='6'%20fill='%23ae9b78'/><rect%20x='330'%20y='92'%20width='9'%20height='6'%20fill='%23a19583'/><rect%20x='340'%20y='92'%20width='12'%20height='6'%20fill='%239aa093'/><rect%20x='353'%20y='92'%20width='15'%20height='6'%20fill='%23d5c7a6'/><rect%20x='369'%20y='92'%20width='49'%20height='6'%20fill='%23dbcdae'/><rect%20x='419'%20y='92'%20width='43'%20height='6'%20fill='%2396896a'/><rect%20x='463'%20y='92'%20width='49'%20height='6'%20fill='%23a19583'/><rect%20x='513'%20y='92'%20width='29'%20height='6'%20fill='%23a89573'/><rect%20y='99'%20width='520'%20height='5'%20fill='%235d4a30'/><rect%20x='-19'%20y='99'%20width='49'%20height='4'%20fill='%23c6b28f'/><rect%20x='31'%20y='99'%20width='57'%20height='4'%20fill='%238a7a58'/><rect%20x='89'%20y='99'%20width='9'%20height='4'%20fill='%239a8b69'/><rect%20x='99'%20y='99'%20width='67'%20height='4'%20fill='%23ae9b78'/><rect%20x='167'%20y='99'%20width='21'%20height='4'%20fill='%23a89573'/><rect%20x='189'%20y='99'%20width='9'%20height='4'%20fill='%23cbb997'/><rect%20x='199'%20y='99'%20width='25'%20height='4'%20fill='%23e2d6b8'/><rect%20x='225'%20y='99'%20width='49'%20height='4'%20fill='%239a8b69'/><rect%20x='275'%20y='99'%20width='43'%20height='4'%20fill='%23ab9c7c'/><rect%20x='319'%20y='99'%20width='57'%20height='4'%20fill='%23ab9c7c'/><rect%20x='377'%20y='99'%20width='29'%20height='4'%20fill='%23c6b28f'/><rect%20x='407'%20y='99'%20width='21'%20height='4'%20fill='%239a8b69'/><rect%20x='429'%20y='99'%20width='9'%20height='4'%20fill='%23ab9c7c'/><rect%20x='439'%20y='99'%20width='29'%20height='4'%20fill='%23d0bd9a'/><rect%20x='469'%20y='99'%20width='81'%20height='4'%20fill='%23a4906c'/><rect%20y='104'%20width='520'%20height='8'%20fill='%235d4a30'/><rect%20x='-40'%20y='104'%20width='25'%20height='7'%20fill='%23ab9c7c'/><rect%20x='-14'%20y='104'%20width='12'%20height='7'%20fill='%2396896a'/><rect%20x='-1'%20y='104'%20width='29'%20height='7'%20fill='%23c6b28f'/><rect%20x='29'%20y='104'%20width='15'%20height='7'%20fill='%23e2d6b8'/><rect%20x='45'%20y='104'%20width='25'%20height='7'%20fill='%23c8b691'/><rect%20x='71'%20y='104'%20width='49'%20height='7'%20fill='%23a89573'/><rect%20x='121'%20y='104'%20width='33'%20height='7'%20fill='%23b3a181'/><rect%20x='155'%20y='104'%20width='15'%20height='7'%20fill='%23c8b691'/><rect%20x='171'%20y='104'%20width='37'%20height='7'%20fill='%23bfa87f'/><rect%20x='209'%20y='104'%20width='49'%20height='7'%20fill='%2396896a'/><rect%20x='259'%20y='104'%20width='25'%20height='7'%20fill='%23ae9b78'/><rect%20x='285'%20y='104'%20width='29'%20height='7'%20fill='%23736b5c'/><rect%20x='315'%20y='104'%20width='49'%20height='7'%20fill='%2396896a'/><rect%20x='365'%20y='104'%20width='67'%20height='7'%20fill='%23cbb997'/><rect%20x='433'%20y='104'%20width='57'%20height='7'%20fill='%23d0bd9a'/><rect%20x='491'%20y='104'%20width='37'%20height='7'%20fill='%23c6b28f'/><rect%20y='112'%20width='520'%20height='6'%20fill='%235d4a30'/><rect%20x='-10'%20y='112'%20width='67'%20height='5'%20fill='%23c8b691'/><rect%20x='58'%20y='112'%20width='33'%20height='5'%20fill='%23cbb997'/><rect%20x='92'%20y='112'%20width='37'%20height='5'%20fill='%23cbb997'/><rect%20x='130'%20y='112'%20width='18'%20height='5'%20fill='%238a7a58'/><rect%20x='149'%20y='112'%20width='21'%20height='5'%20fill='%23b3a181'/><rect%20x='171'%20y='112'%20width='67'%20height='5'%20fill='%23a4906c'/><rect%20x='239'%20y='112'%20width='25'%20height='5'%20fill='%23c6b28f'/><rect%20x='265'%20y='112'%20width='81'%20height='5'%20fill='%239a8b69'/><rect%20x='347'%20y='112'%20width='67'%20height='5'%20fill='%23cbb997'/><rect%20x='415'%20y='112'%20width='25'%20height='5'%20fill='%23dbcdae'/><rect%20x='441'%20y='112'%20width='81'%20height='5'%20fill='%23dbcdae'/></svg>");
+  /* The ground floor over the stone, generated by a script:
+     storefront glass between stone piers, the entry's double door, the white
+     trellis with vines up it, trees between its bays and a bench against the
+     wall -- what the photograph shows along the foot of the building, so the
+     stone is no longer one unbroken wall. */
+  --co-ground: url("data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20width='1240'%20height='260'><rect%20x='0'%20y='196'%20width='1240'%20height='64'%20fill='%23aaab9f'/><rect%20x='0'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='62'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='124'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='186'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='248'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='310'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='372'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='434'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='496'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='558'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='620'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='682'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='744'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='806'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='868'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='930'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='992'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='1054'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='1116'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='1178'%20y='196'%20width='1'%20height='64'%20fill='%23979889'/><rect%20x='0'%20y='196'%20width='1240'%20height='1'%20fill='%23979889'/><rect%20x='0'%20y='218'%20width='1240'%20height='1'%20fill='%23979889'/><rect%20x='60'%20y='56'%20width='190'%20height='140'%20fill='%23f4f6f5'/><rect%20x='63'%20y='59'%20width='184'%20height='134'%20fill='%23125c79'/><rect%20x='63'%20y='59'%20width='184'%20height='26'%20fill='%230b4157'/><rect%20x='123'%20y='59'%20width='2'%20height='134'%20fill='%23dfe6e7'/><rect%20x='184'%20y='59'%20width='2'%20height='134'%20fill='%23dfe6e7'/><rect%20x='63'%20y='88'%20width='184'%20height='2'%20fill='%23dfe6e7'/><rect%20x='330'%20y='56'%20width='110'%20height='140'%20fill='%23f4f6f5'/><rect%20x='334'%20y='60'%20width='102'%20height='136'%20fill='%23125c79'/><rect%20x='334'%20y='60'%20width='102'%20height='22'%20fill='%230b4157'/><rect%20x='383'%20y='60'%20width='4'%20height='136'%20fill='%23f4f6f5'/><rect%20x='334'%20y='84'%20width='102'%20height='2'%20fill='%23dfe6e7'/><rect%20x='375'%20y='126'%20width='2'%20height='46'%20fill='%23dfe6e7'/><rect%20x='393'%20y='126'%20width='2'%20height='46'%20fill='%23dfe6e7'/><rect%20x='520'%20y='56'%20width='150'%20height='140'%20fill='%23f4f6f5'/><rect%20x='523'%20y='59'%20width='144'%20height='134'%20fill='%23125c79'/><rect%20x='523'%20y='59'%20width='144'%20height='26'%20fill='%230b4157'/><rect%20x='570'%20y='59'%20width='2'%20height='134'%20fill='%23dfe6e7'/><rect%20x='618'%20y='59'%20width='2'%20height='134'%20fill='%23dfe6e7'/><rect%20x='523'%20y='88'%20width='144'%20height='2'%20fill='%23dfe6e7'/><rect%20x='840'%20y='56'%20width='210'%20height='140'%20fill='%23f4f6f5'/><rect%20x='843'%20y='59'%20width='204'%20height='134'%20fill='%23125c79'/><rect%20x='843'%20y='59'%20width='204'%20height='26'%20fill='%230b4157'/><rect%20x='910'%20y='59'%20width='2'%20height='134'%20fill='%23dfe6e7'/><rect%20x='978'%20y='59'%20width='2'%20height='134'%20fill='%23dfe6e7'/><rect%20x='843'%20y='88'%20width='204'%20height='2'%20fill='%23dfe6e7'/><rect%20x='1120'%20y='56'%20width='100'%20height='140'%20fill='%23f4f6f5'/><rect%20x='1123'%20y='59'%20width='94'%20height='134'%20fill='%23125c79'/><rect%20x='1123'%20y='59'%20width='94'%20height='26'%20fill='%230b4157'/><rect%20x='1153'%20y='59'%20width='2'%20height='134'%20fill='%23dfe6e7'/><rect%20x='1184'%20y='59'%20width='2'%20height='134'%20fill='%23dfe6e7'/><rect%20x='1123'%20y='88'%20width='94'%20height='2'%20fill='%23dfe6e7'/><rect%20x='300'%20y='64'%20width='170'%20height='5'%20fill='%23feffff'/><rect%20x='300'%20y='69'%20width='170'%20height='2'%20fill='%23d7dcdc'/><rect%20x='310'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='324'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='338'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='352'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='366'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='380'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='394'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='408'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='422'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='436'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='450'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='306'%20y='71'%20width='6'%20height='125'%20fill='%23feffff'/><rect%20x='312'%20y='71'%20width='1'%20height='125'%20fill='%23d7dcdc'/><path%20d='M309%20196%20q%20-6%20-30%202%20-60%20q%208%20-30%20-2%20-62'%20fill='none'%20stroke='%2354625b'%20stroke-width='2'/><ellipse%20cx='302'%20cy='176'%20rx='6'%20ry='3.5'%20fill='%238aa66e'%20transform='rotate(30%20302%20176)'/><ellipse%20cx='316'%20cy='159'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(-30%20316%20159)'/><ellipse%20cx='302'%20cy='142'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(30%20302%20142)'/><ellipse%20cx='316'%20cy='125'%20rx='6'%20ry='3.5'%20fill='%238aa66e'%20transform='rotate(-30%20316%20125)'/><ellipse%20cx='302'%20cy='108'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(30%20302%20108)'/><ellipse%20cx='316'%20cy='91'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(-30%20316%2091)'/><rect%20x='458'%20y='71'%20width='6'%20height='125'%20fill='%23feffff'/><rect%20x='464'%20y='71'%20width='1'%20height='125'%20fill='%23d7dcdc'/><path%20d='M461%20196%20q%20-6%20-30%202%20-60%20q%208%20-30%20-2%20-62'%20fill='none'%20stroke='%2354625b'%20stroke-width='2'/><ellipse%20cx='454'%20cy='176'%20rx='6'%20ry='3.5'%20fill='%238aa66e'%20transform='rotate(30%20454%20176)'/><ellipse%20cx='468'%20cy='159'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(-30%20468%20159)'/><ellipse%20cx='454'%20cy='142'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(30%20454%20142)'/><ellipse%20cx='468'%20cy='125'%20rx='6'%20ry='3.5'%20fill='%238aa66e'%20transform='rotate(-30%20468%20125)'/><ellipse%20cx='454'%20cy='108'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(30%20454%20108)'/><ellipse%20cx='468'%20cy='91'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(-30%20468%2091)'/><path%20d='M308%2066%20q%2030%20-12%2060%200%20t%2060%200%20t%2060%200%20t%2060%200%20t%2060%200%20t%2060%200'%20fill='none'%20stroke='%2354625b'%20stroke-width='2'/><ellipse%20cx='322'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='349'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='376'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='403'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='430'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='457'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><rect%20x='800'%20y='64'%20width='290'%20height='5'%20fill='%23feffff'/><rect%20x='800'%20y='69'%20width='290'%20height='2'%20fill='%23d7dcdc'/><rect%20x='810'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='824'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='838'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='852'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='866'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='880'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='894'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='908'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='922'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='936'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='950'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='964'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='978'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='992'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='1006'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='1020'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='1034'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='1048'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='1062'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='1076'%20y='56'%20width='3'%20height='8'%20fill='%23feffff'/><rect%20x='806'%20y='71'%20width='6'%20height='125'%20fill='%23feffff'/><rect%20x='812'%20y='71'%20width='1'%20height='125'%20fill='%23d7dcdc'/><path%20d='M809%20196%20q%20-6%20-30%202%20-60%20q%208%20-30%20-2%20-62'%20fill='none'%20stroke='%2354625b'%20stroke-width='2'/><ellipse%20cx='802'%20cy='176'%20rx='6'%20ry='3.5'%20fill='%238aa66e'%20transform='rotate(30%20802%20176)'/><ellipse%20cx='816'%20cy='159'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(-30%20816%20159)'/><ellipse%20cx='802'%20cy='142'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(30%20802%20142)'/><ellipse%20cx='816'%20cy='125'%20rx='6'%20ry='3.5'%20fill='%238aa66e'%20transform='rotate(-30%20816%20125)'/><ellipse%20cx='802'%20cy='108'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(30%20802%20108)'/><ellipse%20cx='816'%20cy='91'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(-30%20816%2091)'/><rect%20x='1078'%20y='71'%20width='6'%20height='125'%20fill='%23feffff'/><rect%20x='1084'%20y='71'%20width='1'%20height='125'%20fill='%23d7dcdc'/><path%20d='M1081%20196%20q%20-6%20-30%202%20-60%20q%208%20-30%20-2%20-62'%20fill='none'%20stroke='%2354625b'%20stroke-width='2'/><ellipse%20cx='1074'%20cy='176'%20rx='6'%20ry='3.5'%20fill='%238aa66e'%20transform='rotate(30%201074%20176)'/><ellipse%20cx='1088'%20cy='159'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(-30%201088%20159)'/><ellipse%20cx='1074'%20cy='142'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(30%201074%20142)'/><ellipse%20cx='1088'%20cy='125'%20rx='6'%20ry='3.5'%20fill='%238aa66e'%20transform='rotate(-30%201088%20125)'/><ellipse%20cx='1074'%20cy='108'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(30%201074%20108)'/><ellipse%20cx='1088'%20cy='91'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'%20transform='rotate(-30%201088%2091)'/><path%20d='M808%2066%20q%2030%20-12%2060%200%20t%2060%200%20t%2060%200%20t%2060%200%20t%2060%200%20t%2060%200'%20fill='none'%20stroke='%2354625b'%20stroke-width='2'/><ellipse%20cx='822'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='849'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='876'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='903'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='930'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='957'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='984'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='1011'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='1038'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><ellipse%20cx='1065'%20cy='60'%20rx='6'%20ry='3.5'%20fill='%236b8a5c'/><rect%20x='593'%20y='122'%20width='4'%20height='74'%20fill='%235d4a30'/><circle%20cx='595'%20cy='110'%20r='24'%20fill='%236b8a5c'/><circle%20cx='577'%20cy='120'%20r='18'%20fill='%2354625b'/><circle%20cx='612'%20cy='118'%20r='19'%20fill='%238aa66e'/><circle%20cx='589'%20cy='96'%20r='17'%20fill='%236b8a5c'/><circle%20cx='605'%20cy='100'%20r='15'%20fill='%238aa66e'/><rect%20x='748'%20y='122'%20width='4'%20height='74'%20fill='%235d4a30'/><circle%20cx='750'%20cy='110'%20r='24'%20fill='%236b8a5c'/><circle%20cx='732'%20cy='120'%20r='18'%20fill='%2354625b'/><circle%20cx='767'%20cy='118'%20r='19'%20fill='%238aa66e'/><circle%20cx='744'%20cy='96'%20r='17'%20fill='%236b8a5c'/><circle%20cx='760'%20cy='100'%20r='15'%20fill='%238aa66e'/><rect%20x='1108'%20y='122'%20width='4'%20height='74'%20fill='%235d4a30'/><circle%20cx='1110'%20cy='110'%20r='24'%20fill='%236b8a5c'/><circle%20cx='1092'%20cy='120'%20r='18'%20fill='%2354625b'/><circle%20cx='1127'%20cy='118'%20r='19'%20fill='%238aa66e'/><circle%20cx='1104'%20cy='96'%20r='17'%20fill='%236b8a5c'/><circle%20cx='1120'%20cy='100'%20r='15'%20fill='%238aa66e'/><rect%20x='160'%20y='174'%20width='70'%20height='5'%20fill='%23575c5f'/><rect%20x='160'%20y='180'%20width='70'%20height='4'%20fill='%233b3f42'/><rect%20x='166'%20y='184'%20width='4'%20height='12'%20fill='%233b3f42'/><rect%20x='220'%20y='184'%20width='4'%20height='12'%20fill='%233b3f42'/><rect%20x='1000'%20y='174'%20width='70'%20height='5'%20fill='%23575c5f'/><rect%20x='1000'%20y='180'%20width='70'%20height='4'%20fill='%233b3f42'/><rect%20x='1006'%20y='184'%20width='4'%20height='12'%20fill='%233b3f42'/><rect%20x='1060'%20y='184'%20width='4'%20height='12'%20fill='%233b3f42'/></svg>");
+  /* the wall row the menu bar wears: white panels with dark tan ones set into
+     them, as the spandrel course between the storeys is */
+  --co-panels:
+    repeating-linear-gradient(90deg,
+      #f6f4ee 0 108px, rgba(18, 38, 63, 0.07) 108px 109px,
+      #c6b696 109px 145px, rgba(18, 38, 63, 0.07) 145px 146px,
+      #f6f4ee 146px 232px, rgba(18, 38, 63, 0.07) 232px 233px,
+      #cfc1a4 233px 261px, rgba(18, 38, 63, 0.07) 261px 262px);
+  --co-trellis:
+    repeating-linear-gradient(90deg, transparent 0 76px, rgba(255, 255, 255, 0.55) 76px 78px, rgba(12, 44, 58, 0.05) 78px 79px),
+    repeating-linear-gradient(180deg, transparent 0 76px, rgba(255, 255, 255, 0.45) 76px 78px, rgba(12, 44, 58, 0.04) 78px 79px);
+  --co-glow: 0 0 0 1px rgba(15, 95, 127, 0.5), 0 0 0 4px rgba(91, 143, 212, 0.16);
+  --co-glow-soft: 0 0 0 3px rgba(91, 143, 212, 0.14);
+  --co-cast: 0 1px 2px rgba(12, 44, 58, 0.12);
+  color: var(--t-fg);
+  font-family: var(--t-font);
+  background:
+    /* the sky over the parapet, in the corner the sun comes from */
+    radial-gradient(1100px 460px at 82% -18%, rgba(91, 143, 212, 0.20), transparent 64%),
+    var(--co-reveals),
+    linear-gradient(180deg, #efefe9 0%, #e8e8e2 62%, #e2e2db 100%);
+  scrollbar-color: var(--t-reveal-deep) transparent;
+}
+.co-root ::-webkit-scrollbar-thumb { background: var(--t-reveal-deep); border-radius: 0; }
+
+/* --- the top bar: the elevation, at a glance ----------------------------------------------------- */
+/* Parapet, a reveal beneath its cap, two storeys of glass in mullions, and the
+   sandstone base course the piers are faced with. */
+.co-top {
+  position: relative; display: flex; align-items: center; gap: 18px; height: 48px; padding: 11px 22px 7px;
+  color: #2c3138;
+  background: linear-gradient(180deg,
+    #9d9078 0 2px,
+    #b8ab92 2px 9px,
+    #f2ece0 9px 41px,
+    #d9d2c4 41px 45px,
+    #c4b49a 45px 48px);
+  border-bottom: 1px solid var(--t-reveal-deep);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+/* The sign as the building sets it: the street number in gray, the name in
+   letterspaced caps. */
+.co-brand { display: inline-flex; align-items: baseline; gap: 15px; padding: 0; border: 0; background: none; cursor: pointer; }
+.co-brand-num { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; color: #7c7566; }
+.co-brand-name { font-size: 15px; font-weight: 700; letter-spacing: 0.42em; text-transform: uppercase; color: #16202b; }
+.co-brand:hover .co-brand-name { color: var(--t-glass-lit); }
+.co-title { margin-left: auto; font-size: 12px; color: #6d6659; letter-spacing: 0.02em; }
+.co-link { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: #4e483d; }
+.co-link i { width: 8px; height: 8px; background: var(--t-glass-lit); box-shadow: 0 0 0 1px rgba(22, 32, 43, 0.25); }
+.co-link[data-off='true'] i { background: var(--t-critical); }
+
+/* The base course: the stacked sandstone veneer on the piers, run along the
+   foot of the window. Four courses, each with its own joint rhythm, so the
+   stones break like the real coursing rather than lining up. */
+/* The ground floor sits behind the panes rather than under them, so the panes
+   run to the foot of the window as they did and the stone reads through their
+   glass. z-index -1 puts it over the concrete ground and under everything in
+   the window. */
+.co-root::before {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; z-index: -1;
+  height: clamp(120px, 24vh, 300px); pointer-events: none;
+  /* Two washes over the courses, on periods that share no factor with the
+     tile's 340px: a wall lit unevenly, which is what stops the eye finding
+     the repeat. The tile alone, however varied its stones, still reads as a
+     grid at this width. */
+  background:
+    var(--co-ground) left bottom / auto 260px repeat-x,
+    repeating-linear-gradient(97deg,
+      rgba(255, 250, 235, 0.06) 0 211px, rgba(90, 70, 40, 0.045) 211px 523px,
+      rgba(255, 250, 235, 0.035) 523px 829px),
+    repeating-linear-gradient(184deg,
+      rgba(120, 96, 58, 0.05) 0 149px, rgba(255, 252, 240, 0.04) 149px 337px),
+    var(--co-veneer);
+  /* the courses come in over a few pixels: seen through the panes' glass a
+     hard top edge reads as a seam across all three */
+  -webkit-mask: linear-gradient(180deg, transparent 0, #000 18px);
+  mask: linear-gradient(180deg, transparent 0, #000 18px);
+}
+/* the Mini Controller is a window of its own: no ground floor in there */
+.co-root.win-mini-root::before { display: none; }
+
+/* --- menu bar and menus ------------------------------------------------------------------------- */
+/* The spandrel band above the ribbon glass: one run of warm taupe, as it is
+   on the wing. It used to carry white and tan blocks that fell where they
+   fell against the panes below; now the piers between
+   the panes are the only verticals, and they run from this band to the
+   stone. */
+.co-root .win-menubar { position: relative; background: linear-gradient(180deg, #ddd6c8, #d2cab9); border-bottom: 1px solid var(--t-taupe-deep); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(12, 44, 58, 0.06); }
+.co-root .win-menubar::before { display: none; }
+.co-root .win-menubar-title { color: var(--t-fg); }
+.co-root .win-menubar-title:hover, .co-root .win-menubar-title[aria-expanded='true'] { background: none; }
+.co-root .win-menubar-title:hover::after, .co-root .win-menubar-title[aria-expanded='true']::after { background: rgba(27, 42, 49, 0.13); }
+.co-root .win-menu { background: var(--co-panel); color: var(--t-fg); border: 1px solid var(--t-border-strong); border-radius: var(--t-radius-sm); box-shadow: var(--t-shadow); }
+.co-root .win-menu-item { color: var(--t-fg); }
+.co-root .win-menu-item:hover:not(:disabled), .co-root .win-menu-item:focus-visible { background: var(--t-glass-lit); color: #fff; }
+.co-root .win-menu-item:disabled { color: var(--t-fg-dim); }
+.co-root .win-menu-sep { background: var(--t-border); }
+
+/* --- transport strip: the curtain wall ----------------------------------------------------------- */
+/* The ribbon glass, with the taupe spandrel beneath it as above. */
+.co-root .dk-strip { background: var(--co-glass); border-bottom: 4px solid var(--t-taupe); box-shadow: 0 1px 0 var(--t-taupe-deep); color: #e9f3f6; }
+.co-root .dk-strip svg, .co-root .dk-strip button { color: #e9f3f6; }
+.co-root .dk-strip button:disabled, .co-root .dk-strip button:disabled svg { color: rgba(233, 243, 246, 0.35); }
+.co-root .dk-btn-play svg { filter: drop-shadow(0 1px 2px rgba(5, 26, 36, 0.5)); }
+.co-root .dk-mode[aria-pressed='true'] { color: var(--t-sky-low); }
+.co-root .dk-progress-track, .co-root .dk-slider-track { background: rgba(5, 26, 36, 0.45); }
+.co-root .dk-progress-fill, .co-root .dk-slider-fill { background: linear-gradient(90deg, var(--t-sky), var(--t-sky-low)); box-shadow: none; }
+.co-root .dk-progress-thumb { background: var(--t-mullion-bright); box-shadow: var(--co-cast); }
+.co-root .dk-time-elapsed, .co-root .dk-time-total, .co-root .dk-time-remaining { color: rgba(233, 243, 246, 0.7); }
+.co-root .dk-strip-search { background: #fff; border: 1px solid rgba(201, 209, 210, 0.8); color: var(--t-fg); }
+.co-root .dk-strip-search:focus-within { border-color: var(--t-sky); box-shadow: 0 0 0 3px rgba(91, 143, 212, 0.3); }
+.co-root .dk-strip-search input { color: var(--t-fg); }
+.co-root .dk-strip-search input::placeholder { color: var(--t-fg-dim); }
+.co-root .dk-strip-search .dk-strip-scope, .co-root .dk-strip-search button { color: var(--t-fg); }
+/* The strip paints its own glyphs near-white for the glass; the pill is white
+   paper, so the ones sitting on it take the ink color instead. */
+.co-root .dk-strip-search button svg, .co-root .dk-strip-search .dk-strip-scope svg { color: var(--t-fg); }
+/* the same select component appears on the glass strip and on a concrete pane
+   header, so each ground gets its own pairing */
+.co-root .dk-strip .dk-strip-select select { color: #e9f3f6; background: rgba(5, 26, 36, 0.4); border-color: rgba(201, 209, 210, 0.45); }
+.co-root .dk-header .dk-strip-select select { color: var(--t-fg); background: #fff; border-color: var(--t-border-strong); }
+.co-root .dk-strip-select select option { color: var(--t-fg); background: #fff; }
+
+/* --- panes: tilt-up panels ------------------------------------------------------------------------ */
+.co-root .dk-panes { background: transparent; }
+/* the white concrete piers between the window bays */
+.co-root .dk-divider { background: linear-gradient(90deg, #f7f6f1, #fdfdfb 50%, #e9e9e3); box-shadow: inset 1px 0 0 rgba(12, 44, 58, 0.06), inset -1px 0 0 rgba(12, 44, 58, 0.06); }
+.co-root .dk-pane {
+  background: var(--co-panel-glass); border: 1px solid var(--t-border); border-radius: var(--t-radius); overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 1px 2px rgba(12, 44, 58, 0.10), 0 10px 22px rgba(12, 44, 58, 0.08);
+}
+.co-root .dk-header {
+  background: linear-gradient(180deg, rgba(247, 247, 244, 0.9), rgba(237, 238, 233, 0.84)); color: var(--t-fg);
+  border-bottom: 2px solid var(--t-taupe); box-shadow: inset 0 1px 0 #fff, inset 0 -2px 0 rgba(12, 44, 58, 0.04);
+}
+.co-root .dk-header-title { font-weight: 600; letter-spacing: 0.01em; }
+.co-root .dk-header-sub { color: var(--t-fg-muted); }
+.co-root .dk-header-btn, .co-root .dk-header-btn svg { color: var(--t-fg-muted); }
+.co-root .dk-header-btn:hover { background: var(--t-surface-active); color: var(--t-fg); }
+.co-root .dk-footer { background: rgba(255, 253, 246, 0.16); border-top: 1px solid rgba(66, 51, 32, 0.3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3); padding: 3px 4px; box-sizing: border-box; gap: 4px; }
+/* the buttons are the storefront bays set between the piers: light faces on
+   the stone, jointed like the glazing */
+.co-root .dk-footer button { color: #23282a; border-color: rgba(66, 51, 32, 0.45); background: #fbf9f3; }
+.co-root .dk-footer button:hover:not(:disabled) { background: #fffdf7; color: var(--t-glass-lit); border-color: var(--t-glass-lit); }
+/* the shared sheet fades a disabled button to 45% opacity, which over the
+   veneer leaves the stone showing through the label: keep the face opaque
+   here and let the text color carry the state instead */
+.co-root .dk-footer button:disabled { opacity: 1; color: rgba(35, 40, 42, 0.58); background: #f3f0e8; }
+
+/* --- room tiles: concrete panels; the chosen room turns to glass ---------------------------------- */
+.co-root .dk-tile {
+  background: linear-gradient(180deg, rgba(253, 253, 251, 0.8), rgba(244, 244, 239, 0.71));
+  border: 1px solid var(--t-border); border-radius: var(--t-radius-sm); color: var(--t-fg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), var(--co-cast);
+}
+.co-root .dk-tile:hover { background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(246, 247, 244, 0.88)); border-color: var(--t-border-strong); }
+.co-root .dk-tile[aria-pressed='true'] {
+  background: var(--co-glass); border-color: var(--t-glass-deep); color: #e9f3f6;
+  box-shadow: var(--co-glow-soft), inset 0 1px 0 rgba(201, 209, 210, 0.35);
+}
+.co-root .dk-tile-now, .co-root .dk-tile-state-win, .co-root .dk-tile-device { color: var(--t-fg-muted); opacity: 1; }
+.co-root .dk-tile[aria-pressed='true'] .dk-tile-now,
+.co-root .dk-tile[aria-pressed='true'] .dk-tile-state-win,
+.co-root .dk-tile[aria-pressed='true'] .dk-tile-device,
+.co-root .dk-tile[aria-pressed='true'] .dk-tile-marquee { color: rgba(233, 243, 246, 0.8); opacity: 1; }
+.co-root .dk-tile-group, .co-root .dk-tile-group svg, .co-root .dk-tile-more { color: var(--t-glass-lit); }
+.co-root .dk-tile-group:hover { background: rgba(15, 95, 127, 0.1); }
+.co-root .dk-tile[aria-pressed='true'] .dk-tile-group,
+.co-root .dk-tile[aria-pressed='true'] .dk-tile-group svg,
+.co-root .dk-tile[aria-pressed='true'] .dk-tile-more { color: var(--t-sky-low); }
+.co-root .dk-tile[aria-pressed='true'] .dk-tile-group:hover { background: rgba(201, 209, 210, 0.16); }
+
+/* --- rows ---------------------------------------------------------------------------------------------- */
+.co-root .dk-browse-row, .co-root .dk-row { color: var(--t-fg); border-color: rgba(12, 44, 58, 0.07); }
+.co-root .dk-browse-row:hover, .co-root .dk-row:hover { background: rgba(12, 44, 58, 0.05); }
+.co-root .dk-browse-row[aria-selected='true'], .co-root .dk-row[aria-selected='true'], .co-root .dk-row[aria-checked='true'] { background: rgba(15, 95, 127, 0.16); color: var(--t-fg); box-shadow: inset 3px 0 0 var(--t-glass-lit); }
+.co-root .dk-row[aria-current='true'] { background: rgba(91, 143, 212, 0.13); box-shadow: inset 3px 0 0 var(--t-sky); }
+.co-root .dk-browse-sub, .co-root .dk-row-sub, .co-root .dk-row-num, .co-root .dk-row-dur, .co-root .dk-browse-note, .co-root .dk-browse-prose { color: var(--t-fg-muted); }
+.co-root .dk-browse-disclosure, .co-root .dk-browse-actions, .co-root .dk-browse-check { color: var(--t-fg-dim); }
+/* section labels in the stone of the entry piers */
+.co-root .dk-browse-section { color: var(--t-sandstone-deep); letter-spacing: 0.04em; }
+.co-root .dk-scopebar-tabs button { color: var(--t-fg-muted); }
+.co-root .dk-scopebar-tabs button[aria-selected='true'] { color: var(--t-fg); border-bottom-color: var(--t-glass-lit); }
+
+/* --- now playing, popovers, notices ------------------------------------------------------------------------ */
+.co-root .dk-now-line { color: var(--t-fg); }
+.co-root .dk-now-line[data-caption]::before, .co-root .dk-now-muted, .co-root .dk-now-source span { color: var(--t-fg-muted); }
+.co-root .dk-now-source strong { color: var(--t-fg); }
+.co-root .dk-now-art { background: #fff; border: 1px solid var(--t-border); border-radius: var(--t-radius-sm); box-shadow: 0 1px 2px rgba(12, 44, 58, 0.14), 0 8px 18px rgba(12, 44, 58, 0.12); }
+.co-root .dk-now-art img { border-radius: 0; }
+/* an empty pane shows the trellis over the walkway */
+/* an empty pane is the walkway: the trellis over the stone, nothing between */
+.co-root .dk-empty { background: var(--co-trellis); }
+.co-root .dk-empty p { color: var(--t-fg-muted); }
+.co-root .dk-empty svg { color: var(--t-reveal-deep); }
+.co-root .dk-popover, .co-root .dk-action-menu, .co-root .dk-account-menu { background: var(--co-panel); color: var(--t-fg); border: 1px solid var(--t-border-strong); border-radius: var(--t-radius-sm); box-shadow: var(--t-shadow); }
+.co-root .dk-action-menu button, .co-root .dk-popover button { color: var(--t-fg); }
+.co-root .dk-action-menu button:hover:not(:disabled), .co-root .dk-popover button:hover:not(:disabled) { background: var(--t-glass-lit); color: #fff; }
+.co-root .dk-action-menu button:disabled { color: var(--t-fg-dim); }
+.co-root .dk-popover-sep { background: var(--t-border); }
+.co-root .dk-notices .dk-notice { background: var(--co-panel); color: var(--t-fg); border: 1px solid var(--t-border-strong); border-left: 3px solid var(--t-sandstone); border-radius: var(--t-radius-sm); box-shadow: var(--t-shadow); }
+.co-root .dk-notice button { color: var(--t-glass-lit); }
+
+/* --- windows and dialogs ------------------------------------------------------------------------------------- */
+.co-root .dk-window { background: linear-gradient(180deg, #fbfbf8, #f2f2ee); color: var(--t-fg); border: 1px solid var(--t-border-strong); border-radius: var(--t-radius); box-shadow: var(--t-shadow); }
+.co-root .dk-window-title { background: var(--co-glass); color: #e9f3f6; border-bottom: 1px solid var(--t-reveal-deep); }
+.co-root .dk-light-close { background: rgba(201, 209, 210, 0.2); color: rgba(233, 243, 246, 0.85); }
+.co-root .dk-light-close:hover { background: var(--t-critical); color: #fff; }
+.co-root .win-settings, .co-root .win-settings .dk-prefs-page, .co-root .win-settings .win-settings-panel, .co-root .win-settings .win-lib-table, .co-root .win-settings .win-lib-indexing, .co-root .win-about, .co-root .win-shortcuts, .co-root .win-savequeue, .co-root .win-message, .co-root .win-alarms, .co-root .win-alarm-editor, .co-root .win-wizard, .co-root .win-errorlog, .co-root .win-grouping, .co-root .dk-confirm, .co-root .dk-grouping, .co-root .dk-musicpicker, .co-root .dk-addradio, .co-root .dk-info, .co-root .dk-add { background: #fbfbf8; color: var(--t-fg); }
+.co-root .win-settings .dk-prefs-toc { background: linear-gradient(180deg, #f1f1ec, #e9e9e3); border-right: 1px solid var(--t-border); }
+.co-root .win-settings .dk-prefs-page :not(input):not(select):not(button):not(option) { color: var(--t-fg); }
+.co-root .win-settings .win-settings-foot, .co-root .win-settings .win-settings-foot p { color: var(--t-fg-muted); }
+.co-root .win-settings .dk-tabs button { background: #ebebe5; color: var(--t-fg-muted); border-color: var(--t-border-strong); }
+.co-root .win-settings .dk-tabs button[aria-selected='true'] { background: #fbfbf8; color: var(--t-fg); border-bottom-color: #fbfbf8; }
+.co-root .win-settings .win-settings-list button { color: var(--t-fg); }
+.co-root .win-settings .win-settings-list button[aria-selected='true'], .co-root .win-savequeue-list button[aria-selected='true'], .co-root .dk-musicpicker-row[aria-selected='true'], .co-root .dk-room-menu button:hover:not(:disabled) { background: var(--t-glass-lit); color: #fff; }
+/* buttons are small concrete panels: a reveal for an edge, sun on the top arris */
+.co-root .dk-win-btn, .co-root .win-dialog button, .co-root .win-settings .dk-win-btn { background: linear-gradient(180deg, #fdfdfb, #eeeee9); color: var(--t-fg); border-color: var(--t-border-strong); border-radius: var(--t-radius-sm); box-shadow: inset 0 1px 0 #fff; }
+.co-root .dk-win-btn:hover:not(:disabled), .co-root .win-settings .dk-win-btn:hover:not(:disabled) { border-color: var(--t-glass-lit); background: linear-gradient(180deg, #fff, #f4f5f2); }
+.co-root .dk-win-btn[data-default='true'] { border-color: var(--t-glass-lit); box-shadow: inset 0 1px 0 #fff, var(--co-glow-soft); }
+.co-root .win-settings input, .co-root .win-settings select, .co-root .win-settings .win-settings-for select, .co-root .win-settings .win-lib-inline select, .co-root .win-alarm-editor input, .co-root .win-alarm-editor select, .co-root .win-savequeue-field input, .co-root .dk-addradio input { background: #fff; color: var(--t-fg); border-color: var(--t-border-strong); border-radius: var(--t-radius-sm); }
+.co-root .win-savequeue-field input:focus { border-color: var(--t-glass-lit); box-shadow: var(--co-glow-soft); }
+.co-root .win-settings .win-lib-table th, .co-root .win-settings .win-lib-table td { color: var(--t-fg); border-color: var(--t-border); }
+.co-root .dk-addradio-mark, .co-root .win-wizard-mark, .co-root a { color: var(--t-glass-lit); }
+.co-root :focus-visible { outline: 2px solid var(--t-focus); outline-offset: 1px; }
+/* The search pill takes focus as a whole: the field inside it draws no ring
+   of its own, which had left a bracket and a bar inside the pill. */
+.co-root .dk-strip-search input:focus-visible, .co-root .dk-strip-search input:focus { outline: none; box-shadow: none; }
+
+/* --- the Mini Controller ------------------------------------------------------------------------------------------ */
+.co-root .win-mini-panel, .co-root .win-mini { background: #fbfbf8; color: var(--t-fg); border-color: var(--t-border-strong); box-shadow: var(--t-shadow); }
+.co-root .win-mini-title { background: var(--co-glass); color: #e9f3f6; }
+
+/* --- the shell's own Windows values, brought onto concrete ---------------------------------------- */
+/* windows.css paints the real application's dark chrome, so the places where it
+   hardcodes a color instead of reading a token need answering here. */
+.co-root .dk-tile .dk-tile-marquee, .co-root .dk-tile-indicator { color: var(--t-fg-muted); }
+.co-root .dk-tile[aria-pressed='true'] .dk-tile-indicator,
+.co-root .dk-tile[aria-pressed='true'] .dk-tile-device small { color: rgba(233, 243, 246, 0.82); }
+.co-root .dk-scopebar { background: linear-gradient(180deg, #f4f4ef, #e9e9e3); border-bottom: 1px solid var(--t-border); }
+.co-root .dk-scopebar-back { color: var(--t-fg-muted); border-right: 1px solid var(--t-border); }
+.co-root .dk-scopebar-tabs button { color: var(--t-fg-muted); border-right: 1px solid var(--t-border); }
+.co-root .dk-scopebar-tabs button:hover:not([aria-selected='true']) { background: rgba(12, 44, 58, 0.05); }
+.co-root .dk-scopebar-tabs button[aria-selected='true'] { background: #fbfbf8; color: var(--t-fg); box-shadow: inset 0 -2px 0 var(--t-glass-lit); }
+.co-root .dk-footer { border-top: 1px solid var(--t-border); }
+.co-root .dk-footer button + button { border-left: 1px solid var(--t-border); }
+.co-root .dk-group-volume { background: var(--co-panel); border: 1px solid var(--t-border-strong); box-shadow: var(--t-shadow); }
+.co-root .dk-group-volume::before { border-bottom-color: #fdfdfb; }
+.co-root .dk-group-volume-row + .dk-group-volume-row { border-top: 1px solid var(--t-border); }
+.co-root .win-menu-item:hover:not(:disabled) kbd { color: rgba(255, 255, 255, 0.8); }
+.co-root .win-menubar-title:hover, .co-root .win-menubar-title[aria-expanded='true'] { color: var(--t-fg); }
+/* The rating thumbs carry white service artwork, so they keep a dark disc --
+   glass here, ringed like a mullion so it sits on the concrete pane. */
+.co-root .dk-now-rating button { background: var(--co-glass); color: #fff; box-shadow: 0 0 0 1px var(--t-mullion), var(--co-cast); }
+.co-root .dk-now-rating button:hover:not(:disabled) { background: var(--t-glass-lit); }
+.co-root .dk-btn-play:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); }
+/* glyph chips: navy glass keeps the shell's white marks */
+.co-root .dk-row[aria-current='true'] .dk-row-num,
+.co-root .dk-album-shuffle .dk-browse-art.dk-browse-glyph,
+.co-root .dk-browse-addrow { background: var(--t-glass-lit); color: #fff; }
+.co-root .dk-radio-glyph { background: var(--t-concrete-shade); color: var(--t-fg-muted); }
+.co-root .dk-browse-art:has(.dk-browse-missing) { background: var(--t-concrete-shade); }
+.co-root .win-grouping .dk-grouping-art { background: var(--t-concrete-shade); }
+.co-root .dk-header-home:active { background: var(--t-surface-active); }
+/* the sleep timer and the Mini Controller are glass all through */
+.co-root .dk-sleep-window { background: var(--co-glass); color: #e9f3f6; border: 1px solid var(--t-reveal-deep); box-shadow: var(--t-shadow); }
+.co-root .dk-sleep-window::after { border-top-color: #082e3f; }
+.co-root .dk-sleep-window .dk-sleep-choices .dk-win-btn::before { background: rgba(201, 209, 210, 0.22); }
+.co-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover,
+.co-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: rgba(255, 255, 255, 0.12); }
+.co-root .win-mini-panel { background: var(--co-glass); border-color: var(--t-reveal-deep); }
+.co-root.win-mini-root { background: var(--t-glass-deep); }
+
+/* --- narrow screens: the parapet and base thin out, the glass keeps its grid --------------------- */
+@media (max-width: 936px) {
+  .co-top {
+    height: 40px; padding: 8px 12px 6px; gap: 10px;
+    background: linear-gradient(180deg,
+      #9d9078 0 2px,
+      #b8ab92 2px 7px,
+      #f2ece0 7px 34px,
+      #d9d2c4 34px 37px,
+      #c4b49a 37px 40px);
+  }
+  .co-root::before { height: clamp(96px, 20vh, 220px); }
+  .co-brand { gap: 10px; }
+  .co-brand-name { font-size: 13px; letter-spacing: 0.3em; }
+  .co-brand-num { display: none; }
+  .co-title { display: none; }
+  .co-link { margin-left: auto; }
+}
+
+/* --- narrow: the pane tabs sit on the glass strip ------------------------------------------------- */
+@media (max-width: 936px) {
+  html .co-root .dk-pane-switch { background: var(--co-glass); border-bottom: 1px solid var(--t-reveal-deep); }
+  html .co-root .dk-pane-switch button { color: rgba(233, 243, 246, 0.82); border-color: rgba(201, 209, 210, 0.45); border-radius: var(--t-radius-sm); }
+  html .co-root .dk-pane-switch button[aria-selected='true'] { color: var(--t-glass); background: #fbfbf8; border-color: var(--t-mullion); }
+}
+
+/* --- the elevation travels with the tabs --------------------------------------------------------- */
+/* Below 937px the three panes become one pane behind a row of tabs, each
+   sliding in from the side. The building behind them stayed put, so the panes
+   read as sliding over a printed backdrop rather than as moving along a wall.
+
+   Now the elevation travels with them, and at different rates by distance:
+   the sandstone at the foot moves most, the mullion reveals behind the glass
+   less, the sky least. That difference is what makes it read as depth rather
+   than as one picture being dragged sideways. `--co-travel` is the step, set
+   by whichever tab is showing, and each layer takes its own multiple of it.
+
+   Keyed with :has() off `.dk-panes[data-pane]`, which the shared responsive
+   layer already sets, so nothing in the shell had to learn about this.
+   Coromar only -- the other desktop skins are flat by design. */
+@media (max-width: 936px) {
+  .co-root {
+    --co-travel: 0px;
+    transition: background-position-x 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    /* sky, the vertical reveals, the horizontal reveals, the ground wash */
+    background-position-x: calc(var(--co-travel) * 0.18), var(--co-travel),
+                           calc(var(--co-travel) * 0.5), 0;
+  }
+  .co-root::before {
+    transition: background-position-x 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    /* the stone courses, the two washes over them, the veneer */
+    background-position-x: calc(var(--co-travel) * 1.35), calc(var(--co-travel) * 0.8),
+                           calc(var(--co-travel) * 0.6), calc(var(--co-travel) * 1.35);
+  }
+  /* Rooms is the left of the wall and needs no rule: the step is 0 there. */
+  .co-root:has(.dk-panes[data-pane='now']) { --co-travel: -42vw; }
+  .co-root:has(.dk-panes[data-pane='music']) { --co-travel: -84vw; }
+
+  /* Someone who asked not to be moved is not moved: the wall still stands in
+     a different place on each tab, it just arrives without the travel. */
+  @media (prefers-reduced-motion: reduce) {
+    .co-root, .co-root::before { transition: none; }
+  }
+}
+
+/* The music pane's back chevron wears the header buttons' own color. */
+.co-root { --t-back-arrow: currentColor; }
+
+/* --- the dialogs and the main window's corners, in concrete --------------------------------------
+ * Where this sheet named no color, the dialogs and a few corners of the main window kept the
+ * Windows theme's grays and charcoals: the feet, the buttons and their blue
+ * default ring, the well borders, the grouping text, and the theme and system pickers. They read
+ * these variables: concrete for grounds and wells, the reveals for lines, glass for what is
+ * chosen. The Windows rules that outranked the theme are met at their own strength. */
+.co-root {
+  --co-d-ground: var(--t-concrete); --co-d-panel: var(--t-concrete-field); --co-d-well: #fff;
+  --co-d-fg: var(--t-fg); --co-d-strong: var(--t-fg); --co-d-quiet: var(--t-fg-muted); --co-d-dim: var(--t-fg-dim);
+  --co-d-line: var(--t-border-strong); --co-d-rule: var(--t-border);
+  --co-d-btn: linear-gradient(180deg, #fdfdfb, #eeeee9); --co-d-btn-hover: linear-gradient(180deg, #fff, #f4f5f2); --co-d-accent: var(--t-glass-lit);
+}
+.co-root.win-root .win-grouping, .co-root.win-root .win-message-body, .co-root .dk-window-body,
+.co-root .win-alarms, .co-root .win-alarm-editor, .co-root .win-errorlog, .co-root .win-shortcuts, .co-root .win-savequeue, .co-root .win-about, .co-root .dk-addradio, .co-root .dk-add { background: var(--co-d-ground); color: var(--co-d-fg); }
+.co-root.win-root .win-settings .dk-prefs-page { background: var(--co-d-ground); }
+.co-root.win-root .dk-window :is(h3, h4, h5, label, p, th, td, dt, dd, legend, .win-settings-for > span, .dk-field > span, .win-eq-loudness span, .dk-theme-actions span, .win-eq-label, .win-eq-end):not([aria-selected='true'] *) { color: var(--co-d-fg); }
+.co-root.win-root .dk-window :is(.win-about-rule, .win-shortcuts-note, .win-lib-note, .win-parental-note, .dk-theme-version, .dk-grouping-artist) { color: var(--co-d-quiet); }
+.co-root.win-root .win-grouping :is(.dk-grouping-left, .dk-grouping-right, .dk-grouping-track, .dk-grouping-list label) { color: var(--co-d-fg); }
+.co-root.win-root .win-grouping .dk-grouping-artist { color: var(--co-d-quiet); }
+.co-root.win-root .dk-window .win-shortcuts-table td { color: var(--t-glass-lit); }
+/* wells */
+.co-root .win-about-box, .co-root .win-alarms-table, .co-root .win-savequeue-list, .co-root .win-shortcuts-table, .co-root.win-root .win-settings .win-lib-table, .co-root.win-root .win-settings .win-settings-panel,
+.co-root .win-errorlog-body .error-log, .co-root .dk-add-list, .co-root.win-root .win-grouping::before { background: var(--co-d-well); color: var(--co-d-fg); border-color: var(--co-d-line); }
+.co-root .win-shortcuts-table th, .co-root .win-alarms-table th, .co-root.win-root .win-settings .win-lib-table th { background: var(--co-d-panel); color: var(--co-d-strong); border-color: var(--co-d-rule); }
+.co-root .win-shortcuts-table tbody tr:first-child td { background: var(--co-d-panel); }
+.co-root .win-alarms-table td, .co-root.win-root .win-settings .win-lib-table td { border-color: var(--co-d-rule); }
+.co-root .win-savequeue-list button { color: var(--co-d-fg); }
+.co-root.win-root .win-grouping { background: var(--co-d-ground); }
+.co-root.win-root .win-grouping::after { background: var(--co-d-panel); border-top-color: var(--co-d-rule); }
+.co-root.win-root .win-grouping .dk-grouping-right::after { background: var(--co-d-rule); }
+.co-root.win-root .win-grouping .dk-grouping-art { background: var(--t-concrete-shade); }
+/* fields, pop-ups, checkboxes, radios */
+.co-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']), textarea) { background-color: var(--co-d-well); color: var(--co-d-fg); border-color: var(--co-d-line); }
+.co-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select) {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23556670' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--co-d-well);
+  color: var(--co-d-fg); border-color: var(--co-d-line); box-shadow: none;
+}
+.co-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select):hover:not(:disabled) { border-color: var(--co-d-accent); }
+.co-root.win-root input[type='checkbox'], .co-root.win-root input[type='radio'] { background-color: var(--co-d-well); border-color: var(--co-d-line); }
+.co-root.win-root input[type='checkbox']:hover:not(:disabled), .co-root.win-root input[type='radio']:hover:not(:disabled) { background-color: var(--co-d-panel); border-color: var(--co-d-accent); }
+.co-root.win-root input[type='checkbox']:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 9.1'%3E%3Cpath fill='%230f5f7f' d='M9.975 1.223 4.698 9.098H4.522L0 5.193 1.277 3.522 4.255 6.088 8.333 0Z'/%3E%3C/svg%3E"); }
+.co-root.win-root input[type='radio']:checked { background-image: radial-gradient(circle, var(--t-glass-lit) 0 3px, transparent 3.5px); }
+.co-root.win-root input[type='checkbox']:disabled, .co-root.win-root input[type='radio']:disabled { background-color: var(--co-d-panel); border-color: var(--co-d-rule); }
+.co-root.win-root .dk-timefield, .co-root.win-root .win-alarm-time { border-color: var(--co-d-line); background-color: var(--co-d-well); }
+/* tabs */
+.co-root.win-root .dk-window .dk-tabs, .co-root .dk-window .dk-tabs { background: var(--co-d-panel); border-color: var(--co-d-line); }
+.co-root.win-root .dk-window .dk-tabs button { background: var(--co-d-panel); color: var(--co-d-fg); border-color: var(--co-d-line); }
+.co-root.win-root .dk-window .dk-tabs button[aria-selected='true'] { background: var(--co-d-ground); color: var(--co-d-strong); }
+/* buttons, every corner */
+.co-root.win-root .win-dialog-foot .dk-win-btn, .co-root.win-root .win-settings .dk-win-btn, .co-root.win-root .win-grouping .dk-grouping-all, .co-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn, .co-root.win-root .dk-musicpicker .dk-grouping-actions .dk-win-btn, .co-root.win-root .dk-window .theme-pill button {
+  background: var(--co-d-btn); color: var(--co-d-fg); border: 1px solid var(--co-d-line); box-shadow: none;
+}
+.co-root.win-root .win-dialog-foot .dk-win-btn:hover:not(:disabled), .co-root.win-root .win-settings .dk-win-btn:hover:not(:disabled), .co-root.win-root .win-grouping .dk-grouping-all:hover, .co-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn:hover { background: var(--co-d-btn-hover); border-color: var(--t-glass-lit); }
+.co-root.win-root .win-dialog-foot .dk-win-btn[data-default='true'], .co-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn[data-default='true'] { border-color: var(--co-d-accent); box-shadow: inset 0 0 0 1px var(--co-d-accent); }
+.co-root.win-root .dk-win-btn:disabled, .co-root.win-root .win-dialog-foot .dk-win-btn:disabled, .co-root.win-root .win-settings .dk-win-btn:disabled { background: var(--co-d-panel); color: var(--co-d-dim); border-color: var(--co-d-rule); }
+.co-root.win-root .win-dialog-foot, .co-root.win-root .win-grouping .dk-grouping-actions, .co-root.win-root .dk-musicpicker .dk-grouping-actions { background: var(--co-d-panel); border-top: 1px solid var(--co-d-rule); box-shadow: none; }
+/* Add Music Services */
+.co-root .dk-window .dk-add-row { color: var(--co-d-fg); }
+.co-root .dk-window .dk-add-row:hover { background: var(--t-glass-lit); color: #fff; }
+.co-root .dk-window .dk-add-row-off, .co-root .dk-window .dk-add-row-off:hover { background: transparent; color: var(--co-d-dim); }
+.co-root .dk-window .dk-add-auth, .co-root .dk-window .dk-add-row-off:hover .dk-add-auth { color: var(--co-d-quiet); }
+.co-root .dk-window .dk-add-row:hover .dk-add-auth { color: var(--t-mullion); }
+.co-root .dk-window .dk-add-mono { background: var(--t-glass); color: #fff; }
+/* the main window: the theme and system pickers, the menu bar's titles, glyph discs, chevrons */
+.co-root.win-root :is(.win-titlebar, .win-menubar-theme) select { background: var(--co-d-well); color: var(--co-d-fg); border: 1px solid var(--co-d-line); }
+.co-root.win-root .dk-browse-art.dk-browse-glyph { background: var(--co-d-panel); color: var(--co-d-strong); }
+.co-root.win-root .dk-browse-glyph svg { background: transparent; color: var(--co-d-strong); }
+.co-root.win-root .dk-browse-disclosure, .co-root.win-root .dk-browse-chevron { background-color: var(--co-d-dim); }
+/* the Sleep Timer popover is glass: the dialogs' concrete ground must not cover it */
+.co-root.win-root .dk-sleep-window .dk-sleep, .co-root.win-root .dk-sleep-window .dk-window-body { background: transparent; }
+.co-root.win-root.win-root .dk-window.dk-sleep-window :is(h3, h4, p, .dk-sleep-title, .dk-sleep-choose) { color: #e9f3f6; }

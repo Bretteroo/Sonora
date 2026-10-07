@@ -1,0 +1,293 @@
+/* Solarized, over the desktop application, either way up: the rules below are
+ * the dark half, and the ones keyed on [data-variant='light'] lay the same
+ * palette the other way. Dialogs follow the appearance worn: dark windows in
+ * Solarized Dark, light in Solarized Light.
+ *
+ * Selection is blue, playing is cyan, warnings are orange and red, and text
+ * sits at base0 with base1 for emphasis, which is the contrast the scheme was
+ * tuned for. */
+
+.sz-root { color: #839496; font-family: var(--t-font); background: #002b36; scrollbar-color: #586e75 transparent; }
+.sz-root ::-webkit-scrollbar-thumb { background: #586e75; }
+
+/* --- frame ------------------------------------------------------------------------------ */
+.sz-root .win-titlebar { background: #073642; color: #93a1a1; border-bottom: 1px solid #0d4a5a; }
+.sz-root .win-titlebar-home, .sz-root .win-tb-btn { color: #93a1a1; }
+.sz-root .win-menubar { background: #073642; border-bottom: 1px solid #0d4a5a; }
+.sz-root .win-menubar-title { color: #93a1a1; }
+.sz-root .win-menubar-title:hover, .sz-root .win-menubar-title[aria-expanded='true'] { background: #0a4150; color: #eee8d5; }
+/* The Windows chrome paints its highlight on ::after; it takes the theme's. */
+.sz-root .win-menubar-title:hover::after, .sz-root .win-menubar-title[aria-expanded='true']::after { background: #0a4150; }
+.sz-root .win-menu { background: #073642; color: #93a1a1; border: 1px solid #586e75; box-shadow: 0 8px 24px rgba(0, 43, 54, 0.6); }
+.sz-root .win-menu-item { color: #93a1a1; }
+.sz-root .win-menu-item:hover:not(:disabled), .sz-root .win-menu-item:focus-visible { background: #268bd2; color: #fdf6e3; }
+.sz-root .win-menu-item:disabled { color: #586e75; }
+.sz-root .win-menu-sep { background: #0d4a5a; }
+
+/* --- transport strip ---------------------------------------------------------------------- */
+.sz-root .dk-strip { background: linear-gradient(180deg, #073642, #002b36); border-bottom: 1px solid #0d4a5a; color: #93a1a1; }
+.sz-root .dk-strip svg, .sz-root .dk-strip button { color: #93a1a1; }
+.sz-root .dk-strip button:disabled, .sz-root .dk-strip button:disabled svg { color: #586e75; }
+.sz-root .dk-mode[aria-pressed='true'] { color: #268bd2; }
+.sz-root .dk-progress-track, .sz-root .dk-slider-track { background: rgba(147, 161, 161, 0.2); }
+.sz-root .dk-progress-fill, .sz-root .dk-slider-fill { background: #268bd2; }
+.sz-root .dk-progress-thumb { background: #eee8d5; }
+.sz-root .dk-time-elapsed, .sz-root .dk-time-total, .sz-root .dk-time-remaining { color: #839496; }
+.sz-root .dk-strip-search { background: #073642; border: 1px solid #586e75; }
+.sz-root .dk-strip-search input { color: #93a1a1; }
+.sz-root .dk-strip-search input::placeholder { color: #586e75; }
+
+/* --- panes -------------------------------------------------------------------------------- */
+.sz-root .dk-panes, .sz-root .dk-divider { background: #002b36; }
+.sz-root .dk-pane { background: #073642; border: 1px solid #0d4a5a; }
+.sz-root .dk-header { background: #073642; color: #93a1a1; border-bottom: 1px solid #0d4a5a; }
+.sz-root .dk-header-title { color: #eee8d5; }
+.sz-root .dk-header-sub { color: #839496; }  /* base01 read 2.4:1 on base02 */
+.sz-root .dk-header-btn, .sz-root .dk-header-btn svg { color: #839496; }
+.sz-root .dk-header-btn:hover { background: #0a4150; color: #eee8d5; }
+.sz-root .dk-footer { background: #073642; border-top: 1px solid #0d4a5a; }
+.sz-root .dk-footer button { color: #839496; border-color: #0d4a5a; background: transparent; }
+.sz-root .dk-footer button:hover:not(:disabled) { background: #0a4150; color: #eee8d5; }
+.sz-root .dk-footer button:disabled { color: #586e75; }
+
+/* --- tiles and rows ---------------------------------------------------------------------- */
+.sz-root .dk-tile { background: #073642; border: 1px solid #0d4a5a; color: #93a1a1; box-shadow: none; }
+.sz-root .dk-tile:hover { background: #0a4150; border-color: #586e75; }
+.sz-root .dk-tile[aria-pressed='true'] { background: #0a4150; border-color: #268bd2; color: #eee8d5; box-shadow: inset 0 0 0 1px #268bd2; }
+.sz-root .dk-tile-now, .sz-root .dk-tile-state-win, .sz-root .dk-tile-device, .sz-root .dk-tile[aria-pressed='true'] .dk-tile-now { color: #839496; opacity: 1; }
+.sz-root .dk-tile-group, .sz-root .dk-tile-group svg, .sz-root .dk-tile-more { color: #2aa198; }
+.sz-root .dk-tile-group:hover { background: rgba(42, 161, 152, 0.15); }
+.sz-root .dk-browse-row, .sz-root .dk-row { color: #93a1a1; border-color: #0d4a5a; }
+.sz-root .dk-browse-row:hover, .sz-root .dk-row:hover { background: rgba(88, 110, 117, 0.25); }
+.sz-root .dk-browse-row[aria-selected='true'], .sz-root .dk-row[aria-selected='true'], .sz-root .dk-row[aria-checked='true'] { background: rgba(38, 139, 210, 0.28); color: #eee8d5; }
+.sz-root .dk-row[aria-current='true'] { background: rgba(42, 161, 152, 0.22); }
+.sz-root .dk-browse-sub, .sz-root .dk-row-sub, .sz-root .dk-row-num, .sz-root .dk-row-dur, .sz-root .dk-browse-note, .sz-root .dk-browse-prose { color: #839496; }
+.sz-root .dk-browse-disclosure, .sz-root .dk-browse-actions, .sz-root .dk-browse-check { color: #586e75; }
+.sz-root .dk-browse-section { color: #b58900; }
+.sz-root .dk-scopebar-tabs button { color: #839496; }
+.sz-root .dk-scopebar-tabs button[aria-selected='true'] { color: #eee8d5; border-bottom-color: #268bd2; }
+
+/* --- now playing, popovers, notices ------------------------------------------------------ */
+.sz-root .dk-now-line { color: #eee8d5; }
+.sz-root .dk-now-line[data-caption]::before, .sz-root .dk-now-muted, .sz-root .dk-now-source span { color: #839496; }
+.sz-root .dk-now-source strong { color: #93a1a1; }
+.sz-root .dk-now-art { background: #002b36; }
+.sz-root .dk-empty p { color: #839496; }
+.sz-root .dk-empty svg { color: #586e75; }
+.sz-root .dk-popover, .sz-root .dk-action-menu, .sz-root .dk-account-menu { background: #073642; color: #93a1a1; border: 1px solid #586e75; box-shadow: 0 8px 24px rgba(0, 43, 54, 0.6); }
+.sz-root .dk-action-menu button, .sz-root .dk-popover button { color: #93a1a1; }
+.sz-root .dk-action-menu button:hover:not(:disabled), .sz-root .dk-popover button:hover:not(:disabled) { background: #268bd2; color: #fdf6e3; }
+.sz-root .dk-action-menu button:disabled { color: #586e75; }
+.sz-root .dk-popover-sep { background: #0d4a5a; }
+.sz-root .dk-notices .dk-notice { background: #073642; color: #93a1a1; border: 1px solid #586e75; border-left: 4px solid #cb4b16; }
+.sz-root .dk-notice button { color: #268bd2; }
+
+/* --- windows and dialogs -----------------------------------------------------------------------
+ * Each appearance draws its dialogs in its own half of the palette: dark windows over the dark
+ * application, light over the light (the dark variant had carried the light
+ * pair's windows, and the Windows skin's grays under both). The colors are variables here, set
+ * once per half, and every dialog rule below reads them. */
+.sz-root {
+  --sz-ground: #073642; --sz-panel: #002b36; --sz-well: #002b36; --sz-title: #002b36;
+  --sz-fg: #839496; --sz-strong: #93a1a1; --sz-dim: #586e75; --sz-quiet: #839496; --sz-line: #586e75; --sz-rule: #0d4a5a;
+  --sz-btn: #0a4150; --sz-btn-hover: #0d4a5a; --sz-btn-fg: #93a1a1; --sz-shadow: rgba(0, 0, 0, 0.55);
+}
+:root[data-variant='light'] .sz-root {
+  --sz-ground: #fdf6e3; --sz-panel: #eee8d5; --sz-well: #fdf6e3; --sz-title: #eee8d5;
+  --sz-fg: #657b83; --sz-strong: #586e75; --sz-dim: #93a1a1; --sz-quiet: #657b83; --sz-line: #93a1a1; --sz-rule: #d8d2bf;
+  --sz-btn: #eee8d5; --sz-btn-hover: #fdf6e3; --sz-btn-fg: #586e75; --sz-shadow: rgba(88, 110, 117, 0.35);
+}
+.sz-root .dk-window { background: var(--sz-ground); color: var(--sz-fg); border: 1px solid var(--sz-line); box-shadow: 0 12px 32px var(--sz-shadow); }
+.sz-root .dk-window-title { background: var(--sz-title); color: var(--sz-strong); border-bottom: 1px solid var(--sz-line); }
+.sz-root .dk-light-close { background: var(--sz-title); color: var(--sz-strong); }
+.sz-root .dk-light-close:hover { background: #dc322f; color: #fdf6e3; }
+.sz-root .win-settings, .sz-root .win-settings .win-settings-page, .sz-root .win-settings .win-settings-body, .sz-root .win-about, .sz-root .win-shortcuts, .sz-root .win-savequeue, .sz-root .win-message, .sz-root .win-alarms, .sz-root .win-alarm-editor, .sz-root .win-wizard, .sz-root .win-errorlog, .sz-root .win-grouping, .sz-root .dk-confirm, .sz-root .dk-sleep, .sz-root .dk-grouping, .sz-root .dk-musicpicker, .sz-root .dk-addradio, .sz-root .dk-info, .sz-root .dk-add,
+.sz-root.win-root .win-grouping, .sz-root.win-root .win-message-body, .sz-root .dk-window-body { background: var(--sz-ground); color: var(--sz-fg); }
+.sz-root .win-settings .win-settings-list, .sz-root .win-settings .dk-prefs-toc { background: var(--sz-panel); }
+.sz-root .win-settings .dk-prefs-page { background: var(--sz-ground); }
+.sz-root .win-settings .win-settings-list button { color: var(--sz-fg); }
+.sz-root .win-settings .win-settings-list button[aria-selected='true'], .sz-root .win-savequeue-list button[aria-selected='true'], .sz-root .dk-musicpicker-row[aria-selected='true'], .sz-root .dk-room-menu button:hover:not(:disabled) { background: #268bd2; color: #fdf6e3; }
+/* Every heading, label and line of prose in a window, whichever gray the Windows skin gave it. */
+.sz-root .dk-window h3, .sz-root .dk-window h4, .sz-root .dk-window label, .sz-root .dk-window th,
+.sz-root .dk-window .win-eq-intro, .sz-root .dk-window .win-eq-label, .sz-root .dk-window .win-eq-end, .sz-root .dk-window .win-lib-title, .sz-root .dk-window .win-lib-foot,
+.sz-root .dk-window .win-parental-body, .sz-root .dk-window .dk-theme-version, .sz-root.win-root .win-grouping .dk-grouping-left, .sz-root.win-root .win-grouping .dk-grouping-right,
+.sz-root.win-root .win-grouping .dk-grouping-track, .sz-root.win-root .win-grouping .dk-grouping-list label, .sz-root .dk-window p, .sz-root .dk-window td { color: var(--sz-fg); }
+.sz-root .dk-window h3, .sz-root .dk-window h4, .sz-root .dk-window th, .sz-root .dk-window .win-lib-title, .sz-root.win-root .win-grouping .dk-grouping-left, .sz-root.win-root .win-grouping .dk-grouping-right { color: var(--sz-strong); }
+.sz-root .dk-window .win-about-rule, .sz-root .dk-window .win-shortcuts-note, .sz-root .dk-window .win-lib-note, .sz-root .dk-window .win-parental-note, .sz-root.win-root .win-grouping .dk-grouping-artist { color: var(--sz-quiet); }
+.sz-root .dk-window .win-shortcuts-table td { color: #268bd2; }
+/* The wells: lists, tables, the log, every field. */
+.sz-root .win-about-box, .sz-root .win-alarms-table, .sz-root .win-savequeue-list, .sz-root .win-shortcuts-table, .sz-root.win-root .win-settings .win-lib-table, .sz-root.win-root .win-settings .win-settings-panel,
+.sz-root .win-errorlog-body .error-log, .sz-root .dk-add-list, .sz-root.win-root .win-grouping::before {
+  background: var(--sz-well); color: var(--sz-fg); border-color: var(--sz-line);
+}
+.sz-root .win-shortcuts-table th, .sz-root .win-alarms-table th, .sz-root.win-root .win-settings .win-lib-table th { background: var(--sz-panel); color: var(--sz-strong); border-color: var(--sz-rule); }
+.sz-root .win-shortcuts-table tbody tr:first-child td { background: var(--sz-panel); }
+.sz-root .win-alarms-table td, .sz-root.win-root .win-settings .win-lib-table td { border-color: var(--sz-rule); }
+.sz-root .win-savequeue-list button { color: var(--sz-fg); }
+.sz-root.win-root .win-grouping::after { background: var(--sz-panel); border-top-color: var(--sz-rule); }
+.sz-root.win-root .win-grouping .dk-grouping-right::after { background: var(--sz-rule); }
+.sz-root.win-root .win-grouping .dk-grouping-art { background: var(--sz-panel); }
+.sz-root .dk-window input, .sz-root .dk-window select, .sz-root .dk-window textarea { background-color: var(--sz-well); color: var(--sz-strong); border-color: var(--sz-line); }
+.sz-root .dk-window input:focus, .sz-root .dk-window select:focus { border-color: #268bd2; }
+/* Checkboxes and radios: the well and its line, the mark in the strong ink. */
+.sz-root.win-root input[type='checkbox'], .sz-root.win-root input[type='radio'] { background-color: var(--sz-well); border-color: var(--sz-line); }
+.sz-root.win-root input[type='checkbox']:hover:not(:disabled), .sz-root.win-root input[type='radio']:hover:not(:disabled) { background-color: var(--sz-panel); border-color: #268bd2; }
+.sz-root.win-root input[type='checkbox']:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 9.1'%3E%3Cpath fill='%23268bd2' d='M9.975 1.223 4.698 9.098H4.522L0 5.193 1.277 3.522 4.255 6.088 8.333 0Z'/%3E%3C/svg%3E"); }
+.sz-root.win-root input[type='radio']:checked { background-image: radial-gradient(circle, #268bd2 0 3px, transparent 3.5px); }
+.sz-root.win-root input[type='checkbox']:disabled, .sz-root.win-root input[type='radio']:disabled { background-color: var(--sz-panel); border-color: var(--sz-rule); }
+/* Buttons, in every corner the Windows skin draws them (settings, dialog feet, Group Rooms). */
+.sz-root .dk-win-btn, .sz-root .win-dialog button, .sz-root .win-settings .dk-win-btn,
+.sz-root.win-root .win-dialog-foot .dk-win-btn, .sz-root.win-root .win-settings .dk-win-btn, .sz-root.win-root .win-grouping .dk-grouping-all, .sz-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn, .sz-root.win-root .dk-musicpicker .dk-grouping-actions .dk-win-btn {
+  background: var(--sz-btn); color: var(--sz-btn-fg); border: 1px solid var(--sz-line); box-shadow: none;
+}
+.sz-root .dk-win-btn:hover:not(:disabled), .sz-root.win-root .win-dialog-foot .dk-win-btn:hover:not(:disabled), .sz-root.win-root .win-settings .dk-win-btn:hover:not(:disabled), .sz-root.win-root .win-grouping .dk-grouping-all:hover, .sz-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn:hover { background: var(--sz-btn-hover); border-color: #268bd2; color: #268bd2; }
+.sz-root .dk-win-btn[data-default='true'], .sz-root.win-root .win-dialog-foot .dk-win-btn[data-default='true'], .sz-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn[data-default='true'] { border-color: #268bd2; box-shadow: inset 0 0 0 1px #268bd2; }
+.sz-root .dk-win-btn:disabled, .sz-root.win-root .win-dialog-foot .dk-win-btn:disabled, .sz-root.win-root .win-settings .dk-win-btn:disabled { background: var(--sz-panel); color: var(--sz-dim); border-color: var(--sz-rule); }
+/* Dialog feet: the panel shade under a rule. */
+.sz-root.win-root .win-dialog-foot, .sz-root.win-root .win-grouping .dk-grouping-actions, .sz-root.win-root .dk-musicpicker .dk-grouping-actions { background: var(--sz-panel); border-top: 1px solid var(--sz-rule); box-shadow: none; }
+.sz-root .win-savequeue-field input:focus { border-color: #268bd2; }
+.sz-root .dk-addradio-mark, .sz-root .win-wizard-mark, .sz-root a { color: #268bd2; }
+.sz-root :focus-visible { outline: 2px solid #2aa198; outline-offset: 1px; }
+/* The search pill takes focus as a whole: the field inside it draws no ring
+   of its own, which had left a bracket and a bar inside the pill. */
+.sz-root .dk-strip-search input:focus-visible, .sz-root .dk-strip-search input:focus { outline: none; box-shadow: none; }
+.sz-root .dk-strip-search:focus-within { box-shadow: 0 0 0 2px #2aa198; }
+/* Sonora's own Settings page: the theme cards' labels and pills. */
+.sz-root .dk-window .theme-pill { background: var(--sz-panel); color: var(--sz-fg); }
+
+/* --- Sleep Timer: the appearance's own half, its choices in the button colors ------------------ */
+.sz-root .dk-sleep, .sz-root .dk-sleep h3, .sz-root .dk-sleep h4, .sz-root .dk-sleep p, .sz-root .dk-sleep .dk-sleep-title { color: var(--sz-strong); }
+.sz-root .dk-sleep .dk-win-btn { background: var(--sz-btn); color: var(--sz-btn-fg); border-color: var(--sz-line); box-shadow: none; }
+.sz-root .dk-sleep .dk-win-btn:hover:not(:disabled) { background: var(--sz-btn-hover); color: #268bd2; }
+.sz-root .dk-sleep .dk-win-btn[aria-pressed='true'], .sz-root .dk-sleep .dk-win-btn[data-default='true'] { background: #268bd2; color: #fdf6e3; border-color: #268bd2; }
+.sz-root .dk-sleep .dk-win-btn:disabled { color: var(--sz-dim); background: var(--sz-panel); }
+.sz-root .dk-sleep .dk-win-btn:focus-visible { outline: 2px solid #2aa198; outline-offset: 1px; }
+.sz-root.win-root .dk-sleep-window { background: var(--sz-ground); color: var(--sz-strong); border: 1px solid var(--sz-line); }
+.sz-root.win-root .dk-sleep-window::after { border-top-color: var(--sz-ground); }
+.sz-root.win-root .dk-sleep-window .dk-sleep, .sz-root.win-root .dk-sleep-window .dk-sleep-title, .sz-root.win-root .dk-sleep-window .dk-sleep-choose { color: var(--sz-strong); }
+.sz-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn { background: var(--sz-btn); color: var(--sz-btn-fg); border-color: var(--sz-rule); }
+.sz-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover { background: var(--sz-btn-hover); color: #268bd2; }
+.sz-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: #268bd2; color: #fdf6e3; border-color: #268bd2; }
+.sz-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn::before { background: #268bd2; }
+
+/* The Windows skin names its own ink on headings, labels and prose with longer selectors; these
+   outrank them, leaving alone anything on a blue selection. */
+.sz-root.win-root .dk-window :is(h3, h4, h5, label, p, th, td, dt, dd, legend, .win-settings-for > span, .dk-field > span, .win-eq-loudness span, .dk-theme-actions span):not([aria-selected='true'] *) { color: var(--sz-fg); }
+.sz-root.win-root .dk-window :is(h3, h4, th, .win-lib-title) { color: var(--sz-strong); }
+.sz-root.win-root .dk-window :is(.win-about-rule, .win-shortcuts-note, .win-lib-note, .win-parental-note, .dk-theme-version, .dk-theme-version span) { color: var(--sz-quiet); }
+.sz-root.win-root .dk-window .win-shortcuts-table td { color: #268bd2; }
+.sz-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']), textarea) { background-color: var(--sz-well); color: var(--sz-strong); border-color: var(--sz-line); }
+/* The pop-ups (a closed combo box, Add Alarm's Room): the Windows skin's two-tone gray face and
+   black arrow, outranked at its own strength by the well and a base0 arrow. */
+.sz-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select) {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23839496' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--sz-well);
+  color: var(--sz-strong); border-color: var(--sz-line); box-shadow: none;
+}
+.sz-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select):hover:not(:disabled) { border-color: #268bd2; }
+/* Add a service's S1 / S2 strip. */
+.sz-root.win-root .dk-window .dk-add .dk-tabs, .sz-root .dk-window .dk-tabs { background: var(--sz-panel); border-color: var(--sz-line); }
+/* Add Music Services' rows and the Services table's names, in the palette. */
+.sz-root .dk-window .dk-add-row { color: var(--sz-fg); }
+.sz-root .dk-window .dk-add-row:hover { background: #268bd2; color: #fdf6e3; }
+.sz-root .dk-window .dk-add-row-off, .sz-root .dk-window .dk-add-row-off:hover { background: transparent; color: var(--sz-dim); }
+.sz-root .dk-window .dk-add-auth, .sz-root .dk-window .dk-add-row-off:hover .dk-add-auth { color: var(--sz-quiet); }
+.sz-root .dk-window .dk-add-row:hover .dk-add-auth { color: #eee8d5; }
+.sz-root .dk-window .dk-add-mono { background: var(--sz-panel); color: var(--sz-strong); }
+.sz-root.win-root .win-settings .win-svc-name { color: #268bd2; }
+/* Tabs (EQ, Folders / Advanced): the showing one on the ground, the rest on the panel shade. */
+.sz-root.win-root .dk-window .dk-tabs button { background: var(--sz-panel); color: var(--sz-fg); border-color: var(--sz-line); }
+.sz-root.win-root .dk-window .dk-tabs button[aria-selected='true'] { background: var(--sz-ground); color: var(--sz-strong); }
+/* Sonora's own page: the appearance pills. */
+.sz-root.win-root .dk-window .theme-pill button { background: var(--sz-btn); color: var(--sz-btn-fg); }
+.sz-root.win-root .dk-window .theme-pill button[aria-pressed='true'], .sz-root.win-root .dk-window .theme-pill button[aria-checked='true'] { background: #268bd2; color: #fdf6e3; }
+
+/* --- the main window's leftover Windows grays ------------------------------------------------- */
+/* The theme chooser in the title bar, the music pane's glyph discs and the (i), its chevrons. */
+.sz-root.win-root :is(.win-titlebar, .win-menubar-theme, .dk-strip-select) select { background: var(--sz-panel); color: var(--sz-strong); border: 1px solid var(--sz-line); }
+.sz-root.win-root .dk-browse-glyph svg { background: transparent; color: var(--sz-strong); }
+.sz-root.win-root .dk-browse-art.dk-browse-glyph { background: var(--sz-panel); color: var(--sz-strong); }
+.sz-root.win-root .dk-header-btn svg, .sz-root.win-root .dk-center-info svg { background-color: transparent; }
+.sz-root.win-root .dk-browse-disclosure, .sz-root.win-root .dk-browse-chevron { background-color: var(--sz-dim); }
+.sz-root.win-root .dk-tile-marquee { color: var(--sz-fg); }
+
+/* --- the Mini Controller ---------------------------------------------------------------------- */
+.sz-root .win-mini-panel, .sz-root .win-mini { background: #073642; color: #93a1a1; border-color: #586e75; }
+
+/* The chosen tile's second line, light on the base02 selection. */
+.sz-root .dk-tile[aria-pressed='true'] .dk-tile-marquee { color: #93a1a1; }
+
+
+/* --- Solarized Light ----------------------------------------------------------------------------
+ * The application the other way up: base3 ground, base2 panels, base00 text, base01 for emphasis,
+ * the accents unchanged. Keyed on data-variant, which the engine sets only while this theme is
+ * actually wearing the light set, so nothing here leaks into any other theme. The dialogs take
+ * their half from the --sz-* variables set above. */
+:root[data-variant='light'] .sz-root { color: #657b83; background: #fdf6e3; scrollbar-color: #93a1a1 transparent; }
+:root[data-variant='light'] .sz-root ::-webkit-scrollbar-thumb { background: #93a1a1; }
+:root[data-variant='light'] .sz-root .win-titlebar { background: #eee8d5; color: #586e75; border-bottom-color: #d8d2bf; }
+:root[data-variant='light'] .sz-root .win-titlebar-home, :root[data-variant='light'] .sz-root .win-tb-btn { color: #586e75; }
+:root[data-variant='light'] .sz-root .win-menubar { background: #eee8d5; border-bottom-color: #d8d2bf; }
+:root[data-variant='light'] .sz-root .win-menubar-title { color: #586e75; }
+:root[data-variant='light'] .sz-root .win-menubar-title:hover, :root[data-variant='light'] .sz-root .win-menubar-title[aria-expanded='true'] { background: #e6e0cc; color: #073642; }
+:root[data-variant='light'] .sz-root .win-menubar-title:hover::after, :root[data-variant='light'] .sz-root .win-menubar-title[aria-expanded='true']::after { background: #e6e0cc; }
+:root[data-variant='light'] .sz-root .win-menu { background: #eee8d5; color: #586e75; border-color: #93a1a1; box-shadow: 0 8px 24px rgba(88, 110, 117, 0.3); }
+:root[data-variant='light'] .sz-root .win-menu-item { color: #586e75; }
+:root[data-variant='light'] .sz-root .win-menu-item:disabled { color: #93a1a1; }
+:root[data-variant='light'] .sz-root .win-menu-sep { background: #d8d2bf; }
+:root[data-variant='light'] .sz-root .dk-strip { background: linear-gradient(180deg, #eee8d5, #fdf6e3); border-bottom-color: #d8d2bf; color: #586e75; }
+:root[data-variant='light'] .sz-root .dk-strip svg, :root[data-variant='light'] .sz-root .dk-strip button { color: #586e75; }
+:root[data-variant='light'] .sz-root .dk-strip button:disabled, :root[data-variant='light'] .sz-root .dk-strip button:disabled svg { color: #93a1a1; }
+:root[data-variant='light'] .sz-root .dk-progress-track, :root[data-variant='light'] .sz-root .dk-slider-track { background: rgba(88, 110, 117, 0.25); }
+:root[data-variant='light'] .sz-root .dk-progress-thumb { background: #586e75; }
+:root[data-variant='light'] .sz-root .dk-time-elapsed, :root[data-variant='light'] .sz-root .dk-time-total, :root[data-variant='light'] .sz-root .dk-time-remaining { color: #657b83; }
+:root[data-variant='light'] .sz-root .dk-strip-search { background: #fdf6e3; border-color: #93a1a1; }
+:root[data-variant='light'] .sz-root .dk-strip-search input { color: #586e75; }
+:root[data-variant='light'] .sz-root .dk-strip-search input::placeholder { color: #93a1a1; }
+:root[data-variant='light'] .sz-root .dk-panes, :root[data-variant='light'] .sz-root .dk-divider { background: #fdf6e3; }
+:root[data-variant='light'] .sz-root .dk-pane { background: #eee8d5; border-color: #d8d2bf; }
+:root[data-variant='light'] .sz-root .dk-header { background: #eee8d5; color: #586e75; border-bottom-color: #d8d2bf; }
+:root[data-variant='light'] .sz-root .dk-header-title { color: #073642; }
+:root[data-variant='light'] .sz-root .dk-header-sub { color: #657b83; }  /* base1 read 2.2:1 on base2 */
+:root[data-variant='light'] .sz-root .dk-header-btn, :root[data-variant='light'] .sz-root .dk-header-btn svg { color: #657b83; }
+:root[data-variant='light'] .sz-root .dk-header-btn:hover { background: #e6e0cc; color: #073642; }
+:root[data-variant='light'] .sz-root .dk-footer { background: #eee8d5; border-top-color: #d8d2bf; }
+:root[data-variant='light'] .sz-root .dk-footer button { color: #657b83; border-color: #d8d2bf; }
+:root[data-variant='light'] .sz-root .dk-footer button:hover:not(:disabled) { background: #e6e0cc; color: #073642; }
+:root[data-variant='light'] .sz-root .dk-footer button:disabled { color: #93a1a1; }
+:root[data-variant='light'] .sz-root .dk-tile { background: #eee8d5; border-color: #d8d2bf; color: #586e75; }
+:root[data-variant='light'] .sz-root .dk-tile:hover { background: #e6e0cc; border-color: #93a1a1; }
+:root[data-variant='light'] .sz-root .dk-tile[aria-pressed='true'] { background: #e6e0cc; border-color: #268bd2; color: #073642; }
+:root[data-variant='light'] .sz-root .dk-tile-now, :root[data-variant='light'] .sz-root .dk-tile-state-win, :root[data-variant='light'] .sz-root .dk-tile-device, :root[data-variant='light'] .sz-root .dk-tile[aria-pressed='true'] .dk-tile-now, :root[data-variant='light'] .sz-root .dk-tile[aria-pressed='true'] .dk-tile-marquee { color: #657b83; }
+:root[data-variant='light'] .sz-root .dk-browse-row, :root[data-variant='light'] .sz-root .dk-row { color: #586e75; border-color: #d8d2bf; }
+:root[data-variant='light'] .sz-root .dk-browse-row:hover, :root[data-variant='light'] .sz-root .dk-row:hover { background: rgba(147, 161, 161, 0.22); }
+:root[data-variant='light'] .sz-root .dk-browse-row[aria-selected='true'], :root[data-variant='light'] .sz-root .dk-row[aria-selected='true'], :root[data-variant='light'] .sz-root .dk-row[aria-checked='true'] { background: rgba(38, 139, 210, 0.18); color: #073642; }
+:root[data-variant='light'] .sz-root .dk-row[aria-current='true'] { background: rgba(42, 161, 152, 0.18); }
+:root[data-variant='light'] .sz-root .dk-browse-sub, :root[data-variant='light'] .sz-root .dk-row-sub, :root[data-variant='light'] .sz-root .dk-row-num, :root[data-variant='light'] .sz-root .dk-row-dur, :root[data-variant='light'] .sz-root .dk-browse-note, :root[data-variant='light'] .sz-root .dk-browse-prose, :root[data-variant='light'] .sz-root .dk-browse-empty { color: #657b83; }
+:root[data-variant='light'] .sz-root .dk-browse-disclosure, :root[data-variant='light'] .sz-root .dk-browse-actions, :root[data-variant='light'] .sz-root .dk-browse-check { color: #93a1a1; }
+:root[data-variant='light'] .sz-root .dk-scopebar-tabs button { color: #657b83; }
+:root[data-variant='light'] .sz-root .dk-scopebar-tabs button[aria-selected='true'] { color: #073642; }
+:root[data-variant='light'] .sz-root .dk-now-line { color: #073642; }
+:root[data-variant='light'] .sz-root .dk-now-line[data-caption]::before, :root[data-variant='light'] .sz-root .dk-now-muted, :root[data-variant='light'] .sz-root .dk-now-source span { color: #657b83; }
+:root[data-variant='light'] .sz-root .dk-now-source strong { color: #586e75; }
+:root[data-variant='light'] .sz-root .dk-now-art { background: #eee8d5; }
+:root[data-variant='light'] .sz-root .dk-empty p { color: #657b83; }
+:root[data-variant='light'] .sz-root .dk-empty svg { color: #93a1a1; }
+:root[data-variant='light'] .sz-root .dk-popover, :root[data-variant='light'] .sz-root .dk-action-menu, :root[data-variant='light'] .sz-root .dk-account-menu { background: #eee8d5; color: #586e75; border-color: #93a1a1; box-shadow: 0 8px 24px rgba(88, 110, 117, 0.3); }
+:root[data-variant='light'] .sz-root .dk-action-menu button, :root[data-variant='light'] .sz-root .dk-popover button { color: #586e75; }
+:root[data-variant='light'] .sz-root .dk-action-menu button:disabled { color: #93a1a1; }
+:root[data-variant='light'] .sz-root .dk-popover-sep { background: #d8d2bf; }
+:root[data-variant='light'] .sz-root .dk-notices .dk-notice { background: #eee8d5; color: #586e75; border-color: #93a1a1; }
+:root[data-variant='light'] .sz-root .win-mini-panel, :root[data-variant='light'] .sz-root .win-mini { background: #eee8d5; color: #586e75; border-color: #93a1a1; }
+
+/* The Windows skin's tile second line is white at 80%, which the light ground cannot show. */
+:root[data-variant='light'] .sz-root.win-root .dk-tile-marquee, :root[data-variant='light'] .sz-root.win-root .dk-tile[aria-pressed='true'] .dk-tile-marquee { color: #657b83; }
+
+/* The music pane's back chevron wears the header buttons' own color. */
+.sz-root { --t-back-arrow: currentColor; }
+/* The Sonos Upgrade Advisor reads --t-bg-raised, which Solarized does not publish, and fell back
+   to a charcoal under Solarized's gray ink. Each half draws it in its own ground. */
+.sz-root .s2-dialog { background: var(--sz-ground); color: var(--sz-fg); border-color: var(--sz-line); }
+.sz-root .s2-dialog-head { border-bottom-color: var(--sz-rule); }
+.sz-root .s2-dialog-head h2 { color: var(--sz-strong); }
+.sz-root .s2-dialog-close { color: var(--sz-quiet); }
+.sz-root .s2-dialog-close:hover { background: var(--sz-panel); color: var(--sz-strong); }

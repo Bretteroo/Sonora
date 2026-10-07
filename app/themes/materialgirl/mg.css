@@ -1,0 +1,1575 @@
+/* Material Girl: Material 3 Expressive for Sonora.
+ *
+ * Every rule sits under :root[data-theme='materialgirl'], so nothing here
+ * reaches another theme, and the layers the shell portals into <body>
+ * (sheets, menus, the player) wear it too.
+ *
+ * The color scheme is Material's own: color.js builds it with Material Color
+ * Utilities from the playing cover (tonal spot, the 2025 spec) and writes every
+ * role over the ones below. These are its approximation for the moment before
+ * that runs: a role's lightness fixed by its tone (primary 40 on light and 80 on
+ * dark), converted to OKLCH lightness as (tone + 16) / 116, with the baseline's
+ * hue in --mg-h. Secondary keeps the hue at low chroma, tertiary turns it sixty-
+ * four degrees on, as Material's does, the neutrals all but drop it. */
+
+:root[data-theme='materialgirl'] {
+  --mg-h: 294;
+  --mg-c: 0.13;
+  --mg-ht: calc(var(--mg-h) + 64);
+  --mg-cs: 0.045;
+  --mg-cn: 0.008;
+  --mg-cv: 0.02;
+
+  --mg-primary: oklch(0.483 var(--mg-c) var(--mg-h));
+  --mg-on-primary: oklch(1 0 0);
+  /* Until the scheme is written (color.js), the check in on-primary's light value. */
+  --mg-check-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M4.5 9.3l3 3 6-6.6' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
+  --mg-primary-container: oklch(0.914 calc(var(--mg-c) * 0.42) var(--mg-h));
+  --mg-on-primary-container: oklch(0.397 calc(var(--mg-c) * 0.85) var(--mg-h));
+  --mg-secondary: oklch(0.483 var(--mg-cs) var(--mg-h));
+  --mg-on-secondary: oklch(1 0 0);
+  --mg-secondary-container: oklch(0.914 calc(var(--mg-cs) * 0.9) var(--mg-h));
+  --mg-on-secondary-container: oklch(0.397 var(--mg-cs) var(--mg-h));
+  --mg-tertiary: oklch(0.483 calc(var(--mg-c) * 0.72) var(--mg-ht));
+  --mg-on-tertiary: oklch(1 0 0);
+  --mg-tertiary-container: oklch(0.914 calc(var(--mg-c) * 0.36) var(--mg-ht));
+  --mg-on-tertiary-container: oklch(0.397 calc(var(--mg-c) * 0.7) var(--mg-ht));
+  --mg-error: oklch(0.52 0.19 27);
+  --mg-on-error: oklch(1 0 0);
+  --mg-error-container: oklch(0.914 0.05 27);
+  --mg-on-error-container: oklch(0.397 0.14 27);
+
+  --mg-surface: oklch(0.983 var(--mg-cn) var(--mg-h));
+  --mg-surface-dim: oklch(0.888 var(--mg-cn) var(--mg-h));
+  --mg-surface-bright: oklch(0.983 var(--mg-cn) var(--mg-h));
+  --mg-surface-container-lowest: oklch(1 0 0);
+  --mg-surface-container-low: oklch(0.966 var(--mg-cn) var(--mg-h));
+  --mg-surface-container: oklch(0.948 calc(var(--mg-cn) * 1.3) var(--mg-h));
+  --mg-surface-container-high: oklch(0.931 calc(var(--mg-cn) * 1.5) var(--mg-h));
+  --mg-surface-container-highest: oklch(0.914 calc(var(--mg-cn) * 1.7) var(--mg-h));
+  --mg-on-surface: oklch(0.224 var(--mg-cn) var(--mg-h));
+  --mg-on-surface-variant: oklch(0.397 var(--mg-cv) var(--mg-h));
+  --mg-outline: oklch(0.569 var(--mg-cv) var(--mg-h));
+  --mg-outline-variant: oklch(0.828 var(--mg-cv) var(--mg-h));
+  --mg-inverse-surface: oklch(0.31 var(--mg-cn) var(--mg-h));
+  --mg-inverse-on-surface: oklch(0.957 var(--mg-cn) var(--mg-h));
+  --mg-inverse-primary: oklch(0.828 calc(var(--mg-c) * 0.7) var(--mg-h));
+  --mg-hover: color-mix(in oklab, var(--mg-on-surface) 8%, transparent);
+  --mg-scrim: oklch(0 0 0 / 0.32);
+  --mg-shadow-15: oklch(0 0 0 / 0.15);
+  --mg-shadow-30: oklch(0 0 0 / 0.3);
+
+  --mg-good: oklch(0.52 0.12 150);
+  --mg-fair: oklch(0.6 0.13 75);
+  --mg-poor: oklch(0.58 0.15 50);
+  --mg-info: oklch(0.52 0.12 250);
+
+  --mg-elev-1: 0 1px 2px var(--mg-shadow-30), 0 1px 3px 1px var(--mg-shadow-15);
+  --mg-elev-2: 0 1px 2px var(--mg-shadow-30), 0 2px 6px 2px var(--mg-shadow-15);
+  --mg-elev-3: 0 4px 8px 3px var(--mg-shadow-15), 0 1px 3px var(--mg-shadow-30);
+  --mg-elev-4: 0 6px 10px 4px var(--mg-shadow-15), 0 2px 3px var(--mg-shadow-30);
+
+  /* M3 Expressive motion: the spatial springs overshoot, the effects do not. */
+  --mg-spring-fast: cubic-bezier(0.42, 1.67, 0.21, 0.9);
+  --mg-spring: cubic-bezier(0.38, 1.21, 0.22, 1);
+  --mg-spring-slow: cubic-bezier(0.39, 1.29, 0.35, 0.98);
+  --mg-effects: cubic-bezier(0.34, 0.8, 0.34, 1);
+  /* The fast and slow effects springs as curves (m3.material.io, motion specs: web conversion),
+     for 150ms and 300ms fades and color changes. */
+  --mg-effects-fast: cubic-bezier(0.31, 0.94, 0.34, 1);
+  --mg-effects-slow: cubic-bezier(0.34, 0.88, 0.34, 1);
+  /* Transitions between screens still use Material's easing and duration system ("M3 transitions
+     use the legacy easing and duration system", motion: transitions): emphasized, and its
+     decelerate and accelerate halves, over medium and long durations. */
+  --mg-emph: cubic-bezier(0.2, 0, 0, 1);
+  --mg-emph-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --mg-emph-accel: cubic-bezier(0.3, 0, 0.8, 0.15);
+
+  --mg-font: var(--t-font);
+  --mg-rail-w: 96px;
+  --mg-nav-h: 0px;
+  --mg-queue-w: 0px;
+  color-scheme: light;
+}
+
+:root[data-theme='materialgirl'][data-variant='dark'] {
+  --mg-primary: oklch(0.828 calc(var(--mg-c) * 0.62) var(--mg-h));
+  --mg-on-primary: oklch(0.31 calc(var(--mg-c) * 0.7) var(--mg-h));
+  --mg-primary-container: oklch(0.397 calc(var(--mg-c) * 0.8) var(--mg-h));
+  --mg-on-primary-container: oklch(0.914 calc(var(--mg-c) * 0.4) var(--mg-h));
+  --mg-secondary: oklch(0.828 var(--mg-cs) var(--mg-h));
+  --mg-on-secondary: oklch(0.31 var(--mg-cs) var(--mg-h));
+  --mg-secondary-container: oklch(0.397 var(--mg-cs) var(--mg-h));
+  --mg-on-secondary-container: oklch(0.914 calc(var(--mg-cs) * 0.9) var(--mg-h));
+  --mg-tertiary: oklch(0.828 calc(var(--mg-c) * 0.5) var(--mg-ht));
+  --mg-on-tertiary: oklch(0.31 calc(var(--mg-c) * 0.55) var(--mg-ht));
+  --mg-tertiary-container: oklch(0.397 calc(var(--mg-c) * 0.6) var(--mg-ht));
+  --mg-on-tertiary-container: oklch(0.914 calc(var(--mg-c) * 0.34) var(--mg-ht));
+  --mg-error: oklch(0.834 0.07 24);
+  --mg-on-error: oklch(0.31 0.12 27);
+  --mg-error-container: oklch(0.42 0.13 27);
+  --mg-on-error-container: oklch(0.914 0.05 27);
+
+  --mg-surface: oklch(0.19 var(--mg-cn) var(--mg-h));
+  --mg-surface-dim: oklch(0.19 var(--mg-cn) var(--mg-h));
+  --mg-surface-bright: oklch(0.345 var(--mg-cn) var(--mg-h));
+  --mg-surface-container-lowest: oklch(0.172 var(--mg-cn) var(--mg-h));
+  --mg-surface-container-low: oklch(0.224 var(--mg-cn) var(--mg-h));
+  --mg-surface-container: oklch(0.241 calc(var(--mg-cn) * 1.3) var(--mg-h));
+  --mg-surface-container-high: oklch(0.284 calc(var(--mg-cn) * 1.5) var(--mg-h));
+  --mg-surface-container-highest: oklch(0.328 calc(var(--mg-cn) * 1.7) var(--mg-h));
+  --mg-on-surface: oklch(0.914 var(--mg-cn) var(--mg-h));
+  --mg-on-surface-variant: oklch(0.828 var(--mg-cv) var(--mg-h));
+  --mg-outline: oklch(0.655 var(--mg-cv) var(--mg-h));
+  --mg-outline-variant: oklch(0.397 var(--mg-cv) var(--mg-h));
+  --mg-inverse-surface: oklch(0.914 var(--mg-cn) var(--mg-h));
+  --mg-inverse-on-surface: oklch(0.31 var(--mg-cn) var(--mg-h));
+  --mg-inverse-primary: oklch(0.483 var(--mg-c) var(--mg-h));
+  --mg-scrim: oklch(0 0 0 / 0.5);
+  --mg-shadow-15: oklch(0 0 0 / 0.3);
+  --mg-shadow-30: oklch(0 0 0 / 0.5);
+  --mg-good: oklch(0.78 0.12 150);
+  --mg-fair: oklch(0.82 0.12 85);
+  --mg-poor: oklch(0.78 0.12 55);
+  --mg-info: oklch(0.8 0.09 250);
+  color-scheme: dark;
+}
+
+:root[data-theme='materialgirl'] {
+  & body { background: var(--mg-surface); color: var(--mg-on-surface); }
+
+  /* --- type ------------------------------------------------------------------ */
+  & .mg-root, & .mg-layer, & .mg-menu, & .mg-player, & .mg-searchview-layer, & .mg-snacks {
+    font-family: var(--mg-font); color: var(--mg-on-surface); -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'ss02' 1;
+  }
+  & .mg-display { margin: 0; font-size: 36px; line-height: 44px; font-weight: 500; letter-spacing: 0; }
+  & .mg-display-s { margin: 0; font-size: 32px; line-height: 40px; font-weight: 400; letter-spacing: 0; }
+  & .mg-headline { margin: 0; font-size: 28px; line-height: 36px; font-weight: 400; letter-spacing: 0; }
+  & .mg-title-l { margin: 0; font-size: 22px; line-height: 28px; font-weight: 400; }
+  & .mg-title-m { margin: 0; font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: 0.15px; }
+  & .mg-title-s { margin: 0 0 8px; font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; color: var(--mg-on-surface-variant); }
+  & .mg-overline { margin: 0; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-primary); }
+  & .mg-muted { color: var(--mg-on-surface-variant); font-size: 14px; line-height: 20px; margin: 0; }
+  & .mg-error { color: var(--mg-error); font-size: 14px; margin: 8px 0; }
+  & .mg-hint { display: flex; align-items: center; gap: 6px; margin: 8px 0 0; font-size: 12px; color: var(--mg-on-surface-variant); }
+  & .mg-hint svg { width: 16px; height: 16px; }
+  & .mg-mono { font-family: var(--t-mono); font-size: 0.92em; }
+  & .mg-grow { flex: 1; }
+  & .mg-inline { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  & .mg-stack { display: flex; flex-direction: column; gap: 16px; }
+  & .mg-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  & .mg-toolbar-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  & .mg-setting { display: flex; flex-direction: column; gap: 8px; }
+  & .mg-setting-label { font-size: 14px; font-weight: 500; color: var(--mg-on-surface-variant); }
+  & .mg-fieldset { border: 0; padding: 0; margin: 0; }
+  & .mg-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* --- state layers ----------------------------------------------------------- */
+  & .mg-state { position: absolute; inset: 0; border-radius: inherit; background: currentColor; opacity: 0; pointer-events: none; transition: opacity 150ms var(--mg-effects-fast); }
+  & :is(button, [role='button'], .mg-li-action):hover > .mg-state { opacity: 0.08; }
+  & :is(button, [role='button'], .mg-li-action):focus-visible > .mg-state { opacity: 0.1; }
+  & :is(button, [role='button'], .mg-li-action):active > .mg-state { opacity: 0.1; }
+  & :is(button, [role='button']):disabled > .mg-state { opacity: 0 !important; }
+  /* A tile's layer covers its artwork, the part that reads as the control. */
+  & .mg-tile:hover > .mg-tile-art > .mg-state { opacity: 0.08; }
+  & .mg-tile:focus-visible > .mg-tile-art > .mg-state { opacity: 0.1; }
+  & .mg-tile:active > .mg-tile-art > .mg-state { opacity: 0.1; }
+  & .mg-tile[aria-disabled] > .mg-tile-art > .mg-state { opacity: 0 !important; }
+  & :focus-visible { outline: 3px solid var(--mg-secondary); outline-offset: 2px; }
+  /* Every control answers to at least 48 x 48dp (Material's minimum touch target), drawn smaller or
+     not: an invisible square around the small ones, as Material's web components add. */
+  & :is(.mg-icon-btn-s, .mg-icon-btn-xs, .mg-icon-btn:not([class*='mg-icon-btn-m']):not([class*='mg-icon-btn-l']), .mg-chip-main, .mg-scope, .mg-crumb, .mg-tile-chev, :is(.mg-seg, .theme-pill) button, .mg-rail-systems button, .mg-btn-xs, .mg-btn-s)::after {
+    content: ''; position: absolute; left: 50%; top: 50%; width: max(100%, 48px); height: max(100%, 48px); transform: translate(-50%, -50%);
+  }
+  & button { font: inherit; color: inherit; }
+  & ::selection { background: var(--mg-primary-container); color: var(--mg-on-primary-container); }
+
+  /* --- the shell ----------------------------------------------------------------- */
+  & .mg-root {
+    position: fixed; inset: 0; display: grid; overflow: hidden;
+    grid-template-columns: var(--mg-rail-w) minmax(0, 1fr) var(--mg-queue-w);
+    grid-template-areas: 'rail main queue';
+    background: var(--mg-surface);
+    transition: grid-template-columns 500ms var(--mg-spring);
+  }
+  & .mg-root[data-rail='open'] { --mg-rail-w: var(--mg-rail-open, 240px); }
+  & .mg-root[data-rail='modal'] .mg-rail { position: fixed; top: 0; bottom: 0; left: 0; width: var(--mg-rail-open, 240px); z-index: 60; background: var(--mg-surface-container);
+    border-radius: 0 16px 16px 0; box-shadow: var(--mg-elev-2); animation: mg-rail-in 500ms var(--mg-spring) both; }
+  & .mg-rail-scrim { position: fixed; inset: 0; z-index: 59; background: var(--mg-scrim); animation: mg-tip 200ms var(--mg-effects) both; }
+  & .mg-root[data-queue] { --mg-queue-w: 380px; }
+  & .mg-root.mg-size-compact { --mg-rail-w: 0px; --mg-nav-h: 64px; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'main'; }
+  /* A new destination fades through: the old one is gone at once, a beat of nothing, and the new one
+     fades in, with no movement or shared element, since top-level destinations are unrelated
+     (motion: transitions, Top level). */
+  & .mg-main { grid-area: main; min-width: 0; overflow: auto; overscroll-behavior: contain; padding: 8px 24px calc(120px + var(--mg-nav-h)); animation: mg-through 300ms var(--mg-emph) both; }
+  & .mg-size-compact .mg-main { padding: 4px 16px calc(96px + var(--mg-nav-h)); }
+  & :is(.mg-size-large, .mg-size-xlarge) .mg-main { padding-left: 32px; padding-right: 32px; }
+  /* Pages keep to the rail's side: centred, a page on a window wider than
+     1440px floated with a wide empty band between it and the rail;
+     the spare width now falls on the far side. */
+  & .mg-page { max-width: 1440px; margin: 0 auto 0 0; }
+  /* On a phone the system selector is the header row's trailing element: it stands at the far
+     right of the page's title row, and the title stops short of it. The picker
+     is 40 tall and centred on the 36px title line; inside a service, on the 64px crumb row. */
+  & .mg-size-compact .mg-main { position: relative; }
+  & .mg-compact-systems { position: absolute; top: 26px; right: 16px; z-index: 2; display: flex; }
+  & .mg-compact-systems + .mg-page :is(.mg-appbar-medium .mg-headline, .mg-appbar-browse > .mg-headline) { padding-right: 162px; }
+  & .mg-compact-systems + .mg-page .mg-appbar-browse > .mg-appbar-row { padding-right: 154px; }
+  & .mg-main:has(> .mg-page .mg-appbar-browse > .mg-appbar-row) > .mg-compact-systems { top: 24px; }
+  /* Listen's search button stands just left of the picker, or at the row's
+     end where there is no picker. Beside both, the greeting takes the other titles' size and
+     wraps when it is too long for what is left of the row. */
+  /* Its title starts on the same line as every other page's (24px down, as .mg-appbar-medium). */
+  & .mg-size-compact .mg-listen .mg-appbar { position: relative; padding-top: 16px; }
+  & .mg-size-compact .mg-listen .mg-appbar-row { position: absolute; right: -4px; top: 22px; min-height: 0; }
+  & .mg-size-compact .mg-listen .mg-display { padding-right: 52px; }
+  & .mg-compact-systems + .mg-listen .mg-display { font-size: 28px; line-height: 36px; padding-right: 206px; }
+  & .mg-compact-systems + .mg-listen .mg-appbar-row { right: 154px; }
+
+  /* The navigation rail: collapsed is 96 wide with labels under the icons;
+     open is wider with the labels beside them. */
+  & .mg-rail {
+    grid-area: rail; position: relative; z-index: 32; display: flex; flex-direction: column; gap: 12px; min-width: 0; overflow: visible;
+    padding: 44px 12px 16px; background: var(--mg-surface);
+  }
+  & .mg-rail-top { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  & .mg-root:is([data-rail='open'], [data-rail='modal']) .mg-rail-top { align-items: flex-start; }
+  & .mg-brand { display: flex; align-items: center; gap: 10px; padding: 4px; border: 0; background: none; cursor: pointer; border-radius: 12px; }
+  & .mg-brand img { border-radius: 12px; }
+  & .mg-brand span { display: none; font-weight: 500; font-size: 16px; }
+  & .mg-root:is([data-rail='open'], [data-rail='modal']) .mg-brand span { display: inline; }
+  & .mg-rail-dests { display: flex; flex-direction: column; gap: 4px; margin-top: 28px; }
+  & .mg-dest { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 0 6px; border: 0; background: none; cursor: pointer; color: var(--mg-on-surface-variant); }
+  & .mg-dest-indicator { position: relative; display: grid; place-items: center; width: 56px; height: 32px; border-radius: 999px; transition: background 250ms var(--mg-effects), width 500ms var(--mg-spring); }
+  & .mg-dest-indicator svg { width: 24px; height: 24px; position: relative; }
+  & .mg-dest-label { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; }
+  & .mg-dest[aria-current] { color: var(--mg-secondary); }
+  & .mg-dest[aria-current] .mg-dest-indicator { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); animation: mg-indicator 350ms var(--mg-spring-fast) both; }
+  & .mg-dest:hover .mg-state, & .mg-dest:focus-visible .mg-state { opacity: 0.08; }
+  /* The expanded rail's indicator hugs its icon and label (Material's wide rail), not the rail's width. */
+  & .mg-root:is([data-rail='open'], [data-rail='modal']) .mg-dest { flex-direction: row; justify-content: flex-start; align-self: flex-start; gap: 0; padding: 0 16px; height: 56px; }
+  & .mg-root:is([data-rail='open'], [data-rail='modal']) .mg-dest-indicator { position: absolute; inset: 0; width: auto; height: 56px; }
+  & .mg-root:is([data-rail='open'], [data-rail='modal']) .mg-dest-indicator svg { position: absolute; left: 16px; top: 16px; }
+  & .mg-root:is([data-rail='open'], [data-rail='modal']) .mg-dest-label { position: relative; margin-left: 32px; font-size: 14px; line-height: 20px; letter-spacing: 0.1px; pointer-events: none; }
+  & .mg-root:is([data-rail='open'], [data-rail='modal']) .mg-dest[aria-current] .mg-dest-label { color: var(--mg-on-secondary-container); }
+  & .mg-rail-foot { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  & .mg-root:is([data-rail='open'], [data-rail='modal']) .mg-rail-foot { align-items: stretch; }
+  & .mg-rail-systems { display: flex; flex-direction: column; gap: 2px; padding: 4px; border-radius: 16px; background: var(--mg-surface-container-high); }
+  & .mg-root:is([data-rail='open'], [data-rail='modal']) .mg-rail-systems { flex-direction: row; }
+  & .mg-rail-systems button { position: relative; flex: 1; min-width: 44px; height: 32px; border: 0; border-radius: 12px; background: none; cursor: pointer; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-on-surface-variant); transition: border-radius 500ms var(--mg-spring), background 200ms var(--mg-effects); }
+  & .mg-rail-systems button[aria-checked='true'] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); border-radius: 999px; }
+  & .mg-rail-live { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; color: var(--mg-on-surface-variant); text-align: center; }
+  & .mg-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mg-error); flex: none; }
+  & .mg-dot[data-on] { background: var(--mg-good); box-shadow: 0 0 0 3px color-mix(in oklab, var(--mg-good) 25%, transparent); }
+
+  /* The navigation bar of a compact window. */
+  & .mg-navbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; justify-content: space-around;
+    height: var(--mg-nav-h); padding: 6px 0; background: var(--mg-surface-container);
+  }
+  /* No env(safe-area-inset-bottom) on the bar or anything stacked on it: the page never asks for
+     viewport-fit=cover, so the browser already keeps it above the system bars, and Android browsers
+     report the inset anyway. Adding it counted the system bar twice and left a dead strip under the
+     icons (as Sonofuture found). */
+  & .mg-navbar .mg-dest { flex: 1; padding: 0; }
+  & .mg-navbar .mg-dest-label { font-size: 12px; }
+  /* Beside the floating toolbar, on its row, 8dp from its end (Material's toolbar with a FAB). */
+  & .mg-compact-fab { position: fixed; right: 16px; bottom: calc(var(--mg-nav-h) + 16px); z-index: 41; }
+
+  /* --- top app bars ------------------------------------------------------------ */
+  & .mg-appbar { padding: 8px 0 20px; }
+  & .mg-appbar-row { display: flex; align-items: center; gap: 4px; min-height: 64px; }
+  & .mg-appbar-large .mg-display { margin-top: 8px; }
+  & .mg-appbar-sub { margin: 8px 0 0; font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; color: var(--mg-on-surface-variant); }
+  & .mg-appbar-large .mg-appbar-sub { font-size: 16px; line-height: 24px; letter-spacing: 0.15px; }
+  & .mg-appbar-medium { padding-top: 24px; }
+  & .mg-rooms-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  & .mg-rooms-actions { display: flex; gap: 8px; margin-left: auto; }
+  /* On a phone the system selector holds the title row's end, so the actions take the line under it. */
+  & .mg-size-compact .mg-rooms-actions { margin-left: 0; flex-basis: 100%; }
+
+  /* --- buttons ----------------------------------------------------------------- */
+  & .mg-btn {
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: none;
+    border: 0; border-radius: 999px; cursor: pointer; white-space: nowrap; font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px;
+    /* The pressed corners ease without a bounce: Compose's Button morphs its shape on
+       DefaultEffects, "intentional here to prevent any bounce in this component". */
+    transition: border-radius 200ms var(--mg-effects), background 200ms var(--mg-effects), box-shadow 200ms var(--mg-effects), color 200ms var(--mg-effects);
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Pressed and square shapes by size (Compose Button*Tokens): pressed 8 for XS and S, 12 for M,
+     16 for L and XL; square 12, 16 and 28. A square button presses like a round one. */
+  & .mg-btn:active:not(:disabled) { border-radius: 8px; }
+  & .mg-btn-m:active:not(:disabled) { border-radius: 12px; }
+  & :is(.mg-btn-l, .mg-btn-xl):active:not(:disabled) { border-radius: 16px; }
+  & .mg-btn-square { border-radius: 12px; }
+  & .mg-btn-square.mg-btn-m { border-radius: 16px; }
+  & .mg-btn-square:is(.mg-btn-l, .mg-btn-xl) { border-radius: 28px; }
+  & .mg-btn-square:active:not(:disabled) { border-radius: 8px; }
+  & .mg-btn-square.mg-btn-m:active:not(:disabled) { border-radius: 12px; }
+  & .mg-btn-square:is(.mg-btn-l, .mg-btn-xl):active:not(:disabled) { border-radius: 16px; }
+  & .mg-btn-l { gap: 12px; } & .mg-btn-l .mg-btn-icon svg { width: 32px; height: 32px; }
+  & .mg-btn-xl { gap: 16px; } & .mg-btn-xl .mg-btn-icon svg { width: 40px; height: 40px; }
+  & .mg-btn-xs { height: 32px; padding: 0 12px; font-size: 14px; }
+  & .mg-btn-s { height: 40px; padding: 0 16px; font-size: 14px; }
+  /* Labels by size (Button.kt textStyleFor): label large to S, title medium at M, headline small
+     at L, headline large at XL. */
+  & .mg-btn-m { height: 56px; padding: 0 24px; font-size: 16px; line-height: 24px; letter-spacing: 0.15px; }
+  & .mg-btn-l { height: 96px; padding: 0 48px; font-size: 24px; line-height: 32px; font-weight: 400; letter-spacing: 0; }
+  & .mg-btn-xl { height: 136px; padding: 0 64px; font-size: 32px; line-height: 40px; font-weight: 400; letter-spacing: 0; }
+  & .mg-btn-icon { display: inline-flex; }
+  & .mg-btn-icon svg { width: 20px; height: 20px; }
+  & .mg-btn-m .mg-btn-icon svg { width: 24px; height: 24px; }
+  & .mg-btn-filled { background: var(--mg-primary); color: var(--mg-on-primary); }
+  & .mg-btn-filled[aria-pressed='false'] { background: var(--mg-surface-container); color: var(--mg-on-surface-variant); }
+  & .mg-btn-tonal { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+  & .mg-btn-outlined { background: transparent; color: var(--mg-on-surface-variant); box-shadow: inset 0 0 0 1px var(--mg-outline-variant); }
+  & .mg-btn-text { background: transparent; color: var(--mg-primary); padding-left: 12px; padding-right: 12px; }
+  & .mg-btn-danger { background: transparent; color: var(--mg-error); padding-left: 12px; padding-right: 12px; }
+  & .mg-btn-elevated { background: var(--mg-surface-container-low); color: var(--mg-primary); box-shadow: var(--mg-elev-1); }
+  /* Hovered, a filled button rises to level 1 and an elevated one to level 2 (button tokens). */
+  & .mg-btn-filled:not([aria-pressed='false']):hover:not(:disabled) { box-shadow: var(--mg-elev-1); }
+  & .mg-btn-elevated:hover:not(:disabled) { box-shadow: var(--mg-elev-2, var(--mg-elev-1)); }
+  /* Disabled content is on-surface-variant at 38% for filled, outlined, text and elevated buttons,
+     on-surface for tonal, whose container is 12% where the others' is 10%. */
+  & .mg-btn:disabled { cursor: default; color: color-mix(in oklab, var(--mg-on-surface-variant) 38%, transparent); }
+  & .mg-btn-tonal:disabled { color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & .mg-btn-filled:disabled, & .mg-btn-elevated:disabled { background: color-mix(in oklab, var(--mg-on-surface) 10%, transparent); box-shadow: none; }
+  & .mg-btn-tonal:disabled { background: color-mix(in oklab, var(--mg-on-surface) 12%, transparent); box-shadow: none; }
+  & .mg-btn-outlined:disabled { box-shadow: inset 0 0 0 1px var(--mg-outline-variant); }
+
+  /* Icon buttons: standard, filled, tonal, outlined and toggle; xs to l; narrow,
+     default and wide. A pressed one squares its corners, a selected toggle is
+     round and filled. */
+  & .mg-icon-btn {
+    position: relative; display: inline-grid; place-items: center; flex: none; border: 0; cursor: pointer;
+    width: 40px; height: 40px; border-radius: 999px; background: transparent; color: var(--mg-on-surface-variant);
+    transition: border-radius 200ms var(--mg-effects), background 200ms var(--mg-effects), color 200ms var(--mg-effects), width 500ms var(--mg-spring);
+  }
+  & .mg-icon-btn svg { width: 24px; height: 24px; position: relative; }
+  & .mg-icon-btn:active:not(:disabled) { border-radius: 8px; }
+  & .mg-icon-btn-m:active:not(:disabled) { border-radius: 12px; }
+  & .mg-icon-btn-l:active:not(:disabled) { border-radius: 16px; }
+  & .mg-icon-btn-xs { width: 32px; height: 32px; }
+  & .mg-icon-btn-xs svg { width: 20px; height: 20px; }
+  & .mg-icon-btn-m { width: 56px; height: 56px; }
+  & .mg-icon-btn-m svg { width: 28px; height: 28px; }
+  & .mg-icon-btn-l { width: 96px; height: 96px; }
+  & .mg-icon-btn-l svg { width: 32px; height: 32px; }
+  & .mg-icon-btn-wide.mg-icon-btn-s { width: 52px; }
+  & .mg-icon-btn-wide.mg-icon-btn-m { width: 72px; }
+  & .mg-icon-btn-narrow { width: 32px; }
+  & .mg-icon-btn-narrow.mg-icon-btn-xs { width: 28px; }
+  & .mg-icon-btn-narrow.mg-icon-btn-m { width: 48px; }
+  & .mg-icon-btn-narrow.mg-icon-btn-l { width: 64px; }
+  & .mg-icon-btn-wide.mg-icon-btn-xs { width: 40px; }
+  & .mg-icon-btn-wide.mg-icon-btn-l { width: 128px; }
+  & .mg-icon-btn-filled { background: var(--mg-primary); color: var(--mg-on-primary); }
+  & .mg-icon-btn-tonal { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+  & .mg-icon-btn-outlined { box-shadow: inset 0 0 0 1px var(--mg-outline-variant); }
+  & .mg-icon-btn-toggle { background: var(--mg-surface-container); color: var(--mg-on-surface-variant); border-radius: 12px; }
+  & .mg-icon-btn-toggle.mg-icon-btn-m { border-radius: 16px; }
+  & .mg-icon-btn-toggle.mg-icon-btn-l { border-radius: 28px; }
+  & .mg-icon-btn-toggle[aria-pressed='true'] { background: var(--mg-primary); color: var(--mg-on-primary); border-radius: 999px; }
+  & .mg-icon-btn-standard[aria-pressed='true'] { color: var(--mg-primary); }
+  & .mg-icon-btn:disabled { cursor: default; color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & .mg-icon-btn-filled:disabled, & .mg-icon-btn-tonal:disabled, & .mg-icon-btn-toggle:disabled { background: color-mix(in oklab, var(--mg-on-surface) 10%, transparent); }
+  & .mg-badge { position: absolute; top: 2px; right: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--mg-error); color: var(--mg-on-error); font-size: 11px; line-height: 16px; font-weight: 500; text-align: center; }
+  & .mg-step { position: relative; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  & .mg-step-back { transform: scaleX(-1); }
+
+  /* Button groups. Standard: apart by 8, the pressed one widens by 15% and its
+     neighbors narrow. Connected: 2 apart with small inner corners; the
+     selected member rounds fully. */
+  & .mg-bgroup { display: inline-flex; align-items: center; }
+  & .mg-bgroup-standard { gap: 8px; }
+  & .mg-bgroup-standard:has(> .mg-icon-btn-s) { gap: 12px; }
+  /* Pressing a member widens it and its neighbors narrow to make the room, so the group keeps its
+     width (Compose's ButtonGroup). Real widths, not a horizontal scale, which had squeezed the
+     glyphs. Each member's resting width is --mg-w, set below for the sizes a group
+     holds; --mg-press is how much the pressed one gains. */
+  /* The pressed one gains 15% of its width (ButtonGroupDefaults.ExpandedRatio). */
+  & .mg-bgroup-standard { --mg-press: 6px; }
+  & .mg-bgroup-standard:has(> .mg-icon-btn-m) { --mg-press: 9px; }
+  & .mg-bgroup-standard:has(> .mg-icon-btn-l) { --mg-press: 14px; }
+  & .mg-bgroup-standard > .mg-icon-btn { --mg-w: 40px; }
+  & .mg-bgroup-standard > .mg-icon-btn-xs { --mg-w: 32px; }
+  & .mg-bgroup-standard > .mg-icon-btn-m { --mg-w: 56px; }
+  & .mg-bgroup-standard > .mg-icon-btn-l { --mg-w: 96px; }
+  & .mg-bgroup-standard > .mg-icon-btn-wide.mg-icon-btn-s { --mg-w: 52px; }
+  & .mg-bgroup-standard > .mg-icon-btn-wide.mg-icon-btn-m { --mg-w: 72px; }
+  & .mg-bgroup-standard > .mg-icon-btn-narrow { --mg-w: 32px; }
+  & .mg-bgroup-standard > .mg-play { --mg-w: 48px; }
+  & .mg-bgroup-standard > .mg-play-s { --mg-w: 44px; }
+  & .mg-bgroup-standard > .mg-play-m { --mg-w: 64px; }
+  & .mg-bgroup-standard > .mg-play-l { --mg-w: 104px; }
+  & .mg-transport-l { --mg-press: 14px; }
+  & .mg-bgroup-standard.mg-transport-l > .mg-icon-btn-wide { --mg-w: 80px; }
+  & .mg-bgroup-standard > * { width: var(--mg-w); transition: width 350ms var(--mg-spring-fast), border-radius 200ms var(--mg-effects); }
+  & .mg-bgroup-standard > :active:not(:disabled) { width: calc(var(--mg-w) + var(--mg-press)); }
+  & .mg-bgroup-standard > :has(+ :active:not(:disabled)),
+  & .mg-bgroup-standard > :active:not(:disabled) + * { width: calc(var(--mg-w) - var(--mg-press) / 2); }
+  /* At either end there is one neighbor to give all the room. */
+  & .mg-bgroup-standard > :first-child:active:not(:disabled) + *,
+  & .mg-bgroup-standard > :has(+ :last-child:active:not(:disabled)) { width: calc(var(--mg-w) - var(--mg-press)); }
+  & .mg-bgroup-connected { gap: 2px; }
+  & .mg-bgroup-connected > .mg-icon-btn, & .mg-bgroup-connected > .mg-btn { border-radius: 8px; }
+  & .mg-bgroup-connected > :first-child { border-top-left-radius: 999px; border-bottom-left-radius: 999px; }
+  & .mg-bgroup-connected > :last-child { border-top-right-radius: 999px; border-bottom-right-radius: 999px; }
+  & .mg-bgroup-connected > [aria-pressed='true'] { border-radius: 999px; }
+  /* Pressed, a connected member's inner corners close to 4dp and its outer ones stay round
+     (Compose's connected press shapes); the icon button's own press shape had won over both. */
+  & .mg-bgroup-connected > :active:not(:disabled) { border-radius: 4px; }
+  & .mg-bgroup-connected > :first-child:active:not(:disabled) { border-radius: 999px 4px 4px 999px; }
+  & .mg-bgroup-connected > :last-child:active:not(:disabled) { border-radius: 4px 999px 999px 4px; }
+
+  /* The split button: two halves 2 apart; the trailing one's chevron turns
+     and it rounds fully while its menu is open. */
+  & .mg-split { display: inline-flex; gap: 2px; }
+  & .mg-split button { position: relative; display: inline-flex; align-items: center; gap: 8px; border: 0; cursor: pointer; font-weight: 500;
+    transition: border-radius 350ms var(--mg-spring-fast); }
+  & .mg-split-filled button { background: var(--mg-primary); color: var(--mg-on-primary); }
+  & .mg-split-tonal button { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+  & .mg-split button:disabled { cursor: default; background: color-mix(in oklab, var(--mg-on-surface) 10%, transparent); color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & .mg-split-lead { border-radius: 999px 4px 4px 999px; }
+  & .mg-split-trail { border-radius: 4px 999px 999px 4px; justify-content: center; }
+  & .mg-split-s button { height: 40px; font-size: 14px; }
+  & .mg-split-s .mg-split-lead { padding: 0 12px 0 16px; }
+  & .mg-split-s .mg-split-trail { width: 48px; }
+  & .mg-split-s .mg-split-chev { width: 22px; height: 22px; }
+  & .mg-split-m button { height: 56px; font-size: 16px; }
+  & .mg-split-m .mg-split-lead { padding: 0 24px; }
+  & .mg-split-m .mg-split-trail { width: 56px; }
+  & .mg-split-m .mg-split-chev { width: 26px; height: 26px; }
+  & .mg-split-m svg { width: 24px; height: 24px; }
+  & .mg-split-chev { transition: transform 500ms var(--mg-spring); }
+  & .mg-split[data-open] .mg-split-trail { border-radius: 999px; }
+  & .mg-split[data-open] .mg-split-chev { transform: rotate(180deg); }
+  & .mg-split-lead:is(:hover, :active):not(:disabled) { border-radius: 999px 12px 12px 999px; }
+  & .mg-split-trail:is(:hover, :active):not(:disabled) { border-radius: 12px 999px 999px 12px; }
+
+  /* The FAB and extended FAB; the FAB menu. */
+  & .mg-fab {
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 12px; border: 0; cursor: pointer;
+    width: 56px; height: 56px; border-radius: 16px; box-shadow: var(--mg-elev-3);
+    transition: border-radius 500ms var(--mg-spring), width 500ms var(--mg-spring), box-shadow 200ms var(--mg-effects), background 250ms var(--mg-effects);
+  }
+  & .mg-fab:hover { box-shadow: var(--mg-elev-4); }
+  & .mg-fab-icon { display: inline-flex; position: relative; }
+  & .mg-fab-icon svg { width: 24px; height: 24px; }
+  & .mg-fab-extended { width: auto; padding: 0 20px 0 16px; }
+  & .mg-fab-label { position: relative; font-weight: 500; font-size: 16px; white-space: nowrap; }
+  & .mg-fab-medium { width: 80px; height: 80px; border-radius: 20px; }
+  & .mg-fab-large { width: 96px; height: 96px; border-radius: 28px; }
+  & .mg-fab-primary { background: var(--mg-primary-container); color: var(--mg-on-primary-container); }
+  & .mg-fab-secondary { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+  & .mg-fab-tertiary { background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
+  & .mg-fabmenu { position: relative; z-index: 35; }
+  & .mg-fabmenu[data-open] .mg-fabmenu-toggle { border-radius: 999px; background: var(--mg-tertiary); color: var(--mg-on-tertiary); }
+  & .mg-fabmenu[data-open] .mg-fabmenu-toggle svg { width: 20px; height: 20px; }
+  & .mg-fabmenu-list { position: absolute; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; min-width: max-content; }
+  & .mg-rail .mg-fabmenu-list { top: calc(100% + 8px); left: 0; }
+  & .mg-compact-fab .mg-fabmenu-list { bottom: calc(100% + 8px); right: 0; align-items: flex-end; }
+  & .mg-fabmenu-list li { animation: mg-fabitem 450ms var(--mg-spring-fast) both; animation-delay: calc(var(--mg-i) * 35ms); }
+  & .mg-fabmenu-item {
+    position: relative; display: inline-flex; align-items: center; gap: 8px; height: 56px; padding: 0 24px; border: 0; cursor: pointer;
+    border-radius: 999px; background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); font-weight: 500; font-size: 16px; line-height: 24px; letter-spacing: 0.15px; box-shadow: var(--mg-elev-3);
+  }
+  & .mg-fabmenu-item:disabled { background: var(--mg-surface-container-highest); color: color-mix(in oklab, var(--mg-on-surface) 45%, var(--mg-surface-container-highest)); cursor: default; box-shadow: var(--mg-elev-1); }
+
+  /* --- chips, switch, segmented ----------------------------------------------------- */
+  & .mg-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  & .mg-chip { display: inline-flex; align-items: stretch; height: 32px; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--mg-outline-variant); color: var(--mg-on-surface-variant); transition: background 200ms var(--mg-effects); }
+  & .mg-chip-main { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 0 16px 0 8px; border: 0; background: none; cursor: pointer; border-radius: inherit; font-size: 14px; font-weight: 500; white-space: nowrap; }
+  & .mg-chip-main:not(:has(.mg-chip-icon)) { padding-left: 16px; }
+  & .mg-chip-main:disabled { cursor: default; opacity: 0.38; }
+  & .mg-chip-icon { display: inline-flex; color: var(--mg-primary); }
+  & .mg-chip-icon svg { width: 18px; height: 18px; }
+  & .mg-chip-img { width: 18px; height: 18px; border-radius: 4px; }
+  & .mg-chip-shape { display: block; width: 18px; height: 18px; background: var(--mg-tertiary); }
+  & .mg-chip[data-selected] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); box-shadow: none; }
+  & .mg-chip[data-selected] .mg-chip-icon { color: inherit; animation: mg-chip-check 350ms var(--mg-spring-fast) both; }
+  & .mg-chip-assist .mg-chip-main { color: var(--mg-on-surface); }
+  & .mg-chip-trail { position: relative; display: inline-flex; align-items: center; align-self: stretch; border: 0; border-radius: 0 8px 8px 0; background: none; padding: 0 8px; cursor: pointer; color: inherit; }
+  & .mg-chip-trail svg { width: 18px; height: 18px; }
+  /* Disabled, part by part: outline at 12% of on-surface, a selected chip's fill at 12%, label and
+     icons at 38% (chip tokens). */
+  & .mg-chip[data-disabled] { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--mg-on-surface) 12%, transparent); color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & .mg-chip[data-disabled][data-selected] { box-shadow: none; background: color-mix(in oklab, var(--mg-on-surface) 12%, transparent); }
+  & .mg-chip[data-disabled] :is(.mg-chip-main, .mg-chip-icon) { color: inherit; opacity: 1; }
+
+  & .mg-switch { display: inline-flex; align-items: center; justify-content: space-between; gap: 16px; cursor: pointer; font-size: 16px; }
+  & .mg-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  & .mg-switch-label { flex: 1; }
+  & .mg-switch-track { position: relative; flex: none; width: 52px; height: 32px; border-radius: 16px; background: var(--mg-surface-container-highest); box-shadow: inset 0 0 0 2px var(--mg-outline); transition: background 250ms var(--mg-effects); }
+  & .mg-switch-thumb { position: absolute; top: 50%; left: 16px; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--mg-outline); color: var(--mg-surface-container-highest); transform: translate(-50%, -50%);
+    transition: left 350ms var(--mg-spring-fast), width 350ms var(--mg-spring-fast), height 350ms var(--mg-spring-fast), background 200ms var(--mg-effects); }
+  & .mg-switch-thumb:has(svg) { width: 24px; height: 24px; }
+  & .mg-switch-thumb svg { width: 16px; height: 16px; }
+  & .mg-switch input:checked + .mg-switch-track { background: var(--mg-primary); box-shadow: none; }
+  & .mg-switch input:checked + .mg-switch-track .mg-switch-thumb { left: 36px; width: 24px; height: 24px; background: var(--mg-on-primary); color: var(--mg-on-primary-container); }
+  /* Pressed, the handle snaps to 28 and springs back on release (Compose's Switch: SnapSpec in,
+     FastSpatial out). Hovered, focused or pressed it takes the state's handle color. */
+  & .mg-switch:not([data-disabled]):active input + .mg-switch-track .mg-switch-thumb { width: 28px; height: 28px; transition-duration: 350ms, 0ms, 0ms, 200ms; }
+  & .mg-switch:not([data-disabled]):is(:hover, :active) input:not(:checked) + .mg-switch-track .mg-switch-thumb,
+  & .mg-switch input:focus-visible:not(:checked) + .mg-switch-track .mg-switch-thumb { background: var(--mg-on-surface-variant); }
+  & .mg-switch:not([data-disabled]):is(:hover, :active) input:checked + .mg-switch-track .mg-switch-thumb,
+  & .mg-switch input:focus-visible:checked + .mg-switch-track .mg-switch-thumb { background: var(--mg-primary-container); }
+  /* The handle's state layer: a 40dp circle under it, on-surface when off and primary when on,
+     8% hovered and 10% focused or pressed (Switch tokens: StateLayerSize 40, CornerFull). */
+  & .mg-switch-track::before { content: ''; position: absolute; top: 50%; left: 16px; width: 40px; height: 40px; border-radius: 50%; transform: translate(-50%, -50%);
+    background: var(--mg-on-surface); opacity: 0; pointer-events: none; transition: left 350ms var(--mg-spring-fast), opacity 150ms var(--mg-effects-fast); }
+  & .mg-switch input:checked + .mg-switch-track::before { left: 36px; background: var(--mg-primary); }
+  & .mg-switch:not([data-disabled]):hover .mg-switch-track::before { opacity: 0.08; }
+  & .mg-switch:not([data-disabled]):active .mg-switch-track::before, & .mg-switch input:focus-visible + .mg-switch-track::before { opacity: 0.1; }
+  & .mg-switch input:focus-visible + .mg-switch-track { outline: 3px solid var(--mg-secondary); outline-offset: 2px; }
+  /* Disabled, part by part (Material's switch tokens): the track at 12% of on-surface, the handle at
+     38% of it when off and surface when on, the label at 38%. */
+  & .mg-switch[data-disabled] { cursor: default; }
+  & .mg-switch[data-disabled] .mg-switch-label { color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & .mg-switch[data-disabled] input:not(:checked) + .mg-switch-track { background: color-mix(in oklab, var(--mg-surface-container-highest) 12%, transparent); box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--mg-on-surface) 12%, transparent); }
+  & .mg-switch[data-disabled] input:not(:checked) + .mg-switch-track .mg-switch-thumb { background: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); color: color-mix(in oklab, var(--mg-surface-container-highest) 38%, transparent); }
+  & .mg-switch[data-disabled] input:checked + .mg-switch-track { background: color-mix(in oklab, var(--mg-on-surface) 12%, transparent); }
+  & .mg-switch[data-disabled] input:checked + .mg-switch-track .mg-switch-thumb { background: var(--mg-surface); color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+
+  & :is(.mg-seg, .theme-pill) { display: inline-flex; gap: 2px; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  & :is(.mg-seg, .theme-pill) button { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 0; cursor: pointer;
+    font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; background: var(--mg-surface-container); color: var(--mg-on-surface-variant); border-radius: 8px; transition: border-radius 350ms var(--mg-spring-fast), background 200ms var(--mg-effects); }
+  & :is(.mg-seg, .theme-pill) button:first-child { border-radius: 999px 8px 8px 999px; }
+  & :is(.mg-seg, .theme-pill) button:last-child { border-radius: 8px 999px 999px 8px; }
+  & :is(.mg-seg, .theme-pill) button:only-child { border-radius: 999px; }
+  /* A connected toggle group, as Material Expressive draws its segmented choices: surface-container
+     when off, primary when on and fully round, 4dp inner corners pressed, no check mark. */
+  & :is(.mg-seg button[aria-checked='true'], .theme-pill button[aria-pressed='true']) { background: var(--mg-primary); color: var(--mg-on-primary); border-radius: 999px; }
+  & :is(.mg-seg, .theme-pill) button:active { border-radius: 4px; }
+  & :is(.mg-seg, .theme-pill) button:first-child:active { border-radius: 999px 4px 4px 999px; }
+  & :is(.mg-seg, .theme-pill) button:last-child:active { border-radius: 4px 999px 999px 4px; }
+  & .mg-seg svg { width: 20px; height: 20px; }
+  /* The shared appearance group carries no state-layer span, so its hover layer is mixed in. */
+  & .theme-pill button:hover { background: color-mix(in oklab, var(--mg-surface-container), var(--mg-on-surface-variant) 8%); }
+  & .theme-pill button[aria-pressed='true']:hover { background: color-mix(in oklab, var(--mg-primary), var(--mg-on-primary) 8%); }
+  & .theme-pill button:focus-visible { outline: 3px solid var(--mg-secondary); outline-offset: 2px; }
+
+  /* --- the slider ---------------------------------------------------------------------- */
+  /* Sizes from Material's slider tokens: handle 44 high up to M, then 68 and 108; outer track
+     corners 8, 8, 12, 16 and 28; inside corners by the handle 2. */
+  & .mg-slider { --mg-track: 16px; --mg-track-r: 8px; --mg-handle-h: 44px; --mg-gap: 6px; --mg-handle: 4px; position: relative; flex: 1; min-width: 80px; height: max(48px, var(--mg-handle-h)); }
+  & .mg-slider-s { --mg-track: 24px; --mg-track-r: 8px; }
+  & .mg-slider-m { --mg-track: 40px; --mg-track-r: 12px; }
+  & .mg-slider-l { --mg-track: 56px; --mg-track-r: 16px; --mg-handle-h: 68px; }
+  & .mg-slider-xl { --mg-track: 96px; --mg-track-r: 28px; --mg-handle-h: 108px; }
+  & .mg-slider > span { position: absolute; top: 50%; transform: translateY(-50%); pointer-events: none; }
+  & .mg-slider-active {
+    left: 0; height: var(--mg-track); background: var(--mg-primary); color: var(--mg-on-primary);
+    width: max(0px, calc(var(--mg-pct) * 1% - var(--mg-gap) - var(--mg-handle) / 2));
+    border-radius: var(--mg-track-r) 2px 2px var(--mg-track-r);
+    display: flex; align-items: center; overflow: hidden;
+  }
+  & .mg-slider-inactive {
+    right: 0; height: var(--mg-track); background: var(--mg-secondary-container);
+    width: max(0px, calc((100 - var(--mg-pct)) * 1% - var(--mg-gap) - var(--mg-handle) / 2));
+    border-radius: 2px var(--mg-track-r) var(--mg-track-r) 2px;
+  }
+  & .mg-slider-stop { position: absolute; right: min(6px, calc(var(--mg-track) / 2 - 2px)); top: 50%; width: 4px; height: 4px; border-radius: 50%; background: var(--mg-primary); transform: translateY(-50%); }
+  & .mg-slider-handle { left: calc(var(--mg-pct) * 1% - var(--mg-handle) / 2); width: var(--mg-handle); height: var(--mg-handle-h); border-radius: 2px; background: var(--mg-primary); transition: width 200ms var(--mg-spring-fast); }
+  & .mg-slider-icon { display: inline-flex; margin-left: 10px; flex: none; }
+  & .mg-slider-icon svg { width: 22px; height: 22px; }
+  & .mg-slider-bubble { position: absolute; left: 50%; bottom: calc(100% + 12px); transform: translateX(-50%) scale(0.6); opacity: 0; padding: 6px 10px; border-radius: 999px;
+    background: var(--mg-inverse-surface); color: var(--mg-inverse-on-surface); font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; white-space: nowrap; transition: opacity 150ms var(--mg-effects-fast), transform 250ms var(--mg-spring-fast); }
+  & .mg-slider[data-dragging] .mg-slider-bubble { opacity: 1; transform: translateX(-50%) scale(1); }
+  /* The handle halves on any press, focus or drag, and the track's gap follows its width
+     (SliderDefaults.Thumb: Pressed/FocusHandleWidth 2dp). */
+  & .mg-slider:is([data-dragging], :active, :has(input:focus-visible)) { --mg-handle: 2px; }
+  & .mg-slider input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  & .mg-slider input:focus-visible ~ .mg-slider-handle, & .mg-slider:has(input:focus-visible) .mg-slider-handle { outline: 3px solid var(--mg-secondary); outline-offset: 3px; }
+  /* Disabled, part by part: active track and handle at 38% of on-surface, inactive track at 12%,
+     the stop on-surface. Fading the whole control let the page through. */
+  & .mg-slider[data-disabled] .mg-slider-active, & .mg-slider[data-disabled] .mg-slider-handle { background: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); color: var(--mg-surface); }
+  & .mg-slider[data-disabled] .mg-slider-inactive { background: color-mix(in oklab, var(--mg-on-surface) 12%, transparent); }
+  & .mg-slider[data-disabled] .mg-slider-stop { background: var(--mg-on-surface); }
+  & .mg-slider[data-disabled] input { cursor: default; }
+
+  /* --- skeleton loaders -------------------------------------------------------------- */
+  /* The shape of what is coming in surface-container-highest, pulsing in a wave that starts at the
+     top left; the content fades in quickly once it arrives (motion: transitions, Skeleton loaders). */
+  & .mg-skeleton { display: flex; flex-direction: column; gap: 4px; padding: 8px 0; }
+  & .mg-skeleton-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 12px; }
+  & .mg-skel-row { display: flex; align-items: center; gap: 16px; min-height: 64px; padding: 8px 16px; animation: mg-skeleton 1600ms var(--mg-effects) infinite; animation-delay: calc(var(--i) * 90ms); }
+  & .mg-skel-art { flex: none; width: 48px; height: 48px; border-radius: 12px; background: var(--mg-surface-container-highest); }
+  & .mg-skel-lines { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  & .mg-skel-line { display: block; height: 12px; width: 62%; border-radius: 6px; background: var(--mg-surface-container-highest); }
+  & .mg-skel-line-short { width: 34%; }
+  & .mg-skel-card { display: block; height: 168px; border-radius: 28px; background: var(--mg-surface-container-highest); animation: mg-skeleton 1600ms var(--mg-effects) infinite; animation-delay: calc(var(--i) * 90ms); }
+  & :is(.mg-list, .mg-alarm-grid, .mg-tiles, .mg-rows, .mg-carousel) { animation: mg-fade 150ms var(--mg-effects-fast) both; }
+
+  /* --- progress: the loading indicator and the wavy line -------------------------------- */
+  & .mg-loading { display: inline-grid; place-items: center; width: var(--mg-size); height: var(--mg-size); flex: none; }
+  & .mg-loading-contained { border-radius: 50%; background: var(--mg-primary-container); }
+  & .mg-loading-spin { display: grid; place-items: center; width: 79%; height: 79%; animation: mg-turn 4666ms linear infinite; }
+  & .mg-loading-contained .mg-loading-shape { background: var(--mg-on-primary-container); }
+  & .mg-loading-shape { display: block; width: 100%; height: 100%; background: var(--mg-primary); }
+  & .mg-busy { display: flex; align-items: center; gap: 16px; padding: 24px 4px; color: var(--mg-on-surface-variant); }
+
+  & .mg-wavy { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; }
+  & .mg-wavy-thin { grid-template-columns: minmax(0, 1fr); }
+  & .mg-wavy-time { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--mg-on-surface-variant); min-width: 40px; }
+  & .mg-wavy-end { text-align: right; }
+  & .mg-wavy-track { position: relative; height: 32px; }
+  & .mg-wavy-thin .mg-wavy-track { height: 16px; }
+  & .mg-wavy-track > span { position: absolute; top: 50%; transform: translateY(-50%); pointer-events: none; }
+  & .mg-wavy-done { left: 0; height: 12px; width: max(0px, calc(var(--mg-pct) * 1% - 6px)); }
+  /* The wave grows to its height over 800ms when the music plays and flattens to a line over 550ms
+     when it pauses or the handle is dragged, scrolling one wavelength a beat only while it is up:
+     Android's media seek bar (AOSP SystemUI), not the fade between two drawings it was before. */
+  & .mg-wavy-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; color: var(--mg-primary); }
+  & .mg-wavy-svg path { fill: none; stroke: currentColor; stroke-width: 4px; stroke-linecap: round; transition: d 550ms cubic-bezier(0.2, 0, 0, 1); }
+  & .mg-wavy-thin .mg-wavy-svg path { stroke-width: 3px; }
+  & .mg-wavy[data-playing]:not([data-dragging]) .mg-wavy-svg path { transition-duration: 800ms; }
+  & .mg-wavy-phase { animation: mg-wave-phase 1.4s linear infinite paused; }
+  & .mg-wavy-thin .mg-wavy-phase { animation-name: mg-wave-phase-thin; }
+  & .mg-wavy[data-playing]:not([data-dragging]) .mg-wavy-phase { animation-play-state: running; }
+  & .mg-wavy-thin .mg-wavy-done { height: 8px; }
+  & .mg-wavy-rest { right: 0; height: 4px; border-radius: 2px; background: var(--mg-secondary-container); width: max(0px, calc((100 - var(--mg-pct)) * 1% - 6px)); }
+  /* With no handle (a track that cannot be scrubbed, such as AccuRadio's) the two parts sit
+     4px apart, Material's gap for a progress indicator, not around a 12px hole left for a handle
+     that is not there. */
+  & .mg-wavy:not([data-seekable]) .mg-wavy-done { width: max(0px, calc(var(--mg-pct) * 1% - 2px)); }
+  & .mg-wavy:not([data-seekable]) .mg-wavy-rest { width: max(0px, calc((100 - var(--mg-pct)) * 1% - 2px)); }
+  & .mg-wavy-handle { left: calc(var(--mg-pct) * 1% - 2px); width: 4px; height: 24px; border-radius: 2px; background: var(--mg-primary); }
+  & .mg-wavy-thin .mg-wavy-handle { height: 16px; }
+  & .mg-wavy input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  & .mg-wavy input:disabled { cursor: default; }
+  & .mg-wavy:has(input:focus-visible) .mg-wavy-handle { outline: 3px solid var(--mg-secondary); outline-offset: 3px; }
+
+  /* The bars that dance beside what is playing. */
+  & .mg-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+  & .mg-bars i { width: 3px; height: 30%; border-radius: 2px; background: currentColor; }
+  & .mg-bars[data-on] i { animation: mg-bar 900ms var(--mg-effects) infinite alternate; }
+  & .mg-bars[data-on] i:nth-child(2) { animation-delay: -300ms; }
+  & .mg-bars[data-on] i:nth-child(3) { animation-delay: -600ms; }
+  & .mg-bars[data-on] i:nth-child(4) { animation-delay: -150ms; }
+
+  /* --- art in a shape ------------------------------------------------------------------ */
+  & .mg-shape-art { position: relative; display: inline-grid; place-items: center; flex: none; width: var(--mg-size); height: var(--mg-size); overflow: hidden;
+    background: var(--mg-surface-container-highest); color: var(--mg-on-surface-variant); transition: clip-path 650ms var(--mg-spring-slow); }
+  & .mg-shape-art img, & .mg-shape-art > span { width: 100%; height: 100%; object-fit: cover; }
+  & .mg-shape-art > svg { width: 42%; height: 42%; }
+  & .mg-shape-spin { animation: mg-turn 18s linear infinite; }
+  & .mg-shape-spin img { animation: mg-turn 18s linear infinite reverse; }
+
+  /* --- cards and lists ----------------------------------------------------------------- */
+  & .mg-card { position: relative; border-radius: 12px; }
+  & .mg-card-filled { background: var(--mg-surface-container-highest); }
+  & .mg-card-tonal { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+  & .mg-card-elevated { background: var(--mg-surface-container-low); box-shadow: var(--mg-elev-1); }
+  & .mg-card-outlined { background: var(--mg-surface); box-shadow: inset 0 0 0 1px var(--mg-outline-variant); }
+  & .mg-list { display: flex; flex-direction: column; padding: 8px 0; }
+  & .mg-card.mg-list { overflow: hidden; }
+  & .mg-li { position: relative; display: flex; align-items: center; gap: 16px; min-height: 56px; padding: 10px 16px; border: 0; background: none; text-align: left; width: 100%; color: inherit; }
+  & .mg-li-action { cursor: pointer; }
+  & .mg-li[data-selected] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); border-radius: 16px; }
+  /* Material's list heights: 56 for one line, 72 for two, 88 for three. */
+  & .mg-li:has(.mg-li-sup), & .mg-li:has(.mg-li-over) { min-height: 72px; }
+  & .mg-li:has(.mg-li-over):has(.mg-li-sup) { min-height: 88px; }
+  /* A list in a filled card is Material Expressive's segmented list: each item a container of its
+     own, 2dp from the next, 4dp corners inside and 16dp at the list's ends. */
+  & .mg-card-filled.mg-list { gap: 2px; padding: 0; background: none; }
+  & .mg-card-filled.mg-list > .mg-li { background: var(--mg-surface-container-highest); border-radius: 4px; }
+  & .mg-card-filled.mg-list > .mg-li:first-child { border-top-left-radius: 16px; border-top-right-radius: 16px; }
+  & .mg-card-filled.mg-list > .mg-li:last-child { border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
+  & .mg-card-filled.mg-list > .mg-li[data-selected] { background: var(--mg-secondary-container); border-radius: 16px; }
+  & .mg-li-action:disabled { cursor: default; opacity: 0.38; }
+  & .mg-li-lead { display: inline-flex; flex: none; }
+  & .mg-li-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+  & .mg-li-over { font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-on-surface-variant); }
+  & .mg-li-head { font-size: 16px; line-height: 24px; overflow: hidden; text-overflow: ellipsis; }
+  & .mg-li-head small { font-size: 14px; line-height: 20px; color: var(--mg-on-surface-variant); }
+  & .mg-li-sup { font-size: 14px; line-height: 20px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  & .mg-li[data-selected] .mg-li-sup { color: inherit; opacity: 0.8; }
+  & .mg-li-trail { display: inline-flex; align-items: center; gap: 4px; flex: none; color: var(--mg-on-surface-variant); }
+  & .mg-li-trail svg { width: 20px; height: 20px; }
+  & .mg-li-glyph { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); flex: none; }
+  & .mg-li-glyph svg { width: 22px; height: 22px; }
+  & .mg-li-glyph-primary { background: var(--mg-primary-container); color: var(--mg-on-primary-container); }
+  & .mg-li-logo { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; overflow: visible; background: var(--mg-surface-container-lowest); flex: none; }
+  & .mg-li-logo img { width: 100%; height: 100%; border-radius: 12px; object-fit: contain; }
+  & .mg-li-art { display: inline-flex; width: 40px; height: 40px; border-radius: 8px; overflow: hidden; }
+  & .mg-li-play { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--mg-primary-container); color: var(--mg-on-primary-container); }
+  & .mg-li-play svg { width: 18px; height: 18px; }
+  & .mg-li-check .mg-li-trail { color: inherit; }
+  & .mg-initials { font-weight: 500; font-size: 14px; }
+
+  & .mg-check { position: relative; display: inline-grid; place-items: center; width: 40px; height: 40px; cursor: pointer; }
+  & .mg-check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  & .mg-check span { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 2px; box-shadow: inset 0 0 0 2px var(--mg-on-surface-variant); color: transparent; transition: background 150ms var(--mg-effects-fast); }
+  /* The check is 18dp drawn 2dp wide, drawn in on a spring as it is checked and gone at once as it
+     is cleared (Compose's Checkbox: IconSize 18, StrokeWidth 2, checkDrawFraction). */
+  & .mg-check svg { width: 18px; height: 18px; }
+  & .mg-check svg path { stroke-width: 2.67; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset 500ms var(--mg-spring); }
+  & .mg-check input:checked + span svg path { stroke-dashoffset: 0; }
+  & .mg-check input:not(:checked) + span svg path { transition-duration: 0ms; }
+  /* Its state layer: a 40dp circle, on-surface when clear and primary when checked, 8% hovered and
+     10% focused or pressed; hovered or pressed a clear box's outline darkens to on-surface. */
+  & label.mg-check::before { content: ''; position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%;
+    background: var(--mg-on-surface); opacity: 0; pointer-events: none; transition: opacity 150ms var(--mg-effects-fast); }
+  & label.mg-check:has(input:checked)::before { background: var(--mg-primary); }
+  & label.mg-check:hover::before { opacity: 0.08; }
+  & label.mg-check:is(:active, :has(input:focus-visible))::before { opacity: 0.1; }
+  & .mg-check:is(:hover, :active) input:not(:checked) + span, & .mg-check input:focus-visible:not(:checked) + span { box-shadow: inset 0 0 0 2px var(--mg-on-surface); }
+  & .mg-check input:checked + span { background: var(--mg-primary); color: var(--mg-on-primary); box-shadow: none; }
+  & .mg-check input:focus-visible + span { outline: 3px solid var(--mg-secondary); outline-offset: 3px; }
+
+  & .mg-empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 40px 16px; color: var(--mg-on-surface-variant); }
+  & .mg-empty-icon { display: grid; place-items: center; width: 88px; height: 88px; background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); margin-bottom: 8px; }
+  & .mg-empty-icon svg { width: 36px; height: 36px; }
+  & .mg-empty-title { margin: 0; font-size: 22px; line-height: 28px; font-weight: 400; color: var(--mg-on-surface); }
+  & .mg-empty-body { margin: 0; max-width: 42ch; font-size: 14px; }
+
+  & .mg-banner { display: flex; gap: 16px; align-items: flex-start; margin: 0 0 16px; padding: 16px; border-radius: 16px; background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
+  & .mg-banner p { margin: 4px 0 12px; }
+
+  /* --- layers: dialogs and sheets --------------------------------------------------------- */
+  & .mg-layer { position: fixed; inset: 0; z-index: 80; display: grid; background: var(--mg-scrim); animation: mg-fade 200ms var(--mg-effects); }
+  & .mg-sheet { position: relative; display: flex; flex-direction: column; max-height: 100%; min-height: 0; outline: none; background: var(--mg-surface-container-high); color: var(--mg-on-surface); box-shadow: var(--mg-elev-3); }
+  & .mg-layer-dialog { place-items: center; padding: 24px; }
+  /* Leaving: the scrim clears; a dialog collapses and fades quickly; a side or bottom sheet slides off
+     the way it came, unfaded, since a fading sheet makes cross-faded frames (motion: transitions). */
+  & .mg-layer[data-exiting] { animation: mg-scrim-out 200ms var(--mg-emph-accel) both; pointer-events: none; }
+  & .mg-layer[data-exiting] .mg-sheet-dialog { animation: mg-dialog-out 150ms var(--mg-emph-accel) both; }
+  & .mg-layer[data-exiting] .mg-sheet-side { animation: mg-sheet-out-right 250ms var(--mg-emph-accel) both; }
+  & .mg-layer[data-exiting] :is(.mg-sheet-bottom, .mg-sheet-full) { animation: mg-sheet-out-down 250ms var(--mg-emph-accel) both; }
+  /* A basic dialog takes its content's width, from 280 to 560dp (Material's dialog). */
+  & .mg-sheet-dialog { width: auto; min-width: min(280px, 100%); max-width: min(560px, 100%); max-height: min(86vh, 900px); border-radius: 28px; padding: 24px 0 0; animation: mg-dialog-in 300ms var(--mg-emph-decel) both; transform-origin: center; }
+  & .mg-layer-side { justify-items: end; }
+  & .mg-sheet-side { width: min(400px, 100%); height: 100%; border-radius: 16px 0 0 16px; box-shadow: var(--mg-elev-1); animation: mg-slide 500ms var(--mg-spring) both; background: var(--mg-surface-container-low); }
+  & .mg-layer-bottom { align-items: end; justify-items: center; }
+  & .mg-sheet-bottom { width: min(640px, 100%); max-height: 86vh; border-radius: 28px 28px 0 0; box-shadow: var(--mg-elev-1); animation: mg-rise 500ms var(--mg-spring) both; background: var(--mg-surface-container-low); }
+  & .mg-layer-full { place-items: stretch; background: transparent; }
+  & .mg-sheet-full { width: 100%; height: 100%; border-radius: 0; background: var(--mg-surface); animation: mg-rise 500ms var(--mg-spring) both; }
+  & .mg-handle { display: none; width: 32px; height: 4px; margin: 22px auto 6px; border-radius: 2px; background: var(--mg-on-surface-variant); flex: none; }
+  & .mg-sheet-bottom .mg-handle { display: block; }
+  & .mg-sheet-bar { display: flex; align-items: center; gap: 8px; min-height: 64px; padding: 8px 12px 8px 12px; flex: none; }
+  & .mg-sheet-titles { flex: 1; min-width: 0; }
+  & .mg-sheet-titles h2 { margin: 0; font-size: 22px; line-height: 28px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-sheet-titles p { margin: 0; font-size: 14px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-sheet-body { flex: 1; min-height: 0; overflow: auto; padding: 8px 24px 24px; }
+  & .mg-sheet-body-flush { padding: 0 8px 16px; }
+  & .mg-dialog-icon { display: grid; place-items: center; margin: 0 auto 16px; color: var(--mg-secondary); }
+  & .mg-dialog-icon svg { width: 24px; height: 24px; }
+  & .mg-dialog-headline { margin: 0 24px 16px; font-size: 24px; line-height: 32px; font-weight: 500; }
+  & .mg-dialog-headline[data-centered] { text-align: center; }
+  & .mg-dialog-body { flex: 1; min-height: 0; overflow: auto; padding: 0 24px; font-size: 14px; line-height: 20px; color: var(--mg-on-surface-variant); display: flex; flex-direction: column; gap: 16px; }
+  & .mg-dialog-body p { margin: 0; }
+  & .mg-dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding: 24px 24px 24px; flex: none; }
+  & .mg-tabs { display: flex; flex: none; border-bottom: 1px solid var(--mg-outline-variant); padding: 0 8px; overflow-x: auto; }
+  & .mg-tabs button { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 88px; padding: 10px 12px 12px; border: 0; background: none; cursor: pointer; color: var(--mg-on-surface-variant); font-size: 14px; font-weight: 500; }
+  & .mg-tabs svg { width: 22px; height: 22px; }
+  & .mg-tabs button[aria-selected='true'] { color: var(--mg-primary); }
+  & .mg-tabs button[aria-selected='true']::after { content: ''; position: absolute; left: 25%; right: 25%; bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: var(--mg-primary); animation: mg-tab 350ms var(--mg-spring-fast); }
+
+  /* --- menus ----------------------------------------------------------------------------- */
+  & .mg-menu { position: fixed; z-index: 95; min-width: 112px; max-width: min(280px, calc(100vw - 16px)); max-height: min(70vh, 560px); overflow: auto; padding: 4px;
+    border-radius: 16px; background: var(--mg-surface-container-low); box-shadow: var(--mg-elev-2); opacity: 0; transform-origin: top; }
+  /* Opened above its anchor, it grows from the anchor's side. */
+  & .mg-menu[data-above] { transform-origin: bottom; }
+  /* A menu expands away from its anchor along the vertical axis, quickly; no scale or depth, which
+     would imply an elevation change (motion: transitions, Enter and exit). */
+  & .mg-menu[data-ready] { animation: mg-menu 250ms var(--mg-emph-decel) both; }
+  & .mg-menu[data-exiting] { animation: mg-fade-out 100ms var(--mg-emph-accel) both; }
+  & .mg-menu-title { margin: 8px 12px 6px; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-menu-item { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 0 16px; border: 0; border-radius: 4px; background: none; cursor: pointer; text-align: left; font-size: 16px; line-height: 24px; color: var(--mg-on-surface); }
+  & .mg-menu-item:first-of-type { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+  & .mg-menu-item:last-of-type { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+  /* A dropdown's choices stay on one line; the menu widens to hold them. */
+  & .mg-menu-scroll .mg-menu-item { white-space: nowrap; }
+  & .mg-menu-item[data-checked] { background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
+  & .mg-menu-item[data-danger] { color: var(--mg-error); }
+  & .mg-menu-item:disabled { cursor: default; color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & .mg-menu-icon { display: inline-flex; width: 20px; flex: none; color: var(--mg-on-surface-variant); }
+  & .mg-menu-item[data-checked] .mg-menu-icon, & .mg-menu-item[data-danger] .mg-menu-icon, & .mg-menu-item:disabled .mg-menu-icon { color: inherit; }
+  & .mg-menu-item[data-checked]:disabled { background: color-mix(in oklab, var(--mg-tertiary-container) 38%, transparent); color: color-mix(in oklab, var(--mg-on-tertiary-container) 38%, transparent); }
+  & .mg-menu-icon svg { width: 20px; height: 20px; }
+  & .mg-menu-img { width: 20px; height: 20px; border-radius: 4px; }
+  & .mg-menu-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  & .mg-menu-gap { display: block; height: 1px; margin: 4px 12px; background: var(--mg-outline-variant); }
+  & .mg-menu-item[data-checked] { border-radius: 12px; }
+  & .mg-menu[data-grouped] { display: flex; flex-direction: column; gap: 2px; padding: 0; background: none; box-shadow: none; }
+  & .mg-menu-group { padding: 4px; border-radius: 8px; background: var(--mg-surface-container-low); box-shadow: var(--mg-elev-2); }
+  & .mg-menu-group:first-child { border-top-left-radius: 16px; border-top-right-radius: 16px; }
+  & .mg-menu-group:last-child { border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
+  & .mg-menu-scroll { max-height: 50vh; overflow: auto; }
+  & .mg-menu-pad { padding: 8px 8px 4px; }
+
+  /* The exposed dropdown and text fields: outlined, 56 tall. */
+  & .mg-select { position: relative; display: inline-flex; align-items: center; gap: 8px; min-width: 180px; max-width: 100%; height: 56px; padding: 0 12px 0 16px; border: 0; border-radius: 4px; cursor: pointer;
+    background: transparent; box-shadow: inset 0 0 0 1px var(--mg-outline); color: var(--mg-on-surface); font-size: 16px; letter-spacing: 0.5px; text-align: left;
+    transition: box-shadow 150ms var(--mg-effects-fast); }
+  & .mg-select[data-open], & .mg-select:focus-visible { box-shadow: inset 0 0 0 2px var(--mg-primary); outline: none; }
+  & .mg-select:is([data-open], :focus-visible) .mg-select-label { color: var(--mg-primary); }
+  /* Disabled, part by part: outline 12% of on-surface, text 38% (outlined text field tokens). */
+  & .mg-select:disabled { cursor: default; color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--mg-on-surface) 12%, transparent); }
+  & .mg-select:disabled :is(.mg-select-label, .mg-select-chev) { color: inherit; }
+  & .mg-select-label { position: absolute; left: 12px; top: -8px; padding: 0 4px; background: var(--mg-field-bg, var(--mg-surface)); font-size: 12px; color: var(--mg-on-surface-variant); }
+  & .mg-select-value { flex: 1; min-width: 0; display: grid; overflow: hidden; white-space: nowrap; text-align: left; }
+  & .mg-select-value > span { grid-area: 1 / 1; overflow: hidden; text-overflow: ellipsis; }
+  & .mg-select-sizer { visibility: hidden; }
+  & .mg-select-chev { flex: none; width: 24px; height: 24px; color: var(--mg-on-surface-variant); transition: transform 500ms var(--mg-spring); }
+  & .mg-select[data-open] .mg-select-chev { transform: rotate(180deg); }
+  /* min-height as well as height: a field in a column (the add-folder path) took flex: 1 as a zero
+     basis and shrank to 24px. */
+  & .mg-field { position: relative; display: flex; align-items: center; min-width: 200px; flex: 1; height: 56px; min-height: 56px; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--mg-outline); transition: box-shadow 150ms var(--mg-effects-fast); }
+  & .mg-field[data-focus] { box-shadow: inset 0 0 0 2px var(--mg-primary); }
+  & .mg-field input { flex: 1; min-width: 0; height: auto; align-self: stretch; padding: 0 16px; border: 0; background: none; color: var(--mg-on-surface); font: inherit; font-size: 16px; line-height: 24px; letter-spacing: 0.5px; outline: none; caret-color: var(--mg-primary); }
+  /* The placeholder shows only while the field is focused and empty (Compose's TextField). */
+  & .mg-field input::placeholder { color: var(--mg-on-surface-variant); opacity: 1; transition: opacity 150ms var(--mg-effects-fast); }
+  & .mg-field:not([data-focus]) input::placeholder { opacity: 0; }
+  /* Hovered, the outline and label darken to on-surface; disabled, the outline is 12% and the rest
+     38% of on-surface (outlined text field tokens). */
+  & :is(.mg-field:not([data-focus], [data-disabled]), .mg-select:not([data-open], :disabled, :focus-visible)):hover { box-shadow: inset 0 0 0 1px var(--mg-on-surface); }
+  & .mg-field:not([data-focus], [data-disabled]):hover .mg-field-label { color: var(--mg-on-surface); }
+  & .mg-field[data-disabled] { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--mg-on-surface) 12%, transparent); }
+  & .mg-field[data-disabled] :is(input, .mg-field-label, .mg-field-lead, .mg-field-trail) { color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & .mg-field-label { position: absolute; left: 12px; top: 50%; padding: 0 4px; transform: translateY(-50%); font-size: 16px; color: var(--mg-on-surface-variant); pointer-events: none; background: transparent;
+    transition: top 350ms var(--mg-spring-fast), left 350ms var(--mg-spring-fast), font-size 350ms var(--mg-spring-fast), color 150ms var(--mg-effects-fast); white-space: nowrap; max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis; }
+  & .mg-field:has(.mg-field-lead) .mg-field-label { left: 48px; }
+  & .mg-field[data-raised] .mg-field-label { top: 0; left: 12px; font-size: 12px; background: var(--mg-field-bg, var(--mg-surface)); }
+  & .mg-field[data-focus] .mg-field-label { color: var(--mg-primary); }
+  & .mg-field-lead { display: inline-flex; padding-left: 12px; color: var(--mg-on-surface-variant); }
+  & .mg-field-lead + input { padding-left: 16px; }
+  & .mg-field-trail { display: inline-flex; padding-right: 8px; color: var(--mg-on-surface-variant); }
+  & .mg-sheet .mg-field, & .mg-sheet .mg-select-label { --mg-field-bg: var(--mg-surface-container-high); }
+  & .mg-sheet-side .mg-field, & .mg-sheet-bottom .mg-field { --mg-field-bg: var(--mg-surface-container-low); }
+  & .mg-sheet-full .mg-field { --mg-field-bg: var(--mg-surface); }
+  & .mg-card-outlined .mg-field { --mg-field-bg: var(--mg-surface); }
+  & .mg-time-input { height: 56px; padding: 0 16px; border: 0; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--mg-outline); background: transparent; color: var(--mg-on-surface); font: inherit; font-size: 16px; caret-color: var(--mg-primary); transition: box-shadow 150ms var(--mg-effects-fast); }
+  & .mg-time-input:hover:not(:disabled):not(:focus-visible) { box-shadow: inset 0 0 0 1px var(--mg-on-surface); }
+  & .mg-time-input:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--mg-primary); }
+  & .mg-time-input:disabled { color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--mg-on-surface) 12%, transparent); }
+
+  /* The search bar: full round, container-high. */
+  & .mg-searchbar { display: flex; align-items: center; gap: 4px; height: 56px; padding: 0 4px 0 8px; border-radius: 28px; background: var(--mg-surface-container-high); max-width: 720px; }
+  & :is(.mg-searchbar, .mg-searchview-bar) input { caret-color: var(--mg-primary); }
+  & .mg-searchbar input::placeholder { color: var(--mg-on-surface-variant); opacity: 1; }
+  & .mg-searchbar-trail { color: var(--mg-on-surface-variant); }
+  & .mg-searchbar-lead { display: inline-grid; place-items: center; width: 40px; height: 40px; color: var(--mg-on-surface); flex: none; }
+  & .mg-searchbar input { flex: 1; min-width: 0; height: 100%; border: 0; background: none; color: var(--mg-on-surface); font: inherit; font-size: 16px; outline: none; }
+  & .mg-searchbar input::-webkit-search-cancel-button { display: none; }
+  & .mg-searchbar-trail { display: inline-flex; }
+  & .mg-scope { position: relative; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%; overflow: hidden; background: var(--mg-surface-container-lowest); cursor: pointer; }
+  & .mg-scope img { width: 100%; height: 100%; object-fit: cover; }
+  & .mg-scope:hover { box-shadow: 0 0 0 2px var(--mg-primary); }
+
+  /* --- snackbars and keys ------------------------------------------------------------------ */
+  & .mg-snacks { position: fixed; left: 50%; bottom: calc(var(--mg-nav-h, 0px) + 100px); z-index: 99; display: flex; flex-direction: column; gap: 8px; align-items: center; transform: translateX(-50%); pointer-events: none; width: min(600px, calc(100vw - 32px)); }
+  & body:has(.mg-size-compact) .mg-snacks { bottom: 152px; }
+  & .mg-tooltip { position: fixed; z-index: 120; min-width: 40px; min-height: 24px; max-width: 200px; padding: 4px 8px; border-radius: 4px; box-sizing: border-box;
+    background: var(--mg-inverse-surface); color: var(--mg-inverse-on-surface); font-family: var(--mg-font); font-size: 12px; line-height: 16px; letter-spacing: 0.4px;
+    pointer-events: none; animation: mg-tip 150ms var(--mg-effects-fast) both; }
+  & .mg-snack { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 48px; padding: 6px 8px 6px 16px; border-radius: 4px; background: var(--mg-inverse-surface); color: var(--mg-inverse-on-surface); box-shadow: var(--mg-elev-3); pointer-events: auto; font-size: 14px; animation: mg-snack-in 300ms var(--mg-emph-decel) both; transform-origin: bottom; }
+  & .mg-snack-text { flex: 1; display: flex; flex-direction: column; }
+  & .mg-snack-close { color: inherit; }
+  & .mg-snack-action { position: relative; height: 40px; padding: 0 12px; border: 0; border-radius: 20px; background: none; color: var(--mg-inverse-primary); font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; cursor: pointer; }
+  & .mg-kbd { display: inline-block; min-width: 24px; padding: 2px 8px; border-radius: 8px; background: var(--mg-surface-container-highest); color: var(--mg-on-surface-variant); font: 500 12px/18px var(--t-mono); text-align: center; }
+
+  /* --- the floating toolbar ---------------------------------------------------------------- */
+  & .mg-toolbar {
+    /* Its right bound stops at the page's right edge on a window wider than the
+       1440px page, so the bar centres on the page, not on the window. */
+    position: fixed; z-index: 40; left: calc(var(--mg-rail-w) + 24px); bottom: calc(var(--mg-nav-h) + 16px);
+    right: max(calc(var(--mg-queue-w) + 24px), calc(100vw - var(--mg-rail-w) - 32px - 1440px));
+    display: grid; grid-template-columns: minmax(180px, 1.1fr) auto minmax(120px, 1fr) auto; align-items: center; gap: 12px;
+    max-width: 1120px; margin: 0 auto; padding: 8px 8px 8px 8px; border-radius: 999px;
+    background: var(--mg-surface-container); box-shadow: var(--mg-elev-3); animation: mg-rise-s 500ms var(--mg-spring) both;
+    transition: left 500ms var(--mg-spring), right 500ms var(--mg-spring);
+  }
+  & .mg-toolbar-id { position: relative; display: flex; align-items: center; gap: 12px; min-width: 0; padding: 0 8px 0 0; border: 0; background: none; cursor: pointer; text-align: left; border-radius: 999px; }
+  & .mg-toolbar-id:disabled { cursor: default; }
+  & .mg-toolbar-text { display: flex; flex-direction: column; min-width: 0; }
+  & .mg-toolbar-title { font-size: 16px; line-height: 24px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-toolbar-sub { font-size: 14px; line-height: 20px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-toolbar-transport { display: flex; align-items: center; gap: 4px; }
+  & .mg-toolbar-seek { min-width: 0; padding: 0 8px; }
+  & .mg-toolbar-actions { display: flex; align-items: center; gap: 2px; }
+  & .mg-size-compact .mg-toolbar { left: 16px; right: 80px; grid-template-columns: minmax(0, 1fr) auto; bottom: calc(var(--mg-nav-h) + 16px); padding: 0 4px; height: 56px; }
+  & .mg-size-medium .mg-toolbar { grid-template-columns: minmax(0, 1fr) auto auto; }
+  & .mg-size-medium .mg-toolbar-seek { display: none; }
+
+  /* The play button: a filled shape behind the glyph that morphs between a
+     turning cookie and a squircle. */
+  & .mg-play { position: relative; display: inline-grid; place-items: center; flex: none; width: 48px; height: 48px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--mg-on-primary); }
+  /* Android's media button: a circle while paused, a square with corners a third of its height
+     while playing, morphing over 500ms (AOSP SystemUI's ic_media_play_container, 2026-10-03).
+     The glyph inside morphs over 333ms (icons.jsx, PlayMorph). */
+  & .mg-play { --mg-play-r: 24px; }
+  & .mg-play-shape { position: absolute; inset: 0; background: var(--mg-primary); border-radius: var(--mg-play-r);
+    transition: border-radius 500ms cubic-bezier(0.526, 0, 0, 1), transform 200ms var(--mg-spring-fast), background 200ms var(--mg-effects); }
+  & .mg-play[data-playing] .mg-play-shape { border-radius: calc(var(--mg-play-r) * 2 / 3); }
+  & .mg-morph path { transition: d 333ms cubic-bezier(0.2, 0, 0, 1); }
+  & .mg-play:hover .mg-play-shape { background: color-mix(in oklab, var(--mg-primary) 90%, var(--mg-on-primary)); }
+  & .mg-play:active:not(:disabled) .mg-play-shape { transform: scale(0.9); }
+  & .mg-play-icon { position: relative; display: inline-flex; }
+  & .mg-play-icon svg { width: 24px; height: 24px; }
+  & .mg-play-s { width: 44px; height: 44px; --mg-play-r: 22px; }
+  & .mg-play-m { width: 64px; height: 64px; --mg-play-r: 32px; }
+  & .mg-play-m svg { width: 30px; height: 30px; }
+  & .mg-play-l { width: 104px; height: 96px; --mg-play-r: 48px; }
+  & .mg-play-l svg { width: 40px; height: 40px; }
+  & .mg-play:disabled { cursor: default; color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & .mg-play:disabled .mg-play-shape { background: color-mix(in oklab, var(--mg-on-surface) 10%, transparent); }
+  & .mg-transport-l .mg-icon-btn { height: 72px; }
+  & .mg-transport-l .mg-icon-btn-wide { width: 80px; }
+
+  /* --- the full player ------------------------------------------------------------------------ */
+  & .mg-player { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; overflow: hidden;
+    background: linear-gradient(180deg, var(--mg-primary-container), var(--mg-surface) 62%); animation: mg-rise 500ms var(--mg-spring) both; }
+  /* Grown out of the mini player, and back into it: the window clipped to the mini player's box with
+     its 28dp corners, opening to the full window over 400ms emphasized; the content fades in once
+     the container has room. Closing runs it backwards, accelerating. */
+  & .mg-player[data-transform='in'] { animation: mg-ct-in 400ms var(--mg-emph) both; }
+  & .mg-player[data-transform='in'] > :not(.mg-player-glow) { animation: mg-through 400ms var(--mg-emph) both; }
+  & .mg-player[data-transform='out'] { animation: mg-ct-out 280ms var(--mg-emph-accel) both; }
+  & .mg-player[data-transform='out'] > :not(.mg-player-glow) { animation: mg-fade-out 120ms var(--mg-emph-accel) both; }
+  & .mg-player-glow { position: absolute; inset: -80px; background-size: cover; background-position: center; filter: blur(90px) saturate(1.4); opacity: 0.28; pointer-events: none; }
+  &[data-variant='dark'] .mg-player-glow { opacity: 0.22; }
+  & .mg-player-bar { position: relative; display: flex; align-items: center; gap: 8px; padding: 12px 16px; flex: none; }
+  & .mg-room-pill { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px 0 14px; border: 0; border-radius: 999px; cursor: pointer;
+    background: var(--mg-surface-container-highest); color: var(--mg-on-surface); font-weight: 500; font-size: 14px; max-width: 50vw; }
+  & .mg-room-pill span:not(.mg-state) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-room-pill svg { width: 18px; height: 18px; flex: none; }
+  & .mg-player-source { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-on-surface-variant); text-align: right; }
+  & .mg-player-body { position: relative; flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 8px 24px 32px; }
+  /* Wide: the cover's pane and the Up next / Rooms pane side by side, 1.25 : 1 with the side kept
+     to 320-420px. A row of flex boxes rather than a grid so the side pane's width can move. */
+  & .mg-player-wide .mg-player-body { display: flex; gap: 0; overflow: hidden; padding: 8px 32px 32px; container-type: inline-size;
+    --mg-side-w: clamp(320px, calc((100cqi - 24px) / 2.25), 420px); }
+  & .mg-player-wide .mg-player-main { flex: 1 1 0; }
+  & .mg-player-main { display: flex; flex-direction: column; align-items: center; gap: 24px; min-width: 0; overflow: auto; padding-bottom: 8px; }
+  & .mg-player-art { display: grid; place-items: center; }
+  & .mg-player-cover { width: min(420px, 62vw, 46vh); height: min(420px, 62vw, 46vh); }
+  & .mg-player[data-playing] .mg-player-cover { animation: mg-breathe 6s var(--mg-effects) infinite alternate; }
+  /* The shape breathes; the cover inside it holds still, the shape a crop moving over it
+     (shape: "photography cropping"), as the toolbar's turning cookie keeps its art upright.
+     The breath is inward, from the box down to 97.5%, so the turned shape always lies inside the
+     circle the box holds and never reaches past the picture. */
+  & .mg-player[data-playing] .mg-player-cover img { animation: mg-breathe-still 6s var(--mg-effects) infinite alternate; }
+  & .mg-player-tv { display: grid; place-items: center; width: min(360px, 60vw); aspect-ratio: 1; background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
+  & .mg-player-tv svg { width: 30%; height: 30%; }
+  & .mg-player-lines { width: 100%; max-width: 640px; text-align: center; display: flex; flex-direction: column; gap: 4px; }
+  & .mg-player-over { margin: 0; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-primary); }
+  & .mg-player-title { margin: 0; font-size: 36px; line-height: 44px; font-weight: 500; letter-spacing: 0; }
+  & .mg-player-line { margin: 0; font-size: 16px; color: var(--mg-on-surface-variant); }
+  & .mg-player-line span { display: inline-block; margin-right: 8px; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-on-surface-variant); }
+  & .mg-player-ratings { display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
+  /* A service draws its rating glyphs for its own app, AccuRadio's in white, which on these pale
+     tonal buttons could hardly be seen. The image is used as a stencil
+     and filled with the button's own ink, so the shape is the service's and the contrast the
+     theme's, in either variant. */
+  & .mg-rating-img { width: 22px; height: 22px; position: relative; background: currentColor;
+    -webkit-mask: var(--mg-rating-icon) var(--mg-rating-pos, center) / var(--mg-rating-size, contain) no-repeat;
+    mask: var(--mg-rating-icon) var(--mg-rating-pos, center) / var(--mg-rating-size, contain) no-repeat; }
+  & .mg-player-controls { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 16px; }
+  & .mg-player-buttons { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; }
+  & .mg-player-side { display: flex; flex-direction: column; min-height: 0; width: 100%; max-width: 720px; border-radius: 28px; background: var(--mg-surface-container-low); }
+  & .mg-player-side-inner { display: flex; flex-direction: column; flex: 1; gap: 16px; min-height: 0; padding: 16px; }
+  /* Showing and hiding it is a supporting pane's motion (M3 adaptive, PaneMotion: enter from the
+     trailing edge, exit to it): the pane's width opens on the spatial spring and the cover's pane
+     re-centers as its bounds change; the contents keep their width and slide in from the edge,
+     so they are never squeezed. Leaving runs the same way back, with the contents fading as they go. */
+  & .mg-player-wide .mg-player-side { flex: none; width: var(--mg-side-w); max-width: none; margin-left: 24px; overflow: hidden;
+    transition: width 500ms var(--mg-spring), margin-left 500ms var(--mg-spring); }
+  & .mg-player-wide .mg-player-side-inner { width: var(--mg-side-w); box-sizing: border-box;
+    transition: transform 500ms var(--mg-spring), opacity 200ms var(--mg-effects-fast) 100ms; }
+  & .mg-player-wide .mg-player-side[data-away] { width: 0; margin-left: 0; }
+  & .mg-player-wide .mg-player-side[data-away] .mg-player-side-inner { transform: translateX(48px); opacity: 0;
+    transition: transform 500ms var(--mg-spring), opacity 150ms var(--mg-effects-fast); }
+  & .mg-player-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 16px; }
+  & .mg-player-panel[data-lateral='next'] { animation: mg-lateral-next 300ms var(--mg-emph-decel) both; }
+  & .mg-player-panel[data-lateral='prev'] { animation: mg-lateral-prev 300ms var(--mg-emph-decel) both; }
+  /* Up and down only: each row's touch targets reach a few pixels past its trailing button, and as
+     content they let the list scroll 4px sideways with nothing to show there. */
+  & .mg-player-queue-head { display: flex; align-items: center; gap: 4px; min-height: 40px; margin: -4px 0 -8px; padding-left: 4px; }
+  & .mg-player-queue-head > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; line-height: 20px; letter-spacing: 0.25px; color: var(--mg-on-surface-variant); }
+  & .mg-player-queue { flex: 1; min-height: 0; overflow: hidden auto; margin: 0 -8px; }
+  /* The bottom padding holds the Grouping chip's 48px touch target, which reaches 8px below the
+     32px chip; counted as content, it made the list scroll by 8px when everything fit. */
+  /* The top padding is headroom for a volume slider's value bubble, which rises about 50px above
+     the slider while it is dragged; in this scrolling list the first one's was cut off. Half of it
+     is taken from the gap above (more would lay the list over the Up next / Rooms buttons). */
+  & .mg-player-rooms { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; overflow: auto; padding: 32px 0 8px; margin-top: -16px; }
+  & .mg-player-rooms .mg-volumes { align-self: stretch; }
+  /* Below the wide layout the player fits the screen and never scrolls: the
+     cover takes whatever height the rest leaves, and Up next and Rooms open upward from buttons
+     at the foot, over the player. */
+  & .mg-player:not(.mg-player-wide) .mg-player-body { display: flex; flex-direction: column; overflow: hidden; padding-bottom: 12px; }
+  & .mg-player:not(.mg-player-wide) .mg-player-main { flex: 1; min-height: 0; overflow: hidden; gap: clamp(8px, 2.2vh, 24px); padding-bottom: 0; }
+  & .mg-player:not(.mg-player-wide) .mg-player-art { flex: 1 1 0; min-height: 64px; width: 100%; container-type: size; }
+  /* A square, the largest that fits the room the column leaves it either way. */
+  & .mg-player:not(.mg-player-wide) .mg-player-art > * { width: min(100cqw, 100cqh, 420px); height: min(100cqw, 100cqh, 420px); }
+  & .mg-player:not(.mg-player-wide) .mg-player-lines,
+  & .mg-player:not(.mg-player-wide) .mg-player-controls { flex: none; }
+  & .mg-player:not(.mg-player-wide) .mg-player-controls { gap: clamp(8px, 1.6vh, 16px); }
+  & .mg-player-drawer { flex: none; display: flex; justify-content: center; }
+  & .mg-player-drawer-scrim { position: absolute; inset: 0; z-index: 1; }
+  & .mg-player-drawer-panel { position: absolute; z-index: 2; left: 16px; right: 16px; bottom: 64px; max-height: min(70%, 520px); overflow: hidden auto;
+    padding: 16px; border-radius: 28px; background: var(--mg-surface-container-low); box-shadow: var(--mg-elev-3);
+    animation: mg-drawer-up 500ms var(--mg-spring) both; }
+  & .mg-player-drawer-panel .mg-player-queue { margin: 0 -8px; overflow: visible; }
+  & .mg-player-drawer-panel .mg-player-rooms { overflow: visible; }
+  & .mg-player-drawer-keys { position: relative; z-index: 2; }
+  & .mg-player-drawer-keys button { background: var(--mg-surface-container-high); color: var(--mg-on-surface); }
+  & .mg-player-drawer-keys button[aria-checked='true'] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+  & .mg-player-volume { width: 100%; max-width: 480px; align-self: center; }
+  /* The wide player's volume sits on its own line under the transport. To keep it on a 900px
+     window without touching the cover, the column's gaps tighten with the height instead. */
+  & .mg-player-wide .mg-player-main { gap: clamp(12px, 1.6vh, 24px); padding-bottom: 0; }
+  & .mg-player-wide .mg-player-body { padding-bottom: clamp(16px, 2.4vh, 32px); }
+  & .mg-player-wide .mg-player-controls { gap: clamp(8px, 1.4vh, 16px); }
+  & .mg-player-volume-slider { position: relative; display: flex; flex: 1; min-width: 0; }
+  /* The group's rooms, above the volume they follow: a menu-like surface anchored to the row. */
+  & .mg-player-volume { position: relative; }
+  & .mg-volume-pop { position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); z-index: 5; display: flex; flex-direction: column; gap: 12px;
+    padding: 12px 16px 16px; border-radius: 16px; background: var(--mg-surface-container); box-shadow: var(--mg-elev-2); animation: mg-drawer-up 350ms var(--mg-spring-fast) both; }
+  & .mg-volumes { display: flex; flex-direction: column; gap: 12px; }
+  & .mg-vol { display: flex; flex-direction: column; gap: 4px; }
+  & .mg-vol-name { font-size: 14px; font-weight: 500; color: var(--mg-on-surface-variant); }
+  & .mg-vol-group .mg-vol-name { color: var(--mg-primary); }
+  & .mg-vol-row { display: flex; align-items: center; gap: 12px; }
+  & .mg-vol[data-offline] { opacity: 0.5; }
+
+  /* --- the queue -------------------------------------------------------------------------------- */
+  & .mg-queue-pane { grid-area: queue; display: flex; flex-direction: column; min-height: 0; margin: 12px 12px calc(var(--mg-nav-h) + 12px) 0; border-radius: 28px; background: var(--mg-surface-container-low); overflow: hidden; }
+  & .mg-queue-pane-body { flex: 1; min-height: 0; overflow: auto; padding: 0 8px 96px; }
+  & .mg-qlist { position: relative; display: flex; flex-direction: column; }
+  & .mg-qlist-dragging { cursor: grabbing; user-select: none; }
+  & .mg-qrow { position: relative; display: flex; align-items: center; gap: 12px; height: 72px; padding: 0 4px 0 0; border-radius: 16px; cursor: pointer; transition: transform 500ms var(--mg-spring); }
+  & .mg-qlist-dense .mg-qrow { height: 56px; }
+  & .mg-qrow[aria-current] { background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
+  & .mg-qrow[data-checked] { background: var(--mg-secondary-container); }
+  & .mg-qrow[data-dragging] { opacity: 0.3; }
+  & .mg-qrow-handle { display: grid; place-items: center; width: 28px; height: 100%; color: var(--mg-outline); cursor: grab; touch-action: none; }
+  & .mg-qrow-handle svg { width: 18px; height: 18px; }
+  & .mg-qrow-art { position: relative; display: inline-flex; width: 40px; height: 40px; border-radius: 12px; overflow: hidden; flex: none; }
+  & .mg-qrow-art:has(> svg) { display: grid; place-items: center; background: var(--mg-surface-container-highest); color: var(--mg-on-surface-variant); }
+  & .mg-qrow-art > svg { width: 60%; height: 60%; }
+  & .mg-qrow-art .mg-bars { position: absolute; inset: 0; justify-content: center; align-items: center; padding: 10px; background: color-mix(in oklab, var(--mg-tertiary) 70%, transparent); color: var(--mg-on-tertiary); height: auto; }
+  & .mg-qrow-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  & .mg-qrow-title { font-size: 16px; line-height: 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-qrow-sub { font-size: 14px; line-height: 20px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-qrow[aria-current] .mg-qrow-sub { color: inherit; opacity: 0.8; }
+  & .mg-qrow-dur { font-size: 12px; color: var(--mg-on-surface-variant); font-variant-numeric: tabular-nums; }
+  & .mg-qrow-tools { display: flex; align-items: center; }
+  & .mg-qrow-tools .mg-check { width: 32px; }
+  & .mg-qghost { position: fixed; left: 50%; z-index: 99; display: flex; align-items: center; gap: 12px; padding: 8px 16px 8px 8px; border-radius: 16px; background: var(--mg-surface-container-highest); box-shadow: var(--mg-elev-3); transform: translateX(-50%); pointer-events: none; }
+  & .mg-qghost img, & .mg-qghost svg { width: 40px; height: 40px; border-radius: 8px; }
+  & .mg-qlist-bar { position: sticky; bottom: 8px; display: flex; align-items: center; gap: 8px; margin: 8px 4px 0; padding: 6px 6px 6px 16px; border-radius: 999px; background: var(--mg-inverse-surface); color: var(--mg-inverse-on-surface); box-shadow: var(--mg-elev-2); }
+  & .mg-qlist-bar > span { flex: 1; font-size: 14px; }
+  & .mg-qlist-bar .mg-icon-btn { color: inherit; }
+
+  /* --- Listen ----------------------------------------------------------------------------------- */
+  & .mg-hero { display: flex; gap: 8px; height: clamp(220px, 34vh, 340px); margin: 0 0 20px; overflow-x: auto; scrollbar-width: none; }
+  & .mg-hero::-webkit-scrollbar { display: none; }
+  & .mg-hero-item { position: relative; flex: 0 0 56px; height: 100%; border-radius: 28px; overflow: hidden; cursor: pointer; background: var(--mg-surface-container-highest);
+    transition: flex-basis 650ms var(--mg-spring-slow); }
+  & .mg-hero-item[data-active] { flex: 1 0 min(560px, 70%); }
+  & .mg-hero-bg { position: absolute; inset: 0; display: grid; place-items: center; background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
+  & .mg-hero-bg img, & .mg-hero-bg > span { width: 100%; height: 100%; object-fit: cover; }
+  & .mg-hero-bg > svg { width: 26%; height: 26%; max-width: 96px; max-height: 96px; margin-bottom: 18%; opacity: 0.8; }
+  & .mg-hero-glyph { display: grid; place-items: center; width: 100%; height: 100%; background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
+  & .mg-hero-glyph svg { width: 48px; height: 48px; }
+  & .mg-hero-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, oklch(0 0 0 / 0.7)); }
+  & .mg-hero-item:has(.mg-hero-bg > svg) .mg-hero-scrim { display: none; }
+  & .mg-hero-item:has(.mg-hero-bg > svg) .mg-hero-text { color: var(--mg-on-tertiary-container); }
+  & .mg-hero-item:has(.mg-hero-bg > svg) .mg-hero-open { background: color-mix(in oklab, var(--mg-on-tertiary-container) 14%, transparent); color: var(--mg-on-tertiary-container); }
+  & .mg-hero-text { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 2px; padding: 16px 12px; color: white; }
+  & .mg-hero-item[data-active] .mg-hero-text { padding: 24px 28px; }
+  & .mg-hero-room { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-hero-item:not([data-active]) .mg-hero-room { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; max-height: calc(100% - 24px); align-self: center; }
+  /* On a narrow card the room's name runs up the side, and the bars turned with it into a column
+     of 3px dots whose motion could hardly be seen. They stand upright here,
+     undoing the name's half turn, and are drawn larger. */
+  & .mg-hero-item:not([data-active]) .mg-bars { writing-mode: horizontal-tb; transform: rotate(180deg); flex: none; height: 22px; gap: 3px; }
+  & .mg-hero-item:not([data-active]) .mg-bars i { width: 4px; }
+  & .mg-hero-title { font-size: 28px; line-height: 36px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  & .mg-hero-sub { font-size: 16px; line-height: 24px; opacity: 0.85; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-hero-open { position: absolute; top: 16px; right: 16px; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: oklch(1 0 0 / 0.22); color: white; backdrop-filter: blur(8px); }
+  & .mg-here { display: flex; flex-direction: column; gap: 16px; margin: 0 0 28px; padding: 20px 24px 24px; border-radius: 28px; background: var(--mg-surface-container-low); }
+  & .mg-here-row { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  & .mg-here-volume { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 220px; }
+  & .mg-quiet { margin: 0 0 28px; }
+  & .mg-shelf { margin: 0 0 32px; }
+  & .mg-shelf-head { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
+  & .mg-shelf-head > div { flex: 1; min-width: 0; }
+  & .mg-shelf-head h2 { margin: 0; font-size: 22px; line-height: 28px; font-weight: 500; }
+  & .mg-shelf-head p { margin: 0; font-size: 14px; line-height: 20px; color: var(--mg-on-surface-variant); }
+  & .mg-shelf-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); flex: none; }
+  & .mg-shelf-icon svg { width: 22px; height: 22px; }
+  & .mg-shelf-icon:empty { display: none; }
+  & .mg-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 12px; scrollbar-width: thin; }
+  & .mg-tile { position: relative; display: flex; flex-direction: column; gap: 4px; flex: 0 0 160px; width: 160px; min-width: 0; scroll-snap-align: start; cursor: pointer; border-radius: 28px; }
+  /* Multi-browse (Listen.jsx, useMultiBrowse): a small slot plus this tile's share of the large
+     one's extra width, --mg-grow set from the scroll. The first tile starts large. */
+  /* As tall as the large tile with its two lines (4 + 24 + 4 + 20) and the row's padding (16) at every scroll position: while
+     the large size is shared between two tiles neither is that tall, and the page below bobbed. */
+  & .mg-carousel-multi { --mg-tile-w: 160px; --mg-tile-big-w: 232px; align-items: flex-start; min-height: calc(var(--mg-tile-big-w) + 68px); }
+  & .mg-carousel-multi > .mg-tile { --mg-w: calc(var(--mg-tile-w) + var(--mg-grow, 0) * (var(--mg-tile-big-w) - var(--mg-tile-w)));
+    flex-basis: var(--mg-w); width: var(--mg-w); }
+  & .mg-carousel-multi > .mg-tile:first-child { --mg-grow: 1; }
+  & .mg-grid > .mg-tile { width: auto; }
+  & .mg-tile-art { position: relative; display: block; width: 100%; aspect-ratio: 1; border-radius: 28px; overflow: hidden; background: var(--mg-surface-container-highest); transition: border-radius 500ms var(--mg-spring); }
+  & .mg-tile-art > img, & .mg-tile-art > span:not(.mg-tile-play) { display: block; width: 100%; height: 100%; object-fit: cover; }
+  & .mg-tile-art:has(> svg) { display: grid; place-items: center; color: var(--mg-on-surface-variant); }
+  & .mg-tile-art > svg { width: 36%; height: 36%; }
+  & .mg-tile-art[data-round] { border-radius: 50%; }
+  & .mg-tile-glyph { display: grid; place-items: center; width: 100%; height: 100%; color: var(--mg-on-surface-variant); }
+  & .mg-tile-play { position: absolute; right: 10px; bottom: 10px; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 16px; background: var(--mg-primary); color: var(--mg-on-primary); box-shadow: var(--mg-elev-2);
+    opacity: 0; transform: scale(0.6) rotate(-30deg); transition: opacity 200ms var(--mg-effects), transform 450ms var(--mg-spring-fast), border-radius 350ms var(--mg-spring-fast); }
+  & .mg-tile:hover .mg-tile-play, & .mg-tile:focus-visible .mg-tile-play, & .mg-tile:focus-within .mg-tile-play { opacity: 1; transform: none; border-radius: 50%; }
+  & .mg-tile-play-btn { cursor: pointer; }
+  & .mg-tile-play svg { width: 22px; height: 22px; }
+  & .mg-tile-title { font-size: 16px; line-height: 24px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
+  & .mg-tile-sub { font-size: 14px; line-height: 20px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
+  & .mg-tile-tools { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; opacity: 0; transition: opacity 150ms var(--mg-effects-fast); }
+  & .mg-tile:hover .mg-tile-tools, & .mg-tile:focus-within .mg-tile-tools { opacity: 1; }
+  & .mg-tile-chev { position: relative; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+  & .mg-tile-chev svg { width: 18px; height: 18px; }
+  & .mg-tile[aria-disabled='true'] { opacity: 0.5; cursor: default; }
+  & .mg-tile[data-dead] { opacity: 0.45; cursor: default; }
+
+  /* --- Rooms ----------------------------------------------------------------------------------- */
+  & .mg-rooms-system { margin: 0 0 28px; }
+  & .mg-system-label { margin: 0 0 12px; }
+  & .mg-rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), 1fr)); gap: 16px; align-items: start; }
+  & .mg-group { padding: 8px 0 12px; border-radius: 28px; transition: box-shadow 250ms var(--mg-effects), transform 500ms var(--mg-spring); }
+  & .mg-group[data-active] { box-shadow: inset 0 0 0 2px var(--mg-primary); }
+  & .mg-group[data-over] { transform: scale(1.02); box-shadow: inset 0 0 0 3px var(--mg-tertiary), var(--mg-elev-2); }
+  & .mg-group[data-dragging] { opacity: 0.5; }
+  & .mg-group-head { display: flex; align-items: center; gap: 14px; padding: 8px 16px 12px; cursor: pointer; }
+  & .mg-group-art { padding: 0; border: 0; background: none; cursor: pointer; flex: none; }
+  & .mg-group-text { flex: 1; min-width: 0; }
+  & .mg-group-title { margin: 0; font-size: 16px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-group-sub { margin: 0; font-size: 14px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-group-tools { display: flex; align-items: center; gap: 8px; }
+  & .mg-group-rooms { display: flex; flex-direction: column; }
+  /* The last column is the more button's width, fixed: the group row leaves it empty, and as auto
+     it collapsed there, so the group's slider ran longer than its rooms' beneath it. */
+  & .mg-member { display: grid; grid-template-columns: minmax(90px, 0.9fr) auto minmax(100px, 1.4fr) 32px 32px; align-items: center; gap: 8px; padding: 0 12px 0 20px; min-height: 52px; }
+  & .mg-member-group { background: var(--mg-surface-container-low); margin: 0 8px; padding: 0 4px 0 12px; border-radius: 16px; }
+  & .mg-member-name { min-width: 0; font-size: 16px; line-height: 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-member-name small { display: block; font-size: 12px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; }
+  & .mg-room-name-line { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  & .mg-room-name-line .sn-name-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-room-battery { display: inline-flex; align-items: center; gap: 3px; flex: none; font-size: 12px; color: var(--mg-on-surface-variant); }
+  & .mg-room-battery .sn-battery-glyph { width: 18px; height: 11px; }
+  & .mg-room-battery[data-low] { color: var(--mg-error); }
+  & .mg-hero-battery { flex: none; font-size: 12px; font-weight: 500; opacity: 0.9; }
+  & .mg-chip-battery { margin-left: 6px; font-size: 12px; color: var(--mg-on-surface-variant); }
+  /* An outlined field's label rides its top border, so as the first thing under Room Settings'
+     tabs it sat 8px from the divider; it gets the room the other tabs' first lines have. */
+  & .mg-roomsettings .mg-sheet-body > .mg-stack > .mg-inline:first-child { margin-top: 12px; }
+  & .mg-member-level { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--mg-on-surface-variant); text-align: right; }
+  & .mg-member[data-offline] { opacity: 0.5; }
+  & .mg-tone { display: grid; grid-template-columns: minmax(110px, 1fr) auto minmax(120px, 2fr) auto; align-items: center; gap: 10px; }
+  & .mg-tone-label { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 500; }
+  & .mg-tone-label output { font-variant-numeric: tabular-nums; color: var(--mg-primary); }
+  & .mg-tone-end { font-size: 12px; color: var(--mg-on-surface-variant); min-width: 12px; text-align: center; }
+  & .mg-tone-track { position: relative; display: block; min-width: 0; }
+  & .mg-tone-track::after { content: ''; position: absolute; left: calc(50% - 1px); bottom: -2px; width: 2px; height: 6px; border-radius: 1px; background: var(--mg-on-surface-variant); opacity: 0.6; pointer-events: none; }
+  & .mg-willplay { display: flex; align-items: center; gap: 16px; padding: 16px; color: var(--mg-on-surface); }
+
+  /* --- Browse ------------------------------------------------------------------------------------ */
+  & .mg-browse-split { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 24px; }
+  & .mg-sources { position: sticky; top: 0; align-self: start; max-height: calc(100vh - 16px); overflow: auto; padding: 16px 0 120px; }
+  & .mg-sources-group[data-dim] { opacity: 0.7; }
+  & .mg-sources-gen { display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 12px 0 4px; padding: 0 16px; border: 0; background: none; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-on-surface-variant); cursor: pointer; }
+  & .mg-sources-gen:disabled { cursor: default; }
+  & .mg-sources-gen svg { width: 18px; height: 18px; }
+  & .mg-source { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; height: 48px; padding: 0 16px 0 12px; border: 0; border-radius: 999px; background: none; cursor: pointer; text-align: left; font-size: 14px; font-weight: 500; color: var(--mg-on-surface-variant); }
+  & .mg-source[data-current] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+  & .mg-source:disabled { opacity: 0.45; cursor: default; }
+  & .mg-source-icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; overflow: hidden; flex: none; }
+  & .mg-source-icon img { width: 100%; height: 100%; object-fit: contain; }
+  & .mg-source-icon svg { width: 22px; height: 22px; }
+  & .mg-source-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-source-title small { margin-left: 6px; font-weight: 400; opacity: 0.8; }
+  & .mg-browse-page { min-width: 0; }
+  & .mg-appbar-browse { display: flex; flex-direction: column; gap: 12px; }
+  /* At its top level Browse opens on its title, and that title sits where Rooms' and Alarms' do. */
+  & .mg-appbar-browse:not(:has(> .mg-appbar-row)) { padding-top: 24px; }
+  & .mg-crumbs { display: flex; align-items: center; gap: 4px; min-width: 0; overflow: hidden; }
+  & .mg-crumb-label { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-crumb { position: relative; max-width: 180px; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--mg-surface-container-high); cursor: pointer; font-size: 14px; line-height: 20px; overflow: visible; color: var(--mg-on-surface-variant); }
+  & .mg-browse-context { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  & .mg-browse-body { padding-top: 8px; }
+  & .mg-sourcecards-system { margin: 0 0 28px; }
+  & .mg-sourcecards-system[data-dim] .mg-sourcecards-grid { opacity: 0.7; }
+  & .mg-sourcecards-head { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
+  & .mg-sourcecards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  & .mg-sourcecard { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 20px 12px 16px; border: 0; border-radius: 28px; cursor: pointer; text-align: center; background: var(--mg-surface-container-low); color: var(--mg-on-surface);
+    transition: border-radius 500ms var(--mg-spring), background 200ms var(--mg-effects); }
+  & .mg-sourcecard:hover { border-radius: 32px; background: var(--mg-surface-container); }
+  & .mg-sourcecard[aria-disabled='true'], & .mg-sourcecard:disabled { opacity: 0.5; cursor: default; }
+  & .mg-sourcecard-icon { display: grid; place-items: center; width: 72px; height: 72px; background: var(--mg-surface-container-lowest); color: var(--mg-primary); transition: transform 650ms var(--mg-spring-slow); }
+  & .mg-sourcecard:hover .mg-sourcecard-icon { transform: rotate(18deg) scale(1.04); }
+  & .mg-sourcecard:hover .mg-sourcecard-icon img { transform: rotate(-18deg); }
+  & .mg-sourcecard-icon img { width: 68%; height: 68%; object-fit: contain; transition: transform 650ms var(--mg-spring-slow); }
+  & .mg-sourcecard-icon svg { width: 32px; height: 32px; }
+  & .mg-sourcecard-add .mg-sourcecard-icon { background: var(--mg-primary-container); color: var(--mg-on-primary-container); }
+  & .mg-sourcecard-title { font-size: 14px; font-weight: 500; line-height: 20px; }
+  & .mg-sourcecard-sub { font-size: 12px; color: var(--mg-on-surface-variant); }
+  & .mg-sourcecard-more { position: absolute; top: 8px; right: 8px; }
+  /* The caution mark overlays the bottom-right of the service's icon, as on every other theme's
+     service tiles; the anchor is unclipped so the shaped icon does not cut the mark off. */
+  & .mg-caution-anchor { position: relative; display: inline-grid; flex: none; }
+  & .mg-caution-anchor .svc-caution { --svc-caution-ring: var(--mg-surface); }
+  & .mg-source[data-current] .svc-caution { --svc-caution-ring: var(--mg-secondary-container); }
+  & .mg-sourcecard .mg-caution-anchor .svc-caution { right: 2px; bottom: 2px; width: 20px; height: 20px; --svc-caution-ring: var(--mg-surface-container-low); }
+  & .mg-sourcecard .mg-caution-anchor .svc-caution svg { width: 12px; height: 12px; }
+  & .mg-pagetitle { display: flex; align-items: center; gap: 16px; margin: 4px 0 20px; }
+  & .mg-pagetitle-icon { display: grid; place-items: center; width: 56px; height: 56px; background: var(--mg-surface-container-lowest); color: var(--mg-primary); flex: none; }
+  /* A square logo clears a circle at under 1/sqrt(2) of its width, so it never loses a corner. */
+  & .mg-pagetitle-icon img { width: 68%; height: 68%; object-fit: contain; }
+  & .mg-collection { display: flex; align-items: flex-end; gap: 28px; flex-wrap: wrap; margin: 4px 0 24px; }
+  & .mg-collection-art { width: clamp(160px, 22vw, 240px); height: clamp(160px, 22vw, 240px); box-shadow: var(--mg-elev-2); }
+  & .mg-collection-text { flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 8px; }
+  & .mg-collection-actions { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  & .mg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 20px 16px; }
+  & .mg-grid > .mg-tile-grid { flex: none; }
+  & .mg-carousel > .mg-tile-grid { flex: 0 0 168px; width: 168px; }
+  & .mg-rows { display: flex; flex-direction: column; margin: 0 -8px 16px; }
+  & .mg-row { position: relative; display: flex; align-items: center; gap: 16px; min-height: 72px; padding: 8px 8px 8px 12px; border-radius: 16px; cursor: pointer; }
+  & .mg-row[data-selected] { background: var(--mg-surface-container-high); }
+  & .mg-row[data-checked] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+  & .mg-row[aria-disabled='true'] { cursor: default; opacity: 0.55; }
+  & .mg-row[data-drop='before'] { box-shadow: inset 0 3px 0 var(--mg-primary); }
+  & .mg-row[data-drop='after'] { box-shadow: inset 0 -3px 0 var(--mg-primary); }
+  & .mg-row-art { position: relative; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; overflow: hidden; flex: none; background: var(--mg-surface-container-highest); color: var(--mg-on-surface-variant); }
+  & .mg-row-art-round { border-radius: 50%; }
+  & .mg-row-art > img, & .mg-row-art > span:not(.mg-row-num) { width: 100%; height: 100%; object-fit: cover; }
+  & .mg-row-art > svg { width: 55%; height: 55%; }
+  & .mg-row-num { font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  & .mg-row-play { position: absolute; inset: 0; display: grid; place-items: center; border: 0; background: color-mix(in oklab, var(--mg-primary) 82%, transparent); color: var(--mg-on-primary); cursor: pointer; opacity: 0; transition: opacity 150ms var(--mg-effects-fast); }
+  & .mg-row:hover .mg-row-play, & .mg-row:focus-within .mg-row-play { opacity: 1; }
+  & .mg-row-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  & .mg-row-title { display: flex; align-items: center; gap: 6px; font-size: 16px; line-height: 22px; min-width: 0; }
+  & .mg-row-title > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-row-sub { font-size: 14px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-row[data-checked] .mg-row-sub { color: inherit; opacity: 0.8; }
+  & .mg-row-dur { font-size: 12px; line-height: 16px; color: var(--mg-on-surface-variant); font-variant-numeric: tabular-nums; }
+  & .mg-row-tools { display: flex; align-items: center; opacity: 0.001; transition: opacity 150ms var(--mg-effects-fast); }
+  & .mg-row:hover .mg-row-tools, & .mg-row:focus-within .mg-row-tools, & .mg-row[data-checked] .mg-row-tools { opacity: 1; }
+  & .mg-row-more { width: 20px; height: 20px; color: var(--mg-on-surface-variant); flex: none; }
+  & .mg-explicit { width: 16px; height: 16px; color: var(--mg-on-surface-variant); flex: none; }
+  & .mg-page-foot { padding: 8px 0 16px; }
+  & .mg-results-service { margin: 16px 0 8px; }
+  & .mg-results-head { display: flex; align-items: center; gap: 12px; margin: 0 0 4px; font-size: 16px; font-weight: 500; }
+  & .mg-results-icon { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 12px; overflow: hidden; background: var(--mg-surface-container-lowest); }
+  & .mg-results-icon img { width: 100%; height: 100%; object-fit: contain; }
+  & .mg-results .mg-chips { margin: 16px 0; }
+  & .mg-select-toolbar { position: fixed; z-index: 45; left: 50%; bottom: calc(var(--mg-nav-h) + 96px); display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 999px;
+    background: var(--mg-inverse-surface); color: var(--mg-inverse-on-surface); box-shadow: var(--mg-elev-3); transform: translateX(-50%); animation: mg-rise-s 500ms var(--mg-spring) both; }
+  & .mg-select-toolbar > .mg-icon-btn-standard { color: inherit; }
+  & .mg-select-count { padding: 0 8px 0 0; font-size: 14px; font-weight: 500; white-space: nowrap; }
+  & .mg-pins { margin: 0 0 20px; }
+
+  /* --- Clock ------------------------------------------------------------------------------------- */
+  & .mg-sleep { display: flex; flex-direction: column; gap: 16px; margin: 0 0 32px; padding: 20px 24px 24px; border-radius: 28px; }
+  & .mg-sleep-main { display: flex; align-items: center; gap: 20px; }
+  & .mg-sleep-badge { display: grid; place-items: center; width: 72px; height: 72px; background: var(--mg-primary); color: var(--mg-on-primary); flex: none; animation: mg-turn 30s linear infinite; }
+  & .mg-sleep-badge svg { width: 30px; height: 30px; animation: mg-turn 30s linear infinite reverse; }
+  & .mg-sleep-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  & .mg-sleep .mg-overline { color: inherit; opacity: 0.8; }
+  & .mg-sleep-clock { font-size: 57px; line-height: 64px; font-weight: 400; font-variant-numeric: tabular-nums; letter-spacing: -0.25px; }
+  & .mg-sleep .mg-chip { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--mg-on-secondary-container) 30%, transparent); }
+  & .mg-sleep .mg-chip-main { color: var(--mg-on-secondary-container); }
+  & .mg-sleep-others { padding: 0; }
+  & .mg-alarms-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin: 0 0 16px; }
+  & .mg-alarm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 12px; }
+  & .mg-alarm { display: flex; flex-direction: column; gap: 12px; padding: 20px 20px 18px; border-radius: 28px; cursor: pointer; background: var(--mg-surface-container-low); color: var(--mg-on-surface-variant); transition: background 250ms var(--mg-effects), border-radius 500ms var(--mg-spring); }
+  & .mg-alarm[data-on] { background: var(--mg-primary-container); color: var(--mg-on-primary-container); }
+  & .mg-alarm:hover { border-radius: 32px; }
+  & .mg-alarm-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  & .mg-alarm-time { font-size: 45px; line-height: 52px; font-weight: 400; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+  & .mg-alarm-days { display: flex; gap: 6px; }
+  & .mg-day { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; font-size: 12px; font-weight: 500; color: var(--mg-on-surface-variant); box-shadow: inset 0 0 0 1px var(--mg-outline-variant); }
+  & .mg-day[data-on] { background: var(--mg-primary); color: var(--mg-on-primary); box-shadow: none; opacity: 1; }
+  & .mg-alarm:not([data-on]) .mg-day[data-on] { background: var(--mg-surface-container-highest); color: var(--mg-on-surface-variant); }
+  & .mg-alarm-rec { font-size: 14px; font-weight: 500; }
+  & .mg-alarm-lines { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+  & .mg-alarm-lines span { display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-alarm-lines svg { width: 18px; height: 18px; flex: none; }
+  & .mg-alarm-more { position: absolute; right: 12px; bottom: 12px; color: inherit; }
+  & .mg-alarm-editor .mg-sheet-body { max-width: 760px; width: 100%; margin: 0 auto; }
+  /* The shared alarm editor, dressed in this theme's fields and buttons. */
+  & .mg-alarm-editor { accent-color: var(--mg-primary); }
+  & .mg-alarm-editor .alarm-form { font-size: 16px; gap: 20px; }
+  & .mg-alarm-editor .alarm-form h3 { font-size: 22px; font-weight: 500; margin: 0 0 8px; }
+  & .mg-alarm-editor .alarm-grid { row-gap: 20px; column-gap: 24px; }
+  & .mg-alarm-editor .alarm-grid > label { font-size: 14px; font-weight: 500; color: var(--mg-on-surface-variant); }
+  & .mg-alarm-editor :is(.alarm-form select, .alarm-length, .alarm-music, .alarm-form input[type='time']) {
+    min-height: 56px; padding: 0 16px; border: 0; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--mg-outline);
+    background: transparent; color: var(--mg-on-surface); font: inherit; font-size: 16px; }
+  & .mg-alarm-editor .alarm-music { display: inline-flex; align-items: center; box-sizing: border-box; width: min(280px, 100%); }
+  & .mg-alarm-editor .alarm-form select { box-sizing: border-box; width: min(280px, 100%); }
+  & .mg-alarm-editor :is(.alarm-form select, .alarm-length, .alarm-form input[type='time']):focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--mg-primary); }
+  /* Native checkboxes and radios in the shared panels, drawn as Material's: an 18dp box with 2dp
+     corners and a 2dp on-surface-variant outline, primary with the on-primary check when checked;
+     a 20dp ring whose 12dp primary dot grows in; a 40dp state layer around each (checkbox and radio
+     tokens). Firefox draws no ::before on an input, so the layer is a spread shadow. */
+  & .mg-alarm-editor .alarm-form input[type='checkbox'] { appearance: none; flex: none; width: 18px; height: 18px; margin: 11px; border-radius: 2px; cursor: pointer;
+    box-shadow: inset 0 0 0 2px var(--mg-on-surface-variant); background: transparent center / 18px no-repeat; transition: box-shadow 150ms var(--mg-effects-fast), background-color 150ms var(--mg-effects-fast); }
+  & .mg-alarm-editor .alarm-form input[type='checkbox']:checked { box-shadow: none; background-color: var(--mg-primary); background-image: var(--mg-check-glyph); }
+  & .mg-alarm-editor .alarm-form input[type='checkbox']:hover:not(:checked):not(:disabled) { box-shadow: inset 0 0 0 2px var(--mg-on-surface), 0 0 0 11px color-mix(in oklab, var(--mg-on-surface) 8%, transparent); }
+  & .mg-alarm-editor .alarm-form input[type='checkbox']:checked:hover:not(:disabled) { box-shadow: 0 0 0 11px color-mix(in oklab, var(--mg-primary) 8%, transparent); }
+  & .mg-alarm-editor .alarm-form input[type='checkbox']:disabled:not(:checked) { cursor: default; box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & .mg-alarm-editor .alarm-form input[type='checkbox']:disabled:checked { cursor: default; background-color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & :is(.s2-opt, .mg-alarm-editor .alarm-form) input[type='radio'] { appearance: none; flex: none; width: 20px; height: 20px; margin: 10px; border-radius: 50%; cursor: pointer;
+    box-shadow: inset 0 0 0 2px var(--mg-on-surface-variant);
+    background: radial-gradient(circle closest-side, var(--mg-primary) 98%, transparent) center / 0 0 no-repeat;
+    transition: background-size 350ms var(--mg-spring-fast), box-shadow 150ms var(--mg-effects-fast); }
+  & :is(.s2-opt, .mg-alarm-editor .alarm-form) input[type='radio']:checked { box-shadow: inset 0 0 0 2px var(--mg-primary); background-size: 12px 12px; }
+  & :is(.s2-opt, .mg-alarm-editor .alarm-form) input[type='radio']:hover:not(:checked):not(:disabled) { box-shadow: inset 0 0 0 2px var(--mg-on-surface), 0 0 0 10px color-mix(in oklab, var(--mg-on-surface) 8%, transparent); }
+  & :is(.s2-opt, .mg-alarm-editor .alarm-form) input[type='radio']:checked:hover:not(:disabled) { box-shadow: inset 0 0 0 2px var(--mg-primary), 0 0 0 10px color-mix(in oklab, var(--mg-primary) 8%, transparent); }
+  & :is(.s2-opt, .mg-alarm-editor .alarm-form) input[type='radio']:disabled { cursor: default; opacity: 0.38; filter: grayscale(1); }
+  & :is(.s2-opt, .mg-alarm-editor .alarm-form) input:is([type='radio'], [type='checkbox']):focus-visible { outline: 3px solid var(--mg-secondary); outline-offset: 2px; }
+  /* The upgrade advisor's choices: a row per course, 12dp corners, the chosen one in
+     secondary-container as a selected list item is. */
+  & .s2-opt { border-radius: 12px; }
+  & .s2-opt[data-on] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); border-color: transparent; }
+  /* The chosen plan is shown by its fill alone. The shared sheet rings the card that holds focus,
+     so a click drew an outline round the plan just picked, one the plan chosen on load never had;
+     here only the radio's own focus ring shows, and only for the keyboard. */
+  & .s2-opt:focus-within { outline: none; }
+  /* The alarm's volume, drawn as Material's slider: a 16dp track, primary to the value and
+     secondary-container after it, 8dp outer corners, a 4 x 44dp primary handle (slider tokens).
+     Firefox paints the filled part as ::-moz-range-progress. */
+  & .mg-alarm-editor .alarm-form input[type='range'] { appearance: none; width: min(320px, 100%); height: 48px; margin: 0; background: transparent; cursor: pointer; }
+  & .mg-alarm-editor .alarm-form input[type='range']::-moz-range-track { height: 16px; border-radius: 8px; background: var(--mg-secondary-container); }
+  & .mg-alarm-editor .alarm-form input[type='range']::-moz-range-progress { height: 16px; border-radius: 8px 2px 2px 8px; background: var(--mg-primary); }
+  & .mg-alarm-editor .alarm-form input[type='range']::-moz-range-thumb { width: 4px; height: 44px; border: 0; border-radius: 2px; background: var(--mg-primary); box-shadow: 0 0 0 6px var(--mg-surface); transition: width 200ms var(--mg-spring-fast); }
+  & .mg-alarm-editor .alarm-form input[type='range']:is(:active, :focus-visible)::-moz-range-thumb { width: 2px; }
+  & .mg-alarm-editor .alarm-form input[type='range']::-webkit-slider-runnable-track { height: 16px; border-radius: 8px; background: var(--mg-secondary-container); }
+  & .mg-alarm-editor .alarm-form input[type='range']::-webkit-slider-thumb { appearance: none; width: 4px; height: 44px; margin-top: -14px; border-radius: 2px; background: var(--mg-primary); }
+  & .mg-alarm-editor .alarm-form input[type='range']:focus-visible { outline: none; }
+  & .mg-alarm-editor .alarm-form input[type='range']:focus-visible::-moz-range-thumb { outline: 3px solid var(--mg-secondary); outline-offset: 3px; }
+  /* The shared time field, as an outlined field: 56 tall, 1dp outline, on-surface hovered, 2dp
+     primary focused, the focused part in primary-container; disabled at 12% and 38%. */
+  /* The time field is one outlined box with the steppers inside it, on the trailing edge where an
+     outlined text field keeps its trailing icon, and as wide as the fields around it. */
+  & .mg-alarm-editor .dk-timefield { position: relative; align-items: center; width: min(280px, 100%); min-height: 56px; gap: 0; padding: 0 8px 0 16px; box-sizing: border-box; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--mg-outline); transition: box-shadow 150ms var(--mg-effects-fast); }
+  & .mg-alarm-editor .dk-timefield-box { flex: 1; display: flex; align-items: center; min-height: 0; padding: 0; border: 0; box-shadow: none; background: none; }
+  & .mg-alarm-editor .dk-timefield-arrows { flex: none; width: 24px; height: 40px; color: var(--mg-on-surface-variant); }
+  & .mg-alarm-editor .dk-timefield-arrows button { background-color: currentColor; }
+  & .mg-alarm-editor .dk-timefield:not([aria-disabled]):hover { box-shadow: inset 0 0 0 1px var(--mg-on-surface); }
+  & .mg-alarm-editor .dk-timefield:focus-within { box-shadow: inset 0 0 0 2px var(--mg-primary); }
+  & .mg-alarm-editor :is(.dk-timefield-part, .dk-timefield-ampm):focus { outline: none; border-radius: 4px; background: var(--mg-primary-container); color: var(--mg-on-primary-container); }
+  & .mg-alarm-editor .dk-timefield-part { caret-color: var(--mg-primary); }
+  & .mg-alarm-editor .dk-timefield[aria-disabled] { opacity: 1; color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & .mg-alarm-editor .dk-timefield[aria-disabled] { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--mg-on-surface) 12%, transparent); }
+  & .mg-alarm-editor .alarm-btn { position: relative; height: 40px; padding: 0 20px; border: 0; border-radius: 999px; cursor: pointer; font-weight: 500; font-size: 14px;
+    background: transparent; color: var(--mg-primary); box-shadow: inset 0 0 0 1px var(--mg-outline-variant); transition: border-radius 350ms var(--mg-spring-fast); }
+  & .mg-alarm-editor .alarm-btn:active:not(:disabled) { border-radius: 12px; }
+  & .mg-alarm-editor .alarm-btn-primary { background: var(--mg-primary); color: var(--mg-on-primary); box-shadow: none; }
+  & .mg-alarm-editor .alarm-btn:disabled { opacity: 0.38; cursor: default; }
+  & .mg-alarm-editor .alarm-actions { gap: 8px; margin-top: 8px; }
+  /* Save is in the top bar of this full-screen dialog; the form's own foot goes (the music picker keeps its). */
+  & .mg-alarm-editor .alarm-form > .alarm-actions { display: none; }
+  & .mg-alarm-editor .alarm-picker-list { border-radius: 16px; background: var(--mg-surface-container-low); }
+  & .mg-alarm-editor .alarm-picker-row { min-height: 48px; border-radius: 12px; }
+  & .mg-alarm-editor .alarm-picker-row[aria-selected='true'] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+
+  /* --- Settings ----------------------------------------------------------------------------------- */
+  & .mg-settings { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 32px; align-items: start; }
+  & .mg-settings-single { display: block; }
+  /* Forward and back between levels: the arriving page slides 30dp and fades in once the leaving
+     one is gone, as Android does (motion: transitions, Forward and backward). */
+  & [data-motion='forward'] { animation: mg-axis-fwd 300ms var(--mg-emph-decel) both; }
+  & [data-motion='back'] { animation: mg-axis-back 300ms var(--mg-emph-decel) both; }
+  & [data-motion='fade'] { animation: mg-through 300ms var(--mg-emph) both; }
+  & .mg-size-compact .mg-settings { display: block; }
+  & .mg-settings-list { display: flex; flex-direction: column; gap: 16px; padding-top: 24px; position: sticky; top: 0; }
+  & .mg-size-compact .mg-settings-list { position: static; }
+  & .mg-settings-list .mg-card { border-radius: 16px; }
+  & .mg-settings-detail { min-width: 0; padding-top: 24px; display: flex; flex-direction: column; gap: 20px; }
+  & .mg-settings-detail-head { display: flex; align-items: flex-start; gap: 8px; }
+  & .mg-settings-detail-head p { margin-top: 4px; }
+  & .mg-clockface { display: flex; flex-direction: column; gap: 4px; padding: 24px; border-radius: 28px; }
+  & .mg-clockface strong { font-size: 57px; line-height: 64px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  & .mg-clockface small { opacity: 0.8; }
+  & .mg-linkflow { display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 28px; }
+  & .mg-code { margin: 0; font: 500 40px/1.2 var(--t-mono); letter-spacing: 0.12em; }
+  & .mg-done { display: flex; align-items: center; gap: 12px; margin: 0; }
+  & .mg-addshare { padding: 20px; border-radius: 20px; }
+  & .mg-table-wrap { overflow-x: auto; border-radius: 16px; background: var(--mg-surface-container-low); }
+  & .mg-table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: auto; }
+  & .mg-table th, & .mg-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--mg-outline-variant); vertical-align: middle; }
+  & .mg-table thead th { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-on-surface-variant); }
+  & .mg-table tbody th { font-weight: 500; }
+  & .mg-table tr:last-child > * { border-bottom: 0; }
+  & .mg-table tr[data-offline] { opacity: 0.55; }
+  & .mg-num { text-align: right !important; font-variant-numeric: tabular-nums; }
+  & .mg-th-help { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+  & td[data-warn] { color: var(--mg-error); font-weight: 500; }
+  & .mg-quality { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; text-transform: capitalize; background: var(--mg-surface-container-highest); }
+  & .mg-quality[data-q='good'] { background: color-mix(in oklab, var(--mg-good) 22%, transparent); color: var(--mg-good); }
+  & .mg-quality[data-q='fair'] { background: color-mix(in oklab, var(--mg-fair) 22%, transparent); color: var(--mg-fair); }
+  & .mg-quality[data-q='poor'] { background: color-mix(in oklab, var(--mg-poor) 22%, transparent); color: var(--mg-poor); }
+  & .mg-quality:is([data-q='critical'], [data-q='unreachable']) { background: var(--mg-error-container); color: var(--mg-on-error-container); }
+  & .mg-findings { display: flex; flex-direction: column; gap: 8px; }
+  & .mg-finding { padding: 16px; border-radius: 16px; background: var(--mg-surface-container-low); }
+  & .mg-finding[data-severity='critical'], & .mg-finding[data-severity='high'] { background: var(--mg-error-container); color: var(--mg-on-error-container); }
+  & .mg-finding p { margin: 4px 0 0; }
+  & .mg-level { display: inline-block; padding: 1px 8px; border-radius: 8px; font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; background: var(--mg-surface-container-highest); }
+  & .mg-level[data-level='error'] { background: var(--mg-error-container); color: var(--mg-on-error-container); }
+  & .mg-level[data-level='warning'] { background: color-mix(in oklab, var(--mg-fair) 24%, transparent); }
+  & .mg-log td { font-size: 14px; line-height: 20px; }
+  & .mg-shortcuts { display: grid; grid-template-columns: 1fr auto; gap: 8px 24px; margin: 0; color: var(--mg-on-surface); }
+  & .mg-shortcuts dt { font-size: 14px; }
+  & .mg-shortcuts dd { margin: 0; text-align: right; }
+  /* The theme's card: the still and what the theme is, inside 16dp of padding
+     with 16dp between them, the way an M3 card holds its content -- they had sat
+     against the card's edges. */
+  & .mg-theme-preview { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; width: 100%; max-width: 640px; padding: 16px; border-radius: 16px; background: var(--mg-surface-container-low); box-shadow: var(--mg-elev-1); }
+  & .mg-theme-preview > img { display: block; width: 320px; max-width: 100%; height: auto; border-radius: 12px; }
+  & .mg-theme-preview .theme-about { flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  & .mg-theme-preview .theme-about p { margin: 0; }
+  & .mg-theme-noshot { display: grid; place-items: center; width: 320px; max-width: 100%; aspect-ratio: 16 / 10; border-radius: 20px; background: var(--mg-surface-container-highest); color: var(--mg-on-surface-variant); }
+  & .mg-theme-version { color: var(--mg-on-surface-variant); font-size: 14px; line-height: 20px; }
+  & .mg-theme-manage { display: flex; flex-direction: column; gap: 12px; }
+  & .mg-parental-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  & .mg-signin { max-width: 420px; }
+
+  /* --- info ---------------------------------------------------------------------------------------- */
+  & .mg-info-head { display: flex; align-items: center; gap: 20px; padding: 16px; margin: 0 0 12px; border-radius: 28px; }
+  & .mg-info-lines { margin: 0; display: grid; gap: 2px; min-width: 0; }
+  & .mg-info-lines dt { font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-on-surface-variant); }
+  & .mg-info-lines dd { margin: 0 0 6px; font-size: 16px; line-height: 24px; font-weight: 500; overflow-wrap: anywhere; }
+  & .mg-prose p { margin: 0 0 12px; line-height: 1.6; }
+
+  /* --- the search view --------------------------------------------------------------------------- */
+  & .mg-searchview-layer { position: fixed; inset: 0; z-index: 90; display: flex; justify-content: center; align-items: flex-start; padding: 24px; background: var(--mg-scrim); animation: mg-fade 200ms var(--mg-effects); }
+  & .mg-searchview { display: flex; flex-direction: column; width: min(720px, 100%); max-height: calc(100vh - 48px); border-radius: 28px; overflow: hidden; background: var(--mg-surface-container-high); box-shadow: var(--mg-elev-3);
+    animation: mg-open-search 500ms var(--mg-spring) both; transform-origin: top center; }
+  & .mg-searchview-bar { display: flex; align-items: center; gap: 4px; height: 56px; padding: 0 12px 0 8px; border-bottom: 1px solid var(--mg-outline); }
+  & .mg-searchview-bar input { flex: 1; min-width: 0; height: 100%; border: 0; background: none; color: var(--mg-on-surface); font: inherit; font-size: 16px; line-height: 24px; outline: none; }
+  & .mg-searchview-chips { padding: 12px 16px 4px; }
+  & .mg-searchview-list { flex: 1; min-height: 0; overflow: auto; padding: 8px 8px 16px; }
+  & .mg-searchview-group { margin: 16px 16px 4px; font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; color: var(--mg-primary); }
+  & .mg-searchview-row { position: relative; display: flex; align-items: center; gap: 16px; width: 100%; min-height: 56px; padding: 6px 12px; border: 0; border-radius: 16px; background: none; cursor: pointer; text-align: left; }
+  & .mg-searchview-row[aria-selected='true'] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+  & .mg-searchview-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; overflow: hidden; background: var(--mg-surface-container-highest); color: var(--mg-on-surface-variant); flex: none; }
+  & .mg-searchview-icon[data-shaped] { background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
+  & .mg-searchview-icon img { width: 100%; height: 100%; object-fit: cover; }
+  & .mg-searchview-icon svg { width: 22px; height: 22px; }
+  & .mg-searchview-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  & .mg-searchview-label { font-size: 16px; line-height: 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-searchview-sub { font-size: 14px; line-height: 20px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-searchview-row[aria-selected='true'] .mg-searchview-sub { color: inherit; opacity: 0.8; }
+  & .mg-searchview-empty { padding: 24px 16px; }
+
+  /* --- compact windows ---------------------------------------------------------------------------- */
+  @media (max-width: 599px) {
+    & .mg-searchview-bar { height: 72px; }
+    & .mg-layer-side { align-items: end; justify-items: stretch; }
+    & .mg-sheet-side { width: 100%; height: auto; max-height: 90vh; border-radius: 28px 28px 0 0; box-shadow: var(--mg-elev-1); animation-name: mg-rise; }
+    & .mg-sheet-side .mg-handle { display: block; }
+    & .mg-layer-dialog { padding: 16px; }
+    & .mg-sheet-dialog { border-radius: 28px; }
+    & .mg-searchview-layer { padding: 0; }
+    & .mg-searchview { width: 100%; max-height: 100%; height: 100%; border-radius: 0; }
+    & .mg-hero { height: 260px; }
+    & .mg-hero-item { flex-basis: 56px; }
+    /* Room for a sliver of every other playing room beside the chosen one: it had been sized
+       for one, and a third playing room sat out of sight past the edge. With many,
+       the chosen room keeps 60% and the rest scroll, the next one showing at the edge. */
+    & .mg-hero-item[data-active] { flex-basis: max(60%, calc(100% - var(--mg-hero-others, 1) * 64px)); }
+    & .mg-here { padding: 16px; }
+    & .mg-here-row { gap: 12px; justify-content: center; }
+    & .mg-tile { flex-basis: 136px; width: 136px; }
+    & .mg-carousel-multi { --mg-tile-w: 136px; --mg-tile-big-w: 180px; }
+    & .mg-grid > .mg-tile { width: auto; }
+    & .mg-tile-tools { opacity: 1; }
+    & .mg-tile-play { opacity: 1; transform: none; width: 36px; height: 36px; border-radius: 50%; }
+    & .mg-row-tools { opacity: 1; }
+    & .mg-rooms-grid { grid-template-columns: minmax(0, 1fr); }
+    & .mg-member { grid-template-columns: minmax(0, 1fr) auto minmax(90px, 1.3fr) 32px; padding: 4px 8px 4px 16px; }
+    & .mg-member-group { padding: 4px 0 4px 8px; }  /* with its 8px inset, the rooms' 16 and 8 */
+    & .mg-member .mg-member-level { display: none; }
+    & .mg-group-head { flex-wrap: wrap; }
+    & .mg-group-tools { width: 100%; justify-content: flex-end; }
+    & .mg-sourcecards-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+    & .mg-sourcecard { padding: 14px 6px 12px; }
+    & .mg-sourcecard-icon { width: 56px; height: 56px; }
+    & .mg-grid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 16px 12px; }
+    & .mg-player-body { padding: 0 16px 24px; }
+    & .mg-player-source { visibility: hidden; }
+    & .mg-room-pill { max-width: 48vw; }
+    & .mg-player-buttons { gap: 12px; }
+    & .mg-player-title { font-size: 28px; line-height: 36px; }
+    & .mg-tone { grid-template-columns: auto minmax(0, 1fr) auto; }
+    & .mg-tone-label { grid-column: 1 / -1; }
+    & .mg-select { min-width: 0; width: 100%; }
+    & .mg-field { min-width: 0; }
+    & .mg-collection { gap: 16px; }
+    & .mg-alarm-time { font-size: 36px; line-height: 44px; }
+    & .mg-select-toolbar { bottom: calc(var(--mg-nav-h) + 84px); max-width: calc(100vw - 24px); }
+    & .mg-table th, & .mg-table td { padding: 8px 10px; }
+  }
+  @media (min-width: 600px) and (max-width: 839px) {
+    & .mg-browse-split { grid-template-columns: minmax(0, 1fr); }
+    & .mg-browse-split .mg-sources { display: none; }
+    & .mg-settings { grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); gap: 20px; }
+  }
+  /* Reduced motion: transitions become short fades, and decorative motion -- shape morphs, the
+     breathing cover, slides, the container transform -- stops (motion: applying transitions,
+     "Follows accessibility settings"). Progress keeps turning, since it says something. */
+  @media (prefers-reduced-motion: reduce) {
+    & *, & *::before, & *::after { transition-property: opacity, color, background-color, box-shadow !important; transition-duration: 150ms !important; }
+    & :is(.mg-main, [data-motion], .mg-player-panel, .mg-sheet, .mg-menu[data-ready], .mg-snack, .mg-fabmenu-list li, .mg-dest-indicator, .mg-chip-icon, .mg-player, .mg-player > *) {
+      animation: mg-fade 150ms var(--mg-effects-fast) both !important; }
+    & .mg-layer[data-exiting] .mg-sheet, & .mg-menu[data-exiting], & .mg-player[data-transform='out'] { animation: mg-fade-out 150ms var(--mg-effects-fast) both !important; }
+    & :is(.mg-player-cover, .mg-player-cover img, .mg-shape-spin, .mg-shape-spin img, .mg-sleep-badge, .mg-sleep-badge svg, .mg-skel-row, .mg-skel-card, .mg-wavy-phase) { animation: none !important; }
+  }
+}
+
+/* The animations the rules above name. Keyframes cannot nest, so they live
+   here, prefixed so no other theme's names collide with them. */
+@keyframes mg-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes mg-fabitem { from { opacity: 0; transform: translateY(-10px) scale(0.8); } to { opacity: 1; transform: none; } }
+@keyframes mg-turn { to { transform: rotate(360deg); } }
+@keyframes mg-wave-phase { to { transform: translateX(40px); } }
+@keyframes mg-wave-phase-thin { to { transform: translateX(26px); } }
+@keyframes mg-bar { from { height: 25%; } to { height: 100%; } }
+@keyframes mg-fade { from { opacity: 0; } }
+@keyframes mg-pop { from { opacity: 0; transform: scale(0.88); } to { opacity: 1; transform: none; } }
+@keyframes mg-slide { from { transform: translateX(100%); } }
+@keyframes mg-rise { from { transform: translateY(100%); } }
+@keyframes mg-tab { from { left: 45%; right: 45%; } }
+@keyframes mg-menu { from { opacity: 0; transform: scaleY(0.8); } 40% { opacity: 1; } to { opacity: 1; transform: none; } }
+@keyframes mg-through { 0%, 30% { opacity: 0; } to { opacity: 1; } }
+@keyframes mg-indicator { from { transform: scaleX(0.4); opacity: 0.4; } to { transform: none; opacity: 1; } }
+@keyframes mg-dialog-in { from { opacity: 0; transform: scaleY(0.85); } 35% { opacity: 1; } to { opacity: 1; transform: none; } }
+@keyframes mg-snack-in { from { opacity: 0; transform: scaleY(0.6); } 40% { opacity: 1; } to { opacity: 1; transform: none; } }
+@keyframes mg-fade-out { to { opacity: 0; } }
+@keyframes mg-scrim-out { to { background-color: transparent; } }
+@keyframes mg-ct-in { from { clip-path: inset(var(--ct-t) var(--ct-r) var(--ct-b) var(--ct-l) round 28px); } to { clip-path: inset(0 0 0 0 round 0px); } }
+@keyframes mg-ct-out { from { clip-path: inset(0 0 0 0 round 0px); } to { clip-path: inset(var(--ct-t) var(--ct-r) var(--ct-b) var(--ct-l) round 28px); } }
+@keyframes mg-chip-check { from { transform: scale(0); width: 0; margin-right: -8px; } to { transform: none; } }
+@keyframes mg-axis-fwd { 0% { opacity: 0; transform: translateX(30px); } 30% { opacity: 0; } to { opacity: 1; transform: none; } }
+@keyframes mg-axis-back { 0% { opacity: 0; transform: translateX(-30px); } 30% { opacity: 0; } to { opacity: 1; transform: none; } }
+@keyframes mg-lateral-next { from { transform: translateX(100%); } }
+@keyframes mg-lateral-prev { from { transform: translateX(-100%); } }
+@keyframes mg-skeleton { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@keyframes mg-sheet-out-down { to { transform: translateY(100%); } }
+@keyframes mg-sheet-out-right { to { transform: translateX(100%); } }
+@keyframes mg-dialog-out { to { opacity: 0; transform: scaleY(0.9); } }
+@keyframes mg-rise-s { from { opacity: 0; transform: translateY(20px); } }
+@keyframes mg-tip { from { opacity: 0; } }
+@keyframes mg-rail-in { from { transform: translateX(-60%); opacity: 0; } }
+@keyframes mg-drawer-up { from { opacity: 0; transform: translateY(24px); } }
+@keyframes mg-breathe { to { transform: scale(0.975) rotate(4deg); } }
+@keyframes mg-breathe-still { to { transform: rotate(-4deg) scale(1.02564); } }
+@keyframes mg-open-search { from { opacity: 0; transform: scaleX(0.8) scaleY(0.4); } to { opacity: 1; transform: none; } }
+
+/* A rating the service gives no way to undo: lit, and not pressable. */
+:root[data-theme='materialgirl'] .mg-player-ratings [aria-disabled='true'] { cursor: default; }

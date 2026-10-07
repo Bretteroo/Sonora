@@ -1,0 +1,20 @@
+/* The shared time field's plain look, for any theme that draws nothing of
+   its own: a bordered box of the page's own colors with the arrows at its
+   right. The Windows and Mac themes draw their apps' versions over this. */
+.dk-timefield { display: inline-flex; align-items: stretch; gap: 2px; font: inherit; color: inherit; }
+.dk-timefield-box {
+  display: inline-flex; align-items: center; padding: 2px 6px;
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent); border-radius: 4px;
+}
+.dk-timefield-part { width: 2.2ch; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: center; }
+.dk-timefield-part:focus, .dk-timefield-ampm:focus { outline: none; background: Highlight; color: HighlightText; border-radius: 2px; }
+.dk-timefield-sep { padding: 0 1px; }
+.dk-timefield-ampm { margin-left: 6px; padding: 0 2px; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.dk-timefield-arrows { display: inline-flex; flex-direction: column; width: 16px; }
+.dk-timefield-arrows button {
+  flex: 1; padding: 0; border: 0; cursor: pointer; background: currentColor;
+  -webkit-mask: no-repeat center / 7px 4px; mask: no-repeat center / 7px 4px; opacity: 0.7;
+}
+.dk-timefield-arrows .dk-timefield-up { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath d='M0 4 3.5 0 7 4Z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath d='M0 4 3.5 0 7 4Z'/%3E%3C/svg%3E"); }
+.dk-timefield-arrows .dk-timefield-down { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath d='M0 0 3.5 4 7 0Z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath d='M0 0 3.5 4 7 0Z'/%3E%3C/svg%3E"); }
+.dk-timefield[aria-disabled] { opacity: 0.5; }

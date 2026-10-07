@@ -1,0 +1,202 @@
+/* The shared About dialog. Colors come from the active theme's tokens, with
+ * plain fallbacks for any theme that does not define one. */
+
+.about-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.about-card {
+  position: relative;
+  width: 100%;
+  max-width: 456px;  /* 380, widened by a fifth */
+  padding: 32px 28px 24px;
+  text-align: center;
+  border-radius: 16px;
+  background: var(--t-surface, #1c1e22);
+  color: var(--t-fg, #f4f5f7);
+  border: 1px solid var(--t-border, rgba(255, 255, 255, 0.1));
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  font-family: inherit;
+}
+
+.about-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--t-fg-muted, #9aa3ad);
+  cursor: pointer;
+}
+
+.about-close:hover {
+  background: var(--t-surface-hover, rgba(255, 255, 255, 0.08));
+  color: var(--t-fg, #f4f5f7);
+}
+
+.about-icon {
+  display: block;
+  margin: 0 auto;
+  width: 88px;
+  height: 88px;
+  /* The icon is a circle on a clear ground; its shadow follows that shape
+     rather than drawing the image's square box. */
+  border-radius: 50%;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+}
+
+.about-name {
+  margin: 14px 0 0;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.about-version {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t-fg-muted, #9aa3ad);
+}
+
+.about-tagline {
+  margin: 14px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.about-points {
+  margin: 16px 0 0;
+  /* Indented from the card's edge, dots and all. */
+  padding: 0 0 0 56px;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+
+.about-points li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--t-fg-muted, #c4c8cf);
+}
+
+.about-points li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--t-accent, #d1603a);
+}
+
+.about-license {
+  margin: 18px 0 0;
+  font-size: 13px;
+  color: var(--t-fg-muted, #9aa3ad);
+}
+
+.about-links { margin: 6px 0 16px; font-size: 13px; color: var(--t-fg-muted); text-align: center; }
+.about-links a { color: var(--t-accent); }
+
+.about-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--t-fg-dim, #6b7580);
+}
+
+/* --- the one ask ---------------------------------------------------------- */
+/* Ko-fi's coral, used as a wash and a glyph rather than as a filled brand
+   button: white on #ff5e5b sits at about 2.9:1, which is under what a label
+   needs, and the theme's own foreground on a light wash reads in all eleven
+   palettes. */
+
+/* Written as a.about-support inside the card so a theme that colors every
+   anchor (Outrun's cyan, Sedona's brown, Solarized's blue) does not tint the
+   label: the coral belongs to the glyph and the rim, the label stays the
+   card's own text. */
+.about-card a.about-support {
+  --about-kofi: #3b82f6;  /* a blue tint; was Ko-fi's coral */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+  color: var(--t-fg, #f4f5f7);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, rgba(59, 130, 246, 0.22), rgba(59, 130, 246, 0.12));
+  box-shadow:
+    inset 0 0 0 1px rgba(59, 130, 246, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 6px 18px rgba(59, 130, 246, 0.18);
+  transition: background 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+.about-card a.about-support:hover {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, rgba(59, 130, 246, 0.34), rgba(59, 130, 246, 0.2));
+  box-shadow:
+    inset 0 0 0 1px var(--about-kofi),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 10px 24px rgba(59, 130, 246, 0.28);
+  transform: translateY(-1px);
+}
+
+.about-card a.about-support:active {
+  transform: translateY(0);
+}
+
+.about-support-glyph {
+  flex: none;
+  color: var(--about-kofi);
+}
+
+.about-support-note {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--t-fg-muted, #9aa3ad);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-support { transition: none; }
+  .about-card a.about-support:hover { transform: none; }
+}
+
+/* The invitation leads its button, set off from the list above it. */
+.about-card .about-support-lead { margin: 22px 0 0; font-size: 14px; }
+.about-card .about-support-lead + a.about-support { margin-top: 10px; }
+.about-card .about-note-first { margin-top: 18px; }
+.about-rule { width: 100%; height: 0; margin: 14px 0 0; border: 0; border-top: 1px solid var(--t-border, rgba(127,127,127,.3)); }
+.about-card .about-rule + .about-license { margin-top: 14px; }
+.about-card .about-links { margin-bottom: 0; }
+.about-card .about-note-first { white-space: pre-line; }
+/* One type scale: the name 26, the tagline 15, the list, the
+   invitation and its button 14, and the small print 13; nothing smaller, and
+   every line in the theme's own face. */
+.about-card, .about-card a.about-support { font-family: inherit; }

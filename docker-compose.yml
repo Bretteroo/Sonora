@@ -1,0 +1,19 @@
+services:
+  sonora:
+    image: ghcr.io/bretteroo/sonora:latest
+    # Where that image cannot be pulled (before the first release, or
+    # offline), Compose builds it from this folder instead.
+    build: .
+    container_name: sonora
+    restart: unless-stopped
+    network_mode: host
+
+    environment:
+      # The port the page is served on. With host networking there is no
+      # port mapping, so change it here rather than with `ports:`.
+      SONORA_WEB_PORT: 50205
+
+    volumes:
+      # The optional Sonos session, music service tokens, uploaded themes and
+      # the logo cache. Without it you sign in to everything again on restart.
+      - </path/to/data>:/data

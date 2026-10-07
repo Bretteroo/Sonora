@@ -1,0 +1,613 @@
+/* The Sonos Upgrade Advisor, drawn with whatever tokens the active theme publishes so
+ * one page fits eleven of them. Plain fallbacks for a theme that leaves a
+ * token undefined. */
+
+.s2-body {
+  display: grid;
+  /* A track of its own that cannot be widened by its contents. Left at auto,
+     the tables' min-content width stretched the column and pushed the prose
+     off the right of a phone screen; the tables scroll inside
+     their own wrapper instead. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  /* The width of whatever holds it: a dialog, a settings page, a pane
+     (it had stopped at 860px). */
+  width: 100%;
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  /* Inherited, never a token: this page is dropped into a light settings
+     window in the Windows family and a dark one everywhere else, and each
+     theme already colors that frame correctly. Everything below tints from
+     currentColor for the same reason. */
+  color: inherit;
+}
+
+.s2-body h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+/* The line under the page's own title, in both modes: the dialog draws the
+   title above it, and a settings frame that hosts the page draws its own. */
+.s2-lede {
+  margin: 0;
+  opacity: 0.78;
+}
+
+.s2-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.s2-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.s2-list li {
+  position: relative;
+  padding-left: 20px;
+  opacity: 0.82;
+}
+
+.s2-list li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--t-good, #35c37d);
+}
+
+.s2-list-con li::before {
+  background: var(--t-fair, #d9a227);
+}
+
+.s2-blurb {
+  margin: 0 0 10px;
+  opacity: 0.72;
+}
+
+.s2-tablewrap {
+  overflow-x: auto;
+  border: 1px solid rgba(128, 128, 128, 0.32);
+  border-color: color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: var(--t-radius-sm, 8px);
+  background: rgba(128, 128, 128, 0.06);
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.s2-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.s2-table th,
+.s2-table td {
+  padding: 8px 11px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.26);
+  border-bottom-color: color-mix(in srgb, currentColor 16%, transparent);
+  white-space: nowrap;
+}
+
+/* Every cell of a bill's rows centered on the row's middle, whatever wraps
+   beside it. */
+.s2-table-bill th,
+.s2-table-bill td {
+  vertical-align: middle;
+}
+
+.s2-table thead th {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.s2-table tbody th {
+  font-weight: 600;
+}
+
+.s2-table tbody th small,
+.s2-note-inline {
+  display: inline-block;
+  margin-left: 6px;
+  font-weight: 400;
+  font-size: 11px;
+  opacity: 0.62;
+  white-space: normal;
+}
+
+.s2-table tbody tr:last-child th,
+.s2-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.s2-table tbody tr:hover th,
+.s2-table tbody tr:hover td {
+  background: rgba(128, 128, 128, 0.08);
+  background: color-mix(in srgb, currentColor 7%, transparent);
+}
+
+.s2-table tr[data-legacy] th[scope='row'] {
+  box-shadow: inset 3px 0 0 var(--t-fair, #d9a227);
+}
+
+.s2-mono {
+  font-family: var(--t-mono, ui-monospace, Menlo, monospace);
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.s2-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.s2-verdict {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(128, 128, 128, 0.14);
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.s2-verdict[data-state='ready'] {
+  color: var(--t-good, #35c37d);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.s2-verdict[data-state='legacy'] {
+  color: var(--t-fair, #d9a227);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.s2-tier {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: rgba(128, 128, 128, 0.14);
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.s2-tier[data-tier='s2.1'] { color: var(--t-good, #35c37d); box-shadow: inset 0 0 0 1px currentColor; }
+.s2-tier[data-tier='s2.0'] { color: var(--t-fair, #d9a227); box-shadow: inset 0 0 0 1px currentColor; }
+.s2-tier[data-tier='legacy'] { color: var(--t-critical, #e0574f); box-shadow: inset 0 0 0 1px currentColor; }
+.s2-tier[data-tier='ready'] { color: var(--t-good, #35c37d); box-shadow: inset 0 0 0 1px currentColor; }
+.s2-tier[data-tier='unknown'] { opacity: 0.7; box-shadow: inset 0 0 0 1px currentColor; }
+
+.s2-dash { opacity: 0.4; }
+
+/* The one place the page defines its own vocabulary, so it is set apart. */
+.s2-callout {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--t-accent, #4c8dff);
+  border-radius: var(--t-radius-sm, 8px);
+  background: rgba(128, 128, 128, 0.07);
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.s2-table-bill tfoot th,
+.s2-table-bill tfoot td {
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
+  border-top-color: color-mix(in srgb, currentColor 34%, transparent);
+  border-bottom: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* currentColor rather than the accent: an accent tuned for a dark
+   application is not guaranteed to carry on a light settings panel. */
+.s2-total {
+  font-size: 15px;
+}
+
+/* The affiliate disclosure is read, not skimmed past: full strength, at the
+   size of the text around it, rather than the fine print's faded small type. */
+.s2-disclosure {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.s2-fine {
+  margin: 10px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  opacity: 0.62;
+}
+
+.s2-empty,
+.s2-allready {
+  margin: 0;
+  padding: 14px;
+  border-radius: var(--t-radius-sm, 8px);
+  background: rgba(128, 128, 128, 0.08);
+  background: color-mix(in srgb, currentColor 7%, transparent);
+  opacity: 0.85;
+}
+
+/* --- dialog mode, for a theme whose settings are a flat list -------------- */
+
+.s2-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+/* Opened on its own rather than as a page inside a settings window, so it
+   takes the room the content needs: the Windows settings window is a fixed
+   844x526 and this page scrolled inside a box a third of its length. */
+.s2-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1040px;
+  height: min(92vh, 960px);
+  max-height: 100%;
+  border-radius: var(--t-radius, 14px);
+  border: 1px solid var(--t-border, rgba(255, 255, 255, 0.12));
+  background: var(--t-bg-raised, #1c1e22);
+  color: var(--t-fg, #f4f5f7);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.s2-dialog-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--t-border, rgba(255, 255, 255, 0.1));
+}
+
+.s2-dialog-head h2 {
+  margin: 0;
+  flex: 1;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.s2-dialog-close {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--t-fg-muted, #9aa3ad);
+  cursor: pointer;
+}
+
+.s2-dialog-close:hover {
+  background: var(--t-surface-hover, rgba(255, 255, 255, 0.08));
+  color: var(--t-fg, #f4f5f7);
+}
+
+.s2-dialog-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 18px 22px 24px;
+}
+
+/* The chosen plan slides in, so a switch reads as one panel replacing
+   another rather than the page jumping. The wrapper is keyed on the choice in
+   the component, which remounts it and replays this. */
+.s2-switch {
+  display: grid;
+  /* The same bounded track as .s2-body. Left implicit, the column took the
+     bill table's width and carried the heading, blurb and notes off the right
+     of a phone with it; only the table should scroll. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  animation: s2-slide-in 260ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes s2-slide-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .s2-switch { animation: none; }
+}
+
+/* Centered columns: the verdict and the tier are badges, and a price is money,
+   so only the prose columns stay ranged left. */
+.s2-table th.s2-center,
+.s2-table td.s2-center {
+  text-align: center;
+}
+
+/* Amazon's own gold, so the link reads as the button it stands in for. */
+.s2-buy {
+  display: inline-block;
+  padding: 3px 12px;
+  border: 1px solid #a88734;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #f7dfa5, #f0c14b);
+  color: #111 !important;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset;
+}
+
+.s2-buy:hover {
+  background: linear-gradient(180deg, #f5d78e, #eeb933);
+}
+
+.s2-buy:active {
+  background: #e6ad2f;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) inset;
+}
+
+/* Updating is Sonos' own software, not a purchase, so it is not Amazon's gold. */
+.s2-buy.s2-update {
+  border-color: color-mix(in srgb, currentColor 40%, transparent);
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  color: inherit !important;
+}
+
+.s2-buy.s2-update:hover {
+  background: color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.s2-buy:focus-visible {
+  outline: 2px solid var(--t-focus, #4c8dff);
+  outline-offset: 2px;
+}
+
+/* The three courses of action. Wide rows, one to a line, so the labels and
+   the totals line up and the choice reads as a comparison. Every color is
+   mixed from currentColor: this page is dropped into a light settings window
+   in the Windows family and a dark one everywhere else. */
+
+.s2-choice {
+  margin: 0;
+  padding: 12px 14px 14px;
+  border: 1px solid rgba(128, 128, 128, 0.28);
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: var(--t-radius-sm, 8px);
+  background: rgba(128, 128, 128, 0.04);
+  background: color-mix(in srgb, currentColor 4%, transparent);
+  display: grid;
+  gap: 8px;
+}
+
+.s2-choice legend {
+  padding: 0 6px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.s2-opt {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(128, 128, 128, 0.24);
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: var(--t-radius-sm, 6px);
+  background: rgba(128, 128, 128, 0.03);
+  background: color-mix(in srgb, currentColor 3%, transparent);
+  cursor: pointer;
+}
+
+.s2-opt:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.s2-opt[data-on] {
+  border-color: color-mix(in srgb, currentColor 55%, transparent);
+  background: color-mix(in srgb, currentColor 11%, transparent);
+}
+
+.s2-opt:focus-within {
+  outline: 2px solid var(--t-focus, #4c8dff);
+  outline-offset: 1px;
+}
+
+.s2-opt input {
+  margin: 2px 0 0;
+  accent-color: var(--t-accent, currentColor);
+}
+
+.s2-opt-text {
+  display: grid;
+  gap: 2px;
+}
+
+.s2-opt-text strong {
+  font-weight: 650;
+}
+
+.s2-opt-text small {
+  font-size: 12px;
+  line-height: 1.45;
+  opacity: 0.74;
+}
+
+.s2-opt-cost {
+  padding-top: 1px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .s2-columns { grid-template-columns: minmax(0, 1fr); }
+  .s2-backdrop { padding: 0; }
+  /* Edge to edge, and still bounded by the screen.
+     `max-height: none` used to be here, on the reasoning that a full-height
+     dialog needs no ceiling. It does: this is a grid item, and a grid item's
+     automatic minimum size is its content, so with nothing to clamp it the
+     box grew to the height of the page inside it -- 2309px in an 844px
+     window -- and `.s2-dialog-body` grew with it rather than scrolling.
+     Nothing above it scrolled either, so the last 1400px of the page could
+     not be reached on a phone in any theme (measured 2026-09-18).
+     `min-height: 0` is what actually defeats the automatic minimum; the
+     ceiling is belt and braces. */
+  .s2-dialog {
+    max-width: none; height: 100%; max-height: 100%; min-height: 0;
+    border: 0; border-radius: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .s2-opt {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .s2-opt-cost {
+    grid-column: 2;
+  }
+}
+
+/* The generations as bars on one axis. Everything is positioned in percent of
+   the track, so the same markup fits the 1040px window and a phone. */
+.s2-tl {
+  --s2-tl-label: 72px;
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  /* Room for the marks' labels, which sit on two rows so that two marks a few
+     years apart (2020 and 2025) do not run into each other. */
+  padding-top: 40px;
+  position: relative;
+}
+
+.s2-tl-row {
+  display: grid;
+  grid-template-columns: var(--s2-tl-label) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  align-items: center;
+}
+
+.s2-tl-label { grid-row: 1 / span 2; }
+
+.s2-tl-track {
+  position: relative;
+  height: 26px;
+  border-radius: 6px;
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.s2-tl-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px currentColor;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.s2-tl-bar[data-tier='legacy'] { color: var(--t-critical, #e0574f); background: color-mix(in srgb, currentColor 16%, transparent); }
+.s2-tl-bar[data-tier='s2.0'] { color: var(--t-fair, #d9a227); background: color-mix(in srgb, currentColor 16%, transparent); }
+.s2-tl-bar[data-tier='s2.1'] { color: var(--t-good, #35c37d); background: color-mix(in srgb, currentColor 16%, transparent); }
+
+.s2-tl-bounds {
+  grid-column: 2;
+  margin-top: 2px;
+  font-size: 11px;
+  opacity: 0.68;
+}
+
+/* The two dated marks: a rule down through every row, labeled at the top. */
+.s2-tl-marks {
+  position: absolute;
+  top: 0;
+  bottom: 30px;
+  left: calc(var(--s2-tl-label) + 12px);
+  right: 0;
+  pointer-events: none;
+}
+
+.s2-tl-mark {
+  position: absolute;
+  top: 36px;
+  bottom: 0;
+  border-left: 1px dashed currentColor;
+  opacity: 0.45;
+}
+
+.s2-tl-mark span {
+  position: absolute;
+  top: -36px;
+  left: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Every second label drops to the lower row, and the last one reads leftwards
+   so it stays inside the page. */
+.s2-tl-mark:nth-child(even) span { top: -19px; }
+.s2-tl-mark:last-child span { left: auto; right: 4px; }
+
+.s2-tl-axis {
+  position: relative;
+  height: 20px;
+  margin-left: calc(var(--s2-tl-label) + 12px);
+  border-top: 1px solid var(--t-border, rgba(128, 128, 128, 0.35));
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+.s2-tl-axis span {
+  position: absolute;
+  top: 3px;
+  transform: translateX(-50%);
+}
+
+.s2-tl-axis span:first-child { transform: none; }
+
+@media (max-width: 520px) {
+  .s2-tl { --s2-tl-label: 0px; }
+  .s2-tl-row { grid-template-columns: minmax(0, 1fr); column-gap: 0; }
+  .s2-tl-label { grid-row: 1; margin-bottom: 4px; }
+  .s2-tl-bounds { grid-column: 1; }
+  .s2-tl-marks, .s2-tl-axis { left: 0; margin-left: 0; }
+  .s2-tl-marks { top: 0; }
+}
+
+.s2-links a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.s2-links a:hover { color: var(--t-accent, #4c8dff); }

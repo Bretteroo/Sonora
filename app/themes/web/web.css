@@ -1,0 +1,5124 @@
+/* A replication of the official Sonos web controller's layout and behavior.
+ *
+ * Measurements were taken from the running product at a 1440px viewport rather
+ * than estimated: header 76px, transport bar 84px, sidebar 420px, room cards
+ * 420x148 in rgb(71,74,77) at a 24px radius, search a 448x32 pill in
+ * rgb(54,57,58).
+ *
+ * What is deliberately not replicated: the Sonos wordmark, their licensed
+ * typeface, and their icon artwork. The wordmark is replaced by this project's
+ * own, the typeface falls back to the chain Sonos itself declares, and every
+ * glyph is drawn here. The layout, the interaction model and the user flows are
+ * what this theme is for. */
+
+.wb {
+  display: grid;
+  /* One column pinned to the viewport at every width. Left implicit, the
+     column took the header's and the services row's natural width, and
+     between 641 and 879px the page grew past the window and the rooms ran off
+     its right edge (seen at 700px); the phone rule below had
+     pinned it, but only from 640 down. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: var(--t-header-h) 1fr var(--t-transport-h);
+  /* The dynamic viewport, so the transport bar at the foot stays on screen
+     with a phone browser's address bar showing; vh is the fallback. */
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  font-family: var(--t-font);
+  color: var(--t-fg);
+  background: var(--t-bg);
+}
+
+/* --- header --------------------------------------------------------------- */
+
+.wb-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  /* Measured off the product. The asymmetric vertical padding is what places
+     the search pill at y=28 in a 76px header; centering it lands at y=22. */
+  padding: 24px 24px 12px;
+}
+
+.wb-header > * {
+  height: 40px;
+}
+
+.wb-header-left,
+.wb-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wb-header-right {
+  justify-content: flex-end;
+}
+
+/* The two circular history buttons that lead the header. */
+.wb-nav-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 50%;
+  color: var(--t-fg-faint);
+  background: var(--t-surface-sunken);
+}
+
+.wb-nav-btn:hover:not(:disabled) {
+  color: var(--t-fg);
+}
+
+.wb-nav-btn:hover:not(:disabled) {
+  background: var(--t-surface);
+}
+
+/* The product's logotype measures 99px across 5 glyphs, about 19.8px each.
+   Matching that needs a larger size and real letter spacing, not the tight
+   setting an earlier pass used. */
+/* The wordmark is a control: it returns to the home view, as the product's
+   logotype does. Button chrome is reset so it still reads as a wordmark. */
+.wb-wordmark {
+  padding: 0;
+  color: var(--t-fg);
+  margin-left: 10px;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Measured across viewports: 400px from 900 through 1280, then growing at
+   roughly 31.5vw (448 at 1440, 528 at 1680, 608 at 1920). An earlier pass
+   pinned it at 448px, which is too wide below 1440 and too narrow above it. */
+/* Measured at 1280 through 3840: 400, 448, 528, 608, 821, 1248. From 1440
+   upward every value is (100vw - 96px) / 3 to the pixel, with a 400px floor
+   beneath; there is no upper cap, which an earlier clamp wrongly imposed at
+   720px and which reads as a stubby field on a 4K display. */
+.wb-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: max(400px, calc((100vw - 96px) / 3));
+  max-width: 100%;
+}
+
+/* Measured: a 16px white glyph 20px in from the pill's left edge, leaving a
+   12px gap before the placeholder at x=544. An earlier pass drew it muted
+   gray, a size small, and 8px too far right, which closed that gap to 5px. */
+.wb-search svg {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  color: var(--t-fg);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.wb-search-pill {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 9999px;
+  background: var(--t-surface-input);
+}
+
+.wb-search input {
+  width: 100%;
+  height: 24px;
+  padding: 0 12px 0 40px;
+  border: 0;
+  border-radius: 2px;
+  font-size: 14px;
+  color: var(--t-fg);
+  background: transparent;
+}
+
+/* The product draws no ring when the box has focus -- the caret is the
+   signal -- so the browser's default blue one is off (2026-09-20). */
+.wb-search input:focus,
+.wb-search input:focus-visible {
+  outline: none;
+}
+
+.wb-search input::placeholder {
+  color: var(--t-fg-muted);
+}
+
+.wb-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 9999px;
+  color: var(--t-fg-muted);
+}
+
+/* No square lights up behind a glyph: wherever the product answers a pointer
+   on a bare icon it dims the glyph to 0.9 and paints nothing -- the room
+   card's speaker, the bar's thumbs and its "...", every row of the player's
+   menu (measured 2026-09-21). Sonora had been sinking a gray plate under
+   each one. */
+.wb-icon-btn:hover:not(:disabled) {
+  background: none;
+  opacity: 0.9;
+}
+
+.wb-icon-btn:disabled,
+.wb-play:disabled {
+  color: var(--t-fg-disabled);
+  opacity: 1;
+}
+
+.wb-icon-btn[aria-pressed='true'] {
+  color: var(--t-fg);
+}
+
+/* The settings control reads white in the product, unlike the muted browse
+   and transport icons. */
+.wb-header-right .wb-icon-btn {
+  color: var(--t-fg);
+}
+
+/* --- body: content beside the system sidebar ------------------------------ */
+
+/* The system sidebar shrinks; it never disappears.
+ *
+ * An earlier version hid it below 1100px, which removed every room card and
+ * left no way to reach a speaker. Measuring the real client shows it keeps the
+ * column pinned right at every width and narrows it instead: 420px at 1440,
+ * 416 at 1280, 327 at 1024 and 860, 299 at 700. This clamp tracks that curve
+ * closely and, more importantly, has no width at which the rooms vanish. */
+/* The sidebar holds 420px until about 1100px wide, then steps down. Measured:
+   420 at 1152 through 1920, 331 at 900 and 1024, 299 at 700, with a constant
+   16px gap to the right edge. An earlier version used a fluid clamp, which
+   narrowed the column hundreds of pixels too early: 369px at 1152 where the
+   product still shows 420. */
+.wb-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--t-sidebar-w);
+  gap: 16px;
+  min-height: 0;
+  padding: 0 16px 8px;
+}
+
+/* Browse keeps its place in the grid through the wrapper that lets it stay
+   mounted under Now Playing; hidden, it takes no cell at all. */
+.wb-browse-slot { display: contents; }
+.wb-browse-slot[hidden] { display: none; }
+
+/* The column runs to 16px from the window's edge and holds its content 12
+   further in, which is where the product keeps it: the scrollbar then falls
+   in that gutter instead of over the last tile of every row (measured
+   2026-09-21 -- the product's bar sits at x=1072..1083 with its content
+   ending at 1071, where Sonora's lay across the content itself). */
+.wb-content {
+  min-width: 0;
+  padding: 16px 12px 0;
+  overflow-y: auto;
+}
+
+.wb-sidebar {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* The heading block is 44px tall with 16px beneath it, which puts the first
+   card at y=136 as it does in the product. */
+/* 16px of padding over a 28px line makes the 44px block, with the glyphs at
+   y=98 as in the product. Centering the text in the block, an earlier pass,
+   left them 6px too high. */
+/* The first room card lines up with the first tile of Recently Played, which
+   is what the product does (its card's top edge sits 3px above the tile's,
+   the rounded corner's doing); Sonora's sat 2px below, five pixels adrift.
+   The heading above it is 20px where a section heading in the column is 18,
+   so its ink rides 4px higher than theirs. Measured 2026-09-19. */
+.wb-sidebar .wb-section-head {
+  box-sizing: border-box;
+  align-items: flex-start;
+  height: 44px;
+  padding-top: 10px;
+  /* 57px from the column's top to the first card, which is where the product
+     starts its room list; the 11 that stood here left ours 2px high, the
+     fallback face's shorter descender having been paid for twice (measured
+     on both clients 2026-09-21). */
+  margin-bottom: 13px;
+}
+
+.wb-sidebar .wb-section-head h2 {
+  font-size: 20px;
+}
+
+/* When more than one system is on the network the generation rides along in
+   the heading row, so it costs no vertical space and the first card still
+   lands at y=136 as it does in the product. */
+.wb-sidebar .wb-section-head .wb-house-tag {
+  margin-left: auto;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-fg-muted);
+}
+
+.wb-section {
+  margin-bottom: 30px;
+}
+
+.wb-section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.wb-section-head h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 28px;
+  letter-spacing: 0.2px;
+}
+
+/* Content-column headings paint 2px low against the product; the sidebar's
+   "Your System" is positioned separately by its own measured padding. */
+.wb-content .wb-section-head h2 {
+  position: relative;
+  top: -2px;
+}
+
+.wb-section-head p {
+  margin: 2px 0 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--t-fg-muted);
+}
+
+.wb-viewall {
+  margin-left: auto;
+  font-size: 14px;
+  color: var(--t-fg-muted);
+}
+
+.wb-viewall:hover {
+  color: var(--t-fg);
+}
+
+.wb-empty-card {
+  max-width: 380px;
+  padding: 18px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--t-fg);
+  background: var(--t-surface-sunken);
+}
+
+/* --- tiles ---------------------------------------------------------------- */
+
+/* 150 is the narrowest the product lets a tile get before it drops a column,
+   read off four widths of its own window (browse column 1044 -> six tiles of
+   161, 1217 -> seven of 162, 1428 -> eight of 164, 1730 -> ten of 156;
+   measured 2026-09-19 by zooming its window). Sonora's 160 cost a column on
+   a wide screen and made every tile bigger to fill the room. */
+.wb-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.wb-tile {
+  display: block;
+  min-width: 0;
+  text-align: left;
+}
+
+/* Center unconditionally. Keying the centering off a "no art" flag fails for
+   the commonest case: a tile that does have an art URL which then fails to
+   load, where the fallback glyph appears but the flag says otherwise. The
+   image itself is sized to fill, so centering cannot affect it. */
+/* An empty art square is the raised gray the menus use -- rgb(54,57,58),
+   not the sunken rgb(28,30,32) Sonora had -- and the glyph on it fills about
+   half the square: the product's note measures 66x71 of ink in a 161px tile,
+   where Sonora's was 24 (measured on the home row, play.sonos.com
+   2026-09-22). The size is a fraction here rather than a number at each call
+   site, so every tile agrees. */
+.wb-tile-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: var(--t-radius-tile);
+  /* The glyph is darker than the square it stands on, not lighter: cut
+     out in the panel's own rgb(34,36,38) on rgb(54,57,58), as the rows'
+     squares are (Audacy's "All stations", 2026-09-28; read as rgb(47,50,51)
+     on 2026-09-22, where Sonora drew rgb(113,118,124)). A room card's empty
+     square is the other way round -- a near-white glyph on rgb(59,62,64) --
+     and keeps its own colors. */
+  color: var(--t-surface-panel);
+  background: var(--t-surface-raised);
+  overflow: hidden;
+}
+
+.wb-tile-art > svg { width: 51%; height: 51%; }
+
+.wb-tile-art img {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Hovering a tile dims its artwork to 90% and does nothing else: no play
+   disc, no label change (measured on play.sonos.com 2026-09-19 -- every
+   channel of the cover comes back at 0.90 of its resting value, and the
+   label's pixels do not move). */
+/* The whole tile dims under the pointer, not just its picture: the title
+   goes 255 -> 235 and the line under it 159 -> 147, which is the tile at 92%
+   over the page's own ground (measured on Pandora's stations,
+   play.sonos.com 2026-09-22). Sonora dimmed the art and left the words. */
+.wb-tile:hover {
+  opacity: 0.92;
+}
+
+.wb-tile-label {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.19px;
+}
+
+/* The service's attribution mark before the content type: a 16px frame with
+   the mark fitted inside it. The frame matters as much as the size -- Sonos
+   pads each mark into a common canvas so a tall one and a wide one sit
+   together -- and 16px of frame around the 40px asset is what reproduces the
+   product's ink: its Pandora flag measures 12 wide by 14 tall next to a 12px
+   word, its Audacy triangle 8 by 7, and Sonora's now do the same (measured
+   ink for ink on play.sonos.com, 2026-09-19). The services draw these in
+   their own color, Pandora's black and Audacy's orange, and the product
+   shows every one of them gray. */
+.wb-tile-mark {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.6;
+}
+
+.wb-tile-sub {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  /* 8px of air under the title, measured in the product on its home tiles
+     and on a service's shelves alike; Sonora had 6. */
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A service page's tiles. The grid is the same as the home's; what differs
+   is that these are buttons, and that an artist is round and centered with a
+   single line while an album or a station carries a second (measured on
+   play.sonos.com 2026-09-19: 156px tiles, 17px apart, no hover affordance of
+   any kind -- no play disc, no underline). */
+
+button.wb-tile {
+  /* A button centers its content in whatever box the grid gives it, and the
+     grid stretches every tile to the tallest in the row, so without this a
+     tile with a two-line label floats its neighbors' artwork downward. */
+  align-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* The service pages' tiles are buttons wrapping spans, which need making
+   block; the home's are buttons wrapping paragraphs, which already are, and
+   whose second line is a flex row carrying the service's mark. Scoped to the
+   spans so the one does not flatten the other. */
+button.wb-tile span.wb-tile-label,
+button.wb-tile span.wb-tile-sub {
+  display: block;
+}
+
+.wb-tile[data-round] {
+  text-align: center;
+}
+
+.wb-tile[data-round] .wb-tile-art {
+  border-radius: 50%;
+}
+
+.wb-service-tiles {
+  /* The same grid the home uses, which is what the product's own service
+     pages show: six 156px tiles across its 1019px panel. The summary line
+     above it, where there is one, carries its own 6px. Its rows stand 24
+     apart where the home's single row never showed a gap, and the first
+     starts at y=200 under a 40px heading: Kind Of Blue (Legacy Edition)'s
+     page on play.sonos.com at 1600 wide put its tiles at 200, 437, 675 and
+     912 (2026-09-24), where Sonora's were 196 and 16 apart. */
+  row-gap: 24px;
+  margin-top: 36px;
+}
+
+.wb-service-summary + .wb-service-tiles,
+.wb-service-summary + .wb-rows { margin-top: 0; }
+
+/* --- your sources --------------------------------------------------------- */
+/* Measured in the product: the heading carries 16px 0 of padding, making a
+   60px block, and each source is a full-width 44px transparent row holding a
+   44px circle with a 1px rgb(29,40,58) border around a 24px glyph, then a 14px
+   label 16px to its right (x=88 in the column). Hover dims the row to opacity
+   0.8. An earlier version drew pill-shaped chips, which was invention. */
+
+.wb-sources-head {
+  margin-bottom: 0;
+  padding: 16px 0;
+}
+/* Under the favorites' tip card rather than a row of tiles, the heading
+   stands 37px below the card, not 53: the product adds no padding over it
+   there (S2 home with no favorites, play.sonos.com 2026-09-22). */
+.wb-section:has(> .wb-tip) + .wb-section > .wb-sources-head { padding-top: 0; }
+
+.wb-sources {
+  display: grid;
+}
+
+.wb-source {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 44px;
+  padding: 0;
+  color: var(--t-fg);
+  background: transparent;
+}
+
+.wb-source:hover {
+  opacity: 0.8;
+}
+
+.wb-source-main {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.wb-source-circle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgb(29, 40, 58);
+  border-radius: 9999px;
+}
+
+.wb-source-circle svg {
+  width: 24px;
+  height: 24px;
+}
+
+.wb-source-label {
+  margin-left: 16px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* --- system sidebar ------------------------------------------------------- */
+
+/* 420x148 with 16px padding and a 16px gap to the next card, matching the
+   product. The three rows are 28 / 40 / 32 with 8px between them, which is
+   what makes the internal offsets land where the real client's do. */
+.wb-room {
+  position: relative;
+  display: grid;
+  /* Rows measured in the product: name 28px at y=16, info 40px at y=52,
+     volume 24px at y=108. The gap above the volume row is 16, not 8. The
+     name row grows by 28px for every further room in a group (a two-room
+     card is 172 tall there, 2026-09-14). */
+  grid-template-rows: auto 40px auto;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 16px;
+  border: 2px solid var(--t-surface);
+  border-radius: var(--t-radius-card);
+  background: var(--t-surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+/* The card itself does not answer the pointer: the product's cards are
+   pixel-for-pixel the same hovered as at rest, active or not, and only the
+   controls inside them respond (measured 2026-09-21). Sonora had been
+   lightening the whole card, which on a tinted one fought the cover's own
+   color. */
+
+/* The product marks the active room by lightening the whole card rather than
+   outlining it. The border stays the same color as the fill at both states;
+   it exists to keep the box metrics identical. */
+.wb-room[data-active='true'] {
+  border-color: var(--t-surface-active);
+  background: var(--t-surface-active);
+}
+
+/* The active card's second line is lighter than an inactive card's, tinted
+   or not: rgb(196,198,202) under an empty room where the others read
+   rgb(159,162,168) (2026-09-24). */
+.wb-room[data-active='true'] .wb-room-sub { color: var(--t-tint-fg2, #c4c6ca); }
+
+.wb-room-name {
+  /* 22px/500. The older note here said 18px matched the product's cap
+     height; measured again on 2026-09-22 against a name with no descender in
+     either client, the product's caps are
+     16px tall and 10.8px wide per character where Sonora's were 13 and 8.4.
+     The section headings above the cards measure the same in both to the
+     pixel, so nothing here scales with the window: this one size was simply
+     small. Lifted out of flow; spacing closes what is left of the width. */
+  position: relative;
+  top: -2px;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 25px;
+  /* Negative, because the fallback face paints the same caps wider than the
+     product's: an 11-letter room name comes to 128px against its 117 at the size that
+     matches its cap height, so the spacing takes the difference back rather
+     than the size taking it out of the letters (2026-09-22). */
+  letter-spacing: -0.8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A group lists every room at the head of its card, one 28px line each. */
+.wb-room-names { display: grid; }
+.wb-room-battery { display: inline-flex; align-items: center; gap: 5px; margin-left: 9px; vertical-align: 3px;
+  font-size: 14px; font-weight: 400; line-height: 1; letter-spacing: 0; color: #888b90; }
+.wb-room-battery .sn-battery-glyph { width: 16px; height: 10px; color: #c4c6ca; }
+.wb-room-battery[data-low] .sn-battery-glyph { color: #e5484d; }
+/* 25px a line, which is what a second name adds to the product's card: one
+   name makes a 145px card and two make 170 (measured 2026-09-22). Sonora's
+   28 made every card three pixels tall. */
+.wb-room-names .wb-room-name { margin: 0; line-height: 25px; }
+
+
+.wb-room-now {
+  display: flex;
+  align-items: center;
+  /* 16 padding + 32 art + 8 = 56, where the product puts the title. */
+  gap: 8px;
+  min-width: 0;
+}
+
+/* 32px, filled #3b3e40 with an #e1e7ef glyph and the product's responsive
+   radius. An earlier pass used 34px, the much darker sunken surface, a muted
+   gray glyph and a flat 4px radius: wrong on every count. */
+.wb-room-art {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: clamp(8px, 8%, 16px);
+  color: var(--t-art-fg);
+  background: var(--t-art-bg);
+  overflow: hidden;
+}
+
+.wb-room-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wb-room-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.wb-room-title {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  /* The product's near-white, not pure white (2026-09-21). */
+  color: var(--t-art-fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.19px;
+}
+
+.wb-room-sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  /* On a card wearing a cover's color, the line under the title is that color
+     lifted; on a plain card it is the palette's gray (2026-09-21). */
+  color: var(--t-tint-fg2, var(--t-fg-muted));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The mark of whatever service is playing, ahead of the line: 12px, in the
+   same gray as the words beside it. */
+.wb-room-badge {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.6;
+}
+
+.wb-room-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+/* Card glyphs are 24px in the product, not 16. The controls keep a 40px hit
+   area around them. */
+.wb-room-actions .wb-icon-btn {
+  width: 40px;
+  height: 40px;
+  color: var(--t-art-fg);
+}
+
+.wb-room-actions .wb-icon-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* A station with no picture: the glyph is darker than its tile, on the card
+   and across the big player's 342px tile, where it is 143px wide. The tile
+   itself is the #53575a ground under 35% black, rgb(54,57,58), on an active
+   card and an inactive one alike (2026-09-24). */
+.wb-room-art[data-station],
+.wb-np-art[data-station],
+.wb-transport-art[data-station] {
+  background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), var(--t-art-bg-active);
+}
+.wb-room-art .wb-room-station,
+.wb-np-art .wb-np-station,
+.wb-transport-art .wb-transport-station { color: rgba(0, 0, 0, 0.35); }
+/* 14 of the 16px glyph's ink across is 20 in the bar's 48px tile. */
+.wb-transport-art .wb-transport-station { width: 23px; height: 23px; }
+/* 176 of the tile's 342, so a phone's smaller cover keeps the proportion. */
+.wb-np-art .wb-np-station { width: 51.5%; height: auto; aspect-ratio: 1; }
+
+/* The speaker is drawn at 20, which is where its 14x18 of ink comes from. */
+.wb-room-actions .wb-icon-btn svg.wb-room-speaker {
+  width: 20px;
+  height: 20px;
+}
+
+/* The play control sits on its own disc with a white glyph. Disabled, the
+   product does not recolor it: the whole control drops to opacity 0.2 over
+   the card, which is how Tailwind's disabled:opacity-20 renders. Sampled
+   pixels confirm it to the digit: white at 0.2 over #2f3032 reads #59, over
+   #474a4d reads #6c. An earlier pass swapped the glyph to #333 and kept the
+   disc solid, which is visibly wrong on both cards. */
+.wb-room-actions .wb-icon-btn.wb-room-play {
+  color: #fff;
+  background: var(--t-disc);
+}
+
+.wb-room-actions .wb-icon-btn.wb-room-play:disabled {
+  color: #fff;
+  background: var(--t-disc);
+  opacity: 0.2;
+}
+
+/* The active card is lighter, and its art square and play disc lighten with
+   it rather than staying pinned to the inactive values. */
+.wb-room[data-active='true'] .wb-room-art {
+  background: var(--t-art-bg-active);
+}
+
+/* On a tinted card the rail is the cover's color with a little white in it,
+   the same 6% it carries on a plain card, rather than the fixed light gray
+   that used to be painted over every color. */
+.wb-room[data-active='true'] .wb-slider-rail {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Muting a room takes its knob and the filled part of its rail down to a
+   fifth, as the big player's does, and leaves the rail alone. */
+.wb-room-vol[data-muted] .wb-slider-fill,
+.wb-room-vol[data-muted] .wb-slider input { opacity: 0.22; }
+
+/* On a tinted card the disc is the tint lifted, the same shade the big
+   player's discs wear: rgb(144,44,35) on a card of rgb(123,38,30)
+   (2026-09-21). */
+.wb-room[data-active='true'] .wb-room-actions .wb-icon-btn.wb-room-play {
+  background: var(--t-tint-raise, var(--t-disc-active));
+}
+
+/* Hovering, as the product does it: a control with a background dims to 0.8
+   -- the card's play glyph reads rgb(214,214,214) on a surface of
+   rgb(47,48,50) -- and a bare one to 0.9, with no background appearing under
+   it and no change of color (measured 2026-09-21). */
+.wb-room .wb-icon-btn:hover:not(:disabled),
+.wb-group-room .wb-icon-btn:hover:not(:disabled) {
+  color: var(--t-art-fg);
+  background: none;
+  opacity: 0.9;
+}
+
+.wb-room .wb-icon-btn.wb-room-play:hover:not(:disabled) {
+  background: var(--t-tint-raise, var(--t-disc));
+  opacity: 0.8;
+}
+
+.wb-room[data-active='true'] .wb-icon-btn.wb-room-play:hover:not(:disabled) {
+  background: var(--t-tint-raise, var(--t-disc-active));
+}
+
+/* Measured within the card: mute glyph 24px at x=16, slider 308px at x=52,
+   readout 36px wide at x=368, all on a 24px-tall row at y=108. The gaps
+   either side of the slider differ, 12 then 8, so they are set as margins
+   rather than a single grid gap. */
+.wb-room-vol {
+  /* The 16px above the volume row: the grid's 8 plus this. */
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 24px;
+  margin-top: 8px;
+  min-width: 0;
+}
+
+.wb-room-vol .wb-slider {
+  margin: 0 8px 0 12px;
+}
+
+.wb-room-vol .wb-icon-btn {
+  width: 24px;
+  height: 24px;
+  /* The glyph's box is the button's, so its ink starts 4px in, at x=20 of
+     the card as the product's does; the icon button's own side padding had
+     pushed it to 24. */
+  padding: 0;
+  color: var(--t-art-fg);
+}
+
+.wb-room-vol .wb-icon-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.wb-room-vol .wb-slider {
+  height: 24px;
+}
+
+/* Centered, not right-aligned: the product centers the readout in a 36px box
+   directly beneath the 40px play control, which is what makes its left edge
+   line up with the triangle above it. */
+/* The number under the disc takes the card's own dim text, and a fifth of it
+   while the room is muted, exactly as the big player's readout does: a card
+   of rgb(123,38,30) writes rgb(146,66,58) (2026-09-21). */
+.wb-room-vol output {
+  width: 36px;
+  font-size: 14px;
+  text-align: center;
+  color: var(--t-tint-fg2, var(--t-num-fg));
+}
+
+.wb-room-vol[data-muted] output { opacity: 0.2; }
+
+.wb-transport-vol output {
+  width: 24px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--t-fg);
+}
+
+/* --- volume slider -------------------------------------------------------- */
+/* Rail 2px, thumb 12px, matching the real client's proportions. */
+
+.wb-slider {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.wb-slider-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--t-rail);
+}
+
+.wb-slider-fill {
+  position: absolute;
+  left: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--t-fg);
+}
+
+.wb-slider input {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.wb-slider input::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--t-fg);
+}
+
+.wb-slider input::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--t-fg);
+}
+
+/* --- transport bar -------------------------------------------------------- */
+
+/* The product uses a flat 12px inset with no divider rule; the bar reads as
+   part of the same black field as the page. */
+.wb-transport {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+  align-items: start;
+  gap: 20px;
+  padding: 12px;
+  background: var(--t-bg);
+}
+
+.wb-transport-now {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  gap: 12px;
+  height: 48px;
+  min-width: 0;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+}
+
+.wb-transport-art {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 4px;
+  color: var(--t-fg-muted);
+  background: var(--t-surface-sunken);
+  overflow: hidden;
+}
+
+.wb-transport-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The art and the words are two buttons now; the words' one lays out as the
+   span it replaced did. */
+.wb-transport-art { padding: 0; }
+.wb-transport-text {
+  display: block;
+  min-width: 0;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+}
+
+/* The name of the room this bar is driving. When it changes the label lifts
+   and brightens for a moment: the rest of the bar carries the same controls
+   whichever room is active, so nothing else in it moves to say so. */
+@keyframes wb-room-switch {
+  from { transform: translateY(5px); opacity: 0; color: var(--t-fg); }
+  60% { transform: translateY(0); opacity: 1; color: var(--t-fg); }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.wb-transport-room {
+  margin: 0;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--t-fg-muted);
+  /* The title and the sub-line truncate and this one did not, so a narrow
+     bar wrapped a two-word room name onto two lines and pushed the title out of the
+     48px button. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: wb-room-switch 420ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wb-transport-room { animation: none; }
+}
+
+.wb-transport-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.19px;
+}
+
+.wb-transport-sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wb-transport-center {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+/* 40px controls on a 72px pitch, so the cluster centers on the viewport with
+   32px of air between buttons. */
+.wb-transport-buttons {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+/* A flex child shrinks by default, and these must not: squeezed below 40px
+   the glyphs keep their size and paint over each other, which is how the
+   next button came to sit on top of the queue button at 320px. Holding them
+   at their size makes the columns measure honestly, and the room and track
+   name -- the one part of the bar that can lose width gracefully -- takes
+   the squeeze instead. */
+.wb-transport-buttons > *,
+.wb-transport-right > .wb-icon-btn {
+  flex: none;
+}
+
+.wb-play {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  color: #000;
+  background: #fff;
+}
+
+.wb-play:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+/* Disabled, the center control loses its disc and dims to match the product
+   rather than becoming a gray blob. */
+.wb-play:disabled {
+  color: var(--t-fg-disabled);
+  background: transparent;
+}
+
+.wb-progress {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 460px;
+  max-width: 40vw;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--t-fg-muted);
+}
+
+.wb-progress-rail {
+  position: relative;
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--t-surface);
+}
+
+/* With nothing to seek the rail paints at half strength (#0d0d0d). */
+.wb-progress[data-seekable='false'] {
+  opacity: 0.5;
+}
+
+.wb-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--t-fg);
+}
+
+.wb-transport-right {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  height: 48px;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.wb-transport-vol {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 190px;
+}
+
+/* --- overlay panels ------------------------------------------------------- */
+
+.wb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  /* One column the overlay's own width. An automatic column grows to its
+     content, so a panel's max-width: 100% measured the panel against
+     itself and a 450px product dialog ran off a 390px phone. */
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.wb-panel {
+  width: min(560px, 100%);
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 22px 24px;
+  border-radius: 16px;
+  background: var(--t-bg-elevated);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+.wb-panel h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.wb-panel p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--t-fg-muted);
+}
+
+.wb-group-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 4px;
+  border-bottom: 1px solid var(--t-border);
+}
+
+.wb-group-row:last-of-type {
+  border-bottom: 0;
+}
+
+.wb-group-row span {
+  flex: 1;
+  font-size: 15px;
+}
+
+.wb-group-row small {
+  font-size: 12px;
+  color: var(--t-fg-muted);
+}
+
+.wb-btn {
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--t-accent-fg);
+  background: var(--t-fg);
+}
+
+.wb-btn[data-variant='ghost'] {
+  color: var(--t-fg);
+  background: var(--t-surface);
+}
+
+.wb-panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* --- toasts --------------------------------------------------------------- */
+
+.wb-toasts {
+  position: fixed;
+  right: 20px;
+  bottom: calc(var(--t-transport-h) + 16px);
+  z-index: 60;
+  display: grid;
+  gap: 10px;
+  width: min(360px, calc(100vw - 40px));
+}
+
+.wb-toast {
+  padding: 13px 15px;
+  border-radius: 12px;
+  background: var(--t-surface);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+}
+
+.wb-toast h4 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.wb-toast p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--t-fg-muted);
+}
+
+.wb-toast-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+@media (max-width: 1099px) {
+  .wb-main {
+    --t-sidebar-w: 331px;
+  }
+}
+
+@media (max-width: 879px) {
+  .wb-main {
+    --t-sidebar-w: 299px;
+  }
+
+  /* The pill gives way before the settings control leaves the window: the
+     groups either side of it take 355px with the header's padding and gaps
+     (seen running to x=810 in a 700px window). */
+  .wb-search {
+    max-width: calc(100vw - 440px);
+  }
+}
+
+/* Narrower than a tablet in portrait, two columns stop working at all. The
+   rooms move above the browse content rather than out of reach, laid out as a
+   grid so several still fit across. */
+@media (max-width: 640px) {
+  .wb {
+    grid-template-rows: auto 1fr var(--t-transport-h);
+  }
+
+  .wb-main {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    overflow-y: auto;
+  }
+
+  .wb-sidebar {
+    order: -1;
+    overflow: visible;
+  }
+
+  .wb-sidebar .wb-rooms {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .wb-sidebar .wb-room {
+    margin-bottom: 0;
+  }
+
+  .wb-content {
+    overflow: visible;
+  }
+
+  .wb-header {
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+  }
+
+  .wb-wordmark {
+    display: none;
+  }
+
+  .wb-search {
+    width: 100%;
+    max-width: none;
+  }
+
+}
+
+/* On a phone the whole page has to fit the screen. The root column is
+   pinned to the viewport (the services row and the header were widening it
+   to their content), the rooms keep their natural height above the browse
+   content (an explicit min-height of zero let that row collapse when the
+   screen was shorter than the two of them), and the header puts the search
+   on a row of its own. */
+@media (max-width: 640px) {
+  .wb-main {
+    grid-template-rows: auto auto;
+    padding: 0 12px 8px;
+  }
+
+  .wb-sidebar {
+    min-height: auto;
+  }
+
+  .wb-content {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .wb-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "left right" "search search";
+    row-gap: 8px;
+    padding: 12px 12px 10px;
+  }
+
+  .wb-header-left {
+    grid-area: left;
+  }
+
+  .wb-header-right {
+    grid-area: right;
+    min-width: 0;
+  }
+
+  .wb-search {
+    grid-area: search;
+    width: 100%;
+  }
+
+}
+
+/* --- history arrows ------------------------------------------------------- */
+/* The product's circles sit at #0a0b0b, all but invisible against the black
+   page, and their glyphs are #333 while disabled. An earlier version used a
+   clearly visible #1c1e20 with white glyphs, which made two dead controls the
+   most prominent thing in the header. */
+
+.wb-nav-btn {
+  background: #0a0b0b;
+}
+
+.wb-nav-btn:disabled {
+  color: var(--t-fg-disabled);
+  opacity: 1;
+}
+
+/* --- system filter -------------------------------------------------------- */
+
+.wb-system-filter select {
+  padding: 6px 10px;
+  border: 1px solid var(--t-border);
+  border-radius: 9999px;
+  font-size: 12px;
+  color: var(--t-fg);
+  background: var(--t-surface-sunken);
+}
+
+/* --- your services ------------------------------------------------------- */
+
+/* 80px circles on a 98px pitch, with no captions beneath: the product labels
+   them only by their artwork and an accessible name. An earlier version drew
+   66px monograms with the service name underneath, which was invention. */
+/* One line that scrolls sideways, not a wrapped grid: the product keeps its
+   services on a single row with a scrollbar under it and View All at
+   the right, however many there are (eleven on this household, the last one
+   half off the edge -- play.sonos.com, 2026-09-19). */
+.wb-services {
+  display: flex;
+  gap: 18px;
+  padding-bottom: 8px;
+  overflow-x: auto;
+  /* The product's first icon sits at x=29, one pixel in from the column. */
+  margin-left: 1px;
+}
+
+.wb-services > * { flex: none; }
+
+/* The row fades into the page wherever it carries on past an edge, which is
+   how the product shows there is more to scroll to: the service half off the
+   right edge dims away, and the left one does the same once the row has been
+   scrolled. Measured at roughly 72px of gradient (play.sonos.com,
+   2026-09-19). A mask rather than an overlay, so it works over the page's
+   black and over a panel alike. */
+.wb-services[data-fade-right] {
+  mask-image: linear-gradient(to right, #000 calc(100% - 72px), transparent);
+}
+
+.wb-services[data-fade-left] {
+  mask-image: linear-gradient(to right, transparent, #000 72px);
+}
+
+.wb-services[data-fade-left][data-fade-right] {
+  mask-image: linear-gradient(to right, transparent, #000 72px,
+                              #000 calc(100% - 72px), transparent);
+}
+
+.wb-service {
+  /* Positioned, so the profile disc can anchor to the icon's corner. */
+  position: relative;
+  display: block;
+  width: 80px;
+  height: 80px;
+  /* Firefox gives a button 1px 4px of padding by default, which pushed the
+     artwork 4px right of the button's own edge. */
+  padding: 0;
+}
+
+/* When one service is configured several times, each icon carries the first
+   letter of its account nickname in a 28px disc overlapping the bottom-right
+   corner, so three Spotify logos read as three people rather than a repeat. */
+.wb-service-profile {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--t-bg);
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--t-fg);
+  background: var(--t-surface-active);
+}
+
+.wb-service-badge {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 9999px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--t-fg);
+  background: var(--t-surface);
+  overflow: hidden;
+}
+
+.wb-service-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wb-service:hover .wb-service-badge {
+  background: var(--t-surface-hover);
+}
+
+/* --- a service's own page ------------------------------------------------ */
+/* The product routes to /browse/services/<id> and renders a 40px service name
+   over a vertical list of browse containers on a 72px pitch. Not a tile grid.
+   The page carries its own inset: artwork begins at x=60 and both the title
+   and the row labels align at x=120. */
+
+/* A service's page is a panel standing in for the column: (16,76) 972 wide
+   at 1440, so 12px past the column on each side, 24px corners and padding,
+   a darker fill than the cards (measured 2026-09-14). The column stops
+   scrolling and the panel scrolls inside itself, as the product's does. */
+/* The card itself, so every view drawn in it stands on the product's panel
+   gray whether or not it paints one: the page a playable list opens on had
+   none and sat on the black page instead. */
+.wb-content-panel {
+  display: flex;
+  flex-direction: column;
+  padding-top: 0;
+  overflow: hidden;
+  border-radius: var(--t-radius-card);
+  background: var(--t-surface-panel, #222426);
+}
+
+.wb-service-page {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 24px;
+  border-radius: var(--t-radius-card);
+  background: var(--t-surface-panel, #222426);
+  overflow-y: auto;
+}
+
+/* Pinned: the product's close disc stays at the panel's top right while the
+   page scrolls under it (2026-09-28), where Sonora's scrolled away with the
+   header. Sticky and floated, so it takes no room in the page's flow. */
+.wb-service-close {
+  position: sticky;
+  /* Held at the page's padding line, which is 24px down already: an offset
+     of 24 here is counted from inside the padding and put it at 48. */
+  top: 0;
+  float: right;
+  align-self: flex-end;
+  z-index: 5;
+  /* At the page's own 24px padding, 24px in from the top and the right, on
+     the line the dimmed "..." sits on (Audacy's All stations, 2026-09-28);
+     it had carried a 24px margin of its own on top and stood 48px in. The
+     negative foot gives back its height, so it takes no room in the flow. */
+  margin: 0 0 -40px auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  color: var(--t-fg);
+  background: var(--t-surface-input);
+}
+
+.wb-service-close:hover { background: var(--t-art-bg-active); }
+/* The X is the product's: about 16px across, where Sonora's was 11. */
+.wb-service-close svg { width: 20px; height: 20px; }
+
+/* 64px icon, the name in 40px beside it, 16px apart. */
+.wb-service-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-right: 56px;
+}
+
+.wb-service-logo {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  flex: none;
+  border-radius: 9999px;
+  overflow: hidden;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--t-fg);
+  background: var(--t-surface-input);
+}
+
+.wb-service-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Inside the service: the name stacked over the page's own title, no mark. */
+.wb-service-head[data-inside] {
+  display: block;
+}
+
+.wb-service-eyebrow {
+  /* 10px from its ink to the title's, which is what the product leaves. */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 16px;
+  color: var(--t-fg-muted);
+}
+
+.wb-service-page h1 {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 48px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The pill to the provider's own site: 40 tall, 16px below the icon. */
+.wb-service-site {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin-top: 16px;
+  padding: 0 20px;
+  border-radius: 9999px;
+  font-size: 14px;
+  color: var(--t-fg);
+  background: var(--t-surface-input);
+  text-decoration: none;
+}
+
+.wb-service-site:hover { background: var(--t-art-bg-active); }
+
+.wb-service-page > p,
+.wb-service-page > .wb-empty-card { margin-top: 24px; }
+
+/* The rows sit 52px under the pill (at y=272 with the pill at 180). A
+   shelf's rows are not those rows: they sit under their own heading, which
+   carries its own spacing. */
+.wb-service-page > .wb-rows { margin-top: 52px; }
+.wb-service-page > .wb-service-head + .wb-rows { margin-top: 52px; }
+
+.wb-service-page > p {
+  margin: 6px 0 28px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--t-fg-muted);
+}
+
+.wb-rows {
+  display: grid;
+  /* One full-width column: a service's home is a single run of rows in the
+     product -- Plex, AccuRadio and Mixcloud all draw theirs from x=40 to 1060
+     with the art 8px in (2026-09-22).
+
+     The minmax matters: without it a grid track takes its item's max-content
+     width, and Libby's paragraph of a summary stretched the row to five
+     thousand pixels instead of ending in an ellipsis where the panel ends. */
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* An artist's page is the one list the product lays out in columns: three at
+   1536, each 340 wide with nothing between them, so the art stands at 48,
+   388 and 728 and a row's hover fill runs edge to edge of its column (380 to
+   719 on the middle one) -- Spotify's Dr. Dre, Plex's 10,000 Maniacs and
+   AccuRadio's artists alike (2026-09-22). auto-fill drops to one column on a
+   phone by itself. */
+.wb-rows[data-columns] {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  column-gap: 0;
+}
+
+.wb-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 72px;
+  /* A button carries default padding in Firefox, which pushed the artwork 4px
+     right of where the product puts it. */
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+
+/* 56px, which is what the product gives a row's picture on a 72px row --
+   Libby's books, Mixcloud's folders, a search result, all of them (measured
+   2026-09-20, where Sonora had 48). */
+.wb-row-art {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: 4px;
+  /* A row with no picture of its own: the product's raised gray square
+     with the glyph cut out in the panel's own color (Audacy's Stations row,
+     #36393A under #222426, play.sonos.com 2026-09-28), where Sonora had the
+     square dark and the glyph light. */
+  color: var(--t-surface-panel);
+  background: var(--t-surface-raised);
+}
+
+/* A service's mark fills the slot rather than its own 80px default: the slot
+   no longer clips, so an 80px badge spilled over the label beside it. */
+.wb-row-art .wb-service-badge {
+  width: 100%;
+  height: 100%;
+  font-size: 15px;
+}
+
+/* The picture is 56 wide and as tall as its own proportions make it: Libby's
+   book covers are 150x200, and the product hangs the whole 56x75 cover from
+   the top of the slot and lets it overflow the row rather than cropping it to
+   a square (measured against play.sonos.com 2026-09-20). Square art, which is
+   nearly all of it, is unchanged. */
+/* The gray square is for a row with no picture. Under one that does, the
+   product paints nothing: Dr. Dre Radio's 56x37 image hangs from the top of
+   the slot over the bare panel, rgb(34,36,38), where Sonora had laid a 56x56
+   rgb(28,30,32) plate beneath it (2026-09-22). */
+.wb-row-art:has(> img) { background: none; }
+
+.wb-row-art > img {
+  width: 100%;
+  height: auto;
+  align-self: start;
+  border-radius: inherit;
+  /* The raised gray belongs to the picture, at the picture's own size: it
+     shows through a transparent icon -- Pocket Casts' red glyphs sit on it
+     (podcasts.png is transparent round the glyph, play.sonos.com
+     2026-09-30) -- and is covered by an opaque one, so Dr. Dre Radio's
+     56x37 still hangs over the bare panel. */
+  background: var(--t-surface-raised);
+}
+
+.wb-row-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--t-fg);
+}
+
+/* One line, cut with an ellipsis: the product ends "Blue in Green (feat.
+   John Coltra..." rather than wrapping it over the artist under it
+   (measured 2026-09-22). The badge beside it keeps its size. */
+.wb-row-label > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A row the service refuses: a fifth of the brightness, and nothing happens
+   when it is clicked. The product dims the whole row -- art, title and the
+   line under it all read 79 of 255 where a live row reads 255 (measured on
+   Mixcloud's subscriber-only shows, play.sonos.com 2026-09-22). */
+.wb-row[data-refused], .wb-track[data-refused] { opacity: 0.2; cursor: default; }
+
+.wb-row:hover .wb-row-label {
+  text-decoration: underline;
+}
+
+/* Except in the search results, where the product's rows answer the pointer
+   with nothing at all: no wash, no underline, not even on the three dots --
+   zero pixels change between a row at rest and the same row under the
+   pointer (measured on play.sonos.com 2026-09-22). */
+.wb-sr .wb-row:hover .wb-row-label { text-decoration: none; }
+
+/* Inside a service's panel a row is a 72px, 8px-cornered strip with 56px art
+   8px in, the title 16px after it, a 20px chevron 8px from the right on every
+   row, and under the pointer a faint fill with the title underlined. */
+.wb-service-page .wb-row {
+  gap: 16px;
+  padding: 0 8px;
+  border-radius: 8px;
+}
+
+.wb-service-page .wb-row:hover { background: rgba(255, 255, 255, 0.05); }
+/* Both, not one or the other: read off the product 2026-09-19 with the
+   pointer on a row of 80er-Radio harmony and of AccuRadio -- the fill lightens
+   AND the title underlines. This said `none` from an earlier reading. */
+.wb-service-page .wb-row:hover .wb-row-label { text-decoration: underline; }
+.wb-service-page .wb-row-art { width: 56px; height: 56px; border-radius: 8px; }
+.wb-service-page .wb-row-label { color: var(--t-art-fg); }
+.wb-row-chev { flex: none; margin-left: auto; color: var(--t-art-fg); }
+
+/* --- the configured-services list (Your Services > View All) ------------ */
+/* Measured at /browse/services: 40px title at x=40, rows on a 72px pitch with
+   labels at x=112. A shallower inset than a single service's page. */
+
+/* The list is a panel like every other view, so it starts where they start:
+   the card at x=16 with 24px of padding puts the title and the first icon at
+   x=40, the labels at 112 and a chevron at the right of each row -- measured
+   against the product's own list, whose rows are a 56px circle on a 72px
+   pitch (2026-09-20). */
+.wb-services-page {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 24px;
+  border-radius: var(--t-radius-card);
+  background: var(--t-surface-panel, #222426);
+  overflow-y: auto;
+}
+
+.wb-services-page h1 {
+  /* The product's title ink sits 29 below the panel and its first row 81,
+     which is this box (48 tall) with 9 under it. */
+  margin: 0 0 9px;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 48px;
+}
+
+.wb-services-page .wb-row {
+  padding-left: 0;
+}
+
+.wb-services-page .wb-row-art {
+  border-radius: 9999px;
+}
+
+/* --- breadcrumb for a pushed view ---------------------------------------- */
+
+.wb-crumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.wb-crumb button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 9999px;
+  font-size: 13px;
+  color: var(--t-fg);
+  background: var(--t-surface);
+}
+
+.wb-crumb button:hover {
+  background: var(--t-surface-hover);
+}
+
+.wb-crumb span {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 28px;
+}
+
+
+/* A real logo fills the circle; initials stay centered text. */
+.wb-service-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- settings, as a panel in the browse column --------------------------- */
+/* Measured at 1440px: panel [16,76,972,740] on #222426 at 24px radius with
+   24px padding; title 40px/48px at (40,100); close disc 40px at (924,100);
+   section headings 18px/28px over 12px/16px descriptions; row groups 924px
+   wide at 16px radius; rows 52px on #36393a with a 14px label at x=56. */
+
+.wb-content-panel {
+  /* The card fills the column, which already stops 16px from the window's
+     edge, and runs down to the transport bar. Its top stays at the header's
+     bottom edge, y=76, so the column's own 16px top padding is kept. */
+  margin: 0 0 -8px;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.wb-settings {
+  flex: 1;
+  min-height: 0;
+  padding: 24px;
+  border-radius: 24px;
+  background: #222426;
+  overflow-y: auto;
+}
+
+.wb-settings-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+/* The product sets 40px, but its face (Aktiv Grotesk) is about 8% wider than
+   the fallback and sits higher in its line box: painted, its title is 152px
+   wide with the ink top at y=103.5 against 141px and y=110 here at the same
+   size. 43px reproduces the painted width; the negative margin lifts the ink
+   to the same row while the 48px line box keeps everything below in place. */
+/* Painted-glyph compensation for the fallback face. Cap height matches the
+   product's Aktiv Grotesk at 40px (37.5 vs 38px painted), so the size stays
+   40px; the face is ~8% narrower, made up with letter-spacing (152.5 - 141px
+   over seven gaps), and its ink sits 6.5px lower in the line box, lifted out
+   of flow so the rows beneath keep their measured positions. */
+.wb-settings-head h1 {
+  position: relative;
+  top: -6.5px;
+  margin: 0;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 48px;
+  letter-spacing: 1.6px;
+}
+
+.wb-settings-close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  color: var(--t-fg);
+  background: var(--t-surface-input);
+}
+
+.wb-settings-close:hover {
+  background: var(--t-surface-active);
+}
+
+.wb-settings-section {
+  margin-bottom: 32px;
+}
+
+/* The size was already right -- the product's "Account" and Sonora's are
+   both 14px of ink tall -- but the fallback face paints it 65 wide against
+   the product's 71, so the spacing makes up the six pixels (measured
+   2026-09-22). */
+.wb-settings-section h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 28px;
+  letter-spacing: 0.85px;
+}
+
+.wb-settings-section > p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-num-fg);
+}
+
+.wb-settings-group {
+  display: grid;
+  gap: 1px;
+  margin-top: 16px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.wb-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 16px;
+  color: var(--t-fg);
+  background: var(--t-surface-input);
+  text-align: left;
+}
+
+button.wb-settings-row:hover:not(:disabled) {
+  background: #3f4243;
+}
+
+.wb-settings-row-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.wb-settings-row-label {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.wb-settings-row-sub {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-num-fg);
+}
+
+.wb-settings-row-control {
+  display: flex;
+  align-items: center;
+  flex: none;
+  color: var(--t-fg);
+}
+
+/* The room sound page (RoomSoundPage.jsx): a slider with its value beside it, and the line-in
+   name and autoplay room as plain fields, in a settings row's control slot. */
+.wb-sound-level { display: flex; align-items: center; gap: 12px; width: 280px; }
+.wb-sound-level output { min-width: 34px; text-align: right; font-variant-numeric: tabular-nums; color: var(--t-num-fg); }
+.wb-sound-input { width: 240px; height: 32px; padding: 0 10px; border: 1px solid var(--t-rail); border-radius: 8px;
+  background: transparent; color: inherit; font: inherit; }
+
+
+.wb-settings-select {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9999px;
+  font-size: 13px;
+  color: var(--t-fg);
+  background: var(--t-surface-active);
+}
+
+.wb-settings-form {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wb-settings-form input {
+  flex: 1 1 200px;
+  min-width: 0;
+  height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 9999px;
+  font-size: 13px;
+  color: var(--t-fg);
+  background: var(--t-surface-active);
+}
+
+.wb-settings-form input::placeholder {
+  color: var(--t-fg-muted);
+}
+
+.wb-settings-error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--t-critical);
+}
+
+/* 56x32 switch: white pill and dark knob when on, the reverse when off. Only
+   the on state was observable in the product; off inverts it. */
+.wb-toggle {
+  position: relative;
+  width: 56px;
+  height: 32px;
+  border-radius: 9999px;
+  background: var(--t-surface-active);
+  transition: background 120ms ease;
+}
+
+.wb-toggle[aria-checked='true'] {
+  background: #fff;
+}
+
+.wb-toggle-knob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 120ms ease;
+}
+
+.wb-toggle[aria-checked='true'] .wb-toggle-knob {
+  background: #222426;
+  transform: translateX(24px);
+}
+
+/* A switch the speakers will not let move. It still shows the household's
+   real state, so it is dimmed rather than redrawn. */
+.wb-toggle:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Content Filters: the product has no page for it, so this is its blurb
+   sitting above a group of the product's own rows. */
+.wb-parental .wb-sysdetails-lead {
+  margin-bottom: 24px;
+}
+
+.wb-parental .wb-theme-actions {
+  margin-top: 24px;
+}
+
+/* --- troubleshooting, in the settings panel's language ------------------- */
+
+.wb-diag-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wb-diag-status {
+  margin: 0 0 24px;
+  font-size: 12px;
+  color: var(--t-num-fg);
+}
+
+/* Severity as a 3px edge on the row's left, in the theme's status colors. */
+.wb-diag-finding {
+  box-shadow: inset 3px 0 0 var(--t-fg-faint);
+}
+
+.wb-diag-finding[data-severity='warning'] { box-shadow: inset 3px 0 0 var(--t-fair); }
+.wb-diag-finding[data-severity='critical'] { box-shadow: inset 3px 0 0 var(--t-critical); }
+
+.wb-diag-remedy {
+  margin-top: 4px;
+  color: var(--t-fg-faint);
+}
+
+.wb-diag-room .wb-settings-row-control {
+  width: 200px;
+}
+
+.wb-diag-bar {
+  position: relative;
+  display: block;
+  width: 200px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--t-surface-active);
+  overflow: hidden;
+}
+
+.wb-diag-bar i {
+  position: absolute;
+  top: 0;
+  height: 100%;
+}
+
+.wb-diag-bar i[data-band='calm'] { background: var(--t-fg-muted); }
+.wb-diag-bar i[data-band='mid'] { background: var(--t-fg); }
+.wb-diag-bar i[data-band='tail'] { background: var(--t-fair); }
+.wb-diag-bar[data-quality='poor'] i[data-band='tail'],
+.wb-diag-bar[data-quality='critical'] i[data-band='tail'],
+.wb-diag-bar[data-stall='true'] i[data-band='tail'] { background: var(--t-critical); }
+
+.wb-diag-quality {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--t-good);
+}
+
+.wb-diag-quality[data-quality='fair'] { background: var(--t-fair); }
+.wb-diag-quality[data-quality='poor'] { background: var(--t-poor); }
+.wb-diag-quality[data-quality='critical'] { background: var(--t-critical); }
+
+/* Indeterminate progress for a network scan, which has no percentage. */
+.wb-spinner {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--t-surface-active);
+  border-top-color: var(--t-fg);
+  border-radius: 50%;
+  animation: wb-spin 0.8s linear infinite;
+}
+
+@keyframes wb-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wb-spinner {
+    animation: none;
+    border-top-color: var(--t-fair);
+  }
+}
+
+button.wb-settings-row:disabled {
+  opacity: 1;
+  cursor: progress;
+}
+
+/* --- transport bar, remeasured with a soundbar on TV ---------------------- */
+/* 1440x84 on black. Art 48px at (12,18) as a bare glyph; text block at x=76
+   with the room in 10px white, title 14px white, sub 12px #9fa3a8; five 40px
+   controls at 556/628/700/772/844 (dy=12), glyphs 24px, the center one 20px on
+   a #36393a disc; a 461x2 progress rail at (489,63) in rgba(255,255,255,0.1)
+   with no time labels; on the right a 40px Queue at (1144,22), a 176x2 volume
+   rail at (1192,41) with a 12px thumb, and the readout at x=1376. A source
+   with no queue disables every control at opacity 0.2 and shows Stop. */
+
+.wb-transport {
+  grid-template-columns: 1fr auto 1fr;
+  padding: 0 12px;
+  align-items: start;
+}
+
+.wb-transport-now {
+  align-self: start;
+  margin-top: 18px;
+  gap: 16px;
+}
+
+/* A 48px tile in the active art color, 8px corners, white 24px glyph. */
+.wb-transport-art {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: var(--t-art-bg-active);
+  color: var(--t-fg);
+}
+
+.wb-transport-room {
+  font-size: 10px;
+  line-height: 10px;
+  color: var(--t-fg);
+}
+
+.wb-transport-title {
+  margin-top: 1px;
+  font-weight: 400;
+}
+
+.wb-transport-sub {
+  margin-top: 1px;
+}
+
+.wb-transport-center {
+  margin-top: 12px;
+  gap: 11px;
+}
+
+.wb-transport-buttons {
+  gap: 32px;
+}
+
+/* All four rest in the readout gray, the skips as well as the toggles:
+   rgb(159,162,168) for each on a queue (play.sonos.com,
+   2026-09-24). Sonora had drawn the skips white. */
+.wb-transport-buttons .wb-icon-btn {
+  color: var(--t-num-fg);
+}
+
+.wb-transport-buttons .wb-icon-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.wb-play {
+  background: var(--t-surface-input);
+  color: var(--t-fg);
+}
+
+/* The bar's disc dims rather than lightens: rgb(54,57,58) goes to
+   rgb(43,46,47) and its glyph to rgb(204,204,204), which is the whole
+   control at 0.8 over the black bar (2026-09-21). */
+.wb-play:hover:not(:disabled) {
+  transform: none;
+  opacity: 0.8;
+}
+
+/* The transport glyphs either side of it go the other way, from the muted
+   gray to white at 0.9 -- rgb(230,230,230) on black (2026-09-21). */
+.wb-transport-buttons .wb-icon-btn:hover:not(:disabled) {
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 1;
+}
+
+.wb-transport-buttons .wb-icon-btn:disabled,
+.wb-play:disabled {
+  color: var(--t-fg);
+  background: inherit;
+  opacity: 0.2;
+}
+
+.wb-play:disabled {
+  background: var(--t-surface-input);
+}
+
+/* Elapsed, rail, and remaining: 28px readouts 8px either side of a 446px
+   rail, the three centered under the play disc; the digits are 12px and
+   white, not the buttons' gray (play.sonos.com at 1600x900, 2026-09-28). */
+.wb-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 518px;
+  max-width: 40vw;
+  /* As tall as the rail, so the rail stays 32px under the play disc's center
+     and the digits hang either side of it. */
+  height: 2px;
+  font-size: 12px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--t-fg);
+}
+
+.wb-bar-time {
+  flex: none;
+  min-width: 28px;
+  text-align: right;
+}
+
+.wb-bar-time-right {
+  text-align: left;
+}
+
+.wb-progress {
+  position: relative;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.wb-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 2px;
+  background: var(--t-fg);
+}
+
+/* A station's fill dims further than its rail: rgb(71,71,71) over the
+   rail's rgb(13,13,13) on AccuRadio, where Sonora had drawn it at half
+   white (2026-09-28). */
+.wb-progress[data-seekable='false'] .wb-progress-fill {
+  opacity: 0.5;
+}
+
+/* Queue, rail and readout share one 40px row centered on y=858; the readout's
+   right edge sits 28px in from the window, not on the 12px bar padding. */
+.wb-transport-right {
+  align-self: start;
+  align-items: center;
+  margin-top: 22px;
+  margin-right: 16px;
+  gap: 8px;
+  height: 40px;
+}
+
+.wb-transport-right .wb-icon-btn:disabled {
+  color: var(--t-fg);
+  opacity: 0.2;
+}
+
+.wb-transport-vol {
+  width: 220px;
+  margin-top: 0;
+  gap: 8px;
+}
+
+.wb-transport-vol .wb-slider-rail {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.wb-transport-vol output {
+  width: 36px;
+  font-size: 14px;
+  line-height: 18px;
+  text-align: center;
+  color: var(--t-num-fg);
+}
+
+/* The fallback font paints its digits 1px lower than Aktiv at 14px. */
+.wb-transport-vol output {
+  position: relative;
+  top: -1px;
+}
+
+/* A muted room's rail, thumb and number all drop to a fifth: the thumb
+   rgb(51,51,51), the rail rgb(5,5,5), and the number rgb(31,32,33) on two
+   muted rooms (play.sonos.com, 2026-09-28). The cards and
+   Now Playing already did this; the bar had stayed lit. */
+.wb-transport-vol[data-muted] .wb-slider,
+.wb-transport-vol[data-muted] output {
+  opacity: 0.2;
+}
+
+/* Shuffle and Repeat stay enabled while off, drawn in the readout gray; the
+   product only lights them white when on. */
+.wb-transport-buttons .wb-icon-btn[data-toggle] {
+  color: var(--t-num-fg);
+}
+
+.wb-transport-buttons .wb-icon-btn[data-toggle][aria-pressed='true'] {
+  color: var(--t-fg);
+}
+
+/* Disabled, a toggle is white at a fifth like the skips beside it: rgb(51,51,51)
+   for all four on a stopped station (2026-09-24), where the gray above had
+   made the pair rgb(32,32,34). */
+.wb-transport-buttons .wb-icon-btn[data-toggle]:disabled {
+  color: var(--t-fg);
+}
+
+/* Music state on the right: Queue, then a 24px mute glyph at x=1192, a 140px
+   rail from 1228 (a 12px gap, against the 8px elsewhere) and the readout at
+   1376. The television state drops the mute control and lengthens the rail. */
+.wb-transport-mute {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin-right: 4px;
+  color: var(--t-fg);
+}
+
+/* The card's Stop glyph is 20px on the 40px disc, like the bar's. */
+.wb-room-play svg.wb-stop {
+  width: 20px;
+  height: 20px;
+}
+
+.wb-transport-mute svg {
+  width: 24px;
+  height: 24px;
+}
+
+.wb-transport-vol[data-compact='true'] {
+  width: 184px;
+}
+
+/* The card's sub-line keeps its 16px row when empty (a television input with
+   no cloud feed), so the row below does not creep up. */
+.wb-room-sub {
+  min-height: 16px;
+}
+
+/* The Sonora wordmark above the sign-in form (the app's only login). */
+.wb-login-mark {
+  display: block;
+  width: 220px;
+  max-width: 70%;
+  height: auto;
+  margin: 4px auto 16px;
+}
+
+/* --- adding a service / signing in to one -------------------------------- */
+
+/* The "+" tile at the end of the services row. */
+.wb-service-add .wb-service-badge {
+  background: transparent;
+  border: 2px dashed var(--t-fg-faint);
+  color: var(--t-fg-faint);
+  font-size: 30px;
+  font-weight: 300;
+}
+.wb-service-add:hover .wb-service-badge {
+  border-color: var(--t-fg);
+  color: var(--t-fg);
+}
+
+.wb-add-intro {
+  margin: 0 0 12px;
+  color: var(--t-fg-muted);
+}
+.wb-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.wb-name-tabs { margin: 12px 0 4px; }
+.wb-tab {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 13px;
+  color: var(--t-fg);
+  background: var(--t-surface);
+}
+.wb-tab[aria-selected='true'] {
+  color: var(--t-accent-fg);
+  background: var(--t-fg);
+}
+.wb-add-list .wb-add-row { height: 60px; }
+.wb-add-art { border-radius: 9999px; }
+.wb-add-art .wb-service-badge { width: 48px; height: 48px; font-size: 15px; }
+.wb-add-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.wb-add-auth {
+  font-size: 12px;
+  color: var(--t-fg-muted);
+}
+/* A service the provider will not sign in from Sonora: shown, grayed, inert. */
+.wb-add-row-off { opacity: 0.4; cursor: default; }
+
+.wb-add-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  color: var(--t-fg-muted);
+}
+.wb-add-flow h3 { margin: 4px 0 10px; font-size: 18px; }
+.wb-add-flow p { margin: 0 0 10px; color: var(--t-fg-muted); line-height: 1.5; overflow-wrap: anywhere; }
+.wb-add-code {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--t-fg) !important;
+  margin: 6px 0 14px !important;
+}
+.wb-add-error { color: #ff7b7b; margin: 10px 0 0; }
+
+/* The prompt on a service page when Sonora holds no account for it. */
+.wb-needs-link {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.wb-needs-link p { margin: 0; line-height: 1.5; }
+
+/* A row's second line: the provider's summary (Plex's server name, for one). */
+.wb-row-text { display: flex; flex-direction: column; min-width: 0; }
+.wb-row-sub {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tools at the foot of a service's root page: remove it from the system. */
+.wb-service-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.wb-service-tools-note {
+  font-size: 13px;
+  color: var(--t-fg-muted);
+  flex-basis: 100%;
+}
+.wb-service-tools .wb-input {
+  min-width: 220px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--t-surface-input);
+  color: var(--t-fg);
+  font: inherit;
+}
+
+/* The "+" is drawn as an icon so it sits dead center in the dashed circle. */
+.wb-service-add .wb-service-badge svg { width: 32px; height: 32px; }
+.wb-add-art .wb-service-badge svg { width: 20px; height: 20px; }
+
+.wb-check { display: flex; align-items: center; gap: 8px; flex-basis: 100%; font-size: 13px; color: var(--t-fg); }
+
+.wb-needs-link-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.wb-inline-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.wb-inline-confirm .wb-service-tools-note { flex-basis: 100%; }
+.wb-check-sub { color: var(--t-fg-muted); }
+.wb-check input[type="checkbox"] { accent-color: var(--t-accent); }
+.wb-check[aria-disabled="true"] { opacity: 0.4; }
+
+/* Inline "add it from the other system's services" link in the linked message. */
+.svc-relink { background: none; border: 0; padding: 0; margin: 0; font: inherit;
+  color: var(--t-accent); text-decoration: underline; cursor: pointer; }
+.svc-relink:hover { text-decoration: none; }
+
+/* Caution mark on the 80px service tiles, and beside the page explanations. */
+.wb-service .svc-caution { width: 22px; height: 22px; right: 2px; bottom: 2px; }
+.wb-service .svc-caution svg { width: 13px; height: 13px; }
+.wb-caution-row { display: flex; gap: 14px; align-items: center; }
+.wb-service-page > .wb-needs-link { max-width: none; }
+.wb-caution-row > p { margin: 0; }
+
+/* Crossfade and sleep-timer controls in the transport bar; alarms in settings. */
+.wb-sleep { position: relative; display: inline-flex; }
+.wb-sleep-menu { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  min-width: 180px; padding: 6px; border-radius: 10px; background: var(--t-surface-raised, #1f1f1f);
+  box-shadow: 0 10px 30px rgba(0,0,0,.45); display: flex; flex-direction: column; gap: 2px; z-index: 30; }
+.wb-sleep-title { font-size: 12px; color: var(--t-fg-muted); padding: 6px 10px 4px; }
+.wb-sleep-menu button { text-align: left; background: none; border: 0; color: var(--t-fg); font: inherit; padding: 7px 10px; border-radius: 6px; cursor: pointer; }
+.wb-sleep-menu button:hover { background: var(--t-surface-sunken); }
+.wb-alarm-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--t-border, rgba(255,255,255,.08)); }
+
+/* The theme chooser's still and buttons, under its rows. */
+.wb-theme-preview { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px 16px 16px; }
+.wb-theme-preview img { display: block; width: 320px; max-width: 100%; height: auto; aspect-ratio: 8 / 5; object-fit: cover; border-radius: 8px; background: var(--t-surface-input); }
+.wb-theme-noshot { display: grid; place-items: center; width: 320px; max-width: 100%; aspect-ratio: 8 / 5; border: 1px dashed var(--t-fg-muted); border-radius: 8px; color: var(--t-fg-muted); font-size: 12px; }
+.wb-theme-version { margin: 0; font-size: 14px; font-weight: 500; color: var(--t-fg); }
+.wb-theme-version span, .wb-theme-version em { font-weight: 400; font-style: normal; color: var(--t-fg-muted); }
+.wb-theme-blurb { margin: 0; max-width: 320px; font-size: 12px; line-height: 16px; color: var(--t-fg-muted); }
+.wb-theme-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 320px; max-width: 100%; }
+.wb-theme-actions .theme-apply { margin-left: auto; }
+
+/* --- The tinted panels, untinted --------------------------------------------
+   The big player, the grouping pane and the queue all take the color of what
+   the room is playing, set inline once the cover has been read. Without one
+   -- no picture, or an empty room -- the product draws them in the active
+   room card's own colors rather than the inactive surface: the fill
+   #474a4d (its bg-activity), anything raised on it #53575a (its
+   bg-activity-secondary: the close disc, the pill, the play disc, a tile),
+   the second line rgb(196,198,202), and the open pill's words in the fill's
+   own color (an empty room and AccuRadio's Chill with no picture,
+   play.sonos.com 2026-09-24). The tint, when there is one, is set inline and
+   wins over all four. */
+.wb-np,
+.wb-group-panel,
+.wb-queue {
+  --t-tint-color: var(--t-surface-active);
+  --t-tint-raise: var(--t-art-bg-active);
+  --t-tint-fg2: #c4c6ca;
+}
+
+/* --- Now Playing ---------------------------------------------------------- */
+/* The card the artwork in the bottom-left opens (play.sonos.com, 2026-09-14):
+   it takes the browse column's place, 16px in from the window edge where the
+   column itself starts at 28, with 24px corners and padding, and the bar
+   along the bottom goes while it is up. Everything inside is a further 24 in. */
+.wb[data-now] {
+  grid-template-rows: var(--t-header-h) minmax(0, 1fr);
+}
+
+.wb-np {
+  position: relative;
+  min-height: 0;
+  margin: 0 0 8px;
+  padding: 24px;
+  border-radius: var(--t-radius-card);
+  /* Untinted, the card is the active room's own fill, #474a4d, not the
+     inactive surface: the product's class for it is bg-activity, the same
+     color its active room card wears, under a cover it cannot read, with
+     no picture, and for an empty room alike (2026-09-24). */
+  background: var(--t-surface-active);
+  container-type: inline-size;
+  /* The card itself stands still and what is inside it scrolls, so the X
+     stays in its corner: the product's scroller is the card's content box,
+     24 in from each edge, with its scrollbar there and not at the card's
+     edge (play.sonos.com at 1600x767, 2026-09-24). */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.wb-np-close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  color: var(--t-fg);
+  background: var(--t-tint-raise, var(--t-art-bg));
+}
+
+/* Both X's -- the card's and the pane's -- keep their disc on hover and take
+   the glyph to 0.9: white reads rgb(233,234,234) over a disc of rgb(38,49,46)
+   (measured 2026-09-21). The discs elsewhere on the card go to 0.8; these two
+   do not. */
+.wb-np-close:hover { opacity: 0.9; }
+
+.wb-np-inner {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  /* Short windows scroll here, as the product's card does: its cover stays
+     342 square and the foot is reached by scrolling (2026-09-21). */
+  overflow-y: auto;
+  /* The cover sits 48 below the card's top edge and 48 in from its left. */
+  padding: 24px;
+}
+
+/* Everything but the foot, set in the middle of what is left: the free space
+   above and below this block is equal in the product, and the foot keeps the
+   bottom edge. */
+.wb-np-main {
+  display: flex;
+  flex-direction: column;
+  /* It keeps its size when the card is short and scrolls, rather than
+     squeezing to fit as a column scroller's children do by default. */
+  flex-shrink: 0;
+  min-height: 0;
+  margin: auto 0;
+}
+
+/* Art with the title block beside it, 38px apart, both at the top of the
+   card: the product's cover fills the height left above the transport discs
+   and crops to it -- 342x282 in a 913px window, where Sonora drew a 342px
+   square with the text centered against it (measured 2026-09-21). */
+.wb-np-top {
+  display: flex;
+  /* The words sit against the middle of the cover: the product's title,
+     artist, wordmark and progress row have the same center as the 342px
+     square beside them (measured 2026-09-21). */
+  align-items: center;
+  flex: none;
+  gap: 38px;
+}
+
+.wb-np-art {
+  display: grid;
+  place-items: center;
+  width: 342px;
+  height: 342px;
+  flex: none;
+  border-radius: var(--t-radius-tile);
+  color: var(--t-art-fg);
+  /* bg-activity-secondary in the product: #53575a, with the near-white note
+     on it when there is no picture (an empty room, 2026-09-24). */
+  background: var(--t-art-bg-active);
+  overflow: hidden;
+}
+
+.wb-np-art img,
+.wb-np-art svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wb-np-art > svg {
+  width: 140px;
+  height: 140px;
+}
+
+.wb-np-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* A long title takes a second line rather than an ellipsis: the product wraps
+   "Night Spot (feat. Hans Backenroth, Kristian Leth & Jan / Lundgren)" over
+   two lines and only then gives up (both clients on the same track,
+   2026-09-21). */
+.wb-np-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 28px;
+  color: var(--t-art-fg);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  /* Its box is the product's to the pixel, but the fallback font paints its
+     capitals 2px lower in it than the product's does (the title's caps at
+     y=142 against 140 under So What, 166 against 164 under Chill,
+     2026-09-24), so the words are lifted and the box left where it is. */
+  position: relative;
+  top: -2px;
+}
+
+.wb-np-sub {
+  margin: 3px 0 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  /* The cover's own color lifted, which is what the product prints an artist
+     in on a tinted card (2026-09-21); the palette gray is the fallback for a
+     card with no cover to take a color from: rgb(196,198,202) on the
+     product's untinted card, "Queue is empty" under an empty room
+     (2026-09-24), which is also what the level readout falls back to. */
+  color: var(--t-tint-fg2, #c4c6ca);
+  /* And the second line paints 2px high in its box: "Queue is empty" at
+     y=183 against the product's 185, the stream's station likewise. */
+  position: relative;
+  top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Elapsed, a 2px rail, remaining; with nothing playing the rail alone. */
+.wb-np-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 18px;
+  /* 20 under the wordmark: title, artist, wordmark, and this row stand 119
+     tall in the product, centered on the cover (2026-09-24). */
+  margin-top: 20px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  /* The clock either side of the rail is the card's own near-white, the
+     title's color, not a gray: rgb(225,231,239) on every tint measured
+     (2026-09-21). */
+  color: var(--t-art-fg);
+}
+
+.wb-np-progress[data-seekable='true'] { cursor: pointer; }
+.wb-np-time { flex: none; min-width: 28px; }
+.wb-np-time-right { text-align: right; }
+
+.wb-np-rail {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  border-radius: 9999px;
+  /* The unplayed part all but disappears into the card: white at 5%, which
+     on a tint of rgb(123,38,30) reads rgb(130,49,42) (2026-09-21). */
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.wb-np-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--t-fg);
+}
+
+/* Five discs, 64px with the center one 80, 52px apart, centered on the card. */
+.wb-np-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 52px;
+  /* The play disc's top is 88 under the cover's foot, and the volume row's
+     mute 48 under the play disc (play.sonos.com at 1600x767, 2026-09-24). */
+  margin-top: 88px;
+}
+
+.wb-np-disc {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border-radius: 9999px;
+  color: var(--t-fg);
+  background: transparent;
+}
+
+/* Shuffle and Repeat say their state in their colors: off, the glyph is the
+   card's second text color with no disc -- rgb(165,146,141), the artist
+   line's own, on a card of rgb(29,24,22) -- and on, it is a solid white disc
+   with the glyph cut out in the card's color (play.sonos.com, a room's
+   shuffle turned on and back off, 2026-09-24). Sonora had drawn both white
+   and marked on with the faint disc the skips wear on hover. */
+.wb-np-toggle { color: var(--t-tint-fg2, #c4c6ca); }
+.wb-np-toggle[aria-pressed='true'],
+.wb-np-toggle[aria-pressed='true']:hover {
+  color: var(--t-tint-color, #16181a);
+  background: #fff;
+}
+
+/* Hovering, as the product does it everywhere on this card: a control that
+   already carries a background dims to 0.8 -- the play disc's bars read
+   rgb(218,214,215) over a card of rgb(66,47,54), which is white at 0.8 over
+   that color -- and a bare one takes the same background the discs wear and
+   dims to 0.9 (measured on every control 2026-09-21). Sonora had been
+   painting a heavier white and leaving the icon alone. */
+.wb-np-play:hover,
+.wb-np-small:hover,
+.wb-np-pill:hover { opacity: 0.8; }
+.wb-np-toggle:hover,
+.wb-np-skip:hover {
+  background: var(--t-tint-raise, rgba(255, 255, 255, 0.09));
+  opacity: 0.9;
+}
+/* A disc the speaker will not take: the product's shuffle over a station
+   reads rgb(104,97,68) on a tint of rgb(79,71,43), which is white at 14%
+   (measured 2026-09-21). The skips go to a fifth instead: on a station card
+   of rgb(71,74,77) Previous reads rgb(108,110,113) beside a shuffle of
+   rgb(96,98,102) (2026-09-24). A disabled toggle is white, not the off
+   state's gray. */
+.wb-np-disc:disabled { opacity: 0.14; }
+.wb-np-skip:disabled { opacity: 0.2; }
+.wb-np-toggle:disabled { color: var(--t-fg); background: transparent; }
+
+/* The play disc, the foot discs and the room pill are white laid thinly over
+   whatever color the cover gave the card -- rgb(95,86,53) over a tint of
+   rgb(79,71,43), which is white at 9% -- rather than the fixed gray Sonora
+   painted, which ignored the color entirely (measured 2026-09-21). */
+.wb-np-play {
+  width: 80px;
+  height: 80px;
+  background: var(--t-tint-raise, rgba(255, 255, 255, 0.09));
+}
+
+.wb-np-small {
+  width: 56px;
+  height: 56px;
+  background: var(--t-tint-raise, rgba(255, 255, 255, 0.09));
+}
+
+/* The volume row takes its colors from the card, not from the palette: the
+   product's rail disappears into the cover's color and its knob and readout
+   dim with the room when it is muted, while the mute glyph itself stays
+   white (measured 2026-09-21, the player muted at volume 2). */
+.wb-np-volume .wb-slider-rail { background: rgba(255, 255, 255, 0.05); }
+.wb-np-volume .wb-slider-fill { background: rgba(255, 255, 255, 0.9); }
+/* Muting takes the knob and the filled part down to a fifth and leaves the
+   rail where it is: a card of rgb(123,38,30) keeps a rail of rgb(130,49,42),
+   which is white at 0.05 either way, under a knob that reads rgb(150,82,75)
+   -- white at 0.2, or the 0.9 it carries dimmed by 0.22 (2026-09-21). */
+.wb-np-volume[data-muted] .wb-slider-fill,
+.wb-np-volume[data-muted] .wb-slider input { opacity: 0.22; }
+/* The rail dims with them here, which the card's does not: on a muted room
+   the product's Now Playing rail reads rgb(32,27,24) on a panel of
+   rgb(29,24,22) -- white at about 1.2%, which is the 5% it carries unmuted
+   taken down by the same 0.22 the knob and the fill take (measured
+   2026-09-22). */
+.wb-np-volume[data-muted] .wb-slider-rail { opacity: 0.22; }
+/* The readout under a muted room is the card's own dim text at a fifth: a
+   tint of rgb(123,38,30) writes rgb(146,66,58), which is its rgb(235,178,173)
+   at 0.2 and not the white Sonora faded (measured 2026-09-21). */
+.wb-np-volume[data-muted] .wb-np-level { opacity: 0.2; }
+
+/* Mute, the rail, the level in 20px at the right. */
+.wb-np-volume {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 48px;
+}
+
+.wb-np-mute {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  /* White, and it keeps its white while the room is muted: the product dims
+     the rail, the knob and the readout there and leaves this alone. */
+  color: #fff;
+}
+
+.wb-np-volume .wb-slider { flex: 1; }
+
+.wb-np-level {
+  flex: none;
+  min-width: 36px;
+  text-align: right;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 24px;
+  font-variant-numeric: tabular-nums;
+  color: var(--t-tint-fg2, #c4c6ca);
+}
+
+
+/* Queue at the left, the room pill centered, the options disc at the right,
+   at every width. On a short window they sit below the fold and the card
+   scrolls to them: at 1536x780 the product shows "<room> + 1" and the "..."
+   disc one scroll under the volume row (2026-09-22). An earlier reading that
+   the product drops them on a wide window was taken without scrolling the
+   card, and hid both. At its closest the foot is 40 under the volume row and
+   24 over the scroller's end, so a 1600x767 window scrolls 99px
+   (2026-09-24); a taller one parts them further. */
+.wb-np-foot {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 40px;
+}
+
+.wb-np-foot-side { display: flex; }
+.wb-np-more { position: relative; display: inline-flex; }
+.wb-np-foot-end { justify-content: flex-end; }
+
+.wb-np-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 24px;
+  border-radius: 100px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--t-fg);
+  background: var(--t-tint-raise, rgba(255, 255, 255, 0.09));
+}
+
+/* With the rooms open beside it the pill is solid white and writes in the
+   card's own color -- rgb(66,47,54) words on white over a card of the same
+   (measured 2026-09-21). */
+.wb-np-pill[data-open] {
+  color: var(--t-tint-color, #16181a);
+  background: #fff;
+}
+
+/* The options the "..." disc opens, which the product floats over the card
+   and the column beside it rather than inside the card: a flat gray panel
+   rgb(54,57,58) whose left edge sits on the disc's and whose foot is 8px
+   above it, 264px wide or as wide as its longest line, 16px of padding over
+   38px rows, a 20px glyph 24px in with the words 16px past that, and no
+   hover state at all (measured on play.sonos.com 2026-09-21; Sonora's was
+   264px, clipped by the card's own scroller, and lit each row on hover).
+   The durations open beside it in a panel of their own. */
+.wb-np-menu {
+  position: fixed;
+  z-index: 40;
+  display: grid;
+  width: max-content;
+  min-width: 264px;
+  max-width: 420px;
+  padding: 16px 0;
+  border-radius: 12px;
+  background: #36393a;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.wb-np-menu button {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 24px;
+  font-size: 15px;
+  line-height: 20px;
+  color: #fff;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.wb-np-menu button > svg { flex: none; }
+.wb-np-menu button > span:first-of-type { flex: 1; }
+.wb-np-submenu button { min-height: 36px; }
+
+/* "Off" and its caret at the right of the sleep row, in the panel's dim
+   gray. */
+.wb-np-menu-value {
+  flex: none;
+  margin-left: 24px;
+  font-size: 14px;
+  color: var(--t-fg-muted);
+}
+
+.wb-np-menu-caret { flex: none; color: var(--t-fg-muted); }
+
+/* Crossfade's switch: 44 by 22 with an 18px knob, black on gray while it is
+   off and black on white while it is on. It is drawn, not pressed -- the row
+   around it is the button. */
+.wb-np-switch {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 22px;
+  margin-left: 24px;
+  border-radius: 9999px;
+  background: #333;
+  transition: background 120ms ease;
+}
+
+.wb-np-menu button[aria-checked='true'] .wb-np-switch { background: #fff; }
+
+.wb-np-switch i {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: transform 120ms ease;
+}
+
+.wb-np-menu button[aria-checked='true'] .wb-np-switch i { transform: translateX(22px); }
+
+/* Below about 560px of card the art and title stack, the discs close up and
+   the foot's controls drop to 40px, as the product's card does when the
+   window narrows. */
+@container (max-width: 560px) {
+  /* The card is bounded by the screen rather than growing past it, so the
+     cover inside it has something to shrink against. */
+  .wb-np-inner { padding: 0; height: 100%; min-height: 0; }
+  .wb-np-top { flex-direction: column; align-items: stretch; gap: 16px; margin-top: 16px; }
+  /* The cover takes what is left rather than a fixed 342: on a phone the
+     fixed square pushed the play button off the bottom of the screen, and
+     the official client refuses to draw at all at this size, so there is
+     nothing to copy -- this is Sonora's own. It keeps its square, never
+     grows past the product's 342, and never shrinks below something you can
+     still see. */
+  .wb-np-main { flex: 1 1 auto; min-height: 0; margin: 0; }
+  .wb-np-top { flex: 1 1 auto; min-height: 0; }
+  .wb-np-art {
+    flex: 1 1 auto;
+    width: auto;
+    height: auto;
+    /* A floor, so the cover is still a cover: a phone that cannot fit it
+       scrolls the last of the card instead of shrinking the picture to a
+       thumbnail. */
+    min-height: min(200px, 52vw);
+    max-width: 100%;
+    max-height: 342px;
+    aspect-ratio: 1;
+    align-self: center;
+  }
+  .wb-np-text { flex: none; }
+  .wb-np-progress { margin-top: 16px; }
+  .wb-np-controls { gap: 0; justify-content: space-between; padding-top: 24px; }
+  /* The five transport discs share the row, and each stays a circle however
+     narrow its share: an "on" shuffle is a solid white disc, which a 59x64
+     box drew as an oval. The foot's queue disc keeps its own 40px circle (it
+     had been stretched to 59x40). */
+  .wb-np-controls .wb-np-disc {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 59px;
+    height: auto;
+    aspect-ratio: 1;
+  }
+  .wb-np-controls .wb-np-play { flex: none; width: 64px; max-width: none; height: 64px; }
+  /* The 48px glyph the 80px disc carries, scaled with its disc. */
+  .wb-np-controls .wb-np-play svg { width: 40px; height: 40px; }
+  .wb-np-volume { margin-top: 20px; }
+  .wb-np-foot { margin-top: 20px; }
+  .wb-np-small { width: 40px; height: 40px; }
+  .wb-np-small svg { width: 20px; height: 20px; }
+  .wb-np-pill { height: 40px; padding: 0 16px; }
+}
+
+/* Once the rooms have moved above the browse content there is no column for
+   the card to stand in, so it takes the whole of the main area and the rooms
+   wait behind the X. */
+@media (max-width: 640px) {
+  .wb[data-now] { grid-template-rows: auto minmax(0, 1fr); }
+  .wb[data-now] .wb-main { grid-template-rows: minmax(0, 1fr); overflow: hidden; }
+  .wb[data-now] .wb-sidebar { display: none; }
+  .wb-np { margin: 0 0 8px; }
+}
+
+/* And the same for anything else the browse column was asked to show. The
+   rooms are above it at this width, so Settings, a service's page and a
+   search all opened below the fold with nothing moving on screen: the gear
+   was reported as a button that did nothing, and it had in fact pushed the
+   view. The rooms stand aside until the header's back
+   arrow, or clearing the search, returns to the home view. */
+@media (max-width: 640px) {
+  .wb[data-pushed] .wb-main { grid-template-rows: minmax(0, 1fr); }
+  .wb[data-pushed] .wb-sidebar { display: none; }
+}
+
+/* --- grouped-room volume --------------------------------------------------- */
+/* The list that rests above the bar's volume controls while the pointer is on
+   them and a group is active: 256 wide, 12px corners, 16px padding, a 71px
+   row per room with its name and level over a mute button and a 188px slider
+   (play.sonos.com, 2026-09-14). */
+.wb-transport-vol { position: relative; }
+
+.wb-gvol {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  z-index: 4;
+  width: 256px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 12px;
+  background: var(--t-surface-input);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* 16 above the name, 9 under the slider: a 71px row. */
+.wb-gvol li { padding: 16px 16px 9px; }
+
+.wb-gvol-head {
+  display: flex;
+  justify-content: space-between;
+  height: 18px;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--t-fg);
+}
+
+.wb-gvol-head span:last-child { color: var(--t-fg-muted); font-variant-numeric: tabular-nums; }
+
+.wb-gvol-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 24px;
+  margin-top: 4px;
+}
+
+.wb-gvol-mute {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--t-art-fg);
+}
+
+.wb-gvol-row .wb-slider { flex: 1; }
+
+/* --- music library --------------------------------------------------------- */
+/* Root: 141px tiles six across with 16px between, a rounded dark box with a
+   64px glyph and the name 8px beneath; deeper levels: 56px rows on a 72px
+   pitch, art at the left edge, title 16px after it (play.sonos.com,
+   2026-09-14). */
+.wb-source-chev { flex: none; color: var(--t-fg); }
+
+.wb-library-tiles {
+  display: grid;
+  /* Six across the 924px panel: 140 lets the sixth fit where 141 does not. */
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 24px 16px;
+  margin-top: 16px;
+}
+
+.wb-library-tile {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  text-align: left;
+  color: var(--t-fg);
+}
+
+.wb-library-tile-box {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  color: var(--t-fg);
+  background: var(--t-surface-input);
+}
+
+.wb-library-tile:hover .wb-library-tile-box { background: var(--t-art-bg-active); }
+
+.wb-library-tile-label {
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wb-service-page[data-library] .wb-rows { display: grid; gap: 16px; margin-top: 16px; }
+.wb-service-page[data-library] .wb-row { height: 56px; padding: 0; border-radius: 8px; }
+.wb-service-page[data-library] .wb-row:hover { background: none; }
+.wb-service-page[data-library] .wb-row:hover .wb-row-label { text-decoration: underline; }
+
+/* --- system details -------------------------------------------------------- */
+/* Settings > View System Details: a 12px line under the title, an 18px
+   heading, then 89px rows -- product and model in 12px muted over the room in
+   16px, "View" at the right (play.sonos.com, 2026-09-14). */
+.wb-sysdetails-lead {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--t-fg-muted);
+}
+
+.wb-sysdetails-section { margin-top: 24px; }
+
+.wb-sysdetails-section h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 28px;
+}
+
+/* Each section is a card of the raised gray, 16px corners, its rows split by
+   a 1px line of the panel showing through: a room row 85px, the filter row
+   62 (play.sonos.com, 2026-09-22). */
+.wb-sysdetails-card { border-radius: 16px; overflow: hidden; background: var(--t-surface-raised, #36393a); }
+.wb-sysdetails-row + .wb-sysdetails-row,
+.wb-sysdetails-filter + .wb-sysdetails-filter { border-top: 1px solid var(--t-surface-panel, #222426); }
+.wb-sysdetails-main { min-height: 88px !important; }
+.wb-sysdetails-filter { display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 0 16px; }
+/* Where the product's page stands (1536x780, 2026-09-22): the title's ink at
+   y=189, the line under it at 241, "Content Filters" at 306 with its card 39
+   under it, and "About your system" 39 under that card. */
+.wb-sysdetails > .wb-service-head h1 { position: relative; top: -6px; }
+/* A service's name keeps to one line; this title may wrap on a phone rather
+   than read "View Syste..." */
+@media (max-width: 640px) {
+  .wb-sysdetails > .wb-service-head h1 { white-space: normal; }
+  /* The product has no phone layout of its own (at 390px its page
+     overlaps itself), so this is Sonora's: a service's name and a page's
+     title go to 28px and may wrap, where at 40px on one line they read
+     "Accu..." and "Most Popu..." at 360px. */
+  .wb-service-head h1 { font-size: 28px; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; }
+}
+.wb-sysdetails > .wb-sysdetails-lead { position: relative; top: -3px; }
+.wb-sysdetails > .wb-sysdetails-section { margin-top: 30px; }
+.wb-sysdetails > .wb-sysdetails-lead + .wb-sysdetails-section { margin-top: 39px; }
+.wb-sysdetails .wb-sysdetails-section h2 { margin-bottom: 19px; }
+.wb-sysdetails-filter-label { font-size: 14px; line-height: 20px; color: #ffffff; }
+.wb-sysdetails-filter .wb-toggle { flex: none; opacity: 0.4; cursor: default; }
+.wb-sysdetails-update { border-bottom: 1px solid var(--t-surface-panel, #222426); }
+.wb-sysdetails-update .wb-btn { flex: none; }
+
+.wb-sysdetails-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 88px;
+  padding: 0 16px;
+  text-align: left;
+  color: var(--t-art-fg);
+}
+
+.wb-sysdetails-main:hover .wb-sysdetails-view { color: var(--t-fg); }
+
+.wb-sysdetails-glyph {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex: none;
+  color: var(--t-fg-muted);
+}
+
+.wb-sysdetails-text { display: grid; min-width: 0; flex: 1; }
+.wb-sysdetails-product {
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-fg-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wb-sysdetails-room { font-size: 16px; line-height: 24px; }
+.wb-sysdetails-view { flex: none; font-size: 16px; color: var(--t-fg-muted); }
+
+/* The row's picture (play.sonos.com, 2026-09-24): a 56x56 box, the render
+   56 wide and as tall as its own shape, centered in it, so a soundbar's
+   828x420 draws 56x28 and a Play:1's square fills the box. The player's
+   48px icon, when there is no render, is drawn at the box's size. */
+.wb-product-picture {
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+.wb-product-picture[data-render] { height: auto; max-height: 56px; }
+
+/* --- a product's View dialog --------------------------------------------- */
+/* play.sonos.com, 2026-09-24, a Beam: 450 wide, #222426, 16px
+   corners, over the page at a fifth of its brightness and blurred; the
+   close disc 40px, 16px in, white at 0.2; the picture's 280x280 box 24
+   down and centered, the render 280 wide in the middle of it (the Beam's
+   142 tall at 93); the room 20px at 320; the status line at 348, a 16px green dot
+   and 12px gray words; then the facts from 372, each a rule of the raised
+   gray, 8 of air, a 14px label over its 14px value and 8 more, 57 in all,
+   with a closing rule and 56 under it. */
+.wb-overlay:has(> .wb-panel[data-variant='product']) {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+.wb-panel[data-variant='product'] {
+  position: relative;
+  width: 450px;
+  max-width: 100%;
+  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  padding: 24px 40px 56px;
+  border-radius: 16px;
+  background: var(--t-surface-panel, #222426);
+  box-shadow: none;
+}
+.wb-product-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  /* Above the picture's box, which is positioned too and comes later: on a
+     phone the two overlap and the picture took the tap. */
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  color: var(--t-fg);
+  background: rgba(255, 255, 255, 0.2);
+}
+.wb-product-close:hover { opacity: 0.9; }
+.wb-product-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 280px;
+  max-width: 100%;
+  height: 280px;
+  margin: 0 auto;
+  overflow: hidden;
+  color: var(--t-fg-muted);
+}
+/* Scoped to the dialog: it opens inside the page, whose own heading and
+   paragraph rules would otherwise win (a 40px room name, a 13px status). */
+/* Without a render, the player's 48px icon at four times its size. */
+.wb-product-picture-large {
+  display: block;
+  width: 192px;
+  height: 192px;
+  object-fit: contain;
+}
+.wb-product-picture-large[data-render] { width: 280px; max-width: 100%; height: auto; max-height: 280px; }
+.wb-panel[data-variant='product'] .wb-product-name {
+  margin: 16px 0 0;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 28px;
+  color: var(--t-fg);
+}
+.wb-panel[data-variant='product'] .wb-product-status {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-fg-muted);
+}
+.wb-product-status svg { flex: none; color: var(--t-fg-muted); }
+.wb-product-status[data-online] svg { color: rgb(32, 197, 93); }
+.wb-product-status:not([data-online]) svg { color: #ff5a4f; }
+.wb-panel[data-variant='product'] .wb-product-facts {
+  margin: 8px 0 0;
+  border-bottom: 1px solid var(--t-surface-raised, #36393a);
+}
+.wb-product-facts > div {
+  padding: 8px 0;
+  border-top: 1px solid var(--t-surface-raised, #36393a);
+}
+.wb-product-facts dt,
+.wb-product-facts dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--t-fg);
+}
+.wb-product-facts dd { font-variant-numeric: tabular-nums; }
+
+/* Sonora's own: the color picker in a product's Color row, for a player
+   that names no color. The settings pill, drawn to the row's 14px text. */
+.wb-product-facts .wb-product-color {
+  max-width: 100%;
+  height: 28px;
+  margin-top: 4px;
+  font-size: 14px;
+  text-overflow: ellipsis;
+}
+.wb-product-facts .wb-product-color:disabled { opacity: 0.6; }
+
+/* On a phone the dialog keeps its order and loses its air: 16px to the
+   screen's edge, 20px inside, and the picture's box no wider than what is
+   left. The product does not reflow here at all. */
+@media (max-width: 480px) {
+  .wb-overlay:has(> .wb-panel[data-variant='product']) { padding: 16px; }
+  .wb-panel[data-variant='product'] {
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    padding: 20px 20px 32px;
+  }
+  .wb-panel[data-variant='product'] .wb-product-art { height: auto; aspect-ratio: 1; }
+}
+/* A phone on its side has height to spare least: the picture's box comes
+   down to 160, the render keeping its shape inside it. */
+@media (max-height: 520px) {
+  .wb-overlay:has(> .wb-panel[data-variant='product']) { padding: 16px; }
+  .wb-panel[data-variant='product'] {
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    padding-top: 16px;
+  }
+  .wb-panel[data-variant='product'] .wb-product-art { height: 160px; aspect-ratio: auto; }
+  .wb-product-picture-large[data-render] { width: auto; max-height: 160px; }
+  .wb-product-picture-large:not([data-render]) { width: 128px; height: 128px; }
+}
+
+.wb-name-input { width: 100%; margin: 12px 0 4px; }
+
+/* --- favorites tip -------------------------------------------------------- */
+/* Shown where the product shows it, in place of an empty favorites list: a
+   382px card, 16px corners and padding, "Tip" in 12px over a 16px line, and a
+   48px disc with a heart at the right (play.sonos.com, 2026-09-14). */
+.wb-tip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 382px;
+  max-width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--t-surface);
+}
+
+.wb-tip p { margin: 0; }
+.wb-tip-label { font-size: 12px; line-height: 18px; margin-bottom: 8px !important; }
+.wb-tip-body { font-size: 16px; line-height: 24px; }
+
+.wb-tip-disc {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 9999px;
+  color: var(--t-fg);
+  background: var(--t-art-bg);
+}
+
+/* --- pinned collections ---------------------------------------------------- */
+.wb-pinned-head { gap: 16px; }
+.wb-pinned-head p { margin-top: 0; }
+
+.wb-pinned-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 9999px;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--t-surface-input);
+}
+
+.wb-pinned-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+/* The buttons a service declares for the playing item, right after the
+   track's name in the bar: 40px round buttons on a 40px pitch with a 20px
+   glyph, white, over the bar's own background (play.sonos.com, 2026-09-15).
+   They share the bar's first column with the artwork and the track, which
+   gives way to them rather than the bar growing a fourth cell. */
+.wb-transport-left { display: flex; align-items: center; min-width: 0; align-self: start; margin-top: 18px; }
+/* Whatever will not fit in this column is cut off at its edge rather than
+   painted across the transport buttons, which is how the overflow showed
+   itself: a room name and a pair of rating buttons drawn on top of Previous
+   and Shuffle. A clip is a bug you can see and reason about; overlapping
+   controls read as a broken screen. */
+.wb-transport-left { overflow: hidden; }
+/* The 18px drop belongs to the row now, so the buttons sit on the artwork's
+   own center line rather than 9px above it. */
+.wb-transport-left .wb-transport-now { flex: 0 1 auto; align-self: center; margin-top: 0; }
+/* 16px clear of the words: the product's first thumb inks at x=220 with
+   the line under the title ending at 192 (2026-09-21). */
+.wb-transport-rate { display: flex; align-items: center; flex: none; margin-left: 16px; }
+.wb-transport-more { display: inline-flex; position: relative; }
+/* The bar's glyphs are the palette's dim gray, not white: the product's
+   thumbs and its "..." read rgb(159,162,168) (2026-09-21). */
+.wb-transport-rate .wb-rate-btn { width: 40px; height: 40px; border-radius: 9999px; color: var(--t-fg-muted); }
+.wb-transport-rate .wb-rate-btn img { width: 20px; height: 20px; object-fit: contain; }
+
+.wb-theme-preview { flex-direction: row; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.wb-theme-manage { padding: 0 16px 16px; }
+/* In Settings > Appearance the picture and Manage Themes are the group's
+   last rows, so they wear a row's ground and the group's rounded foot shows
+   under them. */
+.wb-settings-group > .wb-theme-preview,
+.wb-settings-group > .wb-theme-manage { background: var(--t-surface-input); }
+.wb-theme-manage h4 { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
+.wb-theme-manage .wb-theme-actions { width: auto; }
+.wb-root .theme-pill { background: #36393a; }
+.wb-root .theme-pill button[aria-pressed='true'] { background: #f4f5f6; color: #16181a; }
+
+/* --- the bar on a narrow screen ------------------------------------------- */
+/* Last in the file, and it has to be. This sheet declares the bar in three
+   passes -- the first layout near the top, a remeasured pass in the middle,
+   the service rating buttons at the end -- so a responsive rule written
+   beside the other media queries near the top is overruled by whichever
+   later pass touches the same property at the same specificity. That is
+   what had happened: `.wb-transport`, `.wb-transport-buttons` and
+   `.wb-transport-vol` all had narrow-width rules up there and every one of
+   them was dead. The bar was laid out at every width as though none of it
+   had been written.
+ *
+ * What that looked like on a phone, measured at 320, 360, 390, and 412px:
+ * the five controls are 40px on a 72px pitch, so the cluster is
+ * a rigid 328px, and the `1fr auto 1fr` grid built the bar around it. The
+ * room and track names were squeezed to nothing, the room name wrapped to
+ * two lines on the way, and the queue, mute, and volume ran off the right of
+ * the screen, painting over the next button as they went. */
+
+/* The bar sheds in four steps, each one taking whichever control has
+   somewhere else to be. Full width carries everything; then the pitch and
+   the volume rail tighten; then the thumbnail, the third line of text and
+   the service's rating buttons go; then shuffle, repeat and the volume rail
+   itself. The room and track names take the squeeze at every step, because
+   they are the only part that loses width gracefully. */
+
+@media (max-width: 879px) {
+  /* Stop centering the cluster on the viewport: with a fixed center column
+     between two 1fr columns, every pixel the middle needs is taken from
+     both sides at once. */
+  .wb-transport {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  .wb-transport-buttons {
+    gap: 12px;
+  }
+
+  .wb-transport-right {
+    margin-right: 0;
+  }
+
+  .wb-transport-vol,
+  .wb-transport-vol[data-compact='true'] {
+    width: 140px;
+  }
+}
+
+@media (max-width: 640px) {
+  .wb-transport-art {
+    display: none;
+  }
+
+  .wb-transport-sub {
+    display: none;
+  }
+
+  /* The service's own controls -- AccuRadio's star and ban, Pandora's
+     thumbs -- are two 40px buttons the left column cannot hold once it is
+     down to the names. They were hidden at 480px, which left them painting
+     over the shuffle button between there and 600. */
+  .wb-transport-rate {
+    display: none;
+  }
+
+  .wb-transport-vol,
+  .wb-transport-vol[data-compact='true'] {
+    width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wb-transport {
+    gap: 8px;
+  }
+
+  .wb-transport-buttons {
+    gap: 8px;
+  }
+
+  /* Shuffle and repeat go first, which is also what play.sonos.com drops
+     first: at 390px its bar is Back, Play, Forward, Queue, Mute and the
+     volume rail, with neither toggle (measured 2026-09-18). Both stay one
+     tap away on the Now Playing card, which the left-hand button opens. */
+  .wb-transport-buttons .wb-icon-btn[data-toggle] {
+    display: none;
+  }
+
+  /* The rail keeps the width the times would take: at 390px the two
+     readouts left it 84px of a 156px row. */
+  .wb-bar-time {
+    display: none;
+  }
+
+  /* Then the volume rail, the one control here with two other homes on the
+     same screen: every room card carries one and so does Now Playing. Mute
+     has neither, so the button stays. */
+  .wb-transport-vol,
+  .wb-transport-vol[data-compact='true'] {
+    display: none;
+  }
+}
+
+/* --- the column before its first answers ---------------------------------- */
+/* An empty black column for the seconds the services directory takes reads as
+   a page that failed. The shape of the home stands in until the real thing
+   arrives whole: the two headings it always opens with, tiles and discs in
+   the sunken surface, breathing slowly so it reads as waiting rather than as
+   content that will not load. */
+.wb-ghost {
+  display: block;
+  background: var(--t-surface-sunken);
+  animation: wb-ghost-breathe 1.6s ease-in-out infinite;
+}
+
+.wb-waiting .wb-tile-art {
+  animation: wb-ghost-breathe 1.6s ease-in-out infinite;
+}
+
+.wb-ghost-line {
+  height: 12px;
+  margin-top: 10px;
+  border-radius: 4px;
+}
+
+.wb-ghost-short {
+  width: 45%;
+  margin-top: 6px;
+}
+
+.wb-ghost-disc {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+@keyframes wb-ghost-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wb-ghost, .wb-waiting .wb-tile-art { animation: none; }
+}
+
+/* --- one item's page ------------------------------------------------------ */
+/* What a row in a service opens: art, name, and the discs that play it.
+   Measured on the product 2026-09-19 (a station in 80er-Radio harmony at
+   1536 wide): 256px art at the panel's inset, the name 40px and 32px right of
+   it, a 48px white play disc with a 48px dark More disc 8px after it, and the
+   service's logo, name and the item's kind under them. */
+.wb-item-page {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  padding: 24px;
+}
+
+/* The name, discs and meta line are one block centered on the art, as on an
+   album's head: KIIS FM's page stands the title's ink at y=160 and the meta
+   line's foot at 294 of a 256px square running 100 to 355, where Sonora hung
+   them from the top at 133; and the meta line sits 23px under the discs,
+   not 30 (play.sonos.com at 1536, 2026-09-22). */
+.wb-item-page { align-items: center; }
+/* The close disc sits at the page's top right, out of the row: the sticky,
+   floated one the service pages use became a flex item here, which pushed
+   the art off its inset and dropped the disc under it. */
+.wb-item-page > .wb-service-close { position: absolute; top: 24px; right: 24px; float: none; margin: 0; }
+.wb-item-page > .wb-item-main { padding-top: 0; }
+.wb-item-page .wb-item-actions { margin-top: 20px; }
+.wb-item-page .wb-item-meta { margin-top: 16px; }
+/* And, as on the album's head, the fallback font paints the name lower in its
+   line than the product's does: moved where it is painted, with the discs,
+   so the meta line keeps the product's baseline at y=294. */
+.wb-item-page .wb-item-main h1 { position: relative; top: -5px; }
+.wb-item-page .wb-item-actions { position: relative; top: -3px; }
+
+/* The 256px square an item is headed by. Its ground is the raised gray the
+   product uses -- Mixcloud's Trending, which has no artwork, is that gray
+   with a star on it -- and the picture is shown whole rather than cropped to
+   the square: Libby's book cover arrives padded to a square by Libby itself
+   and the product draws every pixel of it (measured 2026-09-20). */
+.wb-item-art {
+  flex: none;
+  width: 256px;
+  height: 256px;
+  border-radius: var(--t-radius-tile);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  color: var(--t-fg-faint);
+  background: var(--t-surface-input);
+}
+
+/* The grid's one track is held to the square: left to size itself, it grew
+   to a portrait cover's own height, so a 150x200 Libby cover filled the
+   width and was cropped where the product fits it -- 192x256 in the middle
+   of the gray square, x=72 to 264 (play.sonos.com, 2026-09-22). */
+.wb-item-art { grid-template: minmax(0, 1fr) / minmax(0, 1fr); }
+.wb-item-art img { width: 100%; height: 100%; object-fit: contain; }
+
+.wb-item-main { min-width: 0; padding-top: 24px; }
+
+.wb-item-main h1 {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+/* The line an item's display type names, under its title: Pandora's stations
+   print the date they were made there, at the page's own size and in its own
+   white (measured 2026-09-20). */
+.wb-item-line {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--t-fg);
+}
+
+/* The description under an item's name: 12px on a 16px line, two lines of a
+   310px column with More at the end of the second, which opens the rest
+   (measured 2026-09-20 on Libby's audiobook). */
+.wb-item-summary {
+  position: relative;
+  max-width: 310px;
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-fg-muted);
+}
+
+.wb-item-summary > span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.wb-item-summary[data-whole] > span { display: inline; overflow: visible; }
+
+.wb-item-summary button {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 0 0 0 10px;
+  border: 0;
+  font: inherit;
+  font-weight: 500;
+  color: var(--t-fg);
+  background: var(--t-surface-panel, #222426);
+  cursor: pointer;
+}
+
+/* Three 40px discs. The product leaves 20px after the play disc and 16px
+   between the other two, and its shuffle and More glyphs are white, not the
+   gray Sonora drew them (measured 2026-09-20). */
+.wb-item-actions { display: flex; align-items: center; gap: 16px; margin-top: 24px; }
+
+.wb-item-play,
+.wb-item-dots {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.wb-item-play { background: var(--t-fg); color: var(--t-bg); margin-right: 4px; }
+.wb-item-play:disabled { opacity: 0.4; cursor: default; }
+.wb-item-dots { background: var(--t-surface-raised, #36393a); color: var(--t-fg); }
+
+.wb-item-more { position: relative; display: inline-flex; }
+
+/* Fixed, not absolute: the browse column clips what overflows it, and the
+   product draws this menu over everything -- open one on a track's More and
+   it lies across Your System (measured 2026-09-20). The page puts it under
+   the button it belongs to. */
+.wb-item-menu {
+  position: fixed;
+  min-width: 264px;
+  padding: 8px;
+  border-radius: 16px;
+  background: var(--t-surface-raised, #36393a);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 40;
+}
+
+.wb-item-menu button {
+  display: flex;
+  align-items: center;
+  /* The label stands 20px clear of the glyph, which itself starts 29px from
+     the menu's left edge; the words are 14px, where Sonora's were 16 and ran
+     nine pixels wider than the product's (measured 2026-09-22). */
+  gap: 20px;
+  width: 100%;
+  font-size: 14px;
+  line-height: 20px;
+  /* 52px tall inside an 8px frame, which is the 68px the product's one-entry
+     menu measures, with its glyph 29 from the left edge (2026-09-20). */
+  padding: 16px 20px 16px 21px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* No highlight under the pointer: the product's menu row is the same gray
+   whether the pointer is on it or not, and the cursor is the only feedback
+   it gives (measured on a track's menu, play.sonos.com 2026-09-22). */
+.wb-item-menu button:hover { background: none; }
+
+.wb-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 24px 0 0;
+  font-size: 14px;
+  color: var(--t-fg-muted);
+}
+
+/* The badge here is the service's mark, gray like the words beside it. */
+.wb-item-meta .wb-room-badge { border-radius: 0; }
+/* The separator is a drawn 5px disc in the line's own gray, (159,163,168) at
+   full strength, 10px from the words either side -- not a bullet character,
+   which the fallback font paints 3px wide and dimmer (Libby's audiobook,
+   play.sonos.com 2026-09-22). */
+.wb-item-dot {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  font-size: 0;
+  margin-inline: 2px;
+}
+/* Where a service publishes no badge the words still start 4px in, where
+   the product leaves the badge's place: x=333 for Libby against 329. */
+.wb-item-meta[data-nobadge] { padding-left: 4px; }
+
+@media (max-width: 720px) {
+  .wb-item-page { flex-direction: column; gap: 20px; padding: 16px; }
+  .wb-item-art { width: 100%; height: auto; aspect-ratio: 1; max-width: 320px; }
+  .wb-item-main { padding-top: 0; }
+  .wb-item-main h1 { font-size: 28px; }
+  .wb-item-menu { min-width: 200px; }
+}
+
+/* A page with nothing on it says so in a bar the width of the column: a
+   16px info glyph at x=48, the words at 72, on the raised gray, 32 tall and
+   rounded 8 (Mixcloud's Listen Later on play.sonos.com, 2026-09-20). */
+.wb-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  margin: 33px 0 0;
+  padding: 0 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--t-fg);
+  background: var(--t-surface-raised, #36393a);
+}
+
+.wb-notice svg { flex: none; }
+
+/* A shelf of words: the service's own sentence under the heading, at the
+   size the rest of a page's prose is drawn (Amazon Music's upsell,
+   2026-09-20). */
+.wb-shelf-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--t-fg);
+}
+
+/* --- a list that plays ---------------------------------------------------- */
+/* Mixcloud's Trending, measured 2026-09-19: the item page's head with a
+   shuffle disc between play and More, then the tracks in a table under a
+   Title/Time header. A row does nothing on one click; two plays it. */
+.wb-list-page { position: relative; padding: 24px; }
+
+/* The three discs and the lines around them are centered on the 256px art:
+   the product's title ink sits at 86 below the panel and its meta line ends
+   at 220, a block whose middle is the art's middle (measured 2026-09-20).
+   Centered means no padding above the title to push it off center, and the
+   meta line sits 18 under the discs rather than 24. */
+.wb-list-head { display: flex; align-items: center; gap: 32px; }
+.wb-list-head .wb-item-main { padding-top: 0; }
+.wb-list-head .wb-item-meta { margin-top: 18px; }
+/* The fallback font paints a heading lower in its line than the product's
+   does, and the line under it higher: over the album "2001" the title's ink
+   sat 6px under the product's and "Dr. Dre" 4px over it; over Libby's book
+   4px and 6px. Everything else in the block -- the discs, the meta line --
+   already stood on the product's pixel, so the two are moved where they are
+   painted and nothing around them moves (2026-09-22). */
+.wb-list-head .wb-item-main h1 { position: relative; top: -5px; }
+.wb-list-head .wb-item-line { position: relative; top: 4px; }
+.wb-list-head .wb-item-summary { position: relative; top: 6px; }
+/* Under a blurb the discs stand 2px higher and the meta line 3px, which the
+   album's page, with a single line there, does not need (Libby, 2026-09-22). */
+.wb-list-head .wb-item-summary ~ .wb-item-actions { position: relative; top: -2px; }
+.wb-list-head .wb-item-summary ~ .wb-item-meta { position: relative; top: -3px; }
+/* A podcast's head carries both lines, the producer in white and then in the
+   description's gray, and with both the block stands differently again:
+   99% Invisible's title at y=125, "Roman Mars" at 188 and 228, the discs at
+   256 and the meta line at 318 (play.sonos.com, 2026-09-22). */
+.wb-list-head .wb-item-main:has(.wb-item-line + .wb-item-summary) h1 { top: -8px; }
+.wb-list-head .wb-item-line:has(+ .wb-item-summary) { top: 2px; }
+.wb-list-head .wb-item-line + .wb-item-summary { top: 11px; }
+.wb-list-head .wb-item-line + .wb-item-summary ~ .wb-item-actions { top: 2px; }
+.wb-list-head .wb-item-line + .wb-item-summary ~ .wb-item-meta { top: 1px; }
+
+/* The table's head words stand 34px under the art on a book's or a
+   podcast's page and 26px under it on an album's (Libby, 99% Invisible and
+   "2001" on play.sonos.com, 2026-09-22). */
+.wb-tracks {
+  width: 100%;
+  margin-top: 28px;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+/* The rows are inset 8 further than the page's own padding: a track's number
+   or cover starts at x=48 where the page's title starts at 40 (measured
+   2026-09-22). The row's own 8px of padding does it, so the highlight under
+   the pointer still reaches past the text on both sides. */
+
+/* No rule under the header: the product draws the two words and nothing
+   else between them and the first track (measured 2026-09-20). */
+/* The header's words are the titles' own #e1e7ef, not the muted gray -- the
+   album table and the audiobook's alike read (225,231,239) over the panel
+   (play.sonos.com, 2026-09-22). The same 11px of painted height as 14px
+   draws, but narrower -- "Title" 24 wide where the fallback font drew 26 --
+   so the width is taken back with letter-spacing, not size. */
+.wb-tracks thead th {
+  padding: 0 0 8px;
+  font-size: 14px;
+  letter-spacing: -0.6px;
+  font-weight: 400;
+  color: var(--t-art-fg);
+  text-align: left;
+}
+
+/* The running time ends 16px short of the More column, at x=996 of a row
+   that ends at 1060 (measured 2026-09-20). */
+/* The time is the row's quiet half: #9fa2a8 against the title's #e1e7ef, on
+   an album's table and a playlist's alike (measured 2026-09-22). */
+/* The head's words stand over the column they name, so the first one is
+   inset the same 8px the rows are. */
+.wb-tracks thead th:first-child { padding-left: 8px; }
+
+.wb-tracks .wb-tracks-time {
+  text-align: right; white-space: nowrap; padding-right: 11px;
+  /* "1 hour 17 min" paints 84 wide in the product and 95 at 14px here, at
+     the same height: 12 gaps of -0.9px. */
+  letter-spacing: -0.9px;
+  color: var(--t-fg-muted);
+}
+
+/* The head's own word over that column is the head's color, and ends 4px
+   short of the times under it: 998 against 1002 (2026-09-22). */
+/* Outside an album the times end at 1002 (Libby's chapters), 2px short of
+   where 11px of padding leaves them. */
+.wb-tracks:not([data-numbered]) .wb-track .wb-tracks-time { padding-right: 13px; }
+.wb-tracks thead th.wb-tracks-time { color: var(--t-art-fg); letter-spacing: -0.6px; padding-right: 15px; }
+
+/* A chapter of an audiobook carries its three dots, but they do nothing:
+   the product draws them at a fifth of white -- (79,80,82) on the panel,
+   (88,90,91) on the hover fill -- opens no menu from them, and gives a
+   chapter no menu on right-click either (Libby, 2026-09-22). */
+.wb-track-dots:disabled { opacity: 0.2; cursor: default; }
+
+.wb-track td { padding: 8px 0; vertical-align: middle; }
+.wb-track:hover { background: rgba(255, 255, 255, 0.05); }
+.wb-track td:first-child { border-radius: 8px 0 0 8px; padding-left: 8px; }
+/* The three dots end 45px short of the panel's edge and the running time
+   83px short of it (play.sonos.com at 1536, measured 2026-09-22). */
+.wb-track td:last-child { border-radius: 0 8px 8px 0; padding-right: 12px; }
+
+.wb-track-cell { display: flex; align-items: center; gap: 16px; }
+/* The title's cell takes what the other columns leave and no more: an
+   auto-laid table otherwise sizes it to its longest line, and a paragraph of
+   episode summary pushed the time and the three dots out past the panel's
+   edge (Amazon's 99% Invisible, 2026-09-22). max-width: 0 is what lets a
+   table cell shrink below its content. */
+.wb-tracks:not([data-numbered]) .wb-track td:first-child { width: 100%; max-width: 0; }
+.wb-track-cell { min-width: 0; }
+.wb-track .wb-row-label > span:first-child { min-width: 0; }
+.wb-track .wb-row-art { width: 48px; height: 48px; border-radius: 4px; }
+.wb-track .wb-row-label { display: flex; align-items: center; gap: 6px; color: var(--t-art-fg); }
+
+/* An album's own shape. The number stands where a playlist's cover stands,
+   so the two tables line up down the page: 28px in from the panel's edge,
+   with the title 37px further on -- x=48 and x=85 of a panel that starts at
+   20 (play.sonos.com, 1536 wide, 2026-09-22). The artist's column starts at
+   x=507, which is where the head's word starts too. */
+.wb-tracks .wb-track-num {
+  flex: none; width: 21px; font-size: 14px; color: var(--t-art-fg);
+  font-variant-numeric: tabular-nums;
+}
+.wb-tracks .wb-tracks-artist {
+  padding-right: 24px; color: var(--t-art-fg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Fixed columns, because the product's are: the artist's word starts at
+   x=507 of a table that runs 40..1060 whatever the names in it are, the
+   running time ends at 1001 and the three dots at 1039 (play.sonos.com at
+   1536, measured 2026-09-22). */
+.wb-tracks[data-numbered] { table-layout: fixed; margin-top: 20px; }
+.wb-tracks[data-numbered] .wb-tracks-title { width: 467px; }
+.wb-tracks[data-numbered] .wb-tracks-time { width: 100px; padding-right: 11px; }
+.wb-tracks[data-numbered] .wb-track-more { width: 44px; padding-right: 24px; }
+
+/* A numbered row is 56 tall against a pictured row's 64: the cover sets the
+   height of one and the text sets the height of the other (measured
+   2026-09-22). */
+.wb-tracks[data-numbered] .wb-track td { padding-block: 12px; }
+
+/* 10px square, 6px after the title, in the muted gray the head's words use:
+   #9fa2a8 against the panel's #222426 (measured 2026-09-22). */
+.wb-explicit { flex: none; color: var(--t-fg-muted); }
+.wb-track-bars { flex: none; color: var(--t-accent); }
+.wb-track[data-playing] .wb-row-label { color: var(--t-accent); }
+
+.wb-track-more { width: 40px; text-align: right; }
+
+/* Every row carries its More, white and at rest: the product draws the same
+   three dots on a row the pointer has never touched as on the one under it
+   (measured 2026-09-20). Hiding it until hover was Sonora's invention. */
+.wb-track-dots {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--t-fg);
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .wb-list-page { padding: 16px; }
+  .wb-list-head { flex-direction: column; gap: 20px; }
+  .wb-list-head .wb-item-art { width: 100%; height: auto; aspect-ratio: 1; max-width: 320px; }
+  .wb-list-head .wb-item-main { padding-top: 0; }
+  .wb-list-head h1 { font-size: 28px; }
+  .wb-track-dots { opacity: 1; }
+}
+
+/* --- grouping, in the room column ----------------------------------------- */
+/* The product's, measured 2026-09-19 at 1536 wide: the column becomes a 420px
+   panel from the top of the content area to the bottom of it, 16px corners,
+   tinted with the color of what the group is playing. The head carries the
+   art at 48, the track over its artist and container, and a 40px close disc.
+   Each room is a 60px row: a 48px rounded speaker tile, the name, its level at
+   the right, and a 24px circle -- ticked in the group, hollow outside it. */
+.wb-group-panel {
+  display: flex;
+  flex-direction: column;
+  /* The product's pane ends exactly where the card beside it does -- both run
+     to the same pixel, 8px above the window's foot (measured 2026-09-21) --
+     so the 8px it keeps under itself comes out of its height rather than
+     hanging past the column. */
+  height: calc(100% - 8px);
+  min-height: 0;
+  margin-bottom: 8px;
+  padding: 16px;
+  /* The same 24px corner the card beside it and the room cards under it
+     carry: the product's pane fits a circle of r=24 at its top left, where
+     Sonora's fitted 16 (measured on both clients 2026-09-21). */
+  border-radius: var(--t-radius-card);
+  /* Untinted, the active room's fill, as the big player beside it: rgb(71,74,77)
+     over an empty room (2026-09-24). */
+  background: var(--t-surface-active);
+  /* The tint arrives once the cover has been read, and should not snap. */
+  transition: background 240ms ease;
+}
+
+.wb-group-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+}
+
+.wb-group-art {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 8px;
+  overflow: hidden;
+  /* Untinted, the pane's color lifted to #53575a, as the big player's tile
+     is: the product's head tile over an empty room (2026-09-24). */
+  background: var(--t-tint-raise, var(--t-art-bg-active));
+  /* White, not the near-white of the big player's note (2026-09-24). */
+  color: var(--t-fg);
+}
+
+.wb-group-art img { width: 100%; height: 100%; object-fit: cover; }
+
+.wb-group-now { display: grid; min-width: 0; flex: 1; }
+.wb-group-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--t-fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wb-group-sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--t-tint-fg2, var(--t-fg-muted));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The disc under a close X is the room's color lifted, not white laid over
+   it: a pane of rgb(128,95,25) carries rgb(149,111,29) and one of
+   rgb(29,24,22) carries rgb(43,35,34) -- white at 12% would have pushed the
+   blue channel twice as far (measured 2026-09-22). */
+.wb-group-close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: var(--t-tint-raise, rgba(255, 255, 255, 0.12));
+  color: var(--t-fg);
+  cursor: pointer;
+}
+
+.wb-group-close:hover { background: rgba(255, 255, 255, 0.2); }
+
+.wb-group-rooms { overflow-y: auto; min-height: 0; }
+
+/* 60px rows, which is the product's pitch with the volume line inside them
+   (2026-09-21). */
+.wb-group-room {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  /* 48px tiles on a 60px pitch, which is what the product measures between
+     one room's tile and the next (2026-09-21). */
+  padding: 6px 0;
+}
+
+/* The tile is the pane's color lifted, with the glyph in the pane's own dim
+   text: rgb(38,49,46) and rgb(146,171,164) on a pane of rgb(27,35,33)
+   (2026-09-21), where Sonora punched a black hole in the color instead. */
+.wb-group-speaker {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 8px;
+  background: var(--t-tint-raise, var(--t-art-bg-active));
+  color: var(--t-tint-fg2, var(--t-fg-muted));
+}
+
+.wb-group-text { display: grid; gap: 2px; min-width: 0; flex: 1; }
+
+/* Bars, name, and the room's volume at the right of the same line, which is
+   where the product puts the number (2026-09-21). */
+.wb-group-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wb-group-line .wb-group-level { margin-left: auto; }
+
+/* The four bars run in the line rather than in the pane's corner, which is
+   where the room card puts them; that rule sits further down the file, so
+   this one has to outweigh it rather than merely follow it. */
+.wb-group-line .wb-room-bars {
+  position: static;
+  flex: none;
+}
+
+.wb-group-name {
+  font-size: 14px;
+  color: var(--t-fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wb-group-model { font-size: 12px; color: var(--t-tint-fg2, var(--t-fg-muted)); }
+/* The cone stands at the left edge of the text column, under the first
+   letter of the room's name, and the slider starts 32px from there -- the
+   glyph is 12 wide and the gap 20 (play.sonos.com at 1536, 2026-09-22).
+   White, not the pane's muted gray: the product paints this one the same as
+   the name above it. */
+.wb-group-vol { display: flex; align-items: center; gap: 20px; height: 18px; }
+.wb-group-vol .wb-slider { flex: 1; height: 18px; }
+.wb-group-vol .wb-icon-btn {
+  width: 12px; height: 12px; padding: 0; color: #fff;
+}
+.wb-group-vol .wb-icon-btn svg { width: 12px; height: 12px; }
+/* The rail and knob take the card's color, as they do on the player. */
+.wb-group-vol .wb-slider-rail { background: rgba(255, 255, 255, 0.08); }
+.wb-group-vol .wb-slider-fill { background: rgba(255, 255, 255, 0.9); }
+/* The rail all but vanishes into the pane's color, as it does on the card and
+   in the player: white at 5%, and a fifth of that under a muted room, where
+   the product reads rgb(29,37,36) on a pane of rgb(27,35,33) (2026-09-21). */
+.wb-group-vol .wb-slider-rail { background: rgba(255, 255, 255, 0.05); }
+
+.wb-group-room[data-muted] .wb-slider { opacity: 0.22; }
+.wb-group-room[data-muted] .wb-group-level { opacity: 0.2; }
+.wb-group-level {
+  flex: none;
+  font-size: 13px;
+  color: var(--t-tint-fg2, var(--t-fg-muted));
+  font-variant-numeric: tabular-nums;
+}
+
+/* 20px, and white either way: a room in the group wears a filled disc with
+   the pane's own color cut out for the tick, one outside it a 2px white ring
+   (measured 2026-09-21; Sonora's was 24px with a gray ring). */
+.wb-group-check {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  /* A button's own padding otherwise pushes the tick past the pane's edge,
+     which is what made the room list scroll sideways by two pixels. */
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: none;
+  color: var(--t-tint-color, var(--t-bg));
+  cursor: pointer;
+}
+
+.wb-group-room[data-in] .wb-group-check {
+  border-color: #fff;
+  background: #fff;
+}
+
+/* The tick is small inside the disc and sits a shade low in it -- 11px of
+   ink in a 20px circle, where Sonora's 16px one ran out over the rim
+   (measured 2026-09-22). */
+.wb-group-check svg { width: 11px; height: 11px; margin-top: 1px; }
+
+.wb-group-check:disabled { cursor: default; }
+
+/* The room the panel was opened from wears the same tick as the rest: the
+   product draws no difference between the group's members (2026-09-21). */
+.wb-group-room[data-in] .wb-group-check:disabled { opacity: 1; }
+
+@media (max-width: 640px) {
+  .wb-group-panel { height: auto; border-radius: 12px; }
+}
+
+/* A chosen service's sections. Artists come as circles with the name under
+   them and nothing else; albums and playlists as squares with the name and
+   what they are; songs as the same three-column rows the All view uses. Six
+   tiles to a row, which is what the product fits at 1536 (measured
+   2026-09-22). */
+.wb-sr-cat { margin-top: 26px; }
+/* Measured on Mixcloud's View More for "the cure" (play.sonos.com at 1536,
+   2026-09-22): a heading's ink 26px under the pills, the round tiles 26px
+   under it, and a section of rows starting 19px under its heading. */
+.wb-sr-cat .wb-sr-head { margin-bottom: 18px; }
+.wb-sr-cat[data-shape='rows'] .wb-sr-head { margin-bottom: 11px; }
+.wb-sr-cat[data-shape='circles'] > .wb-sr-head { margin-bottom: 18px; }
+.wb-sr-cat[data-shape='circles'] { padding-bottom: 4px; }
+.wb-sr-cat .wb-sr-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.wb-sr-cat .wb-sr-head h2 { margin: 0; font-size: 20px; font-weight: 500; }
+.wb-sr-cat .wb-sr-head .wb-sr-more { margin-left: auto; }
+
+.wb-sr-tiles {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 20px 16px;
+}
+
+.wb-sr-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.wb-sr-tile-art { display: block; width: 100%; aspect-ratio: 1; border-radius: 4px; overflow: hidden; background: var(--t-art-bg); }
+.wb-sr-tile-art img, .wb-sr-tile-art svg { width: 100%; height: 100%; object-fit: cover; }
+.wb-sr-tile-name { font-size: 14px; color: var(--t-art-fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wb-sr-tile-kind { font-size: 13px; color: var(--t-fg-muted); }
+
+/* An artist is a circle, and its name sits under the middle of it. */
+.wb-sr-cat[data-shape='circles'] .wb-sr-tile { align-items: center; text-align: center; }
+.wb-sr-cat[data-shape='circles'] .wb-sr-tile-art { border-radius: 50%; }
+.wb-sr-cat[data-shape='circles'] .wb-sr-tile-name { max-width: 100%; }
+/* Under the pointer a tile -- an artist's circle or a playlist's square --
+   dims whole, picture and words, to 0.92: the product's Mixcloud View More
+   reads (100,99,100) -> (94,93,94) on a circle and 255 -> 234 on its name
+   (2026-09-22). A row in the same page does not change at all. */
+.wb-sr-tile:hover { opacity: 0.92; }
+
+/* An album's four columns do not fit a phone: the title's fixed 467 alone is
+   wider than the screen, and the panel scrolled sideways under it. The
+   artist's column goes -- the page's own heading already names them -- and
+   what is left is fluid. Sonora's own answer; the official client draws
+   nothing at all at this width. */
+@media (max-width: 640px) {
+  .wb-tracks[data-numbered] { table-layout: auto; }
+  .wb-tracks[data-numbered] .wb-tracks-title { width: auto; }
+  .wb-tracks[data-numbered] .wb-tracks-artist { display: none; }
+  .wb-tracks[data-numbered] .wb-tracks-time { width: auto; padding-right: 8px; }
+  .wb-tracks[data-numbered] .wb-track-more { width: 40px; padding-right: 0; }
+}
+
+/* A container with its own picture -- an artist, a show -- is headed by it:
+   a 256px portrait at the panel's left inset with the name beside it, the
+   "..." under the name and "AccuRadio - Artist" under that. An artist's
+   portrait is a circle; anything else keeps the tile's corner (measured on
+   play.sonos.com 2026-09-22). */
+.wb-service-head[data-pictured] {
+  display: grid;
+  grid-template-columns: 256px minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  align-items: center;
+  column-gap: 32px;
+  row-gap: 8px;
+}
+
+.wb-service-head[data-pictured] .wb-service-portrait {
+  grid-row: 1 / 4;
+  width: 256px;
+  height: 256px;
+  overflow: hidden;
+  border-radius: var(--t-radius-tile);
+  background: var(--t-surface-raised);
+  display: grid;
+  place-items: center;
+}
+
+.wb-service-head[data-pictured='round'] .wb-service-portrait { border-radius: 50%; }
+
+.wb-service-head[data-pictured] .wb-service-portrait img,
+.wb-service-head[data-pictured] .wb-service-portrait svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The service's name is in the line under the "..." on this page, so the
+   eyebrow above the title goes. */
+.wb-service-head[data-pictured] .wb-service-eyebrow { display: none; }
+.wb-service-head[data-pictured] h1 { align-self: end; margin: 0; }
+.wb-service-head[data-pictured] .wb-item-actions { margin: 0; }
+.wb-service-head[data-pictured] .wb-item-meta { align-self: start; margin: 0; }
+
+/* On a phone the portrait heads the page and the name, the discs and the
+   meta line follow it, as a list's or an item's head already does below
+   720px; side by side, a 256px circle left the name no room and pushed
+   "Spotify - Artist" off the screen. */
+@media (max-width: 720px) {
+  .wb-service-head[data-pictured] { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; row-gap: 12px; }
+  .wb-service-head[data-pictured] .wb-service-portrait {
+    grid-row: auto; width: 100%; max-width: 320px; height: auto; aspect-ratio: 1;
+  }
+  .wb-service-head[data-pictured] h1 { align-self: start; font-size: 28px; }
+}
+
+/* 18px, 7px after the title, in the card's dim text: the product's badge on
+   a tinted Now Playing reads rgb(126,180,175) on a panel of rgb(19,32,31),
+   which is that card's own second-line color (measured 2026-09-22). */
+.wb-np-explicit {
+  width: 18px;
+  height: 18px;
+  margin-left: 7px;
+  vertical-align: middle;
+  color: var(--t-tint-fg2, var(--t-fg-muted));
+}
+
+/* --- touch ---------------------------------------------------------------
+   The official client refuses to draw at phone sizes at all, so there is
+   nothing to copy here: this is Sonora's own answer to the same screen.
+   Pointer-coarse only, so a mouse still gets the product's exact geometry.
+
+   Nothing moves; the controls keep the size they paint at and gain a 44px
+   hit area around them, which is the smallest target a finger finds
+   reliably. */
+@media (pointer: coarse) {
+  .wb-icon-btn,
+  .wb-viewall,
+  .wb-sr-more,
+  .wb-track-dots,
+  .wb-item-dots,
+  .wb-queue-row .wb-icon-btn,
+  .wb-group-check,
+  .wb-nav-btn {
+    position: relative;
+  }
+
+  .wb-icon-btn::after,
+  .wb-viewall::after,
+  .wb-sr-more::after,
+  .wb-track-dots::after,
+  .wb-item-dots::after,
+  .wb-group-check::after,
+  .wb-nav-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
+  /* A 12px rail is a 12px target. The input keeps its painted rail and takes
+     a taller box to be dragged by. */
+  .wb-slider input { height: 32px; margin-block: -10px; }
+
+  /* The two controls a finger has to land on rather than near: the search
+     field, which also has to be typed into, and the system picker, which is
+     a native menu. 44px, like everything else here. */
+  .wb-search-pill { min-height: 44px; }
+  .wb-system-filter select { min-height: 44px; }
+}
+
+/* --- search --------------------------------------------------------------- */
+/* Every linked service at once, as the product searches (play.sonos.com,
+   2026-09-19): a filter bar of pills over one section per service, each
+   section's results flowing three rows to a line. */
+
+/* One line of pills that scrolls, as the services row does, rather than a
+   wrapping block that pushes the first result down. */
+.wb-sr-filters {
+  display: flex;
+  gap: 8px;
+  margin: 0 56px 8px 0;
+  padding-bottom: 4px;
+  overflow-x: auto;
+}
+
+.wb-sr-filters > * { flex: none; }
+
+/* Faded at whichever edge it carries on past, the way the services row on the
+   home is (measured 2026-09-20). */
+.wb-sr-filters[data-fade-right] {
+  mask-image: linear-gradient(to right, #000 calc(100% - 72px), transparent);
+}
+
+.wb-sr-filters[data-fade-left] {
+  mask-image: linear-gradient(to right, transparent, #000 72px);
+}
+
+.wb-sr-filters[data-fade-left][data-fade-right] {
+  mask-image: linear-gradient(to right, transparent, #000 72px,
+                              #000 calc(100% - 72px), transparent);
+}
+
+.wb-sr { position: relative; }
+
+.wb-sr > .wb-service-close { top: 0; right: 0; }
+
+.wb-sr-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 9999px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--t-fg);
+  background: var(--t-surface-input);
+  cursor: pointer;
+}
+
+.wb-sr-pill[data-on] {
+  color: #000;
+  background: #fff;
+}
+
+.wb-sr-pill-logo {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 9999px;
+  overflow: hidden;
+  font-size: 10px;
+  background: var(--t-surface-sunken);
+}
+
+.wb-sr-pill-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+.wb-sr-warn { color: #f0932f; }
+
+/* A service's section: its 40px icon at 257 and the first row at 313 in the
+   product's 1600x900 frame, where Sonora had a 32px icon at 253 and the row
+   at 297 (2026-09-28). */
+.wb-sr-group { margin-top: 28px; }
+
+.wb-sr-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 7px;
+}
+
+.wb-sr-head h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 28px;
+}
+
+.wb-sr-logo {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 9999px;
+  overflow: hidden;
+  font-size: 12px;
+  background: var(--t-surface-sunken);
+}
+
+.wb-sr-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+.wb-sr-more {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-size: 14px;
+  color: var(--t-fg-muted);
+  background: none;
+  cursor: pointer;
+}
+
+.wb-sr-more:hover { color: var(--t-fg); text-decoration: underline; }
+
+/* Three to a line where there is room, then two, then one. The product's
+   three columns of a 1020px panel start at x=40, 388 and 736: 324 wide with
+   24 between them (measured 2026-09-20). */
+.wb-sr-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  column-gap: 24px;
+}
+
+/* The search page before anything is typed: the product's title and the line
+   of prose under it, with the services row left standing below (measured
+   2026-09-19). The panel's close button sits where every panel's does. */
+.wb-search-intro {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.wb-search-intro h1 {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 48px;
+}
+
+.wb-search-intro p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--t-fg-muted);
+}
+
+.wb-search-intro .wb-service-close {
+  top: 0;
+  right: 0;
+}
+
+/* Searching, the column becomes a panel as every other view of the product's
+   does; the home alone sits on the page itself (play.sonos.com, 2026-09-19). */
+/* Searching paints the same card the other panels paint, which means the
+   same bleed: 16px from the window on both sides and down to the transport
+   bar, not the column's own narrower box (measured 2026-09-20, where the
+   product's results card runs x=16..1083 and Sonora's ran 28..1072). */
+.wb-content[data-panel] {
+  margin: 0 0 -8px;
+  padding: 24px;
+  border-radius: var(--t-radius-card);
+  background: var(--t-surface-panel, #222426);
+}
+
+/* The service's wordmark in Now Playing: the product prints it at 24px tall
+   under the artist, left-aligned with the text above it (play.sonos.com,
+   2026-09-19). Left in the service's own colors, as its brand asks. Spotify's
+   paints 77x24 there, 8 under the artist (2026-09-24). */
+/* Padding, not margin: an empty slot's margin would fold into the progress
+   row's and the 8 would vanish. */
+.wb-np-mark { padding-top: 8px; }
+
+.wb-np-wordmark {
+  display: block;
+  height: 24px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  object-position: left center;
+  /* The services draw these black -- Pandora's and harmony's both -- and the
+     product prints them white over its tinted panel, so they are recolored
+     here as the badges are. */
+  filter: brightness(0) invert(1);
+}
+
+/* --- the queue ------------------------------------------------------------ */
+/* The queue takes the "Your System" column, as grouping does (measured on
+   play.sonos.com 2026-09-19 with 50 tracks queued): the word Queue over the
+   count, shuffle, repeat, a bin and the X along the top, then rows of 40px
+   art, the title, and the kind beneath it. */
+
+.wb-queue {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* It ends where the card beside it ends, as the grouping pane does. */
+  height: calc(100% - 8px);
+  margin-bottom: 8px;
+  padding: 16px;
+  border-radius: var(--t-radius-card);
+  /* Untinted, the active room's fill like the big player and the grouping
+     pane, which share its tint; an untinted queue itself has not been seen
+     in the product (2026-09-24). */
+  background: var(--t-surface-active);
+}
+
+/* The head's shuffle, repeat and bin are white, not the bar's gray: all
+   three read (255,255,255) in the product's queue (2026-09-22). */
+.wb-queue-head .wb-icon-btn { color: var(--t-fg); }
+/* A disabled one dims, as the product's bin does with nothing it may clear
+   (a Spotify Connect session, 2026-10-04); the rule above had
+   outweighed the theme's own disabled color. */
+.wb-queue-head .wb-icon-btn:disabled { color: var(--t-fg-disabled); }
+
+.wb-queue-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.wb-queue-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.wb-queue-title h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 28px;
+}
+
+.wb-queue-title p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-fg-muted);
+}
+
+/* The same disc the grouping pane's close wears, and like that one it does
+   not answer the pointer: the product's stays rgb(43,35,34) whether the
+   pointer is on it or not (measured 2026-09-22). */
+.wb-queue-close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: var(--t-tint-raise, rgba(255, 255, 255, 0.12));
+  color: var(--t-fg);
+}
+.wb-queue-close:hover { background: var(--t-tint-raise, rgba(255, 255, 255, 0.12)); }
+
+.wb-queue-rows {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0 -8px;
+}
+
+/* A Spotify Connect session's card: the service's wordmark over the playing
+   track, in one raised block with 16px corners (play.sonos.com,
+   2026-10-04). The row inside takes the card's color rather than its own. */
+.wb-queue-connect {
+  margin: 0 0 8px;
+  padding: 16px 8px 8px;
+  border-radius: 16px;
+  background: var(--t-tint-raise, var(--t-surface-active));
+}
+.wb-queue-connect .wb-np-mark { padding: 0 8px 12px; font-weight: 600; }
+.wb-queue-connect .wb-queue-row[data-playing] { background: transparent; }
+
+/* 58px rows: 40px art with 8px above and below, as the product's are. */
+.wb-queue-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 8px;
+  border-radius: 8px;
+}
+
+.wb-queue-row:hover { background: var(--t-surface-hover); }
+
+.wb-queue-row[data-playing] { background: var(--t-tint-raise, var(--t-surface-active)); }
+
+.wb-queue-art {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 4px;
+  color: var(--t-art-fg);
+  background: var(--t-art-bg);
+  overflow: hidden;
+}
+
+.wb-queue-art img { width: 100%; height: 100%; object-fit: cover; }
+
+.wb-queue-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.wb-queue-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The title is its own box inside the flex, so it can end in an ellipsis:
+   a bare text node there is an anonymous item and overflows instead. */
+.wb-queue-name > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.wb-queue-bars { flex: none; color: var(--t-fg); }
+
+.wb-queue-kind {
+  display: block;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-tint-fg2, var(--t-fg-muted));
+}
+
+.wb-queue-grip {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  flex: none;
+  color: var(--t-fg-muted);
+  opacity: 0.6;
+}
+
+/* The playing room's card says so with four bars rising and falling at its
+   top right -- 14px of ink by 13, 24px below the card's top edge and 29px in
+   from its right (measured on play.sonos.com 2026-09-19 over six frames, the
+   bars moving independently and anchored at the bottom). */
+.wb-room-bars {
+  position: absolute;
+  /* The bars ride with the names, not with the card's corner. Two
+     measurements, not a derived rule: over one name the ink sits 24px below
+     the card's edge (six frames, 2026-09-19), and over two the bars' feet --
+     which is the edge that does not move while they dance -- sit 47px below
+     it (two frames, 2026-09-22), so a second name carries them 10px down.
+     The card's own 2px border comes off both, since `top` measures from the
+     padding box where the product's numbers are off the visible edge. */
+  top: calc(12px + 10px * var(--wb-names, 1));
+  right: 27px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 14px;
+  height: 13px;
+  color: var(--t-fg);
+  pointer-events: none;
+}
+
+.wb-room-bars i {
+  width: 2px;
+  height: 100%;
+  border-radius: 1px;
+  background: currentColor;
+  transform-origin: bottom;
+  animation: wb-room-bar 1s ease-in-out infinite alternate;
+}
+
+/* Four lengths and four offsets, so no two bars move together. */
+.wb-room-bars i:nth-child(1) { animation-duration: 0.9s; animation-delay: -0.2s; }
+.wb-room-bars i:nth-child(2) { animation-duration: 1.2s; animation-delay: -0.7s; }
+.wb-room-bars i:nth-child(3) { animation-duration: 0.8s; animation-delay: -0.4s; }
+.wb-room-bars i:nth-child(4) { animation-duration: 1.1s; }
+
+@keyframes wb-room-bar {
+  0% { transform: scaleY(0.18); }
+  100% { transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wb-room-bars i { animation: none; transform: scaleY(0.6); }
+}
+
+/* The line the row carried, directly over the content it describes: 51px
+   below the title's ink and 6px above the first tile, which is where the
+   product puts "local" on Community Radio Plus' Near Me. The selector
+   carries the element name because the page styles its own paragraphs. */
+.wb-service-page > p.wb-service-summary {
+  margin: 38px 0 2px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-fg-muted);
+}
+
+/* A track row on its way: the art square and two lines, on the table's own
+   64px pitch. */
+.wb-track-ghost {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  align-items: center;
+  gap: 16px;
+  height: 64px;
+}
+
+.wb-track-ghost .wb-tile-art {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+}
+
+.wb-track-ghost .wb-ghost-line { width: 420px; max-width: 100%; }
+.wb-track-ghost .wb-ghost-line:first-child { margin-top: 0; }
+.wb-track-ghost .wb-ghost-short { width: 190px; }
+
+/* A pinned row whose service will not answer, as the product reports it. */
+.wb-pinned-failed {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* The product's card runs the width of the column, where an empty-state
+     card is 380px. */
+  max-width: none;
+}
+
+.wb-pinned-failed svg { flex: none; color: var(--t-fg-muted); }
+
+/* The ring that turns at the right of the search pill while the services
+   answer, 20px in from the pill's right edge (play.sonos.com, 2026-09-19). */
+.wb-search-spin {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border: 2px solid var(--t-fg-muted);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: wb-spin 800ms linear infinite;
+  pointer-events: none;
+}
+
+@keyframes wb-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .wb-search-spin { animation-duration: 2.4s; }
+}
+
+/* The dimmed "..." beside a service page's close button: the product draws
+   one on every page inside a service and it does nothing (2026-09-20). 48px
+   left of the close, same 40px disc, no background until there is something
+   for it to do. */
+.wb-service-more {
+  position: absolute;
+  top: 24px;
+  right: 72px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 9999px;
+  color: var(--t-fg-muted);
+  /* The product draws the dimmed dots inside a faint disc, rgb(38,40,42)
+     on the panel (AccuRadio's Browse Genres, 2026-09-28). */
+  background: rgb(38, 40, 42);
+}
+.wb-service-more svg { opacity: 0.45; }
+
+/* A service's shelves are spaced a little wider than the home's sections and
+   headed a little larger: 20px against the home's 18, and 43px from the last
+   tile's second line to the next heading against the home's 38 (measured on
+   play.sonos.com, 2026-09-20). */
+.wb-service-page .wb-section {
+  margin-bottom: 35px;
+}
+
+/* The first shelf sits 38px under the provider's link pill: the product's
+   Collections heading lands 44 below it, ink to ink (2026-09-20). */
+.wb-service-page .wb-section:first-of-type {
+  margin-top: 36px;
+}
+
+.wb-service-page .wb-section-head {
+  /* 22px from the heading's ink to the tiles, against the home's 19. */
+  margin-bottom: 17px;
+}
+
+.wb-service-page .wb-section-head h2 {
+  font-size: 20px;
+}
+
+/* A category's View All page (SearchResults' ViewAll), measured on Mixcloud's
+   Songs and Artists for "the cure" (play.sonos.com at 1536, 2026-09-22): the
+   service's name in #999 over the category's in 40px white, then a table
+   whose columns stand at x=40, 383, 717 and end with the time at 1005 --
+   heads in #999, rows 72 apart with 56px art 8px in and the title 16px after
+   it, the artist and album in #999 -- or seven 128px pictures a row, 20px
+   apart and 182px down. */
+.wb-sr-all { margin-top: 13px; }
+.wb-sr-all-eyebrow { margin: 0; font-size: 14px; line-height: 16px; color: #999999; }
+.wb-sr-all-title { margin: 0; font-size: 42px; font-weight: 500; line-height: 46px; }
+.wb-sr-table { width: 100%; margin-top: 28px; border-collapse: collapse; table-layout: fixed; }
+.wb-sr-table th {
+  padding: 0 0 7px; text-align: left; font-size: 13px; font-weight: 400;
+  letter-spacing: -0.3px; color: #999999;
+}
+.wb-sr-table th:first-child { width: 343px; padding-left: 8px; }
+.wb-sr-table th:nth-child(2) { width: 334px; }
+.wb-sr-table th.wb-sr-table-time, .wb-sr-table td.wb-sr-table-time { width: 110px; text-align: right; padding-right: 55px; }
+.wb-sr-table-row td { height: 72px; padding: 0; vertical-align: middle; }
+.wb-sr-table-row td:first-child { padding-left: 8px; border-radius: 8px 0 0 8px; }
+.wb-sr-table-row td:last-child { border-radius: 0 8px 8px 0; }
+/* The product's hover reads (45,47,49) over the panel's (34,36,38). */
+.wb-sr-table-row:hover { background: rgba(255, 255, 255, 0.045); }
+.wb-sr-table-cell { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.wb-sr-table-cell .wb-row-art { width: 56px; height: 56px; border-radius: 4px; }
+.wb-sr-table-title, .wb-sr-table-dim {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px;
+}
+.wb-sr-table-title { color: #ffffff; padding-right: 8px; position: relative; top: -1px; }
+.wb-sr-table-dim { color: #999999; padding-right: 16px; }
+.wb-sr-all-grid {
+  display: grid; grid-template-columns: repeat(7, minmax(0, 128px));
+  column-gap: 20px; row-gap: 25px; margin-top: 29px;
+}
+.wb-sr-all[data-shape='circles'] .wb-sr-tile { align-items: center; text-align: center; }
+.wb-sr-all[data-shape='circles'] .wb-sr-tile-art { border-radius: 50%; }
+.wb-sr-all .wb-sr-tile-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 720px) {
+  .wb-sr-all-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 12px; }
+  .wb-sr-table th:first-child { width: auto; }
+  .wb-sr-table th:nth-child(2), .wb-sr-table th:nth-child(3), .wb-sr-table td:nth-child(2), .wb-sr-table td:nth-child(3) { display: none; }
+  .wb-sr-table th.wb-sr-table-time, .wb-sr-table td.wb-sr-table-time { width: 64px; padding-right: 8px; }
+  .wb-sr-all-title { font-size: 28px; line-height: 34px; }
+}
+
+/* The bar's queue button while the queue is open: a 40px white disc with the
+   glyph in black, and a second press closes the panel (play.sonos.com,
+   2026-09-22). */
+.wb-transport-right > .wb-icon-btn.wb-transport-queue[data-open] {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: #ffffff; color: #000000; opacity: 1;
+}
+
+
+/* In the queue the explicit mark is 14px and the tint's own dim text, the
+   color of the artist line under it: (126,180,175) on a panel of
+   (19,32,31) under "2001" (play.sonos.com, 2026-09-22), not the list's 10px
+   gray. */
+.wb-queue-name .wb-explicit { width: 14px; height: 14px; color: var(--t-tint-fg2, var(--t-fg-muted)); }
+
+/* The queue row's menu: 264px wide, fixed to the window so the scrolling
+   list does not clip it (play.sonos.com, 2026-09-22). */
+.wb-queue-menu { position: fixed; left: auto; width: 264px; z-index: 40; }
+
+/* The product's small dialogs -- System Name -- measured 2026-09-22: 384x230
+   on the panel's own gray over a 50% black wash, 24px in, the title and the
+   gray prompt in 14px, a 38px field with a 1px white rule, and two 40px pills
+   14px apart, Cancel on the raised gray and Save a step lighter with its
+   word dimmed until there is something to save; a 9px close at the top
+   right. */
+.wb-overlay:has(> .wb-panel[data-variant='dialog']) { background: rgba(0, 0, 0, 0.5); }
+.wb-panel[data-variant='dialog'] {
+  position: relative; width: 384px; max-width: 100%; padding: 24px 24px 25px;
+  background: var(--t-surface-panel, #222426); box-shadow: none;
+}
+.wb-panel[data-variant='dialog'] h2 { margin: 0; font-size: 18px; font-weight: 500; line-height: 26px; }
+.wb-panel[data-variant='dialog'] p { margin: 4px 0 0; font-size: 14px; line-height: 20px; color: var(--t-fg-muted); }
+.wb-panel[data-variant='dialog'] .wb-name-input {
+  display: block; width: 100%; box-sizing: border-box; height: 38px; margin-top: 18px;
+  padding: 0 10px; border: 1px solid #ffffff; border-radius: 2px;
+  background: transparent; font-size: 14px; color: var(--t-fg);
+}
+.wb-panel[data-variant='dialog'] .wb-name-input::placeholder { color: var(--t-fg-muted); }
+.wb-dialog-close {
+  position: absolute; top: 14px; right: 14px; width: 24px; height: 24px;
+  display: grid; place-items: center; color: #bdbdbe; background: none; border: 0;
+}
+.wb-panel[data-variant='dialog'] p.wb-dialog-note { margin-top: 12px; font-size: 12px; line-height: 16px; }
+.wb-dialog-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 34px; }
+.wb-dialog-btn {
+  height: 40px; border: 0; border-radius: 9999px; font-size: 14px; font-weight: 500;
+  color: #ffffff; background: var(--t-surface-raised, #36393a);
+}
+.wb-dialog-btn + .wb-dialog-btn { background: #4f5052; }
+.wb-dialog-btn:disabled { color: #3f4042; cursor: default; }
+
+/* A lost speaker's third line in View System Details: the product's small
+   red dot and "Not connected" (play.sonos.com, 2026-09-28). */
+.wb-sysdetails-lost { display: flex; align-items: center; gap: 2px; font-size: 12px; line-height: 16px; color: var(--t-num-fg); }
+.wb-sysdetails-lost svg { color: #ff5a4f; }
+
+/* A station's description is the page's one paragraph: 16px in a wider
+   column, as the product sets AccuRadio's Lovers Rock Reggae and Amazon's
+   1960s Reggae Classics (2026-09-28). */
+.wb-item-summary[data-station] { max-width: 560px; font-size: 16px; line-height: 24px; }
+
+/* The service's own actions under Play Now, after a rule: words alone, no
+   glyph, standing where Play Now's words stand (Amazon Music, 2026-09-28). */
+.wb-item-menu-rule { height: 1px; margin: 4px 12px; background: var(--t-surface-input, #4a4d4f); }
+.wb-item-menu button.wb-item-menu-text { padding: 10px 20px 10px 21px; }
+
+/* A station's head stands on the art's foot rather than its middle: on
+   both AccuRadio's Lovers Rock Reggae and Amazon's 1960s Reggae Classics
+   the discs top 140px under the art's top and the meta line 207px under it,
+   however long the description (play.sonos.com, 2026-09-28). */
+.wb-list-head[data-station] { align-items: flex-end; }
+.wb-list-head[data-station] .wb-item-main { padding-bottom: 38px; }
+.wb-list-head[data-station] .wb-item-summary,
+.wb-list-head[data-station] .wb-item-summary ~ .wb-item-actions,
+.wb-list-head[data-station] .wb-item-summary ~ .wb-item-meta { top: 0; }
+.wb-list-head[data-station] .wb-item-summary { margin-top: 8px; }
+.wb-list-head[data-station] .wb-item-actions { margin-top: 20px; }
+
+/* The Search page's history: the searches that led somewhere, newest first,
+   over the household's services (play.sonos.com, 2026-09-28). */
+.wb-search-history { margin: 24px 0 8px; }
+.wb-search-history .wb-row-art { display: grid; place-items: center; color: var(--t-fg-muted); }
+
+/* An artist wears its microphone in a circle, where every other kind of row
+   in the library has the rounded square (play.sonos.com, 2026-09-30). */
+.wb-service-page[data-library] .wb-row-art[data-round] { border-radius: 50%; }
+/* The library's glyphs are white on the tile, as the product draws them. */
+.wb-service-page[data-library] .wb-row-art > svg { color: #ffffff; }
+.wb-list-head[data-library-head] .wb-item-art { display: grid; place-items: center; color: #222426; }
+.wb-list-head[data-library-head] .wb-item-art[data-round] { border-radius: 50%; }
+
+/* A rating the service gives no way to undo: lit, and not pressable. */
+.wb-transport-rate .wb-rate-btn[aria-disabled='true'] { cursor: default; }

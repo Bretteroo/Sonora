@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import Art, { nowPlayingArt, cachedArt } from '../../frontend/src/components/Art.jsx'
@@ -13,9 +13,12 @@ import { isConnectSession } from '../../frontend/src/lib/transport.js'
 // The stage: the room in view filling the window. The artwork, blurred,
 // lights the whole surface; the lines are captioned the way the source calls
 // for; the service's own rating buttons sit under them; every room of the
-// group has its own volume; the queue runs down the side.
+// group has its own volume; the queue runs down the side, shown or hidden
+// with the same Queue button as the bar's drawer. When the queue is empty or
+// is not what plays (a station, a TV, a Connect session) the column starts
+// hidden, and the button opens it for this visit only.
 
-export default function Stage({ zone, group, zones, queue, onClose, onInfo, onMessage, onRooms, onQueueEdited }) {
+export default function Stage({ zone, group, zones, queue, queueOpen, onQueue, onClose, onInfo, onMessage, onRooms, onQueueEdited }) {
   const { actions } = useSystem()
   const { t } = useI18n()
   const tr = zone?.transport || {}
@@ -30,6 +33,12 @@ export default function Stage({ zone, group, zones, queue, onClose, onInfo, onMe
   // one the speaker reports. Every theme answers it this way.
   const nextTrack = isConnectSession(tr) ? (tr.next_title ? { title: tr.next_title, artist: tr.next_artist } : null)
     : tr.source === 'queue' ? queue.items[(tr.track_number || 0)] : null
+
+  const queueCount = queue.total || queue.items.length
+  const queuePlays = tr.source === 'queue' && !isConnectSession(tr) && queueCount > 0
+  const [peek, setPeek] = useState(false)
+  useEffect(() => { setPeek(false) }, [queuePlays])
+  const showQueue = queuePlays ? queueOpen : peek
 
   // Ratings: a service's own buttons from its presentation map, or Pandora's
   // thumbs. A press flips the icon and is confirmed by the service's message.
@@ -62,8 +71,9 @@ export default function Stage({ zone, group, zones, queue, onClose, onInfo, onMe
           <I.Speaker /><span>{groupTitle(group, zones, t)}</span>
         </button>
         <span className="sf-stage-source">{tr.service_name || (tr.source ? t(`source.${tr.source}`) : '')}</span>
+        <IconButton label={t('common.queue')} active={showQueue} onClick={queuePlays ? onQueue : () => setPeek((v) => !v)} badge={queueCount}><I.Queue /></IconButton>
       </header>
-      <div className="sf-stage-body">
+      <div className="sf-stage-body" data-queue={showQueue || undefined}>
         <section className="sf-stage-main">
           <div className="sf-stage-art">
             {tr.source === 'tv' ? <I.Tv /> : <Art src={art} size={420} fallback="note" />}
@@ -129,10 +139,12 @@ export default function Stage({ zone, group, zones, queue, onClose, onInfo, onMe
             ))}
           </div>
         </section>
-        <aside className="sf-stage-queue" aria-label={t('desk.queue.title')}>
-          <h3>{t('desk.queue.title')} <small>{t.plural('desk.queue.songs', queue.total || queue.items.length)}</small></h3>
-          <QueueList zone={zone} queue={queue} onInfo={onInfo} onEdited={onQueueEdited} compact />
-        </aside>
+        {showQueue && (
+          <aside className="sf-stage-queue" aria-label={t('desk.queue.title')}>
+            <h3>{t('desk.queue.title')} <small>{t.plural('desk.queue.songs', queueCount)}</small></h3>
+            <QueueList zone={zone} queue={queue} onInfo={onInfo} onEdited={onQueueEdited} compact />
+          </aside>
+        )}
       </div>
     </Sheet>
   )

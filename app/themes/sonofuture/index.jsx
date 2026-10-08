@@ -347,7 +347,7 @@ export function Shell() {
               onSleep={() => setSleepOpen(true)} sleepOn={Boolean(sleep.remaining)} onMini={toggleMini} />
 
       {stageOpen && activeZone && (
-        <Stage zone={activeZone} group={activeGroup} zones={zones} queue={queue} onClose={() => setStageOpen(false)} onInfo={openInfoForNow} onMessage={toast}
+        <Stage zone={activeZone} group={activeGroup} zones={zones} queue={queue} queueOpen={queueOpen} onQueue={() => setQueueOpen((v) => !v)} onClose={() => setStageOpen(false)} onInfo={openInfoForNow} onMessage={toast}
                onRooms={() => setGroupSheet(activeGroup)} onQueueEdited={() => setQueueEdited(true)} />
       )}
       {groupSheet && <GroupSheet group={groups.find((g) => g.id === groupSheet.id) || groupSheet} zones={zones} households={households} onClose={() => setGroupSheet(null)} />}

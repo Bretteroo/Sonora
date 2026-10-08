@@ -760,6 +760,8 @@
 :where(:root[data-theme='liquidglass']) .sf-vol-row .sf-icon-btn { grid-area: mute; }
 :where(:root[data-theme='liquidglass']) .sf-vol-row .sf-slider { grid-area: slider; }
 :where(:root[data-theme='liquidglass']) .sf-vol-group { background: rgba(79, 227, 193, 0.08); }
+/* With the queue hidden the player takes the whole width, at every size. */
+:where(:root[data-theme='liquidglass']) .sf-stage-body:not([data-queue]) { grid-template-columns: minmax(0, 1fr); }
 :where(:root[data-theme='liquidglass']) .sf-stage-queue { display: flex; flex-direction: column; min-height: 0; border-left: 1px solid var(--t-border); padding-left: 20px; }
 :where(:root[data-theme='liquidglass']) .sf-stage-queue h3 { margin: 0 0 8px 8px; font-size: 14px; }
 :where(:root[data-theme='liquidglass']) .sf-stage-queue h3 small { font-weight: 400; color: var(--t-fg-muted); margin-left: 6px; }

@@ -5,7 +5,6 @@ import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds, controllerTitle, isLiveStream, systemChoiceMatters } from '../../frontend/src/lib/format.js'
 import MenuBar from './MenuBar.jsx'
-import DevThemeSwitch from '../../frontend/src/components/DevThemeSwitch.jsx'
 import Transport from './Transport.jsx'
 import Rooms from './Rooms.jsx'
 import { NowPlaying, Queue } from './Center.jsx'
@@ -355,9 +354,6 @@ function Shell() {
         <div className="dk-lights" data-inactive={Boolean(dialog)}>
           <span className="dk-light-close" /><span className="dk-light-min" /><span className="dk-light-zoom" />
         </div>
-        {/* The dev theme switcher, at the right of the window's title row
-            rather than in the system menu bar (2026-09-28). */}
-        <DevThemeSwitch className="mac-titlebar-theme" />
       </div>
       {/* The Mac app counts down what is left of a track, as the Windows one does (2026-09-15). */}
       <Transport zone={activeZone} group={activeGroup} query={query} onQuery={setQuery}

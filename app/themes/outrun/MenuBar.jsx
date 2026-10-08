@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import DevThemeSwitch from '../../frontend/src/components/DevThemeSwitch.jsx'
 
 // The classic Windows menu bar that sits under the title bar: File, Edit, View,
 // Manage, Help, each opening a square-cornered dropdown. Same menu model as the
@@ -69,9 +68,6 @@ export default function MenuBar({ menus }) {
           )}
         </li>
       ))}
-      {/* Past Help, at the end of the row: a build-time convenience that has
-          no business anywhere the app's own layout is being matched. */}
-      <li className="win-menubar-aside" role="none"><DevThemeSwitch className="win-menubar-theme" /></li>
     </ul>
   )
 }

@@ -1181,8 +1181,8 @@
 /* Parental Controls, the Windows tab's arrangement in this window's dress:
    a paragraph, then two 260px buttons centered under it, 10 and 20 apart. */
 
-/* Selectors in the strip, sitting just left of the 212px search box: a
-   development-only theme switcher and the S1/S2 system toggle. */
+/* Selectors in the strip, sitting just left of the 212px search box: the
+   S1/S2 system toggle. */
 :where(:root[data-theme='hotdog']) .dk-strip-aux {
   position: absolute;
   right: 236px;
@@ -1192,25 +1192,6 @@
   align-items: center;
   gap: 8px;
 }
-
-/* The development-only theme switcher at the end of the menu bar, past Help.
-   Pushed to the far end of the row and drawn in the bar's own colors, so it
-   reads as part of the chrome rather than as a control the app has. */
-:where(:root[data-theme='hotdog']) .dk-menubar-aside { list-style: none; margin-left: auto; display: flex; align-items: center; padding-right: 8px; }
-:where(:root[data-theme='hotdog']) .dk-menubar-theme select {
-  height: 18px;
-  max-width: 170px;
-  padding: 0 4px;
-  border: 1px solid var(--t-border, rgba(255, 255, 255, 0.18));
-  border-radius: 4px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 11px;
-  opacity: 0.75;
-}
-:where(:root[data-theme='hotdog']) .dk-menubar-theme select:hover, :where(:root[data-theme='hotdog']) .dk-menubar-theme select:focus { opacity: 1; }
-:where(:root[data-theme='hotdog']) .dk-menubar-theme option { color: initial; background: Canvas; }
 
 :where(:root[data-theme='hotdog']) .dk-strip-select {
   height: 22px;

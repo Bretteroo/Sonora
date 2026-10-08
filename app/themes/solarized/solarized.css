@@ -179,11 +179,11 @@
 .sz-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']), textarea) { background-color: var(--sz-well); color: var(--sz-strong); border-color: var(--sz-line); }
 /* The pop-ups (a closed combo box, Add Alarm's Room): the Windows skin's two-tone gray face and
    black arrow, outranked at its own strength by the well and a base0 arrow. */
-.sz-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select) {
+.sz-root.win-root select:not(.win-settings select):not(.dk-strip-select select) {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23839496' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--sz-well);
   color: var(--sz-strong); border-color: var(--sz-line); box-shadow: none;
 }
-.sz-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select):hover:not(:disabled) { border-color: #268bd2; }
+.sz-root.win-root select:not(.win-settings select):not(.dk-strip-select select):hover:not(:disabled) { border-color: #268bd2; }
 /* Add a service's S1 / S2 strip. */
 .sz-root.win-root .dk-window .dk-add .dk-tabs, .sz-root .dk-window .dk-tabs { background: var(--sz-panel); border-color: var(--sz-line); }
 /* Add Music Services' rows and the Services table's names, in the palette. */
@@ -203,7 +203,7 @@
 
 /* --- the main window's leftover Windows grays ------------------------------------------------- */
 /* The theme chooser in the title bar, the music pane's glyph discs and the (i), its chevrons. */
-.sz-root.win-root :is(.win-titlebar, .win-menubar-theme, .dk-strip-select) select { background: var(--sz-panel); color: var(--sz-strong); border: 1px solid var(--sz-line); }
+.sz-root.win-root :is(.win-titlebar, .dk-strip-select) select { background: var(--sz-panel); color: var(--sz-strong); border: 1px solid var(--sz-line); }
 .sz-root.win-root .dk-browse-glyph svg { background: transparent; color: var(--sz-strong); }
 .sz-root.win-root .dk-browse-art.dk-browse-glyph { background: var(--sz-panel); color: var(--sz-strong); }
 .sz-root.win-root .dk-header-btn svg, .sz-root.win-root .dk-center-info svg { background-color: transparent; }

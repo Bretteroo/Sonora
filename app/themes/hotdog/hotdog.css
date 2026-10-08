@@ -193,12 +193,12 @@
 .hd-root .win-alarms-table, .hd-root .win-savequeue-list { border-color: #000000; }
 .hd-root .win-about-box .win-about-rule { color: #808080; }
 .hd-root .win-shortcuts-table tbody tr:first-child td { background: #c0c0c0; }
-.hd-root.win-root :is(.win-titlebar, .win-menubar-theme) select { background: #ffffff; color: #000000; border-color: #000000; }
-.hd-root.win-root :is(.win-titlebar, .win-menubar-theme) select:hover { color: #000000; border-color: #000000; background: #c0c0c0; }
+.hd-root.win-root .win-titlebar select { background: #ffffff; color: #000000; border-color: #000000; }
+.hd-root.win-root .win-titlebar select:hover { color: #000000; border-color: #000000; background: #c0c0c0; }
 .hd-root.win-root .dk-browse-disclosure, .hd-root.win-root .dk-browse-chevron { background-color: currentColor; }
 .hd-root.win-root .win-errorlog-body .error-log { background: #ffffff; color: #000000; border-color: #000000; }
 .hd-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']), textarea) { background-color: #ffffff; color: #000000; border-color: #000000; }
-.hd-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select) {
+.hd-root.win-root select:not(.win-settings select):not(.dk-strip-select select) {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23000000' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, #ffffff;
   color: #000000; border-color: #000000; box-shadow: none;
 }

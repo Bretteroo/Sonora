@@ -39,12 +39,6 @@
 /* --- the window head: lights in the black header, no title ------------------ */
 .mac-root .dk-titlebar { height: 30px; background: #0a0a0a; border-bottom: 0; }
 .mac-root .dk-lights { left: 9px; top: 7px; gap: 8px; }
-/* The dev theme switcher at the right of the title row, in its grays. */
-.mac-root .mac-titlebar-theme { position: absolute; right: 16px; top: 6px; }
-.mac-root .mac-titlebar-theme select { height: 18px; max-width: 190px; padding: 0 6px; border: 1px solid #3a3a3a; border-radius: 5px;
-  background: #1a1a1a; color: #c8c8c8; font: inherit; font-size: 11px; opacity: 0.8; }
-.mac-root .mac-titlebar-theme select:hover, .mac-root .mac-titlebar-theme select:focus { opacity: 1; }
-.mac-root .mac-titlebar-theme option { color: initial; background: Canvas; }
 .mac-root .dk-lights span { border-color: rgba(0, 0, 0, 0.25); }
 
 /* --- the transport strip: 76px under the 30px head, 106 in all ------------- */
@@ -675,7 +669,7 @@
 /* Pop-up: a rounded 31pt button, a 1pt #A0A0A0 rim, the face white fading
    to #ECECEC below the middle, and the up-and-down chevrons at its right.
    The Preferences pop-ups keep their own measured look (.dk-prefs-popup). */
-.mac-root select:not(.dk-prefs-popup):not(.dk-lib-popup):not(.dk-strip-select select):not(.mac-titlebar-theme select) {
+.mac-root select:not(.dk-prefs-popup):not(.dk-lib-popup):not(.dk-strip-select select) {
   appearance: none; -moz-appearance: none; box-sizing: border-box;
   height: 31px; padding: 0 28px 0 9px;
   border: 1px solid #a0a0a0; border-radius: 6px; color: #262626; font: inherit; font-size: 13px;
@@ -683,7 +677,7 @@
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='14' viewBox='0 0 10 14'%3E%3Cpath d='M2 5.5 5 2.5l3 3M2 8.5l3 3 3-3' fill='none' stroke='%23555555' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 8px center,
     linear-gradient(#ffffff 15%, #ececec 55%);
 }
-.mac-root select:not(.dk-prefs-popup):not(.dk-lib-popup):not(.dk-strip-select select):not(.mac-titlebar-theme select):disabled { color: #a8a8a8; border-color: #d0d0d0; }
+.mac-root select:not(.dk-prefs-popup):not(.dk-lib-popup):not(.dk-strip-select select):disabled { color: #a8a8a8; border-color: #d0d0d0; }
 
 /* Time field: an 84 x 23pt box in a hairline #D4D4D4, square, the part in
    focus in the selection blue; beside it, 4pt off, a 12 x 20pt stepper of

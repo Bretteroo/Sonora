@@ -75,10 +75,6 @@
   html:where([data-theme='coromar']) .dk-root .dk-progress { flex: 1; width: auto; min-width: 50px; }
   html:where([data-theme='coromar']) .dk-root .dk-time-elapsed, html:where([data-theme='coromar']) .dk-root .dk-time-total { width: auto; min-width: 40px; }
   html:where([data-theme='coromar']) .dk-root .dk-strip-aux { grid-area: aux; position: static; display: flex; justify-content: flex-end; min-width: 0; }
-  /* The development-only theme switcher has no room at the end of the menu
-     bar here -- on the Mac skin it ran past the window's edge -- and Settings
-     still holds the real chooser. */
-  html:where([data-theme='coromar']) .dk-root .dk-menubar-aside, html:where([data-theme='coromar']) .win-root .win-menubar-aside { display: none; }
   html:where([data-theme='coromar']) .dk-root .dk-strip-search { grid-area: search; position: static; display: flex; align-items: center; width: 100%; min-width: 0; }
   html:where([data-theme='coromar']) .dk-root .dk-strip-search input { min-width: 0; }
   /* The scope button asks for the pill's full height, which resolves to the

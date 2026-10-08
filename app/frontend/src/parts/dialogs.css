@@ -645,12 +645,8 @@
   margin-top: 24px;
 }
 
-/* Selectors in the strip, sitting just left of the 212px search box: a
-   development-only theme switcher and the S1/S2 system toggle. */
-
-/* The development-only theme switcher at the end of the menu bar, past Help.
-   Pushed to the far end of the row and drawn in the bar's own colors, so it
-   reads as part of the chrome rather than as a control the app has. */
+/* Selectors in the strip, sitting just left of the 212px search box: the
+   S1/S2 system toggle. */
 
 /* "S1" / "S2" header above each system's music sources. */
 
@@ -1416,10 +1412,6 @@
    inline 380 with a 12px button strip, which came from the Mac sheets. */
 /* A name dialog is the narrower TextInputDialogWindow. This has to outrank
    the :has() rule above: a :has() argument counts toward specificity. */
-
-/* The development-only theme switcher, at the end of the menu bar past Help.
-   The app has nothing here; this is a build-time convenience and is drawn to
-   sit quietly in the bar rather than to look like part of the product. */
 
 /* The app's own controls, drawn here rather than left to the browser, which
    on Linux draws them GTK's way. Measured off the app's Add Alarm and Group

@@ -316,11 +316,11 @@
 .sd-root.win-root .win-grouping .dk-grouping-art { background: var(--t-dirt); }
 /* fields, pop-ups, checkboxes, radios */
 .sd-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']), textarea) { background-color: var(--sd-well); color: var(--sd-fg); border-color: var(--sd-line); }
-.sd-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select) {
+.sd-root.win-root select:not(.win-settings select):not(.dk-strip-select select) {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%236b5340' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--sd-well);
   color: var(--sd-fg); border-color: var(--sd-line); box-shadow: none;
 }
-.sd-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select):hover:not(:disabled) { border-color: var(--sd-accent); }
+.sd-root.win-root select:not(.win-settings select):not(.dk-strip-select select):hover:not(:disabled) { border-color: var(--sd-accent); }
 .sd-root.win-root input[type='checkbox'], .sd-root.win-root input[type='radio'] { background-color: var(--sd-well); border-color: var(--sd-line); }
 .sd-root.win-root input[type='checkbox']:hover:not(:disabled), .sd-root.win-root input[type='radio']:hover:not(:disabled) { background-color: var(--sd-panel); border-color: var(--sd-accent); }
 .sd-root.win-root input[type='checkbox']:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 9.1'%3E%3Cpath fill='%23a83f2c' d='M9.975 1.223 4.698 9.098H4.522L0 5.193 1.277 3.522 4.255 6.088 8.333 0Z'/%3E%3C/svg%3E"); }
@@ -355,7 +355,7 @@
 .sd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover { background: var(--t-dirt); }
 .sd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: var(--t-rock-red); color: var(--t-sand-light); border-color: var(--t-rock-red); }
 /* the main window: the theme and system pickers, the menu bar's titles, glyph discs, chevrons */
-.sd-root.win-root :is(.win-titlebar, .win-menubar-theme, .dk-strip-select) select { background: var(--sd-well); color: var(--sd-fg); border: 1px solid var(--sd-line); }
+.sd-root.win-root :is(.win-titlebar, .dk-strip-select) select { background: var(--sd-well); color: var(--sd-fg); border: 1px solid var(--sd-line); }
 .sd-root.win-root .win-menubar-title { color: var(--t-sand-light); }
 .sd-root.win-root .dk-browse-art.dk-browse-glyph { background: var(--sd-panel); color: var(--sd-strong); }
 .sd-root.win-root .dk-browse-glyph svg { background: transparent; color: var(--sd-strong); }

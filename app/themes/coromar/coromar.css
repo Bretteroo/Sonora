@@ -427,11 +427,11 @@
 .co-root.win-root .win-grouping .dk-grouping-art { background: var(--t-concrete-shade); }
 /* fields, pop-ups, checkboxes, radios */
 .co-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']), textarea) { background-color: var(--co-d-well); color: var(--co-d-fg); border-color: var(--co-d-line); }
-.co-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select) {
+.co-root.win-root select:not(.win-settings select):not(.dk-strip-select select) {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23556670' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--co-d-well);
   color: var(--co-d-fg); border-color: var(--co-d-line); box-shadow: none;
 }
-.co-root.win-root select:not(.win-settings select):not(.dk-strip-select select):not(.win-menubar-theme select):hover:not(:disabled) { border-color: var(--co-d-accent); }
+.co-root.win-root select:not(.win-settings select):not(.dk-strip-select select):hover:not(:disabled) { border-color: var(--co-d-accent); }
 .co-root.win-root input[type='checkbox'], .co-root.win-root input[type='radio'] { background-color: var(--co-d-well); border-color: var(--co-d-line); }
 .co-root.win-root input[type='checkbox']:hover:not(:disabled), .co-root.win-root input[type='radio']:hover:not(:disabled) { background-color: var(--co-d-panel); border-color: var(--co-d-accent); }
 .co-root.win-root input[type='checkbox']:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 9.1'%3E%3Cpath fill='%230f5f7f' d='M9.975 1.223 4.698 9.098H4.522L0 5.193 1.277 3.522 4.255 6.088 8.333 0Z'/%3E%3C/svg%3E"); }
@@ -458,7 +458,7 @@
 .co-root .dk-window .dk-add-row:hover .dk-add-auth { color: var(--t-mullion); }
 .co-root .dk-window .dk-add-mono { background: var(--t-glass); color: #fff; }
 /* the main window: the theme and system pickers, the menu bar's titles, glyph discs, chevrons */
-.co-root.win-root :is(.win-titlebar, .win-menubar-theme) select { background: var(--co-d-well); color: var(--co-d-fg); border: 1px solid var(--co-d-line); }
+.co-root.win-root .win-titlebar select { background: var(--co-d-well); color: var(--co-d-fg); border: 1px solid var(--co-d-line); }
 .co-root.win-root .dk-browse-art.dk-browse-glyph { background: var(--co-d-panel); color: var(--co-d-strong); }
 .co-root.win-root .dk-browse-glyph svg { background: transparent; color: var(--co-d-strong); }
 .co-root.win-root .dk-browse-disclosure, .co-root.win-root .dk-browse-chevron { background-color: var(--co-d-dim); }

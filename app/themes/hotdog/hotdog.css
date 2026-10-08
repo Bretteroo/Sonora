@@ -277,3 +277,9 @@
 .hd-root .dk-tabs button[aria-selected='true'] { background: #000000; color: #ffffff; }
 .hd-root.win-root .win-svc-labs .win-svc-labs-list { border-color: #000000; }
 .hd-root.win-root input[type='radio'] { border-radius: 50% !important; }
+
+/* --- the start-up and failure screens --------------------------------------------------------
+   Sonora's splash puts the theme's text on the theme's background, which here would be the
+   windows' white text on the yellow desktop. Its words are drawn in the menus' black instead. */
+:root[data-theme='hotdog'] .splash-card, :root[data-theme='hotdog'] .splash-card p,
+:root[data-theme='hotdog'] .splash-card label > span { color: #000000 !important; }

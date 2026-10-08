@@ -12,6 +12,8 @@ import wordmark from '../assets/wordmark-readme.png'
 // empty and error screens keep "Search again" and the pickers. The crash
 // screen, shown when a theme throws, offers a reload and the pickers, so a
 // broken theme can be left without clearing the browser's storage.
+// It is drawn in the theme's background and text colors; a theme whose text
+// is meant for its windows rather than its background restyles .splash-card.
 export default function Splash({ kind, detail }) {
   const { actions, connected } = useSystem()
   const { t } = useI18n()
@@ -20,8 +22,8 @@ export default function Splash({ kind, detail }) {
   const crashed = which === 'crash'
 
   return (
-    <div style={styles.wrap}>
-      <div style={styles.card}>
+    <div className="splash" style={styles.wrap}>
+      <div className="splash-card" style={styles.card}>
         <img src={logo} alt="" width={96} height={96} style={styles.logo} draggable="false" />
         <img src={wordmark} alt="Sonora" width={230} height={77} style={styles.wordmark} draggable="false" />
         <h1 style={styles.title}>

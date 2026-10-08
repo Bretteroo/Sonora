@@ -394,6 +394,9 @@ class SonosController:
         self._radio_locations: dict[str, tuple[float, dict]] = {}
         #: household id -> (when, the software_update answer)
         self._software_updates: dict[str, tuple[float, dict]] = {}
+        #: household id -> (the update the players announce, what each runs),
+        #: from the last topology event; a change is passed straight on
+        self._update_seen: dict[str, tuple[str, tuple]] = {}
         #: sid -> service name, from the last catalog read; names the service
         #: behind whatever a room is playing.
         self._service_names: dict[int, str] = {}
@@ -1634,6 +1637,7 @@ class SonosController:
         rebuilding is debounced rather than done once per event.
         """
         await self._note_service_change(event)
+        await self._note_software_update(event)
         # The event carries the topology itself. Applied at once, a grouping
         # change shows as soon as the speakers announce it, as the Windows app
         # has it; the full rediscovery behind it takes ten seconds or more
@@ -1665,6 +1669,52 @@ class SonosController:
                 self._retopology_again = True
             return
         self._retopology = asyncio.create_task(self._debounced_retopology())
+
+    async def _note_software_update(self, event: Event) -> None:
+        """Pass on a change in a household's speaker update as the speakers
+        announce it, which is how the S1 apps learn of one: they keep no
+        timer of their own. Every topology event carries the update the
+        players last found (AvailableSoftwareUpdate) and, in ZoneGroupState,
+        the software each player runs. When either changes, the cached
+        answer is dropped and the pages are told to ask again, so "Update
+        Now" appears as an update is found and goes once the players run it.
+        """
+        props = event.properties
+        if "AvailableSoftwareUpdate" not in props and "ZoneGroupState" not in props:
+            return
+        household = next((h for h in self.households.values()
+                          if any(p.host == event.host for p in h.players.values())), None)
+        if household is None:
+            return
+        previous = self._update_seen.get(household.id)
+        if "AvailableSoftwareUpdate" in props:
+            item = parse_update_item(str(props.get("AvailableSoftwareUpdate") or ""))
+            offered = item.get("version", "") if item.get("type") == "Software" else ""
+        else:
+            offered = previous[0] if previous else ""
+        running: dict[str, str] = {}
+        if props.get("ZoneGroupState"):
+            try:
+                players, _, _ = parse_zone_group_state(props["ZoneGroupState"])
+            except Exception:
+                players = {}
+            running = {uuid: p.software_version for uuid, p in players.items()
+                       if p.software_version and uuid in household.players}
+            # What a player says it runs is the truth: the update's own check
+            # compares against these, and rediscovery after a restart lags.
+            for uuid, version in running.items():
+                household.players[uuid].software_version = version
+                if uuid in self.zones:
+                    self.zones[uuid].software_version = version
+        if not running and previous:
+            running = dict(previous[1])
+        seen = (offered, tuple(sorted(running.items())))
+        self._update_seen[household.id] = seen
+        if previous is not None and seen != previous:
+            log.info("speaker update news for %s: offered %s, running %s", household.id[:22],
+                     offered or "nothing", ", ".join(sorted(set(running.values()))) or "unknown")
+            self._software_updates.pop(household.id, None)
+            await self._broadcast({"type": "softwareUpdate", "household": household.id})
 
     async def _note_service_change(self, event: Event) -> None:
         """When a speaker's configured-service list changes, refresh it live.

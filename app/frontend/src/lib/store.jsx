@@ -39,6 +39,9 @@ const initialState = {
   radioEpoch: 0,
   libraryEpoch: 0,
   alarmsEpoch: 0,
+  // Bumped when the speakers announce a change in their software update (one
+  // found, or the players now running it), so "Update Now" asks again.
+  updatesEpoch: 0,
   households: [],
   zones: {},
   groups: [],
@@ -146,6 +149,8 @@ function reducer(state, action) {
       return { ...state, libraryEpoch: state.libraryEpoch + 1 }
     case 'alarms':
       return { ...state, alarmsEpoch: state.alarmsEpoch + 1 }
+    case 'softwareUpdate':
+      return { ...state, updatesEpoch: state.updatesEpoch + 1 }
 
     case 'localVolume':
       return {
@@ -356,6 +361,8 @@ export function SystemProvider({ children }) {
           // 'recent' is the backend's own: a room started something new. It was missing here,
           // so Recently Played never refreshed until a reload.
           dispatch({ type: message.type })
+        } else if (message.type === 'softwareUpdate') {
+          dispatch({ type: 'softwareUpdate' })
         }
       }
       socket.onclose = () => {

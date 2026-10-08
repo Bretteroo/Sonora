@@ -294,9 +294,11 @@ export function useAccountChoice() {
 // Favorites, the Music Library where there is one, the services (Sonos Radio
 // first, then A-Z), Sonos Playlists, the room's television input, Line-In.
 // Whether each system's speakers have a software update waiting (never the
-// app's own), read with the page and every ten minutes; the speakers look for
-// updates themselves. ``clear`` drops a system's row once its update started.
+// app's own): read with the page, again whenever the speakers announce a change
+// (an update found, or the players running it), and every ten minutes behind
+// that. ``clear`` drops a system's row once its update started.
 export function useSpeakerUpdates(households) {
+  const { updatesEpoch } = useSystem()
   const [updates, setUpdates] = useState({})
   const ids = households.map((h) => h.id).join(',')
   useEffect(() => {
@@ -311,7 +313,7 @@ export function useSpeakerUpdates(households) {
     read()
     const timer = setInterval(read, 600000)
     return () => { canceled = true; clearInterval(timer) }
-  }, [ids]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ids, updatesEpoch]) // eslint-disable-line react-hooks/exhaustive-deps
   const clear = (hh) => setUpdates((prev) => ({ ...prev, [hh]: { ...prev[hh], pending: false } }))
   return { updates, clear }
 }

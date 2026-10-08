@@ -23,7 +23,7 @@ import Overlay from './Overlay.jsx'
 // offers the colors its model came in, Unknown until one is chosen.
 export default function SystemDetailsPage({ onClose, systemFilter = 'all' }) {
   const { t } = useI18n()
-  const { households, zoneList } = useSystem()
+  const { households, zoneList, updatesEpoch } = useSystem()
   const { byHousehold } = useContentFiltering()
   const [open, setOpen] = useState(null)
   // Each product's own facts, by uuid, asked of every player on the page.
@@ -65,7 +65,7 @@ export default function SystemDetailsPage({ onClose, systemFilter = 'all' }) {
         .catch(() => {})
     }
     return () => { canceled = true }
-  }, [householdIds]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [householdIds, updatesEpoch]) // eslint-disable-line react-hooks/exhaustive-deps
   const startUpdate = async () => {
     const hh = updateAsk.hh
     setUpdateAsk(null)

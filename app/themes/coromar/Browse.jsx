@@ -311,7 +311,9 @@ export default function Browse({
 
   // The root, grouped by system: one section per visible household.
   // Whether each system's speakers have an update waiting; read with the
-  // page and every ten minutes (the speakers look for updates themselves).
+  // page, again whenever the speakers announce a change, and every ten
+  // minutes behind that.
+  const { updatesEpoch } = useSystem()
   const [updatesByHh, setUpdatesByHh] = useState({})
   const [updateAsk, setUpdateAsk] = useState(null)
   const householdIds = households.map((h) => h.id).join(',')
@@ -327,7 +329,7 @@ export default function Browse({
     read()
     const timer = setInterval(read, 600000)
     return () => { canceled = true; clearInterval(timer) }
-  }, [householdIds]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [householdIds, updatesEpoch]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const sections = useMemo(() => {
     const visible = orderedHouseholds(households).filter(

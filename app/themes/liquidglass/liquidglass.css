@@ -270,6 +270,17 @@
 :root[data-theme='liquidglass'] .sf-row-art { border-radius: 11px; background: var(--lg-neutral-soft); }
 :root[data-theme='liquidglass'] .sf-root-tile { border-radius: 20px; }
 :root[data-theme='liquidglass'] .sf-root-tile:hover:not(:disabled) { background-color: var(--lg-fill-strong); transform: translateY(-2px); }
+/* The glass casts a wide shadow, and the boxes that scroll or fold the
+   tiles would cut it off at their edges. The scroller reaches out into the
+   page's margin, and an open fold stops clipping once it has slid open. */
+:root[data-theme='liquidglass'] .sf-main { --lg-bleed: 28px; }
+@media (max-width: 900px) { :root[data-theme='liquidglass'] .sf-main { --lg-bleed: 16px; } }
+:root[data-theme='liquidglass'] .sf-content-scroll {
+  margin-inline: calc(-1 * var(--lg-bleed));
+  padding-inline: var(--lg-bleed) calc(var(--lg-bleed) + 4px);
+  padding-bottom: 44px;
+}
+:root[data-theme='liquidglass'] .sf-fold:not([data-collapsed]) > div { overflow: visible; transition: overflow 0s 260ms allow-discrete; }
 :root[data-theme='liquidglass'] .sf-root-icon { border-radius: 13px; background: var(--lg-neutral-soft); }
 :root[data-theme='liquidglass'] .sf-root-icon img { border-radius: 13px; }
 :root[data-theme='liquidglass'] .sf-pin { border-radius: 16px; }

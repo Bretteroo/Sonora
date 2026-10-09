@@ -394,30 +394,70 @@
 
 /* --- the bat-handle switch -------------------------------------------------------- */
 
-:root[data-theme='hifi'] .hf-lever { position: relative; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; min-height: 34px; }
+:root[data-theme='hifi'] .hf-lever { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; min-height: 50px; }
 :root[data-theme='hifi'] .hf-lever[aria-disabled] { opacity: 0.45; cursor: default; }
-:root[data-theme='hifi'] .hf-lever input { position: absolute; left: 0; top: 0; width: 26px; height: 34px; margin: 0; opacity: 0; cursor: inherit; }
-:root[data-theme='hifi'] .hf-lever-body {
-  position: relative; width: 26px; height: 34px; flex: none; border-radius: 4px;
-  background: linear-gradient(180deg, var(--hf-key-top), var(--hf-key-low));
-  border: 1px solid rgba(0, 0, 0, 0.7); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 2px 3px rgba(0, 0, 0, 0.4);
+/* The switch is seen from the front, so the bat is drawn as its projection:
+   thrown up it reaches above the bushing with its ball end nearest the eye,
+   and on its way through the middle it points straight out and shortens to
+   nothing over the nut. The stem scales through zero about the pivot while
+   the ball travels the same arc, so the ball stays round. */
+:root[data-theme='hifi'] .hf-lever { --hf-throw: 18px; }
+:root[data-theme='hifi'] .hf-lever input { position: absolute; left: 0; top: 0; width: 32px; height: 50px; margin: 0; opacity: 0; cursor: inherit; z-index: 1; }
+:root[data-theme='hifi'] .hf-lever-body { position: relative; width: 32px; height: 50px; flex: none; }
+:root[data-theme='hifi'] .hf-lever-body > span { position: absolute; left: 50%; top: 50%; }
+:root[data-theme='hifi'] .hf-lever-washer {
+  /* A flat washer seated in the panel, its edge catching the light above. */
+  width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, transparent 52%, rgba(0, 0, 0, 0.18) 53%, transparent 56%),
+              linear-gradient(160deg, #a3a29e, #6b6a67 45%, #484745 70%, #85847f);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 2px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(0, 0, 0, 0.4);
 }
-:root[data-theme='hifi'] .hf-lever-body::before {
-  /* The nut the bat pivots in. */
-  content: ''; position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #f5f5f3, #9c9b98 60%, #5a5957); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+/* On the silver panel the washer is bright steel. */
+:root[data-theme='hifi'][data-variant='light'] .hf-lever-washer {
+  background: radial-gradient(circle at 50% 50%, transparent 52%, rgba(0, 0, 0, 0.18) 53%, transparent 56%),
+              linear-gradient(160deg, #f2f2ef, #b9b8b4 45%, #8d8c88 70%, #d6d5d1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55), 0 1px 2px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(0, 0, 0, 0.28);
+}
+:root[data-theme='hifi'] .hf-lever-nut {
+  /* The hex nut: six flats lit a little unevenly from above, and the round
+     chamfered face a nut has on top. */
+  width: 20px; height: 20px; margin: -10px 0 0 -10px;
+  clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  background: radial-gradient(circle, #d9d8d4 0 50%, rgba(0, 0, 0, 0.22) 53%, transparent 58%),
+              conic-gradient(from 210deg, #8e8d89 0 60deg, #b4b3af 60deg 120deg, #e9e8e4 120deg 180deg,
+                             #d0cfcb 180deg 240deg, #a3a29e 240deg 300deg, #85847f 300deg 360deg);
+}
+:root[data-theme='hifi'] .hf-lever-bushing {
+  /* The end of the bushing: a chrome dome the bat grows out of, so the
+     bat reads as fixed in it rather than standing over a hole. */
+  width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #ffffff 0 12%, #d6d5d1 40%, #8f8e8a 80%, #62615e 100%);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.45), 0 1px 1px rgba(0, 0, 0, 0.35);
 }
 :root[data-theme='hifi'] .hf-lever-bat {
-  position: absolute; left: 50%; top: 50%; width: 7px; height: 17px; margin-left: -3.5px; border-radius: 4px;
-  background: linear-gradient(90deg, #707070, #f4f4f2 40%, #b0b0ae 70%, #6a6a6a);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); transform-origin: 50% 0; transform: none;
-  transition: transform 160ms cubic-bezier(0.3, 1.4, 0.5, 1);
+  /* The stem, tapering out toward the ball; it pivots in the bushing. */
+  width: 9px; height: calc(var(--hf-throw) + 2px); margin-left: -4.5px; margin-top: calc(-1 * var(--hf-throw));
+  border-radius: 3px 3px 1px 1px; clip-path: polygon(0 0, 100% 0, 76% 100%, 24% 100%);
+  background: linear-gradient(90deg, #5d5c5a, #fbfbf9 38%, #bdbcb8 62%, #6c6b68);
+  transform-origin: 50% calc(100% - 2px); transform: scaleY(-1);
+  filter: drop-shadow(1.5px 2.5px 1.5px rgba(0, 0, 0, 0.45));
+  transition: transform 150ms cubic-bezier(0.5, 0, 0.3, 1.25);
 }
-/* Off hangs the bat down from the nut; on throws it up over the same pivot,
-   so a press flips it through the middle rather than back to where it was. */
-:root[data-theme='hifi'] .hf-lever input:checked + .hf-lever-body .hf-lever-bat { transform: rotate(180deg); }
-:root[data-theme='hifi'] .hf-lever input:checked + .hf-lever-body { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 2px 3px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 170, 50, 0.35); }
-:root[data-theme='hifi'] .hf-lever input:focus-visible + .hf-lever-body { outline: 2px solid var(--t-focus); outline-offset: 2px; }
+:root[data-theme='hifi'] .hf-lever-tip {
+  /* The ball end, polished, with the window's highlight in it. */
+  width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0 14%, #e4e3df 26%, #9a9995 62%, #4e4d4a 100%);
+  box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.4), inset 0 -1px 1px rgba(0, 0, 0, 0.25);
+  transform: translateY(var(--hf-throw));
+  transition: transform 150ms cubic-bezier(0.5, 0, 0.3, 1.25);
+}
+/* Off hangs the bat below the nut; on throws it up. */
+:root[data-theme='hifi'] .hf-lever input:checked + .hf-lever-body .hf-lever-bat { transform: scaleY(1); }
+:root[data-theme='hifi'] .hf-lever input:checked + .hf-lever-body .hf-lever-tip { transform: translateY(calc(-1 * var(--hf-throw))); }
+:root[data-theme='hifi'] .hf-lever input:focus-visible + .hf-lever-body .hf-lever-washer { outline: 2px solid var(--t-focus); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme='hifi'] .hf-lever-bat, :root[data-theme='hifi'] .hf-lever-tip { transition: none; }
+}
 :root[data-theme='hifi'] .hf-lever-label { font-size: 13px; }
 
 /* --- the slide switch --------------------------------------------------------------- */
@@ -1682,7 +1722,7 @@
    lever is set down so its middle meets the knob's, and its ON/OFF sits
    where a knob's number does. */
 :root[data-theme='hifi'] .hf-tone-control { position: relative; width: 100%; height: 100px; display: flex; flex-direction: column; align-items: center; }
-:root[data-theme='hifi'] .hf-tone-control .hf-lever { margin-top: 22px; min-height: 0; gap: 0; }
+:root[data-theme='hifi'] .hf-tone-control .hf-lever { margin-top: 14px; min-height: 0; gap: 0; }
 :root[data-theme='hifi'] .hf-tone-control .hf-knob-value { position: absolute; top: 82px; left: 0; right: 0; text-align: center; }
 :root[data-theme='hifi'] .hf-tone-state {
   position: absolute; top: 82px; left: 0; right: 0; text-align: center;

@@ -285,12 +285,19 @@ export function Fader({ value = 0, min = 0, max = 100, onCommit, label, disabled
   )
 }
 
-// A bat-handle toggle switch: up is on.
+// A bat-handle toggle switch screwed through the panel: a washer, a hex nut
+// and the bushing's chrome dome, with a chrome bat that is thrown up for on.
 export function Lever({ checked, onChange, label, disabled = false, hint = '', className = '' }) {
   return (
     <label className={`hf-lever ${className}`.trim()} aria-disabled={disabled || undefined} title={hint || undefined}>
       <input type="checkbox" role="switch" checked={Boolean(checked)} disabled={disabled} onChange={(event) => onChange(event.target.checked)} />
-      <span className="hf-lever-body" aria-hidden="true"><span className="hf-lever-bat" /></span>
+      <span className="hf-lever-body" aria-hidden="true">
+        <span className="hf-lever-washer" />
+        <span className="hf-lever-nut" />
+        <span className="hf-lever-bushing" />
+        <span className="hf-lever-bat" />
+        <span className="hf-lever-tip" />
+      </span>
       {label && <span className="hf-lever-label">{label}</span>}
     </label>
   )

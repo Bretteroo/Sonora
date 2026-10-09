@@ -84,6 +84,43 @@ export function healthSummary(household, t) {
   return t('net.summary.issues', { parts: parts.join(t('net.summary.and')) })
 }
 
+// What the makers of mesh systems and managed access points say about Sonos,
+// for the top of every theme's network page. The names are the makers' own and
+// read the same in every language.
+const MESH_GUIDES = [
+  { name: 'Sonos', href: 'https://support.sonos.com/en-us/article/recommended-eero-network-configuration-for-sonos' },
+  { name: 'Eero', href: 'https://eero.com/support/articles/how-do-i-set-up-sonos-speakers-on-my-eero-network' },
+  { name: 'Ubiquiti UniFi', href: 'https://help.ui.com/hc/en-us/articles/18930473041047-Best-Practices-for-Sonos-Devices' },
+  { name: 'TP-Link Omada', href: 'https://support.omadanetworks.com/us/document/131292/' },
+  { name: 'TP-Link Deco', href: 'https://community.tp-link.com/en/home/stories/detail/500290' },
+  { name: 'RUCKUS', href: 'https://community.ruckuswireless.com/discussion/48789/access-point-to-allow-pass-through-multi-cast-broad-cast' },
+]
+
+export function MeshGuidance() {
+  const { t } = useI18n()
+  // "sometimes" is set in italics, wherever the language puts it.
+  const [before, after = ''] = t('net.mesh.blurb').split('{sometimes}')
+  return (
+    // Folded until asked for: most households are not on a mesh, and the
+    // speakers below are what the page is for.
+    <details className="nm-mesh">
+      <summary className="nm-title">{t('net.mesh.title')}</summary>
+      <p className="nm-blurb">{before}<em>{t('net.mesh.sometimes')}</em>{after}</p>
+      <p className="nm-mesh-links">
+        <strong>{t('net.mesh.guidance')}</strong>
+        <span>
+          {MESH_GUIDES.map((g, i) => (
+            <span key={g.name}>
+              {i > 0 && <span className="nm-mesh-sep" aria-hidden="true"> | </span>}
+              <a href={g.href} target="_blank" rel="noopener noreferrer">{g.name}</a>
+            </span>
+          ))}
+        </span>
+      </p>
+    </details>
+  )
+}
+
 // A system's speakers as a donut: good, worth watching and problem, with
 // the count in the middle and a legend beside it. It replaced the line of
 // text that opened each system; that line stays as

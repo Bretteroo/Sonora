@@ -16,7 +16,7 @@ import { readLibraryPrefs, writeLibraryPrefs, FOLDER_SORTS } from '../../fronten
 import { chosenHousehold } from '../../frontend/src/lib/shellSelection.js'
 import ThemeChooser from '../../frontend/src/components/ThemeChooser.jsx'
 import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
-import NetworkMap, { HealthDonut } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
 import ParentalControls from '../../frontend/src/components/ParentalControls.jsx'
 import * as I from './icons.jsx'
 import { Sheet, SheetBar, Button, IconButton, Switch, Confirm, Empty, Busy, Menu, MenuItem, MenuSep, Select, TextField, ListItem, SystemPicker, Loading, Kbd, Skeleton } from './m3.jsx'
@@ -583,6 +583,7 @@ function NetworkPage() {
   const { data, loading, error } = useDiagnostics()
   return (
     <div className="mg-stack">
+      <MeshGuidance />
       {error && <p className="mg-error">{error}</p>}
       {loading && !data && <Busy label={t('net.probing')} />}
       {data?.households.map((h) => (

@@ -129,6 +129,25 @@
 .nm-count[data-level='problem'] { color: var(--t-critical, #d0453d); font-weight: 700; }
 .nm-count[data-level='watch'] { color: var(--t-fair, #b8860b); font-weight: 700; }
 
+/* The mesh and managed-network guides, at the top of the page: the advice
+   runs the page's full width, the makers' links in one line beneath it. */
+.nm-mesh { margin: 0 0 18px; }
+.nm-mesh > summary { display: flex; align-items: center; gap: 6px; width: fit-content; margin: 0; cursor: pointer; list-style: none; }
+.nm-mesh > summary::-webkit-details-marker { display: none; }
+.nm-mesh > summary::before {
+  content: ''; width: 6px; height: 6px; flex: none; margin: 0 2px;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg); transition: transform 150ms ease; opacity: 0.7;
+}
+.nm-mesh[open] > summary::before { transform: rotate(45deg); }
+.nm-mesh[open] > summary { margin-bottom: 6px; }
+.nm-mesh .nm-blurb { max-width: none; }
+.nm-mesh-links { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; margin: 0; font-size: 12px; line-height: 1.6; }
+.nm-mesh-links strong { font-weight: 650; }
+.nm-mesh-links a { color: var(--t-accent, currentColor); font-weight: 600; text-decoration: none; white-space: nowrap; }
+.nm-mesh-links a:hover { text-decoration: underline; }
+.nm-mesh-sep { opacity: 0.45; }
+
 /* Each system's speakers by verdict, where the summary line was. */
 .nm-donut { display: flex; align-items: center; gap: 18px; margin: 10px 0 14px; }
 .nm-donut svg { width: 112px; height: 112px; flex: none; }

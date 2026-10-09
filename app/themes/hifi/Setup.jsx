@@ -18,7 +18,7 @@ import { Panel, PanelHead, Button, IconKey, Lever, Field, Confirm, Empty, Loadin
 import { readLibraryPrefs, writeLibraryPrefs, FOLDER_SORTS } from '../../frontend/src/lib/libraryPrefs.js'
 import ThemeChooser from '../../frontend/src/components/ThemeChooser.jsx'
 import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
-import NetworkMap, { HealthDonut } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
 import Swirl from '../../frontend/src/components/Swirl.jsx'
 import ParentalControls from '../../frontend/src/components/ParentalControls.jsx'
 import { chosenHousehold } from '../../frontend/src/lib/shellSelection.js'
@@ -652,6 +652,7 @@ function NetworkPage() {
   const { data, loading, error } = useDiagnostics()
   return (
     <div className="hf-settings-block">
+      <MeshGuidance />
       {error && <p className="hf-error">{error}</p>}
       {loading && !data && <Loading>{t('net.probing')}</Loading>}
       {data?.households.map((h) => (

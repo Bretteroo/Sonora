@@ -1,7 +1,7 @@
 import React from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { useDiagnostics } from '../../frontend/src/lib/useDiagnostics.js'
-import NetworkMap, { HealthDonut } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
 import { Row, Section } from './SettingsPage.jsx'
 
@@ -29,6 +29,7 @@ export default function TroubleshootingPage({ onClose }) {
           </button>
         </div>
       </header>
+      <MeshGuidance />
 
       {error && <p className="wb-settings-error">{error}</p>}
       {loading && !data && (

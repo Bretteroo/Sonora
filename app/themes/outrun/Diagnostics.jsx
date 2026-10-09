@@ -2,7 +2,7 @@ import React from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { useDiagnostics } from '../../frontend/src/lib/useDiagnostics.js'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
-import NetworkMap, { HealthDonut } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
 
 // The troubleshooting view.
 //
@@ -27,6 +27,7 @@ export default function Diagnostics() {
             : 'identify potential performance issues on your network'}
         </span>
       </div>
+      <MeshGuidance />
 
       {error && <p className="or-diag-error">{error}</p>}
       {loading && !data && <p className="or-empty">Measuring…</p>}

@@ -19,7 +19,7 @@ import { Sheet, SheetHeader, Button, IconButton, Toggle, Field, Confirm, Empty, 
 import { readLibraryPrefs, writeLibraryPrefs, FOLDER_SORTS } from '../../frontend/src/lib/libraryPrefs.js'
 import ThemeChooser from '../../frontend/src/components/ThemeChooser.jsx'
 import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
-import NetworkMap, { HealthDonut } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
 import Swirl from '../../frontend/src/components/Swirl.jsx'
 import AlarmsSection from './Alarms.jsx'
 import ParentalControls from '../../frontend/src/components/ParentalControls.jsx'
@@ -655,6 +655,7 @@ function NetworkPage() {
   const { data, loading, error } = useDiagnostics()
   return (
     <div className="sf-settings-block">
+      <MeshGuidance />
       {error && <p className="sf-error">{error}</p>}
       {loading && !data && <div className="sf-loading"><Spinner />{t('net.probing')}</div>}
       {data?.households.map((h) => (

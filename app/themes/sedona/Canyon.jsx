@@ -1,7 +1,7 @@
 import React from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { useDiagnostics } from '../../frontend/src/lib/useDiagnostics.js'
-import NetworkMap, { HealthDonut } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
 
 // Troubleshooting: the system's field notes, then the shared network map,
 // which gives each speaker its verdict. The core-sample drawing of each
@@ -21,6 +21,7 @@ export default function Canyon() {
             : 'identify potential performance issues on your network'}
         </span>
       </div>
+      <MeshGuidance />
 
       {error && <p className="sd-empty">{error}</p>}
       {loading && !data && <p className="sd-empty">{t('net.probing')}</p>}

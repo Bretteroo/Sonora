@@ -68,6 +68,12 @@ ART_FAULT_QUIET_S = 6 * 3600.0
 #: S6, Port S19), unmeasured.
 STEREO_MODELS = frozenset({"S5", "S6", "S15", "S16", "S19", "ZP80", "ZP90", "ZP100", "ZP120"})
 
+#: Players whose speech enhancement has a switch of its own, SpeechEnhanceEnabled,
+#: beside DialogLevel as its strength. No speaker feature names it, and a Beam
+#: (Gen 2) and a Ray answer the read too but refuse every write with a 500, so
+#: the model decides, as it does in the Sonos app.
+SPEECH_SWITCH_MODELS = frozenset({"S45", "S59"})
+
 
 def _balance_of(left: int, right: int) -> int:
     """The balance, -100 (left) to 100 (right), that two channel levels express:
@@ -186,6 +192,9 @@ class ZoneState:
     channel_left: int = 100
     channel_right: int = 100
     fixed_output: bool = False
+    #: Whether speech enhancement offers a Max level beyond High. The speaker
+    #: says so only in its RenderingControl events; no action reads it.
+    speech_max: bool = False
     supports_line_in: bool = False
     #: Whether something is plugged into that socket, from AudioIn events.
     line_in_connected: bool = False
@@ -590,6 +599,14 @@ class SonosController:
                 self._player_info[uuid] = cached
         return {str(f.get("name", "")) for f in (cached[1].get("deviceFeatures") or [])
                 if isinstance(f, dict)}
+
+    async def device_capabilities(self, uuid: str) -> set[str]:
+        """The capabilities a player lists in its /info: PLAYBACK, HT_PLAYBACK,
+        IR_CONTROL, LINE_IN and the like. Unlike deviceFeatures, S1 players
+        publish these too."""
+        await self.device_features(uuid)        # fills the /info cache
+        cached = self._player_info.get(uuid)
+        return {str(c) for c in ((cached[1].get("capabilities") if cached else None) or [])}
 
     async def _search_until_found(self, first: float = 10.0, longest: float = 300.0) -> None:
         wait = first
@@ -1593,6 +1610,8 @@ class SonosController:
             state.loudness = event.channels["Master"]["Loudness"] == "1"
         elif "Loudness" in props:
             state.loudness = props["Loudness"] == "1"
+        if "SupportsMaxDialogLevel" in props:
+            state.speech_max = props["SupportsMaxDialogLevel"] == "1"
         if "OutputFixed" in props:
             state.fixed_output = props["OutputFixed"] == "1"
         await self._publish_zone(state)
@@ -3205,9 +3224,6 @@ class Commands:
     def __init__(self, controller: SonosController) -> None:
         self._c = controller
         self._tz_tables: dict[str, list[dict]] = {}
-        #: Rooms whose speech enhancement is a switch of its own beside its
-        #: level (an Arc Ultra); see room_settings.
-        self._speech_switch: set[str] = set()
         #: Households whose speakers were told to clear their time server and
         #: kept it anyway; see time_server_fixed.
         self._fixed_time_server: set[str] = set()
@@ -3436,9 +3452,9 @@ class Commands:
 
     #: The RenderingControl EQ types the home-theater products and line-in
     #: devices expose (GetEQ/SetEQ): on/off flags and levels.
-    EQ_TYPES = ("NightMode", "DialogLevel", "SubEnable", "SubGain", "SurroundEnable",
-                "SurroundLevel", "MusicSurroundLevel", "SurroundMode", "AudioDelay",
-                "HeightChannelLevel", "SpeechEnhanceEnabled")
+    EQ_TYPES = ("NightMode", "DialogLevel", "SubEnable", "SubGain", "SubPolarity", "SurroundEnable",
+                "SurroundLevel", "MusicSurroundLevel", "SurroundMode", "AudioDelayLeftRear",
+                "AudioDelayRightRear", "AudioDelay", "HeightChannelLevel", "SpeechEnhanceEnabled")
 
     async def room_settings(self, zone_uuid: str) -> dict:
         """Everything a room's settings page can show beyond bass/treble: the
@@ -3452,13 +3468,16 @@ class Commands:
         # only the bonded roles say which settings are real.
         wanted = [t for t in self.EQ_TYPES
                   if (not t.startswith("Sub") or "SW" in roles)
-                  and (not t.startswith(("Surround", "MusicSurround")) or roles & {"LR", "RR"})]
+                  and (not t.startswith(("Surround", "MusicSurround", "AudioDelayLeft", "AudioDelayRight"))
+                       or roles & {"LR", "RR"})]
         # Every S2 player answers HeightChannelLevel too, 0, the Roam 2 and the
         # Ray as well as the Arc Ultra (measured 2026-10-05); what tells them
         # apart is the speaker's own feature list, where only a player with
         # height drivers declares HEIGHT_CHANNEL_TUNING.
         if "HEIGHT_CHANNEL_TUNING" not in await self._c.device_features(zone_uuid):
             wanted.remove("HeightChannelLevel")
+        if not self._has_speech_switch(state):
+            wanted.remove("SpeechEnhanceEnabled")
         out: dict = {"eq": {}}
         for eq_type in wanted:
             # Asking is how a type is found out: a player without it answers
@@ -3480,8 +3499,8 @@ class Commands:
         # there let speech enhancement be turned on and never off: 0 is not a
         # strength, and the level stayed at 1.
         if "SpeechEnhanceEnabled" in out["eq"]:
-            self._speech_switch.add(zone_uuid)
             out["speech_level"] = out["eq"].get("DialogLevel")
+            out["speech_max"] = state.speech_max
             out["eq"]["DialogLevel"] = out["eq"].pop("SpeechEnhanceEnabled")
         if state.supports_line_in:
             try:
@@ -3499,6 +3518,7 @@ class Commands:
             out["status_light"] = led.get("CurrentLEDState", "") == "On"
         except Exception:
             pass
+        await self._read_hardware_settings(zone_uuid, state, out)
         # Autoplay is what a player does when sound arrives at its line-in socket: which room
         # plays it, grouped or not, at what volume. Every player answers the four reads, a
         # Play:1 with no socket included, so a successful read says nothing; only a player
@@ -3518,29 +3538,102 @@ class Commands:
             pass
         return out
 
+    async def _read_hardware_settings(self, zone_uuid: str, state, out: dict) -> None:
+        """The settings beyond sound that the Sonos app offers on a player's
+        own page: touch controls, Trueplay, and on a home theater player its
+        TV autoplay and IR. Each is asked for only where the player declares
+        the hardware behind it, since every player answers these reads."""
+        rc, dp, ht = const.RENDERING_CONTROL, const.DEVICE_PROPERTIES, const.HT_CONTROL
+        capabilities = await self._c.device_capabilities(zone_uuid)
+        features = await self._c.device_features(zone_uuid)
+        try:
+            lock = await self.soap.call(state.host, dp, "GetButtonLockState")
+            out["button_lock"] = lock.get("CurrentButtonLockState", "") == "On"
+        except Exception:
+            pass
+        # Trueplay can be switched off and on only once the room has a tuning.
+        try:
+            cal = await self.soap.call(state.host, rc, "GetRoomCalibrationStatus", {"InstanceID": 0})
+            if cal.get("RoomCalibrationAvailable") == "1":
+                out["trueplay"] = cal.get("RoomCalibrationEnabled") == "1"
+        except Exception:
+            pass
+        if "HT_PLAYBACK" in capabilities:
+            # TV autoplay is the line-in autoplay with the TV as its source: the
+            # room is this one or none, and "ungroup" is the inverse of
+            # including the grouped rooms.
+            try:
+                room = await self.soap.call(state.host, dp, "GetAutoplayRoomUUID", {"Source": "TV"})
+                out["tv_autoplay"] = bool(room.get("RoomUUID"))
+                linked = await self.soap.call(state.host, dp, "GetAutoplayLinkedZones", {"Source": "TV"})
+                out["tv_autoplay_ungroup"] = linked.get("IncludeLinkedZones", "0") != "1"
+            except Exception:
+                pass
+        if "IR_CONTROL" in capabilities:
+            try:
+                light = await self.soap.call(state.host, ht, "GetLEDFeedbackState")
+                out["ir_light"] = light.get("LEDFeedbackState", "") == "On"
+            except Exception:
+                pass
+        if "IR_TRANSMITTER" in features:
+            try:
+                rep = await self.soap.call(state.host, ht, "GetIRRepeaterState")
+                out["ir_repeater"] = rep.get("CurrentIRRepeaterState", "") == "On"
+            except Exception:
+                pass
+
+    async def set_speech_level(self, zone_uuid: str, level: int) -> None:
+        """The strength of speech enhancement on a player that keeps it apart
+        from the switch: 1 low to 3 high, 4 max where the player offers it."""
+        state = self._c.zone(zone_uuid)
+        if not self._has_speech_switch(state) or not 1 <= level <= (4 if state.speech_max else 3):
+            raise ValueError(level)
+        await self.soap.call(state.host, const.RENDERING_CONTROL, "SetEQ",
+                             {"InstanceID": 0, "EQType": "DialogLevel", "DesiredValue": level})
+
+    async def set_tv_autoplay(self, zone_uuid: str, on: bool | None = None, ungroup: bool | None = None) -> None:
+        state = self._c.zone(zone_uuid)
+        dp = const.DEVICE_PROPERTIES
+        if on is not None:
+            await self.soap.call(state.host, dp, "SetAutoplayRoomUUID",
+                                 {"RoomUUID": zone_uuid if on else "", "Source": "TV"})
+            # As in the Sonos app, turning autoplay off puts the grouped
+            # rooms back in.
+            if not on:
+                ungroup = False
+        if ungroup is not None:
+            await self.soap.call(state.host, dp, "SetAutoplayLinkedZones",
+                                 {"IncludeLinkedZones": "0" if ungroup else "1", "Source": "TV"})
+
+    async def set_ir(self, zone_uuid: str, light: bool | None = None, repeater: bool | None = None) -> None:
+        state = self._c.zone(zone_uuid)
+        if light is not None:
+            await self.soap.call(state.host, const.HT_CONTROL, "SetLEDFeedbackState",
+                                 {"LEDFeedbackState": "On" if light else "Off"})
+        if repeater is not None:
+            await self.soap.call(state.host, const.HT_CONTROL, "SetIRRepeaterState",
+                                 {"DesiredIRRepeaterState": "On" if repeater else "Off"})
+
+    async def set_trueplay(self, zone_uuid: str, on: bool) -> None:
+        state = self._c.zone(zone_uuid)
+        await self.soap.call(state.host, const.RENDERING_CONTROL, "SetRoomCalibrationStatus",
+                             {"InstanceID": 0, "RoomCalibrationEnabled": "1" if on else "0"})
+
     async def set_eq(self, zone_uuid: str, eq_type: str, value: int) -> None:
         if eq_type not in self.EQ_TYPES:
             raise ValueError(eq_type)
         state = self._c.zone(zone_uuid)
         # The speech switch, on a player that keeps it apart from its level
         # (see room_settings).
-        if eq_type == "DialogLevel" and await self._has_speech_switch(zone_uuid, state.host):
+        if eq_type == "DialogLevel" and self._has_speech_switch(state):
             eq_type = "SpeechEnhanceEnabled"
             value = 1 if value else 0
         await self.soap.call(state.host, const.RENDERING_CONTROL, "SetEQ",
                              {"InstanceID": 0, "EQType": eq_type, "DesiredValue": value})
 
-    async def _has_speech_switch(self, zone_uuid: str, host: str) -> bool:
-        if zone_uuid in self._speech_switch:
-            return True
-        try:
-            await self.soap.call(host, const.RENDERING_CONTROL, "GetEQ",
-                                 {"InstanceID": 0, "EQType": "SpeechEnhanceEnabled"},
-                                 quiet_codes=frozenset({"402"}))
-        except Exception:
-            return False
-        self._speech_switch.add(zone_uuid)
-        return True
+    @staticmethod
+    def _has_speech_switch(state) -> bool:
+        return (state.model_number or "").upper() in SPEECH_SWITCH_MODELS
 
     async def set_line_in(self, zone_uuid: str, level: int | None = None, name: str | None = None) -> None:
         state = self._c.zone(zone_uuid)

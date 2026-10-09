@@ -177,6 +177,12 @@ const EQ_LABELS = { NightMode: 'desk.room.nightSound', DialogLevel: 'desk.room.s
                     MusicSurroundLevel: 'desk.room.musicSurroundLevel', AudioDelay: 'desk.room.audioDelay', HeightChannelLevel: 'desk.room.heightLevel' }
 const EQ_FLAGS = new Set(['NightMode', 'DialogLevel', 'SubEnable', 'SurroundEnable'])
 const EQ_RANGES = { SubGain: [-15, 15], SurroundLevel: [-15, 15], MusicSurroundLevel: [-15, 15], AudioDelay: [0, 5], HeightChannelLevel: [-10, 10] }
+// The settings a soundbar's speaker takes as a choice of a few: how far each
+// surround sits (the speaker counts 0 as farthest), the sub's phase, and the
+// strength of speech enhancement where it is apart from its switch.
+const SURROUND_DISTANCES = { AudioDelayLeftRear: 'desk.room.surroundDistanceLeft', AudioDelayRightRear: 'desk.room.surroundDistanceRight' }
+const DISTANCE_CHOICES = [[0, 'desk.room.distanceFar'], [1, 'desk.room.distanceMid'], [2, 'desk.room.distanceNear']]
+const SPEECH_LEVELS = [[1, 'desk.room.levelLow'], [2, 'desk.room.levelMedium'], [3, 'desk.room.levelHigh'], [4, 'desk.room.levelMax']]
 
 // Bass, Treble and Balance mark their middle with a tick and pull a drag
 // that comes near it onto it, as the Windows theme's EQ does:
@@ -190,6 +196,10 @@ function ToneRow({ label, value, min, max, onChange, minLabel = '-', maxLabel = 
   const [held, setHeld] = useHeld(value)
   useEffect(() => { if (held === null) setLocal(value) }, [value, held])
   const mid = (min + max) / 2
+  // Only a slider centered on zero has a middle to settle on (Bass, Balance...); Audio Delay
+  // runs 0-5 and line-in level 1-10, where the middle is no value the speaker takes, and a
+  // wheel notch away from it was pulled straight back.
+  const centered = min + max === 0
   const keyStep = (e) => {
     const by = { ArrowRight: 1, ArrowUp: 1, PageUp: 1, ArrowLeft: -1, ArrowDown: -1, PageDown: -1 }[e.key]
     if (by === undefined) return
@@ -203,7 +213,7 @@ function ToneRow({ label, value, min, max, onChange, minLabel = '-', maxLabel = 
       <span className="sf-tone-end">{minLabel}</span>
       <span className="sf-tone-track">
         <input type="range" min={min} max={max} step="0.05" value={local} aria-label={label} className="sf-range" data-wheel-step={wheelStep || undefined}
-               onChange={(e) => setLocal(settle(Number(e.target.value), mid, detentOf(min, max)))}
+               onChange={(e) => setLocal(centered ? settle(Number(e.target.value), mid, detentOf(min, max)) : Math.round(Number(e.target.value)))}
                onPointerUp={() => { setHeld(local); onChange(local) }} onKeyDown={keyStep} />
       </span>
       <span className="sf-tone-end">{maxLabel}</span>
@@ -265,7 +275,32 @@ export function RoomSettings({ uuid, households, onClose }) {
                   ) : (
                     <ToneRow key={k} label={t(EQ_LABELS[k])} value={eq[k]} min={EQ_RANGES[k]?.[0] ?? -10} max={EQ_RANGES[k]?.[1] ?? 10} onChange={(v) => applyExtras({ eq: { [k]: v } })} />
                   ))}
+                  {'speech_level' in (extras || {}) && eq.DialogLevel === 1 && (
+                    <Field label={t('desk.room.speechLevel')}>
+                      <Select value={extras.speech_level ?? 1} onChange={(e) => applyExtras({ speech_level: Number(e.target.value) })}>
+                        {SPEECH_LEVELS.filter(([v]) => v < 4 || extras.speech_max).map(([v, key]) => <option key={v} value={v}>{t(key)}</option>)}
+                      </Select>
+                    </Field>
+                  )}
+                  {Object.entries(SURROUND_DISTANCES).filter(([k]) => k in eq).map(([k, label]) => (
+                    <Field key={k} label={t(label)}>
+                      <Select value={eq[k]} onChange={(e) => applyExtras({ eq: { [k]: Number(e.target.value) } })}>
+                        {DISTANCE_CHOICES.map(([v, key]) => <option key={v} value={v}>{t(key)}</option>)}
+                      </Select>
+                    </Field>
+                  ))}
+                  {'SubPolarity' in eq && (
+                    <Field label={t('desk.room.subPhase')}>
+                      <Select value={eq.SubPolarity} onChange={(e) => applyExtras({ eq: { SubPolarity: Number(e.target.value) } })}>
+                        <option value={0}>0°</option>
+                        <option value={1}>180°</option>
+                      </Select>
+                    </Field>
+                  )}
                 </fieldset>
+              )}
+              {extras && 'trueplay' in extras && (
+                <Toggle checked={Boolean(extras.trueplay)} label={t('desk.room.trueplay')} disabled={busy} onChange={(on) => applyExtras({ trueplay: on })} />
               )}
               <Button quiet small onClick={() => actions.setTone(uuid, { bass: 0, treble: 0, balance: 0, loudness: true })}>{t('desk.prefs.reset')}</Button>
             </div>
@@ -280,11 +315,26 @@ export function RoomSettings({ uuid, households, onClose }) {
               </div>
             </Field>
             {/* A switch in the light's real position, read from the speaker; a pair of
-                buttons said nothing about which way it was. */}
-            <Field label={t('desk.prefs.statusLight')}>
-              <Toggle checked={Boolean(extras?.status_light)} label={t(extras?.status_light ? 'desk.prefs.on' : 'desk.prefs.off')} disabled={!extras}
-                      onChange={(on) => applyExtras({ status_light: on })} />
-            </Field>
+                buttons said nothing about which way it was. It is a row like the
+                room's other switches. */}
+            <Toggle checked={Boolean(extras?.status_light)} label={t('desk.prefs.statusLight')} disabled={!extras}
+                    onChange={(on) => applyExtras({ status_light: on })} />
+            {extras && 'button_lock' in extras && (
+              <Toggle checked={!extras.button_lock} label={t('desk.room.touchControls')} disabled={busy} onChange={(on) => applyExtras({ button_lock: !on })} />
+            )}
+            {extras && 'tv_autoplay' in extras && (
+              <div className="sf-stack">
+                <Toggle checked={Boolean(extras.tv_autoplay)} label={t('desk.room.tvAutoplay')} disabled={busy} onChange={(on) => applyExtras({ tv_autoplay: on })} />
+                <Toggle checked={Boolean(extras.tv_autoplay_ungroup)} label={t('desk.room.tvUngroup')} disabled={busy || !extras.tv_autoplay}
+                        onChange={(on) => applyExtras({ tv_autoplay_ungroup: on })} />
+              </div>
+            )}
+            {extras && 'ir_light' in extras && (
+              <Toggle checked={Boolean(extras.ir_light)} label={t('desk.room.irLight')} disabled={busy} onChange={(on) => applyExtras({ ir_light: on })} />
+            )}
+            {extras && 'ir_repeater' in extras && (
+              <Toggle checked={Boolean(extras.ir_repeater)} label={t('desk.room.irRepeater')} disabled={busy} onChange={(on) => applyExtras({ ir_repeater: on })} />
+            )}
             {extras && 'line_in_level' in extras && (
               <>
                 <Field label={t('desk.room.lineInName')}>

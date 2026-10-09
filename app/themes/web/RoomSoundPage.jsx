@@ -12,9 +12,13 @@ import { Row, Section, Toggle } from './SettingsPage.jsx'
 // 52px rows, toggles at the right). Opened from the player's menu, for the
 // room in view. Every group appears only where the speaker reports it: Height
 // for a speaker that tunes it, TV for a soundbar, Sub and Surround when they
-// are bonded, Line-in for a speaker with a socket.
+// are bonded, Line-in for a speaker with a socket, Touch Controls for a
+// speaker with buttons.
 
 const RANGES = { SubGain: [-15, 15], SurroundLevel: [-15, 15], MusicSurroundLevel: [-15, 15], AudioDelay: [0, 5], HeightChannelLevel: [-10, 10] }
+// The speaker counts a surround's distance from 0, the farthest.
+const DISTANCE_CHOICES = [[0, 'desk.room.distanceFar'], [1, 'desk.room.distanceMid'], [2, 'desk.room.distanceNear']]
+const SPEECH_LEVELS = [[1, 'desk.room.levelLow'], [2, 'desk.room.levelMedium'], [3, 'desk.room.levelHigh'], [4, 'desk.room.levelMax']]
 
 export default function RoomSoundPage({ uuid, onClose }) {
   const { t } = useI18n()
@@ -43,6 +47,20 @@ export default function RoomSoundPage({ uuid, onClose }) {
     <Row key={k} label={label} control={<Toggle label={label} checked={eq[k] === 1} disabled={busy} onChange={(on) => apply({ eq: { [k]: on ? 1 : 0 } })} />} />
   )
   const has = (...keys) => keys.some((k) => k in eq)
+  const hasExtra = (...keys) => Boolean(extras) && keys.some((k) => k in extras)
+  // A switch the room reports beside its EQ.
+  const extraFlag = (k, label, checked, onSet, off = false) => hasExtra(k) && (
+    <Row key={k} label={label} control={<Toggle label={label} checked={checked} disabled={busy || off} onChange={onSet} />} />
+  )
+  // A choice of a few, in the same box as the line-in's autoplay room.
+  const choice = (k, label, value, options, onPick) => (
+    <Row key={k} label={label} control={
+      <select className="wb-sound-input" value={value} aria-label={label} disabled={busy} onChange={(e) => onPick(Number(e.target.value))}>
+        {options.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
+      </select>} />
+  )
+  const distance = (k, label) => k in eq &&
+    choice(k, label, eq[k], DISTANCE_CHOICES.map(([v, key]) => [v, t(key)]), (v) => apply({ eq: { [k]: v } }))
 
   return (
     <section className="wb-settings wb-sound" aria-label={t('desk.prefs.settingsFor', { room: zone.name })}>
@@ -67,29 +85,42 @@ export default function RoomSoundPage({ uuid, onClose }) {
             {level('HeightChannelLevel', t('desk.room.heightLevel'))}
             <Row label={t('desk.prefs.loudness')} control={<Toggle label={t('desk.prefs.loudness')} checked={Boolean(zone.loudness)}
                                                                   onChange={(on) => actions.setTone(uuid, { loudness: on })} />} />
+            {extraFlag('trueplay', t('desk.room.trueplay'), Boolean(extras?.trueplay), (on) => apply({ trueplay: on }))}
             <Row label={t('desk.prefs.reset')} onClick={() => actions.setTone(uuid, { bass: 0, treble: 0, balance: 0, loudness: true })} />
           </>
         )}
       </Section>
 
-      {has('AudioDelay', 'NightMode', 'DialogLevel') && (
+      {(has('AudioDelay', 'NightMode', 'DialogLevel') || hasExtra('tv_autoplay', 'ir_light', 'ir_repeater')) && (
         <Section title={t('source.tv')}>
           {flag('NightMode', t('desk.room.nightSound'))}
           {flag('DialogLevel', t('desk.room.speech'))}
+          {/* The level only means something while Speech Enhancement is on. */}
+          {hasExtra('speech_level') && eq.DialogLevel === 1 && choice('speech_level', t('desk.room.speechLevel'), extras.speech_level ?? 1,
+            SPEECH_LEVELS.filter(([v]) => v < 4 || extras.speech_max).map(([v, key]) => [v, t(key)]), (v) => apply({ speech_level: v }))}
           {level('AudioDelay', t('desk.room.audioDelay'))}
+          {extraFlag('tv_autoplay', t('desk.room.tvAutoplay'), Boolean(extras?.tv_autoplay), (on) => apply({ tv_autoplay: on }))}
+          {extraFlag('tv_autoplay_ungroup', t('desk.room.tvUngroup'), Boolean(extras?.tv_autoplay_ungroup),
+            (on) => apply({ tv_autoplay_ungroup: on }), !extras?.tv_autoplay)}
+          {extraFlag('ir_light', t('desk.room.irLight'), Boolean(extras?.ir_light), (on) => apply({ ir_light: on }))}
+          {extraFlag('ir_repeater', t('desk.room.irRepeater'), Boolean(extras?.ir_repeater), (on) => apply({ ir_repeater: on }))}
         </Section>
       )}
-      {has('SubEnable', 'SubGain') && (
+      {has('SubEnable', 'SubGain', 'SubPolarity') && (
         <Section title={t('desk.room.sub')}>
           {flag('SubEnable', t('desk.room.sub'))}
           {level('SubGain', t('desk.room.subLevel'))}
+          {'SubPolarity' in eq && choice('SubPolarity', t('desk.room.subPhase'), eq.SubPolarity, [[0, '0°'], [1, '180°']],
+            (v) => apply({ eq: { SubPolarity: v } }))}
         </Section>
       )}
-      {has('SurroundEnable', 'SurroundLevel', 'MusicSurroundLevel') && (
+      {has('SurroundEnable', 'SurroundLevel', 'MusicSurroundLevel', 'AudioDelayLeftRear', 'AudioDelayRightRear') && (
         <Section title={t('desk.room.surround')}>
           {flag('SurroundEnable', t('desk.room.surround'))}
           {level('SurroundLevel', t('desk.room.surroundLevel'))}
           {level('MusicSurroundLevel', t('desk.room.musicSurroundLevel'))}
+          {distance('AudioDelayLeftRear', t('desk.room.surroundDistanceLeft'))}
+          {distance('AudioDelayRightRear', t('desk.room.surroundDistanceRight'))}
         </Section>
       )}
       {extras && ('line_in_level' in extras || 'autoplay_room' in extras) && (
@@ -123,6 +154,13 @@ export default function RoomSoundPage({ uuid, onClose }) {
               )}
             </>
           )}
+        </Section>
+      )}
+      {/* Touch Controls is on while the buttons are not locked. Any speaker with buttons may
+          have it, TV or not, so it has a section of its own. */}
+      {hasExtra('button_lock') && (
+        <Section title={t('desk.room.touchControls')}>
+          {extraFlag('button_lock', t('desk.room.touchControls'), !extras.button_lock, (on) => apply({ button_lock: !on }))}
         </Section>
       )}
     </section>

@@ -173,6 +173,12 @@ const EQ_LABELS = { NightMode: 'desk.room.nightSound', DialogLevel: 'desk.room.s
                     MusicSurroundLevel: 'desk.room.musicSurroundLevel', AudioDelay: 'desk.room.audioDelay', HeightChannelLevel: 'desk.room.heightLevel' }
 const EQ_FLAGS = new Set(['NightMode', 'DialogLevel', 'SubEnable', 'SurroundEnable'])
 const EQ_RANGES = { SubGain: [-15, 15], SurroundLevel: [-15, 15], MusicSurroundLevel: [-15, 15], AudioDelay: [0, 5], HeightChannelLevel: [-10, 10] }
+// The settings a soundbar's speaker takes as a choice of a few: how far each
+// surround sits (the speaker counts 0 as farthest), the sub's phase, and the
+// strength of speech enhancement where it is apart from its switch.
+const SURROUND_DISTANCES = { AudioDelayLeftRear: 'desk.room.surroundDistanceLeft', AudioDelayRightRear: 'desk.room.surroundDistanceRight' }
+const DISTANCE_CHOICES = [[0, 'desk.room.distanceFar'], [1, 'desk.room.distanceMid'], [2, 'desk.room.distanceNear']]
+const SPEECH_LEVELS = [[1, 'desk.room.levelLow'], [2, 'desk.room.levelMedium'], [3, 'desk.room.levelHigh'], [4, 'desk.room.levelMax']]
 
 // A tone control: the Expressive slider with its value on the handle, the
 // range's two ends named beside it.
@@ -181,11 +187,15 @@ const EQ_RANGES = { SubGain: [-15, 15], SurroundLevel: [-15, 15], MusicSurroundL
 // Balance's two hundred.
 const detentOf = (min, max) => Math.max(1, (max - min) / 40)
 const settle = (raw, mid, detent) => (Math.abs(raw - mid) < detent ? mid : Math.round(raw))
+// Only a slider centered on zero has a middle to settle on (Bass, Balance...); Audio Delay
+// runs 0-5 and line-in level 1-10, where the middle is no value the speaker takes, and a
+// wheel notch away from it was pulled straight back.
+const stepOf = (raw, min, max) => (min + max === 0 ? settle(raw, 0, detentOf(min, max)) : Math.round(raw))
 
 function Tone({ label, value, min, max, onChange, minLabel = '-', maxLabel = '+', wheelStep = null }) {
   // The rounded value last sent, so a glide within one step sends nothing new.
   const sent = useRef(value)
-  const commit = (raw) => { const n = settle(raw, (min + max) / 2, detentOf(min, max)); if (n !== sent.current) { sent.current = n; onChange(n) } }
+  const commit = (raw) => { const n = stepOf(raw, min, max); if (n !== sent.current) { sent.current = n; onChange(n) } }
   useEffect(() => { sent.current = value }, [value])
   return (
     <div className="mg-tone">
@@ -195,7 +205,7 @@ function Tone({ label, value, min, max, onChange, minLabel = '-', maxLabel = '+'
         {/* The thumb glides in twentieths so a range of 21 values follows the pointer; what is sent
             and shown is the whole step it is nearest (settle). */}
         <Slider size="xs" min={min} max={max} step={0.05} value={value} label={label} wheelStep={wheelStep} onCommit={commit}
-                format={(v) => { const n = settle(v, (min + max) / 2, detentOf(min, max)); return n > 0 ? `+${n}` : `${n}` }} />
+                format={(v) => { const n = stepOf(v, min, max); return n > 0 ? `+${n}` : `${n}` }} />
       </span>
       <span className="mg-tone-end">{maxLabel}</span>
     </div>
@@ -259,7 +269,35 @@ export function RoomSettings({ uuid, households, onClose }) {
                   ) : (
                     <Tone key={k} label={t(EQ_LABELS[k])} value={eq[k]} min={EQ_RANGES[k]?.[0] ?? -10} max={EQ_RANGES[k]?.[1] ?? 10} onChange={(v) => applyExtras({ eq: { [k]: v } })} />
                   ))}
+                  {'speech_level' in (extras || {}) && eq.DialogLevel === 1 && (
+                    <div className="mg-setting">
+                      <span className="mg-setting-label">{t('desk.room.speechLevel')}</span>
+                      <Select value={extras.speech_level ?? 1} onChange={(e) => applyExtras({ speech_level: Number(e.target.value) })}>
+                        {SPEECH_LEVELS.filter(([v]) => v < 4 || extras.speech_max).map(([v, key]) => <option key={v} value={v}>{t(key)}</option>)}
+                      </Select>
+                    </div>
+                  )}
+                  {Object.entries(SURROUND_DISTANCES).filter(([k]) => k in eq).map(([k, label]) => (
+                    <div key={k} className="mg-setting">
+                      <span className="mg-setting-label">{t(label)}</span>
+                      <Select value={eq[k]} onChange={(e) => applyExtras({ eq: { [k]: Number(e.target.value) } })}>
+                        {DISTANCE_CHOICES.map(([v, key]) => <option key={v} value={v}>{t(key)}</option>)}
+                      </Select>
+                    </div>
+                  ))}
+                  {'SubPolarity' in eq && (
+                    <div className="mg-setting">
+                      <span className="mg-setting-label">{t('desk.room.subPhase')}</span>
+                      <Select value={eq.SubPolarity} onChange={(e) => applyExtras({ eq: { SubPolarity: Number(e.target.value) } })}>
+                        <option value={0}>0°</option>
+                        <option value={1}>180°</option>
+                      </Select>
+                    </div>
+                  )}
                 </fieldset>
+              )}
+              {extras && 'trueplay' in extras && (
+                <Switch checked={Boolean(extras.trueplay)} label={t('desk.room.trueplay')} disabled={busy} onChange={(on) => applyExtras({ trueplay: on })} />
               )}
               <div><Button variant="outlined" size="xs" icon={<I.Refresh />} onClick={() => actions.setTone(uuid, { bass: 0, treble: 0, balance: 0, loudness: true })}>{t('desk.prefs.reset')}</Button></div>
             </div>
@@ -272,11 +310,24 @@ export function RoomSettings({ uuid, households, onClose }) {
                          onEnter={() => { if (name.trim() && name !== zone.name) actions.rename(uuid, name.trim()) }} />
               <Button variant="filled" size="s" disabled={!name.trim() || name === zone.name} onClick={() => actions.rename(uuid, name.trim())}>{t('desk.prefs.apply')}</Button>
             </div>
-            <div className="mg-setting">
-              <span className="mg-setting-label">{t('desk.prefs.statusLight')}</span>
-              <Switch checked={Boolean(extras?.status_light)} disabled={!extras} ariaLabel={t('desk.prefs.statusLight')}
-                      onChange={(on) => applyExtras({ status_light: on })} />
-            </div>
+            <Switch checked={Boolean(extras?.status_light)} disabled={!extras} label={t('desk.prefs.statusLight')}
+                    onChange={(on) => applyExtras({ status_light: on })} />
+            {extras && 'button_lock' in extras && (
+              <Switch checked={!extras.button_lock} label={t('desk.room.touchControls')} disabled={busy} onChange={(on) => applyExtras({ button_lock: !on })} />
+            )}
+            {extras && 'tv_autoplay' in extras && (
+              <div className="mg-stack">
+                <Switch checked={Boolean(extras.tv_autoplay)} label={t('desk.room.tvAutoplay')} disabled={busy} onChange={(on) => applyExtras({ tv_autoplay: on })} />
+                <Switch checked={Boolean(extras.tv_autoplay_ungroup)} label={t('desk.room.tvUngroup')} disabled={busy || !extras.tv_autoplay}
+                        onChange={(on) => applyExtras({ tv_autoplay_ungroup: on })} />
+              </div>
+            )}
+            {extras && 'ir_light' in extras && (
+              <Switch checked={Boolean(extras.ir_light)} label={t('desk.room.irLight')} disabled={busy} onChange={(on) => applyExtras({ ir_light: on })} />
+            )}
+            {extras && 'ir_repeater' in extras && (
+              <Switch checked={Boolean(extras.ir_repeater)} label={t('desk.room.irRepeater')} disabled={busy} onChange={(on) => applyExtras({ ir_repeater: on })} />
+            )}
             {extras && 'line_in_level' in extras && (
               <>
                 <TextField label={t('desk.room.lineInName')} value={lineInName} onChange={setLineInName}

@@ -203,32 +203,39 @@ const EQ_LABELS = { NightMode: 'desk.room.nightSound', DialogLevel: 'desk.room.s
 const EQ_FLAGS = new Set(['NightMode', 'DialogLevel', 'SubEnable', 'SurroundEnable'])
 const EQ_RANGES = { SubGain: [-15, 15], SurroundLevel: [-15, 15], MusicSurroundLevel: [-15, 15], AudioDelay: [0, 5], HeightChannelLevel: [-10, 10] }
 const signed = (v) => (v > 0 ? `+${v}` : String(v))
+// The settings a soundbar's speaker takes as a choice of a few: how far each
+// surround sits (the speaker counts 0 as farthest), the sub's phase, and the
+// strength of speech enhancement where it is apart from its switch. Each is a
+// stepped knob with a pip for every stop, or a lever for the phase.
+const SURROUND_DISTANCES = { AudioDelayLeftRear: 'desk.room.surroundDistanceLeft', AudioDelayRightRear: 'desk.room.surroundDistanceRight' }
+const DISTANCE_CHOICES = ['desk.room.distanceFar', 'desk.room.distanceMid', 'desk.room.distanceNear']
+const SPEECH_LEVELS = ['desk.room.levelLow', 'desk.room.levelMedium', 'desk.room.levelHigh', 'desk.room.levelMax']
 
 // A labeled knob with its value under it, the way a tone control reads.
 // Every control on the tone panel sits in the same cell: a label of up to
 // two lines resting on the control, then the control, then its reading on
 // one line. Knobs and levers share the cell's center line, so a row of them
 // reads as one strip of a front panel.
-function ToneKnob({ label, value, min, max, onChange, detent = true, format = signed, ends = null }) {
+function ToneKnob({ label, value, min, max, onChange, detent = true, format = signed, ends = null, ticks = null }) {
   return (
     <div className="hf-tone">
       <span className="hf-legend hf-tone-label">{label}</span>
       <div className="hf-tone-control">
-        <Knob value={value ?? 0} min={min} max={max} onCommit={onChange} label={label} size="md" detent={detent} format={format} showValue ticks={detent ? 11 : 6} />
+        <Knob value={value ?? 0} min={min} max={max} onCommit={onChange} label={label} size="md" detent={detent} format={format} showValue ticks={ticks ?? (detent ? 11 : 6)} />
         {ends && <span className="hf-tone-ends" aria-hidden="true"><span>{ends[0]}</span><span>{ends[1]}</span></span>}
       </div>
     </div>
   )
 }
 
-function ToneLever({ label, checked, onChange }) {
+function ToneLever({ label, checked, onChange, states = null, disabled = false }) {
   const { t } = useI18n()
   return (
     <div className="hf-tone">
       <span className="hf-legend hf-tone-label">{label}</span>
       <div className="hf-tone-control">
-        <Lever checked={checked} label="" hint={label} onChange={onChange} />
-        <span className="hf-tone-state" aria-hidden="true">{checked ? t('desk.prefs.on') : t('desk.prefs.off')}</span>
+        <Lever checked={checked} label="" hint={label} disabled={disabled} onChange={onChange} />
+        <span className="hf-tone-state" aria-hidden="true">{states ? states[checked ? 1 : 0] : checked ? t('desk.prefs.on') : t('desk.prefs.off')}</span>
       </div>
     </div>
   )
@@ -284,7 +291,7 @@ export function ToneControl({ uuid, households, onClose }) {
               )}
               <ToneLever label={t('desk.prefs.loudness')} checked={Boolean(zone.loudness)} onChange={(on) => actions.setTone(uuid, { loudness: on })} />
             </div>
-            {extraKeys.length > 0 && (
+            {(extraKeys.length > 0 || 'trueplay' in (extras || {})) && (
               <fieldset className="hf-tone-row hf-tone-extras" disabled={busy}>
                 {extraKeys.map((k) => (EQ_FLAGS.has(k) ? (
                   <ToneLever key={k} label={t(EQ_LABELS[k])} checked={eq[k] === 1} onChange={(on) => applyExtras({ eq: { [k]: on ? 1 : 0 } })} />
@@ -292,6 +299,22 @@ export function ToneControl({ uuid, households, onClose }) {
                   <ToneKnob key={k} label={t(EQ_LABELS[k])} value={eq[k]} min={EQ_RANGES[k]?.[0] ?? -10} max={EQ_RANGES[k]?.[1] ?? 10}
                             detent={(EQ_RANGES[k]?.[0] ?? -10) < 0} onChange={(v) => applyExtras({ eq: { [k]: v } })} />
                 )))}
+                {'speech_level' in (extras || {}) && eq.DialogLevel === 1 && (
+                  <ToneKnob label={t('desk.room.speechLevel')} value={extras.speech_level ?? 1} min={1} max={extras.speech_max ? 4 : 3}
+                            detent={false} ticks={extras.speech_max ? 4 : 3} format={(v) => t(SPEECH_LEVELS[v - 1] || SPEECH_LEVELS[0])}
+                            onChange={(v) => applyExtras({ speech_level: v })} />
+                )}
+                {Object.entries(SURROUND_DISTANCES).filter(([k]) => k in eq).map(([k, label]) => (
+                  <ToneKnob key={k} label={t(label)} value={eq[k]} min={0} max={2} detent={false} ticks={3}
+                            format={(v) => t(DISTANCE_CHOICES[v] || DISTANCE_CHOICES[0])} onChange={(v) => applyExtras({ eq: { [k]: v } })} />
+                ))}
+                {'SubPolarity' in eq && (
+                  <ToneLever label={t('desk.room.subPhase')} checked={eq.SubPolarity === 1} states={['0°', '180°']}
+                             onChange={(on) => applyExtras({ eq: { SubPolarity: on ? 1 : 0 } })} />
+                )}
+                {'trueplay' in (extras || {}) && (
+                  <ToneLever label={t('desk.room.trueplay')} checked={Boolean(extras.trueplay)} onChange={(on) => applyExtras({ trueplay: on })} />
+                )}
               </fieldset>
             )}
             <Button quiet small icon={<G.Refresh />} onClick={() => actions.setTone(uuid, { bass: 0, treble: 0, balance: 0, loudness: true })}>{t('desk.prefs.reset')}</Button>
@@ -305,10 +328,30 @@ export function ToneControl({ uuid, households, onClose }) {
                 <Button small primary disabled={!name.trim() || name === zone.name} onClick={() => actions.rename(uuid, name.trim())}>{t('desk.prefs.apply')}</Button>
               </div>
             </Field>
-            {/* A lever in the light's real position, read with the room's
-                settings; it moves at once and the speaker is told. */}
-            <Lever checked={light} disabled={!extras} label={t('desk.prefs.statusLight')}
-                   onChange={(on) => { setLight(on); actions.setStatusLight(uuid, on) }} />
+            {/* The room's switches across the panel in a row of cells, as the
+                Music EQ tab sets out its own. The light's lever is in its real
+                position, read with the room's settings; it moves at once and the
+                speaker is told. */}
+            <fieldset className="hf-tone-row" disabled={busy}>
+              <ToneLever label={t('desk.prefs.statusLight')} checked={light} disabled={!extras}
+                         onChange={(on) => { setLight(on); actions.setStatusLight(uuid, on) }} />
+              {extras && 'button_lock' in extras && (
+                <ToneLever label={t('desk.room.touchControls')} checked={!extras.button_lock} onChange={(on) => applyExtras({ button_lock: !on })} />
+              )}
+              {extras && 'tv_autoplay' in extras && (
+                <>
+                  <ToneLever label={t('desk.room.tvAutoplay')} checked={Boolean(extras.tv_autoplay)} onChange={(on) => applyExtras({ tv_autoplay: on })} />
+                  <ToneLever label={t('desk.room.tvUngroup')} checked={Boolean(extras.tv_autoplay_ungroup)} disabled={!extras.tv_autoplay}
+                             onChange={(on) => applyExtras({ tv_autoplay_ungroup: on })} />
+                </>
+              )}
+              {extras && 'ir_light' in extras && (
+                <ToneLever label={t('desk.room.irLight')} checked={Boolean(extras.ir_light)} onChange={(on) => applyExtras({ ir_light: on })} />
+              )}
+              {extras && 'ir_repeater' in extras && (
+                <ToneLever label={t('desk.room.irRepeater')} checked={Boolean(extras.ir_repeater)} onChange={(on) => applyExtras({ ir_repeater: on })} />
+              )}
+            </fieldset>
             {extras && 'line_in_level' in extras && (
               <>
                 <Field label={t('desk.room.lineInName')}>

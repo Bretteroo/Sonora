@@ -1274,11 +1274,6 @@ export function RoomPage({ rooms, households, zone, onRoom }) {
                 {t('desk.prefs.apply')}
               </button>
             </div>
-            <div className="dk-field">
-              <span>{t('desk.prefs.statusLight')}</span>
-              <button type="button" className="dk-win-btn" onClick={() => actions.setStatusLight(zone.uuid, true)}>{t('desk.prefs.on')}</button>
-              <button type="button" className="dk-win-btn" onClick={() => actions.setStatusLight(zone.uuid, false)}>{t('desk.prefs.off')}</button>
-            </div>
             <RoomExtras zone={zone} rooms={[]} />
             <StereoPairField zone={zone} />
             <div className="dk-field"><span>{t('desk.about.model')}</span><span>{zone.model}</span></div>
@@ -1295,7 +1290,12 @@ export function RoomPage({ rooms, households, zone, onRoom }) {
 // The settings a room may have beyond bass and treble, read from the device
 // and shown only where it answers: a soundbar's Night Sound, Speech
 // Enhancement, Sub and Surround; a line-in device's level and name; every
-// room's autoplay (what plays when its line-in gets a signal).
+// room's autoplay (what plays when its line-in gets a signal). A home
+// theater's own switches and choices follow the sound settings: Trueplay,
+// the sub's phase, the surrounds' distances, Speech Enhancement's level,
+// touch controls, TV autoplay and the IR settings.
+const DISTANCE_CHOICES = [[0, 'desk.room.distanceFar'], [1, 'desk.room.distanceMid'], [2, 'desk.room.distanceNear']]
+const SPEECH_LEVELS = [[1, 'desk.room.levelLow'], [2, 'desk.room.levelMedium'], [3, 'desk.room.levelHigh'], [4, 'desk.room.levelMax']]
 const EQ_LABELS = { NightMode: 'desk.room.nightSound', DialogLevel: 'desk.room.speech', SubEnable: 'desk.room.sub',
                     SubGain: 'desk.room.subLevel', SurroundEnable: 'desk.room.surround', SurroundLevel: 'desk.room.surroundLevel',
                     MusicSurroundLevel: 'desk.room.musicSurroundLevel', AudioDelay: 'desk.room.audioDelay', HeightChannelLevel: 'desk.room.heightLevel' }
@@ -1320,6 +1320,20 @@ export function RoomExtras({ zone }) {
   if (!data) return null
   const eq = data.eq || {}
   const keys = Object.keys(EQ_LABELS).filter((k) => k in eq && k !== 'SurroundMode')
+  const check = (k, label, checked, onSet, off = false) => k in data && (
+    <label key={k} className="dk-field dk-check">
+      <input type="checkbox" checked={checked} disabled={off} onChange={(e) => onSet(e.target.checked)} />
+      <span>{label}</span>
+    </label>
+  )
+  const choice = (k, label, value, options, onPick) => (
+    <div key={k} className="dk-field">
+      <span>{label}</span>
+      <select value={value} onChange={(e) => onPick(Number(e.target.value))}>
+        {options.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
+      </select>
+    </div>
+  )
   return (
     <fieldset className="dk-room-extras" disabled={busy}>
       {keys.map((k) => EQ_FLAGS.has(k) ? (
@@ -1335,6 +1349,25 @@ export function RoomExtras({ zone }) {
           <span>{eq[k]}</span>
         </div>
       ))}
+      {/* The level only means something while Speech Enhancement is on. */}
+      {'speech_level' in data && eq.DialogLevel === 1 && choice('speech_level', t('desk.room.speechLevel'), data.speech_level ?? 1,
+        SPEECH_LEVELS.filter(([v]) => v < 4 || data.speech_max).map(([v, key]) => [v, t(key)]), (v) => apply({ speech_level: v }))}
+      {[['AudioDelayLeftRear', 'desk.room.surroundDistanceLeft'], ['AudioDelayRightRear', 'desk.room.surroundDistanceRight']]
+        .filter(([k]) => k in eq).map(([k, label]) => choice(k, t(label), eq[k],
+          DISTANCE_CHOICES.map(([v, key]) => [v, t(key)]), (v) => apply({ eq: { [k]: v } })))}
+      {'SubPolarity' in eq && choice('SubPolarity', t('desk.room.subPhase'), eq.SubPolarity, [[0, '0°'], [1, '180°']],
+        (v) => apply({ eq: { SubPolarity: v } }))}
+      {check('trueplay', t('desk.room.trueplay'), Boolean(data.trueplay), (on) => apply({ trueplay: on }))}
+      {/* The status light as a checkbox in its real position, read from the
+          speaker; a pair of On and Off buttons said nothing about which way
+          it was. Touch Controls is on while the buttons are not locked. */}
+      {check('status_light', t('desk.prefs.statusLight'), Boolean(data.status_light), (on) => apply({ status_light: on }))}
+      {check('button_lock', t('desk.room.touchControls'), !data.button_lock, (on) => apply({ button_lock: !on }))}
+      {check('ir_light', t('desk.room.irLight'), Boolean(data.ir_light), (on) => apply({ ir_light: on }))}
+      {check('ir_repeater', t('desk.room.irRepeater'), Boolean(data.ir_repeater), (on) => apply({ ir_repeater: on }))}
+      {check('tv_autoplay', t('desk.room.tvAutoplay'), Boolean(data.tv_autoplay), (on) => apply({ tv_autoplay: on }))}
+      {check('tv_autoplay_ungroup', t('desk.room.tvUngroup'), Boolean(data.tv_autoplay_ungroup),
+        (on) => apply({ tv_autoplay_ungroup: on }), !data.tv_autoplay)}
       {'line_in_level' in data && (
         <>
           <div className="dk-field">

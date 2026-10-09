@@ -556,6 +556,12 @@ class RoomSettingsBody(BaseModel):
     name: str | None = None
     status_light: bool | None = None
     button_lock: bool | None = None
+    speech_level: int | None = None
+    tv_autoplay: bool | None = None
+    tv_autoplay_ungroup: bool | None = None
+    ir_light: bool | None = None
+    ir_repeater: bool | None = None
+    trueplay: bool | None = None
 
 
 @app.post("/api/zones/{uuid}/settings")
@@ -574,6 +580,14 @@ async def set_room_settings(uuid: str, body: RoomSettingsBody) -> dict:
             await cmd.set_status_light(uuid, body.status_light)
         if body.button_lock is not None:
             await cmd.set_button_lock(uuid, body.button_lock)
+        if body.speech_level is not None:
+            await cmd.set_speech_level(uuid, body.speech_level)
+        if body.tv_autoplay is not None or body.tv_autoplay_ungroup is not None:
+            await cmd.set_tv_autoplay(uuid, body.tv_autoplay, body.tv_autoplay_ungroup)
+        if body.ir_light is not None or body.ir_repeater is not None:
+            await cmd.set_ir(uuid, body.ir_light, body.ir_repeater)
+        if body.trueplay is not None:
+            await cmd.set_trueplay(uuid, body.trueplay)
     except KeyError:
         raise HTTPException(404, f"unknown zone {uuid}") from None
     except ValueError as exc:

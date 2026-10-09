@@ -63,7 +63,6 @@ AUDIO_ACTIONS: dict[str, frozenset[str]] = {
     "AlarmClock": frozenset({"CreateAlarm", "UpdateAlarm"}),
     "VirtualLineIn": frozenset({"StartTransmission", "Play", "SetVolume"}),
     "AudioIn": frozenset({"StartTransmissionToGroup", "SelectAudio"}),
-    "HTControl": frozenset({"SetLEDFeedbackState"}),
     # Room detection emits an audible chirp from the speaker.
     "DeviceProperties": frozenset({
         "RoomDetectionStartChirping",
@@ -98,6 +97,7 @@ WRITE_ACTIONS: dict[str, frozenset[str]] = {
         "SetOutputFixed",
         "SetChannelMap",
         "SetRoomCalibrationX",
+        "SetRoomCalibrationStatus",
         "RampToVolume",
         "RestoreVolumePriorToRamp",
         "ResetBasicEQ",
@@ -127,6 +127,8 @@ WRITE_ACTIONS: dict[str, frozenset[str]] = {
         "EnterConfigMode",
         "ExitConfigMode",
     }),
+    # The IR signal light and the IR repeater: neither makes a sound.
+    "HTControl": frozenset({"SetLEDFeedbackState", "SetIRRepeaterState"}),
     "AlarmClock": frozenset({
         "DestroyAlarm",
         "SetFormat",

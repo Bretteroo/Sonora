@@ -33,16 +33,18 @@ class _Soap:
         raise SoapFault("401", "Invalid Action")
 
 
-def _commands(values):
-    zone = SimpleNamespace(host="192.168.0.110", online=True, supports_line_in=False, generation="S2")
+def _commands(values, model_number="S45"):
+    zone = SimpleNamespace(host="192.168.0.110", online=True, supports_line_in=False, generation="S2",
+                           model_number=model_number, speech_max=False)
     household = SimpleNamespace(id="HH", zones={"Z": SimpleNamespace(players=[])})
     soap = _Soap(values)
     commands = Commands.__new__(Commands)
     async def features(uuid):
         return {"HEIGHT_CHANNEL_TUNING"}   # what an Arc Ultra declares in /info
+    async def capabilities(uuid):
+        return set()
     commands._c = SimpleNamespace(zone=lambda uuid: zone, household_of=lambda uuid: household, soap=soap,
-                                  device_features=features)
-    commands._speech_switch = set()
+                                  device_features=features, device_capabilities=capabilities)
     return commands, soap
 
 
@@ -62,12 +64,22 @@ def test_turning_it_off_writes_the_switch_not_the_level():
 
 
 def test_an_older_player_keeps_dialog_level_as_its_switch():
-    commands, soap = _commands({"DialogLevel": 1, "NightMode": 0})
+    commands, soap = _commands({"DialogLevel": 1, "NightMode": 0}, model_number="S11")
     settings = asyncio.run(commands.room_settings("Z"))
     assert settings["eq"]["DialogLevel"] == 1 and "speech_level" not in settings
     asyncio.run(commands.set_eq("Z", "DialogLevel", 0))
     assert soap.sets == [("DialogLevel", 0)]
 
+
+def test_a_beam_or_ray_keeps_dialog_level_although_it_answers_the_switch():
+    """A Beam (Gen 2) and a Ray answer GetEQ SpeechEnhanceEnabled with 0 but
+    refuse every SetEQ of it with a 500; DialogLevel is their switch."""
+    for model in ("S31", "S36"):
+        commands, soap = _commands({"DialogLevel": 0, "SpeechEnhanceEnabled": 0, "NightMode": 0}, model)
+        settings = asyncio.run(commands.room_settings("Z"))
+        assert settings["eq"]["DialogLevel"] == 0 and "speech_level" not in settings
+        asyncio.run(commands.set_eq("Z", "DialogLevel", 1))
+        assert soap.sets == [("DialogLevel", 1)]
 
 
 def test_height_is_offered_only_where_the_speaker_declares_it():

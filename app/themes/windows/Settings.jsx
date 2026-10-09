@@ -124,7 +124,15 @@ export default function Settings({ initial, activeRoom = '', onClose, onAddServi
 // Beyond the app: Height on the EQ tab for a speaker that tunes it, Night
 // Sound and Speech Enhancement on the TV tab (the app puts them in Now
 // Playing while TV plays), and a Line-in tab for a speaker with a socket.
+// The app's Sub tab also holds the sub's phase. It keeps the IR light, IR
+// repeater and TV autoplay with a room's TV settings instead, which these
+// themes have no page for, so they join the TV tab here; the surrounds'
+// distances, Speech Enhancement's level, Trueplay and Touch Controls are
+// beyond the app.
 const EQ_RANGES = { SubGain: [-15, 15], SurroundLevel: [-15, 15], MusicSurroundLevel: [-15, 15], AudioDelay: [0, 5], HeightChannelLevel: [-10, 10] }
+// The speaker counts a surround's distance from 0, the farthest.
+const DISTANCE_CHOICES = [[0, 'desk.room.distanceFar'], [1, 'desk.room.distanceMid'], [2, 'desk.room.distanceNear']]
+const SPEECH_LEVELS = [[1, 'desk.room.levelLow'], [2, 'desk.room.levelMedium'], [3, 'desk.room.levelHigh'], [4, 'desk.room.levelMax']]
 function WinEq({ zone }) {
   const { t } = useI18n()
   const { actions, zoneList } = useSystem()
@@ -148,9 +156,10 @@ function WinEq({ zone }) {
   const has = (...keys) => keys.some((k) => k in eq)
   const tabs = [
     ['eq', t('win.eq.tab')],
-    ...(has('SubEnable', 'SubGain') ? [['sub', t('desk.room.sub')]] : []),
-    ...(has('SurroundEnable', 'SurroundLevel', 'MusicSurroundLevel') ? [['surround', t('desk.room.surround')]] : []),
-    ...(has('AudioDelay', 'NightMode', 'DialogLevel') ? [['tv', t('source.tv')]] : []),
+    ...(has('SubEnable', 'SubGain', 'SubPolarity') ? [['sub', t('desk.room.sub')]] : []),
+    ...(has('SurroundEnable', 'SurroundLevel', 'MusicSurroundLevel', 'AudioDelayLeftRear', 'AudioDelayRightRear') ? [['surround', t('desk.room.surround')]] : []),
+    ...(has('AudioDelay', 'NightMode', 'DialogLevel') || (extras && ['ir_light', 'ir_repeater', 'tv_autoplay'].some((k) => k in extras))
+      ? [['tv', t('source.tv')]] : []),
     ...(extras && ('line_in_level' in extras || 'autoplay_room' in extras) ? [['linein', t('source.line_in')]] : []),
   ]
   const shown = tabs.some(([id]) => id === tab) ? tab : 'eq'
@@ -163,6 +172,24 @@ function WinEq({ zone }) {
       <input type="checkbox" checked={eq[k] === 1} disabled={busy} onChange={(e) => apply({ eq: { [k]: e.target.checked ? 1 : 0 } })} />
       <span>{label}</span>
     </label>
+  )
+  // A switch the room's settings carry beside its EQ, shown only where the speaker reports it.
+  const toggle = (k, label, checked, onSet, off = false) => extras && k in extras && (
+    <label key={k} className="win-eq-loudness">
+      <input type="checkbox" checked={checked} disabled={busy || off} onChange={(e) => onSet(e.target.checked)} />
+      <span>{label}</span>
+    </label>
+  )
+  // A choice of a few, on the Line-in tab's label and combo box row.
+  const choice = (k, label, value, options, onPick) => (
+    <fieldset key={k} className="win-eq-linein" disabled={busy}>
+      <div className="win-eq-field">
+        <span className="win-eq-label">{label}</span>
+        <select value={value} onChange={(e) => onPick(Number(e.target.value))}>
+          {options.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
+        </select>
+      </div>
+    </fieldset>
   )
   return (
     <>
@@ -190,6 +217,10 @@ function WinEq({ zone }) {
                      onChange={(e) => actions.setTone(zone.uuid, { loudness: e.target.checked })} />
               <span>{t('desk.prefs.loudness')}</span>
             </label>
+            {toggle('trueplay', t('desk.room.trueplay'), Boolean(extras?.trueplay), (on) => apply({ trueplay: on }))}
+            {/* Touch Controls is on while the buttons are not locked. The app has no
+                place for it; any speaker may have it, and EQ is the one tab every room has. */}
+            {toggle('button_lock', t('desk.room.touchControls'), !extras?.button_lock, (on) => apply({ button_lock: !on }))}
             <div className="win-eq-reset">
               <button type="button" className="dk-win-btn"
                       onClick={() => actions.setTone(zone.uuid, { bass: 0, treble: 0, balance: 0, loudness: true })}>
@@ -202,6 +233,8 @@ function WinEq({ zone }) {
           <>
             {flag('SubEnable', t('desk.room.sub'))}
             {level('SubGain', t('desk.room.subLevel'))}
+            {'SubPolarity' in eq && choice('SubPolarity', t('desk.room.subPhase'), eq.SubPolarity, [[0, '0°'], [1, '180°']],
+              (v) => apply({ eq: { SubPolarity: v } }))}
           </>
         )}
         {shown === 'surround' && (
@@ -209,6 +242,9 @@ function WinEq({ zone }) {
             {flag('SurroundEnable', t('desk.room.surround'))}
             {level('SurroundLevel', t('desk.room.surroundLevel'))}
             {level('MusicSurroundLevel', t('desk.room.musicSurroundLevel'))}
+            {[['AudioDelayLeftRear', 'desk.room.surroundDistanceLeft'], ['AudioDelayRightRear', 'desk.room.surroundDistanceRight']]
+              .filter(([k]) => k in eq).map(([k, label]) => choice(k, t(label), eq[k],
+                DISTANCE_CHOICES.map(([v, key]) => [v, t(key)]), (v) => apply({ eq: { [k]: v } })))}
           </>
         )}
         {shown === 'tv' && (
@@ -216,6 +252,14 @@ function WinEq({ zone }) {
             {level('AudioDelay', t('desk.room.audioDelay'))}
             {flag('NightMode', t('desk.room.nightSound'))}
             {flag('DialogLevel', t('desk.room.speech'))}
+            {/* The level only means something while Speech Enhancement is on. */}
+            {extras && 'speech_level' in extras && eq.DialogLevel === 1 && choice('speech_level', t('desk.room.speechLevel'), extras.speech_level ?? 1,
+              SPEECH_LEVELS.filter(([v]) => v < 4 || extras.speech_max).map(([v, key]) => [v, t(key)]), (v) => apply({ speech_level: v }))}
+            {toggle('ir_light', t('desk.room.irLight'), Boolean(extras?.ir_light), (on) => apply({ ir_light: on }))}
+            {toggle('ir_repeater', t('desk.room.irRepeater'), Boolean(extras?.ir_repeater), (on) => apply({ ir_repeater: on }))}
+            {toggle('tv_autoplay', t('desk.room.tvAutoplay'), Boolean(extras?.tv_autoplay), (on) => apply({ tv_autoplay: on }))}
+            {toggle('tv_autoplay_ungroup', t('desk.room.tvUngroup'), Boolean(extras?.tv_autoplay_ungroup),
+              (on) => apply({ tv_autoplay_ungroup: on }), !extras?.tv_autoplay)}
           </>
         )}
         {shown === 'linein' && extras && (

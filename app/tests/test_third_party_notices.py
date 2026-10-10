@@ -29,6 +29,9 @@ OWN_PICTURES = {
     # A half-size copy of it, for the start-up and crash screens, the Sonos Web settings and the
     # Sedona header.
     "app/frontend/src/assets/wordmark-readme.png",
+    # The Home Assistant app store's icon and logo: the touch icon at 128px and the wordmark cropped.
+    "homeassistant/sonora/icon.png",
+    "homeassistant/sonora/logo.png",
     # The README's hardware-generations timeline, drawn in SVG shapes and
     # text with no embedded images, uploaded by the project's author.
     "docs/sonos-hardware-generations-2026.svg",

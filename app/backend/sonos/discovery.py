@@ -318,21 +318,48 @@ class HouseholdRegistry:
         return match.group(1).strip() if match else ""
 
     async def _enrich(self, players: dict[str, Player]) -> None:
-        """Fill in model and serial detail, and mark unreachable units offline."""
+        """Fill in model and serial detail off each speaker.
+
+        A speaker the topology lists stays online even when its description
+        does not come: the household's own picture decides presence, as in
+        the Sonos apps. A wireless speaker on a weak link answered pings
+        half the time and its description in five or six seconds, kept
+        playing and stayed in every other speaker's topology, yet failed
+        this check often enough that Sonora alone called it offline. Such a
+        speaker keeps the detail last read from it, and household-wide reads
+        steer around it for a while.
+        """
         # Hosts that failed both asks last time get one ordinary ask, not the
         # patient retry: a speaker that is off the network cost every refresh
         # 26 seconds, and every grouping change waits on a refresh (one
         # such speaker held each one to 36).
         down: set[str] = getattr(self, "_down", set())
         self._down = down
+        previous = {uuid: player
+                    for household in getattr(self, "households", {}).values()
+                    for uuid, player in household.players.items()}
+
+        def unanswered(player: Player) -> None:
+            down.add(player.host)
+            soap = getattr(self, "_soap", None)
+            if soap is not None:
+                soap.mark_silent(player.host)
+            last = previous.get(player.uuid)
+            if last is None:
+                return
+            for field in ("model", "model_number", "display_name", "serial", "mac",
+                          "hardware_version", "display_version", "series_id",
+                          "extra_version", "services"):
+                setattr(player, field, getattr(last, field))
+            player.software_version = player.software_version or last.software_version
 
         async def one(player: Player) -> None:
             try:
                 info = await fetch_device_description(self._session, player.host)
             except Exception as exc:
                 if player.host in down:
-                    log.info("%s (%s) still unreachable", player.name, player.host)
-                    player.online = False
+                    log.info("%s (%s) still not answering", player.name, player.host)
+                    unanswered(player)
                     return
                 # A slow answer is not an absent speaker. A Play:5
                 # answered its description in 5.5 seconds, half
@@ -340,14 +367,13 @@ class HouseholdRegistry:
                 # it on the wrong side of that marked a playing speaker
                 # offline -- which cost it its model, its software version,
                 # its place in the diagnostics page and its rooms in the
-                # group pickers. One patient retry before condemning it.
+                # group pickers. One patient retry before giving up on it.
                 try:
                     info = await fetch_device_description(
                         self._session, player.host, timeout=SLOW_DESCRIPTION_TIMEOUT)
                 except Exception:
-                    log.info("%s (%s) unreachable: %s", player.name, player.host, exc)
-                    player.online = False
-                    down.add(player.host)
+                    log.info("%s (%s) not answering: %s", player.name, player.host, exc)
+                    unanswered(player)
                     return
                 log.info("%s (%s) answered slowly, not offline (%s on the first ask)",
                          player.name, player.host, type(exc).__name__)

@@ -76,18 +76,32 @@ def test_a_slow_description_does_not_mark_a_player_offline():
     assert asked == [6.0, discovery.SLOW_DESCRIPTION_TIMEOUT], asked
 
 
-def test_a_speaker_that_answers_neither_time_is_offline():
+def test_a_listed_speaker_that_answers_neither_time_stays_online():
+    """A wireless speaker on a weak link timed out its description while the
+    household's topology still listed it and it played; the Sonos apps showed
+    it online and Sonora called it offline."""
     import asyncio
 
     from backend.sonos import discovery
-    from backend.sonos.models import Player
+    from backend.sonos.models import Household, Player
 
     async def never(session, host, *, timeout=6.0):
         raise TimeoutError("gone")
 
+    class Soap:
+        silent: list[str] = []
+
+        def mark_silent(self, host):
+            self.silent.append(host)
+
     reader = discovery.HouseholdRegistry.__new__(discovery.HouseholdRegistry)
     reader._session = None
-    player = Player(uuid="RINCON_Y", name="Shed", host="192.168.0.110")
+    reader._soap = Soap()
+    last = Player(uuid="RINCON_Y", name="Shed", host="192.168.0.110",
+                  model="Sonos Play:1", serial="00-0E-58-AA-BB-CC:1", display_version="11.16.1")
+    reader.households = {"HH": Household(id="HH", players={last.uuid: last}, zones={}, groups={},
+                                         control_id="", vanished=[])}
+    player = Player(uuid="RINCON_Y", name="Shed", host="192.168.0.110", software_version="57.23-74170")
 
     original = discovery.fetch_device_description
     discovery.fetch_device_description = never
@@ -96,7 +110,11 @@ def test_a_speaker_that_answers_neither_time_is_offline():
     finally:
         discovery.fetch_device_description = original
 
-    assert player.online is False
+    assert player.online is True
+    assert (player.model, player.serial, player.display_version) == (
+        "Sonos Play:1", "00-0E-58-AA-BB-CC:1", "11.16.1")
+    assert player.software_version == "57.23-74170"
+    assert reader._soap.silent == ["192.168.0.110"]
 
 
 # --- a stale speaker is outvoted ---------------------------------------------
@@ -213,7 +231,7 @@ def test_a_speaker_already_down_is_asked_once():
         discovery.fetch_device_description = original
 
     assert asked == [6.0]
-    assert player.online is False
+    assert player.online is True
 
 
 def test_a_fresh_subscription_during_a_refresh_brings_none():
@@ -360,3 +378,15 @@ def test_every_tv_format_code_has_a_name():
     assert len(codes) == 24
     for code in codes:
         assert f"'tvFormat.{code}':" in english, code
+
+
+def test_a_listed_speaker_unread_since_start_up_keeps_its_remembered_model():
+    from backend.sonos.controller import SonosController
+    from backend.sonos.models import Household, Player
+
+    ctl = SonosController.__new__(SonosController)
+    ctl._known = {"RINCON_Y": {"model": "Sonos Play:1", "model_number": "S1", "serial": "00-0E-58-AA-BB-CC:1"}}
+    player = Player(uuid="RINCON_Y", name="Shed", host="192.168.0.110")
+    ctl._fill_from_known({"HH": Household(id="HH", players={player.uuid: player}, zones={}, groups={},
+                                          control_id="", vanished=[])})
+    assert (player.model, player.model_number, player.serial) == ("Sonos Play:1", "S1", "00-0E-58-AA-BB-CC:1")

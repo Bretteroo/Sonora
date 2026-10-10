@@ -651,6 +651,7 @@ class SonosController:
                 players, groups, _ = parse_zone_group_state(evented[1])
                 if set(players) <= set(household.players):
                     household.groups = remap_groups(groups, household.zones, household.players)
+            self._fill_from_known(households)
             self._rebuild_zones(households)
             await self._seed_state()
             await self._subscribe_all(households)
@@ -2492,6 +2493,19 @@ class SonosController:
         except (OSError, ValueError):
             return {}
         return {k: v for k, v in data.items() if isinstance(v, dict)} if isinstance(data, dict) else {}
+
+    def _fill_from_known(self, households: dict[str, Household]) -> None:
+        """Give a listed player whose description did not come, on the first
+        read since start-up, the model and serial last seen of it."""
+        known = getattr(self, "_known", {})
+        for household in households.values():
+            for player in household.players.values():
+                facts = known.get(player.uuid)
+                if player.model or not facts:
+                    continue
+                player.model = facts.get("model", "")
+                player.model_number = player.model_number or facts.get("model_number", "")
+                player.serial = player.serial or facts.get("serial", "")
 
     def remember_player(self, uuid: str, facts: dict) -> None:
         """Keep what was seen of a player, writing only when it changed."""

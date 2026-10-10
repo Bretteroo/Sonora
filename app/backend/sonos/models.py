@@ -63,7 +63,8 @@ class Player:
     #: theater, and the two are labeled differently.
     channel_map_kind: str = ""
     boot_seq: int = 0
-    #: Reachable over HTTP right now.
+    #: Listed in the household's topology. Players remembered from earlier
+    #: but missing from it are the offline ones.
     online: bool = True
 
     @property

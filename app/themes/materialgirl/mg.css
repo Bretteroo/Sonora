@@ -545,6 +545,9 @@
   & :is(.mg-seg, .theme-pill) button:active { border-radius: 4px; }
   & :is(.mg-seg, .theme-pill) button:first-child:active { border-radius: 999px 4px 4px 999px; }
   & :is(.mg-seg, .theme-pill) button:last-child:active { border-radius: 4px 999px 999px 4px; }
+  /* A lone button has no inner corners to pinch: it is first and last at once, and took the
+     last-child shape, square on the left. */
+  & :is(.mg-seg, .theme-pill) button:only-child:active { border-radius: 999px; }
   & .mg-seg svg { width: 20px; height: 20px; }
   /* The shared appearance group carries no state-layer span, so its hover layer is mixed in. */
   & .theme-pill button:hover { background: color-mix(in oklab, var(--mg-surface-container), var(--mg-on-surface-variant) 8%); }

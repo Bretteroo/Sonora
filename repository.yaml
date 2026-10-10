@@ -1,0 +1,6 @@
+# Lets Home Assistant install Sonora as an app: in Home Assistant, add
+# https://github.com/Bretteroo/Sonora as an app repository. The app
+# itself is in homeassistant/sonora/.
+name: Sonora
+url: https://github.com/Bretteroo/Sonora
+maintainer: Bretteroo

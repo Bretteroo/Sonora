@@ -189,6 +189,21 @@ State that has to survive a restart -- the optional Sonos session, music
 service tokens, uploaded themes, the logo cache -- lives in the `sonora-data`
 volume. Nothing else has to be configured.
 
+### As a Home Assistant app
+
+`repository.yaml` at the root makes this repository a Home Assistant app
+repository, and `homeassistant/sonora/` is the app. It runs the published
+image, so its `config.yaml` names a release: bump its `version` with every
+release, to the tag the release publishes. The Dockerfile's last stages add
+the `io.hass.*` labels Home Assistant's Supervisor reads.
+
+Home Assistant shows the page through its ingress proxy, under
+`/api/hassio_ingress/<token>/` on Home Assistant's own address.
+`backend/ingress.py` tells the page that prefix, and
+`frontend/src/lib/base.js` puts it in front of every root-relative URL the
+page uses, so themes keep writing `/api/...` as before. The app sets
+`SONORA_HA_INGRESS`; without it the ingress headers are ignored.
+
 ## The README's screenshots
 
 `docs/screenshots/<theme>/` holds three screens of each theme (Home, Now
@@ -207,6 +222,7 @@ names are published. They write nothing to the speakers.
                         web and desktop (replications of Sonos' own clients)
     app/tests/          the test suite; run it from app/
     docs/               contributor guides and the README's images
+    homeassistant/      the Home Assistant app (repository.yaml beside it)
 
 A theme can also arrive as a file rather than in the bundle: one JSON document
 with its own version, thumbnail, layout, tokens, and stylesheet, installed and
@@ -228,5 +244,7 @@ Read from the environment at startup.
                          localhost, single-label and .local names, and the
                          machine's own name are always allowed)
     SONORA_LOG_LEVEL     logging threshold (default INFO)
+    SONORA_HA_INGRESS    set by the Home Assistant app: trust Home
+                         Assistant's ingress headers from its Supervisor
     SONORA_SMAPI_DUMP    a directory to keep every music-service answer in,
                          for debugging a service's browse tree

@@ -41,6 +41,9 @@ address, `localhost`, a single-label or local-only name (`sonora`,
 `sonora.local`, `sonora.lan`, `sonora.home.arpa`), this machine's own name, or
 one listed in ``SONORA_ALLOWED_HOSTS``. A rebinding page has to use a name it
 controls, which is a public one, and none of those are.
+
+Inside Home Assistant (backend/ingress.py) the page is Home Assistant's, so
+its ``Origin`` is compared with the host Home Assistant says the browser used.
 """
 from __future__ import annotations
 
@@ -53,6 +56,8 @@ from urllib.parse import urlsplit
 
 from fastapi import Request
 from fastapi.responses import JSONResponse, Response
+
+from . import ingress
 
 log = logging.getLogger(__name__)
 
@@ -166,8 +171,9 @@ async def guard(request: Request, call_next):
     if not is_allowed_host(host):
         return _refuse_host(host)
     origin = request.headers.get("origin", "")
+    client = ingress.client_host(request)
     if request.method not in READS and not is_same_origin(
-            origin, request.headers.get("host", "")):
+            origin, ingress.browser_host(request.headers, client)):
         log.warning("refused a %s to %s from origin %s",
                     request.method, request.url.path, origin[:60])
         return JSONResponse(
@@ -193,5 +199,7 @@ def websocket_allowed(websocket) -> bool:
     it is over HTTP.
     """
     host = websocket.headers.get("host", "")
+    client = ingress.client_host(websocket)
     return is_allowed_host(host) and is_same_origin(
-        websocket.headers.get("origin", ""), host)
+        websocket.headers.get("origin", ""),
+        ingress.browser_host(websocket.headers, client))

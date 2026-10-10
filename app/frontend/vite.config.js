@@ -24,5 +24,8 @@ export default defineConfig({
   // looks for it beside the importing file and finds nothing there, so the
   // one copy in this directory's node_modules is named for every import.
   resolve: { dedupe: ['react', 'react-dom', 'hls.js', '@material/material-color-utilities'] },
+  // Relative, so the page loads its bundle wherever it is served from:
+  // at / on its own, or under Home Assistant's ingress path (lib/base.js).
+  base: './',
   build: { outDir: 'dist', emptyOutDir: true },
 })

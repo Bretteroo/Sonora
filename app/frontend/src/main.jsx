@@ -1,3 +1,6 @@
+// First, so Sonora's own URLs carry Home Assistant's prefix before anything
+// asks for one (lib/base.js).
+import './lib/base.js'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'

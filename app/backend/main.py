@@ -40,7 +40,7 @@ from .sonos.soundcloud_art import soundcloud_ref
 from .sonos.artcache import upsized
 from .sonos import const
 from .sonos import smb
-from . import origin
+from . import ingress, origin
 from . import locale as locales
 from .errorlog import ErrorLog
 from .sonos import fetchguard, localplay
@@ -5249,10 +5249,12 @@ if _DIST.is_dir():
               name="assets")
 
     @app.get("/")
-    async def index() -> Response:
+    async def index(request: Request) -> Response:
         # `no-cache` still lets the browser keep a copy; it just has to ask
         # whether it is current first, which is what the ETag answers cheaply.
-        body = (_DIST / "index.html").read_bytes()
+        # Inside Home Assistant the page is told the path it lives under.
+        body = ingress.tag_page((_DIST / "index.html").read_bytes(),
+                                ingress.prefix(request.headers, ingress.client_host(request)))
         return Response(body, media_type="text/html", headers={
             "cache-control": _NEVER_STALE,
             "etag": f'"{hashlib.md5(body).hexdigest()}"',

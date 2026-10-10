@@ -38,11 +38,15 @@ def test_the_page_is_never_served_stale():
     """
     import asyncio
 
+    from starlette.requests import Request
+
     from backend import main
 
     if not hasattr(main, "index"):
         return  # no bundle built in this checkout
-    response = asyncio.run(main.index())
+    request = Request({"type": "http", "method": "GET", "path": "/", "headers": [],
+                       "client": ("127.0.0.1", 40000), "query_string": b""})
+    response = asyncio.run(main.index(request))
     assert response.headers.get("cache-control") == "no-cache"
     assert response.headers.get("etag"), "and an ETag, so revalidating is cheap"
 

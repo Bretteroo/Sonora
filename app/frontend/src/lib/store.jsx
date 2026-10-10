@@ -4,6 +4,7 @@ import React, {
 } from 'react'
 import { ApiError, api } from './api.js'
 import { localOut } from './localOut.js'
+import { socketUrl } from './base.js'
 import { BROWSER_UUID, browserGroup, browserZone, isBrowserRoom } from './browserRoom.js'
 import { browserSleep } from './browserSleep.js'
 import { forgetLast, readLast, saveLast } from './browserRecall.js'
@@ -305,8 +306,7 @@ export function SystemProvider({ children }) {
     let timer = null
 
     const connect = () => {
-      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-      const socket = new WebSocket(`${protocol}://${window.location.host}/ws`)
+      const socket = new WebSocket(socketUrl('/ws'))
       socketRef.current = socket
 
       socket.onopen = () => {

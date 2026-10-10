@@ -77,6 +77,8 @@ Sonora needs to be installed on your home network on any machine that has access
 
 Docker is the recommended way to run Sonora: one command to install, one to update, and nothing else to set up on the machine.
 
+If you run Home Assistant, Sonora can also be installed as a Home Assistant app.
+
 Images are provided for `linux/amd64` and `linux/arm64`. Sonora is lightweight enough to run on an older Raspberry Pi.
 
 <details>
@@ -103,6 +105,24 @@ From the same folder:
 ```
 docker compose pull && docker compose up -d
 ```
+</details>
+
+<details>
+<summary><strong>Install in Home Assistant</strong></summary>
+
+You'll need Home Assistant OS or a Supervised install. Container and Core installs can't run apps, so use Docker there instead.
+
+### Install Sonora
+* In Home Assistant, go to **Settings > Apps** and choose **Install App**.
+* Open the ⋮ menu at the top right, choose **Repositories**, and add `https://github.com/Bretteroo/Sonora`.
+* Find **Sonora** in the store, then install and start it.
+* Turn on **Show in sidebar**.
+
+Sonora then appears in Home Assistant's sidebar for every user. Phones and other computers can also open it directly at <http://homeassistant.local:50205>, without signing in to Home Assistant.
+
+### Future Updates
+
+Home Assistant offers each new Sonora release as an app update, alongside its own updates.
 </details>
 
 <details>

@@ -1,0 +1,30 @@
+# The Home Assistant app. It runs the same image as docker-compose.yml, so
+# `version` must name a published tag of ghcr.io/bretteroo/sonora and moves
+# with every release.
+name: Sonora
+version: "1.0.2"
+slug: sonora
+description: Control your Sonos S1 and S2 speakers from any browser
+url: https://github.com/Bretteroo/Sonora
+arch:
+  - amd64
+  - aarch64
+image: ghcr.io/bretteroo/sonora
+startup: application
+boot: auto
+# Sonora finds the speakers by multicast and they report every change by
+# calling it back, so it has to be on the home network itself.
+host_network: true
+# The page in Home Assistant's sidebar, for every user, not only admins.
+ingress: true
+ingress_port: 50205
+panel_icon: mdi:speaker-multiple
+panel_title: Sonora
+panel_admin: false
+environment:
+  # Lets Sonora trust the headers Home Assistant's proxy sends (backend/ingress.py).
+  SONORA_HA_INGRESS: "1"
+# What Sonora can fetch again; a backup needn't carry it.
+backup_exclude:
+  - logocache
+  - products

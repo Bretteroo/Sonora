@@ -64,3 +64,19 @@ sys.exit(0 if urllib.request.urlopen('http://'+h+':'+os.environ.get('SONORA_WEB_
 # networking there is no port mapping to fall back on, so the port has to be
 # settable, and it is -- through the environment rather than through this line.
 CMD ["python", "-m", "backend"]
+
+# ---- Home Assistant -------------------------------------------------------
+# The same image runs as a Home Assistant app (homeassistant/sonora/),
+# whose Supervisor reads these labels. Home Assistant calls arm64 aarch64, so
+# each platform's image takes its own name from a stage of its own
+# (TARGETARCH is BuildKit's; declaring it would blank it).
+FROM runtime AS runtime-amd64
+LABEL io.hass.arch="amd64"
+FROM runtime AS runtime-arm64
+LABEL io.hass.arch="aarch64"
+
+FROM runtime-${TARGETARCH}
+ARG SONORA_VERSION=dev
+LABEL io.hass.type="app" \
+      io.hass.name="Sonora" \
+      io.hass.version="${SONORA_VERSION}"

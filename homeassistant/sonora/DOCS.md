@@ -41,6 +41,4 @@ upload, in the app's data folder. Home Assistant backups include it.
 
 ## Support
 
-Report problems on [GitHub](https://github.com/Bretteroo/Sonora/issues). Say
-which theme you were using, which system (S1 or S2), what you did and what
-you saw.
+Please report any issues you find with Sonora on [GitHub](https://github.com/Bretteroo/Sonora/issues).

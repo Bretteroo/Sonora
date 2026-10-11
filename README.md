@@ -95,8 +95,6 @@ docker compose up -d
 
 Find it at <http://localhost:50205>.  (Get it?)
 
-If you cloned this repository instead, `docker compose up -d --build` from its root builds the image on your machine.
-
 ### Future Updates
 
 From the same folder:

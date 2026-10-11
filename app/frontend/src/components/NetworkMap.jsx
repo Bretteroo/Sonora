@@ -106,6 +106,12 @@ export function MeshGuidance() {
     <details className="nm-mesh">
       <summary className="nm-title">{t('net.mesh.title')}</summary>
       <p className="nm-blurb">{before}<em>{t('net.mesh.sometimes')}</em>{after}</p>
+      <p className="nm-blurb">{t('net.mesh.rules')}</p>
+      <ul className="nm-mesh-rules">
+        <li>{t('net.mesh.rule.sameWay')}</li>
+        <li>{t('net.mesh.rule.oneSwitch')}</li>
+        <li>{t('net.mesh.rule.multicast')}</li>
+      </ul>
       <p className="nm-mesh-links">
         <strong>{t('net.mesh.guidance')}</strong>
         <span>

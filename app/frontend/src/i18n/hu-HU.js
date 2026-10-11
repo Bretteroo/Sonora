@@ -1017,7 +1017,7 @@ export default {
   'net.count.watch.other': '{count} figyelendő',
   'net.margin': '{n} dB tartalék',
   'net.alone': 'Nincs hangszóró hatótávon belül',
-  'net.mesh.title': 'Mesh vagy felügyelt hálózatot használ?',
+  'net.mesh.title': 'Mesh hálózatot használ?',
   'net.mesh.blurb': 'A mesh Wi-Fi-rendszerek {sometimes} megakadályozhatják a Sonos hangszórók megbízható működését.',
   'net.mesh.rules': 'Útmutatásaik általában néhány szabályra vezethetők vissza:',
   'net.mesh.rule.sameWay': 'Minden hangszórót ugyanúgy csatlakoztasson, mindet Wi-Fi-n vagy mindet Etherneten',

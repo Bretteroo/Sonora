@@ -1095,7 +1095,7 @@ export default {
   'net.count.watch.other': '要注意 {count} 件',
   'net.margin': 'マージン {n} dB',
   'net.alone': '範囲内にスピーカーなし',
-  'net.mesh.title': 'メッシュや管理型ネットワークをお使いですか？',
+  'net.mesh.title': 'メッシュネットワークをお使いですか？',
   'net.mesh.blurb': 'メッシュWi-Fiシステムでは、{sometimes}Sonosスピーカーが安定して動作しなくなることがあります。',
   'net.mesh.rules': '各メーカーの案内は、おおむね次のルールにまとめられます。',
   'net.mesh.rule.sameWay': 'すべてのスピーカーを同じ方法で接続する（すべてWi-Fi、またはすべてイーサネット）',

@@ -1219,7 +1219,7 @@ export default {
   'net.count.watch.other': '{count} ke sledování',
   'net.margin': 'rezerva {n} dB',
   'net.alone': 'Žádný reproduktor v dosahu',
-  'net.mesh.title': 'Síť mesh nebo spravovaná síť?',
+  'net.mesh.title': 'Síť mesh?',
   'net.mesh.blurb': 'Systémy Wi-Fi mesh mohou {sometimes} bránit spolehlivému fungování reproduktorů Sonos.',
   'net.mesh.rules': 'Jejich doporučení se obvykle shrnují do několika pravidel:',
   'net.mesh.rule.sameWay': 'Připojte všechny reproduktory stejně, buď všechny přes Wi-Fi, nebo všechny ethernetem',

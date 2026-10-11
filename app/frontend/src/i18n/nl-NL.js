@@ -1211,7 +1211,7 @@ export default {
   'net.count.watch.other': '{count} om in de gaten te houden',
   'net.margin': '{n} dB marge',
   'net.alone': 'Geen speaker binnen bereik',
-  'net.mesh.title': 'Mesh- of beheerd netwerk?',
+  'net.mesh.title': 'Mesh-netwerk?',
   'net.mesh.blurb': 'Mesh-wifisystemen kunnen {sometimes} verhinderen dat Sonos-speakers betrouwbaar werken.',
   'net.mesh.rules': 'Hun advies komt meestal neer op een paar regels:',
   'net.mesh.rule.sameWay': 'Verbind alle speakers op dezelfde manier, allemaal via wifi of allemaal via ethernet',

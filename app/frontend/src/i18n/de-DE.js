@@ -1230,7 +1230,7 @@ export default {
   'net.count.watch.other': '{count} im Auge behalten',
   'net.margin': '{n} dB Reserve',
   'net.alone': 'Kein Lautsprecher in Reichweite',
-  'net.mesh.title': 'Mesh- oder verwaltetes Netzwerk?',
+  'net.mesh.title': 'Mesh-Netzwerk?',
   'net.mesh.blurb': 'Mesh-WLAN-Systeme können {sometimes} verhindern, dass Sonos-Lautsprecher zuverlässig funktionieren.',
   'net.mesh.rules': 'Ihre Empfehlungen lassen sich meist auf wenige Regeln bringen:',
   'net.mesh.rule.sameWay': 'Alle Lautsprecher gleich anschließen, entweder alle per WLAN oder alle per Ethernet',

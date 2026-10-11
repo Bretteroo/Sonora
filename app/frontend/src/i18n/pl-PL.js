@@ -1236,7 +1236,7 @@ export default {
   'net.count.watch.other': '{count} do obserwacji',
   'net.margin': 'margines {n} dB',
   'net.alone': 'Brak głośnika w zasięgu',
-  'net.mesh.title': 'Sieć mesh lub zarządzana?',
+  'net.mesh.title': 'Sieć mesh?',
   'net.mesh.blurb': 'Systemy Wi-Fi mesh mogą {sometimes} utrudniać niezawodne działanie głośników Sonos.',
   'net.mesh.rules': 'Ich zalecenia zwykle sprowadzają się do kilku zasad:',
   'net.mesh.rule.sameWay': 'Podłącz wszystkie głośniki w ten sam sposób, wszystkie przez Wi-Fi albo wszystkie przez Ethernet',

@@ -1211,7 +1211,7 @@ export default {
   'net.count.watch.other': '{count} å følge med på',
   'net.margin': '{n} dB margin',
   'net.alone': 'Ingen høyttaler innen rekkevidde',
-  'net.mesh.title': 'Mesh- eller administrert nettverk?',
+  'net.mesh.title': 'Mesh-nettverk?',
   'net.mesh.blurb': 'Mesh-Wi-Fi-systemer kan {sometimes} hindre Sonos-høyttalere i å fungere pålitelig.',
   'net.mesh.rules': 'Rådene deres handler som regel om noen få regler:',
   'net.mesh.rule.sameWay': 'Koble alle høyttalerne på samme måte, alle via Wi-Fi eller alle via Ethernet',

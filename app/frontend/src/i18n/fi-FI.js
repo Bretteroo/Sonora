@@ -1223,7 +1223,7 @@ export default {
   'net.count.watch.other': '{count} seurattavaa',
   'net.margin': '{n} dB:n marginaali',
   'net.alone': 'Ei kaiutinta kantaman sisällä',
-  'net.mesh.title': 'Mesh- tai hallittu verkko?',
+  'net.mesh.title': 'Mesh-verkko?',
   'net.mesh.blurb': 'Mesh-Wi-Fi-järjestelmät voivat {sometimes} estää Sonos-kaiuttimia toimimasta luotettavasti.',
   'net.mesh.rules': 'Niiden ohjeet tiivistyvät yleensä muutamaan sääntöön:',
   'net.mesh.rule.sameWay': 'Liitä kaikki kaiuttimet samalla tavalla, kaikki Wi-Fin tai kaikki Ethernetin kautta',

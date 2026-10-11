@@ -1037,7 +1037,7 @@ export default {
   'net.count.watch.other': '{count} worth watching',
   'net.margin': '{n} dB margin',
   'net.alone': 'No speaker in range',
-  'net.mesh.title': 'On a mesh or managed network?',
+  'net.mesh.title': 'On a mesh network?',
   'net.mesh.blurb': 'Mesh Wi-Fi systems can {sometimes} prevent Sonos speakers from working reliably.',
   'net.mesh.rules': 'Their guidance generally comes down to a few rules:',
   'net.mesh.rule.sameWay': 'Connect every speaker the same way, all by Wi-Fi or all by Ethernet',

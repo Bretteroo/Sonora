@@ -1061,7 +1061,7 @@ export default {
   'net.count.watch.other': '{count} 个值得留意',
   'net.margin': '余量 {n} dB',
   'net.alone': '范围内没有扬声器',
-  'net.mesh.title': '使用 Mesh 或托管网络？',
+  'net.mesh.title': '使用 Mesh 网络？',
   'net.mesh.blurb': 'Mesh Wi-Fi 系统{sometimes}会让 Sonos 扬声器无法稳定工作。',
   'net.mesh.rules': '厂商的建议通常归结为几条：',
   'net.mesh.rule.sameWay': '所有扬声器用同一种方式连接，全部用 Wi-Fi 或全部用以太网',

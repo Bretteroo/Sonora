@@ -1238,7 +1238,7 @@ export default {
   'net.count.watch.other': '{count} à surveiller',
   'net.margin': 'marge de {n} dB',
   'net.alone': 'Aucune enceinte à portée',
-  'net.mesh.title': 'Réseau maillé ou géré ?',
+  'net.mesh.title': 'Réseau maillé ?',
   'net.mesh.blurb': 'Les systèmes Wi-Fi maillés peuvent {sometimes} empêcher les enceintes Sonos de fonctionner de manière fiable.',
   'net.mesh.rules': 'Leurs recommandations se résument généralement à quelques règles :',
   'net.mesh.rule.sameWay': 'Connectez toutes les enceintes de la même façon, toutes en Wi-Fi ou toutes en Ethernet',

@@ -1259,7 +1259,7 @@ export default {
   'net.count.watch.other': '{count} a acompanhar',
   'net.margin': 'margem de {n} dB',
   'net.alone': 'Nenhuma coluna ao alcance',
-  'net.mesh.title': 'Usa uma rede mesh ou gerida?',
+  'net.mesh.title': 'Usa uma rede mesh?',
   'net.mesh.blurb': 'Os sistemas Wi-Fi mesh podem {sometimes} impedir que as colunas Sonos funcionem de forma fiável.',
   'net.mesh.rules': 'As orientações dos fabricantes resumem-se geralmente a algumas regras:',
   'net.mesh.rule.sameWay': 'Ligue todas as colunas da mesma forma, todas por Wi-Fi ou todas por Ethernet',

@@ -1019,7 +1019,7 @@ export default {
   'net.count.watch.other': '{count} que vigilar',
   'net.margin': '{n} dB de margen',
   'net.alone': 'Ningún altavoz al alcance',
-  'net.mesh.title': '¿Usas una red mallada o gestionada?',
+  'net.mesh.title': '¿Usas una red mallada?',
   'net.mesh.blurb': 'Los sistemas Wi-Fi mallados pueden {sometimes} impedir que los altavoces Sonos funcionen de forma fiable.',
   'net.mesh.rules': 'Sus recomendaciones suelen resumirse en unas pocas reglas:',
   'net.mesh.rule.sameWay': 'Conecta todos los altavoces de la misma forma, todos por Wi-Fi o todos por Ethernet',

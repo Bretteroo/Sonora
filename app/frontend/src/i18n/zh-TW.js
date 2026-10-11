@@ -1062,7 +1062,7 @@ export default {
   'net.count.watch.other': '{count} 個值得留意',
   'net.margin': '餘裕 {n} dB',
   'net.alone': '範圍內沒有喇叭',
-  'net.mesh.title': '使用 Mesh 或受管理的網路？',
+  'net.mesh.title': '使用 Mesh 網路？',
   'net.mesh.blurb': 'Mesh Wi-Fi 系統{sometimes}會讓 Sonos 喇叭無法穩定運作。',
   'net.mesh.rules': '廠商的建議通常可歸納為幾點：',
   'net.mesh.rule.sameWay': '所有喇叭以同一種方式連線，全部用 Wi-Fi 或全部用乙太網路',

@@ -1104,7 +1104,7 @@ export default {
   'net.count.watch.other': '주시 필요 {count}개',
   'net.margin': '여유 {n} dB',
   'net.alone': '범위 내 스피커 없음',
-  'net.mesh.title': '메시 또는 관리형 네트워크를 사용하시나요?',
+  'net.mesh.title': '메시 네트워크를 사용하시나요?',
   'net.mesh.blurb': '메시 Wi-Fi 시스템은 {sometimes} Sonos 스피커가 안정적으로 작동하지 못하게 할 수 있습니다.',
   'net.mesh.rules': '제조사 안내는 대체로 몇 가지 규칙으로 요약됩니다.',
   'net.mesh.rule.sameWay': '모든 스피커를 같은 방식으로 연결하세요(모두 Wi-Fi 또는 모두 이더넷)',

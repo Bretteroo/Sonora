@@ -1189,7 +1189,7 @@ export default {
   'net.count.watch.other': '{count} варто стежити',
   'net.margin': 'запас {n} дБ',
   'net.alone': 'Немає динаміка в зоні досяжності',
-  'net.mesh.title': 'Mesh-мережа або керована мережа?',
+  'net.mesh.title': 'Mesh-мережа?',
   'net.mesh.blurb': 'Системи Mesh Wi-Fi можуть {sometimes} заважати надійній роботі динаміків Sonos.',
   'net.mesh.rules': 'Їхні поради зазвичай зводяться до кількох правил:',
   'net.mesh.rule.sameWay': 'Підключайте всі динаміки однаково: усі через Wi-Fi або всі через Ethernet',

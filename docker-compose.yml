@@ -8,10 +8,5 @@ services:
       # The port the page is served on. With host networking there is no
       # port mapping, so change it here rather than with `ports:`.
       SONORA_WEB_PORT: 50205
-
     volumes:
-      # The optional Sonos session, music service tokens, uploaded themes and
-      # the logo cache. Without it you sign in to everything again on restart.
-      # Replace </path/to/data> with a folder on this machine. Recommended:
-      # /home/<username>/.config/sonora:/data
-      - </path/to/data>:/data
+      - ./sonora-data:/data

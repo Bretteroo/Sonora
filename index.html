@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sonora: a web controller for every Sonos speaker</title>
+<meta name="description" content="Sonora is a self-hosted web controller for Sonos S1 and S2 systems. Any browser, any screen, twelve themes, free and open source.">
+<link rel="icon" href="img/favicon.ico">
+<link rel="canonical" href="https://sonoracontroller.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sonoracontroller.com/">
+<meta property="og:title" content="Sonora: a web controller for every Sonos speaker">
+<meta property="og:description" content="A self-hosted web controller for Sonos S1 and S2 systems. Any browser, any screen, twelve themes, free and open source.">
+<meta property="og:image" content="https://sonoracontroller.com/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#170c1a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --night: #170c1a;
+  --night-2: #21111f;
+  --plum: #3b1730;
+  --rust: #b9452f;
+  --orange: #e8743b;
+  --peach: #f6b07a;
+  --sand: #fbe3c8;
+  --ink: #f8ece2;
+  --ink-soft: #d9c3b8;
+  --ink-dim: #a68e88;
+  --line: rgba(246, 176, 122, 0.16);
+  --card: rgba(255, 236, 220, 0.045);
+  --card-hover: rgba(255, 236, 220, 0.08);
+  --radius: 18px;
+  --shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  --display: 'Fraunces', Georgia, serif;
+  --body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--ink);
+  font: 16px/1.6 var(--body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--peach); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { width: min(1180px, 100% - 32px); margin: 0 auto; }
+
+/* --- nav ------------------------------------------------------------------ */
+.nav {
+  position: sticky; top: 0; z-index: 20;
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  background: rgba(23, 12, 26, 0.72);
+  border-bottom: 1px solid var(--line);
+}
+.nav .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+.nav-brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 700; letter-spacing: 0.2px; }
+.nav-brand img { width: 30px; height: 30px; border-radius: 50%; }
+.nav-brand:hover { text-decoration: none; }
+.nav-links { display: flex; gap: 22px; margin-left: auto; font-size: 14px; font-weight: 500; }
+.nav-links a { color: var(--ink-soft); }
+.nav-links a:hover { color: var(--ink); text-decoration: none; }
+.nav-cta { padding: 8px 16px; border-radius: 999px; background: var(--orange); color: #2a0f12 !important; font-weight: 600; }
+.nav-cta:hover { background: var(--peach); }
+@media (max-width: 760px) { .nav-links a:not(.nav-cta) { display: none; } }
+
+/* --- hero ----------------------------------------------------------------- */
+.hero { position: relative; padding: 88px 0 0; text-align: center; isolation: isolate; overflow-x: clip; }
+.hero::before {
+  /* A low sun behind the wordmark, setting into the page. */
+  content: ""; position: absolute; z-index: -1;
+  left: 50%; top: 40px; width: min(1100px, 140vw); aspect-ratio: 1.6;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(closest-side, rgba(246, 176, 122, 0.55), rgba(232, 116, 59, 0.28) 45%, rgba(185, 69, 47, 0.12) 70%, transparent);
+  filter: blur(10px);
+}
+.hero::after {
+  content: ""; position: absolute; z-index: -1; inset: 0;
+  background: linear-gradient(180deg, transparent 55%, var(--night) 92%);
+}
+.hero-mark { width: min(620px, 86%); margin: 0 auto; filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.35)); }
+.hero h1 {
+  margin: 34px auto 0; max-width: 18ch;
+  font: 700 clamp(34px, 5.2vw, 60px)/1.08 var(--display);
+  letter-spacing: -0.5px;
+}
+.hero h1 em { font-style: normal; background: linear-gradient(90deg, var(--peach), var(--orange)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p.lede { max-width: 640px; margin: 20px auto 0; font-size: clamp(17px, 2vw, 20px); color: var(--ink-soft); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 34px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 14px 24px; border-radius: 999px; font-weight: 600; font-size: 16px;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:hover { text-decoration: none; transform: translateY(-1px); }
+.btn-primary { background: linear-gradient(180deg, var(--peach), var(--orange)); color: #2a0f12; box-shadow: 0 10px 30px rgba(232, 116, 59, 0.35); }
+.btn-primary:hover { box-shadow: 0 14px 36px rgba(232, 116, 59, 0.5); }
+.btn-ghost { color: var(--ink); border: 1px solid rgba(248, 236, 226, 0.25); }
+.btn-ghost:hover { background: rgba(248, 236, 226, 0.08); }
+.hero-shot { margin: 64px auto 0; width: min(1180px, 100% - 32px); position: relative; }
+.hero-shot img { width: 100%; height: auto; filter: drop-shadow(var(--shadow)); }
+.facts {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 34px;
+  margin: 46px auto 0; padding: 0 16px; color: var(--ink-dim); font-size: 14px; font-weight: 500;
+}
+.facts b { color: var(--ink); font-weight: 600; }
+
+/* --- sections ------------------------------------------------------------- */
+section { padding: 110px 0 0; }
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; color: var(--orange); }
+h2 { margin: 10px 0 0; font: 700 clamp(30px, 4vw, 46px)/1.12 var(--display); letter-spacing: -0.3px; }
+.section-lede { max-width: 680px; margin: 16px 0 0; color: var(--ink-soft); font-size: 18px; }
+.center { text-align: center; }
+.center .section-lede { margin-left: auto; margin-right: auto; }
+
+/* --- features ------------------------------------------------------------- */
+.features { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 46px; }
+.feature {
+  padding: 26px 24px 24px; border-radius: var(--radius);
+  background: var(--card); border: 1px solid var(--line);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.feature:hover { background: var(--card-hover); transform: translateY(-2px); }
+.feature svg { width: 30px; height: 30px; color: var(--peach); }
+.feature h3 { margin: 16px 0 6px; font-size: 18px; font-weight: 650; }
+.feature p { margin: 0; color: var(--ink-soft); font-size: 15px; }
+
+/* --- spotlight ------------------------------------------------------------ */
+.spot { display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; margin-top: 70px; }
+.spot.flip { grid-template-columns: 1.25fr 1fr; }
+.spot.flip .spot-text { order: 2; }
+.spot h3 { margin: 8px 0 0; font: 700 clamp(26px, 3vw, 34px)/1.15 var(--display); }
+.spot p { color: var(--ink-soft); font-size: 17px; }
+.spot ul { padding-left: 20px; color: var(--ink-soft); }
+.spot ul li { margin: 6px 0; }
+.spot img { filter: drop-shadow(var(--shadow)); }
+@media (max-width: 880px) {
+  .spot, .spot.flip { grid-template-columns: 1fr; gap: 28px; }
+  .spot.flip .spot-text { order: 0; }
+}
+
+/* --- themes --------------------------------------------------------------- */
+.theme-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 38px; }
+.theme-picker button {
+  font: 500 14px var(--body); color: var(--ink-soft);
+  padding: 9px 16px; border-radius: 999px; cursor: pointer;
+  background: var(--card); border: 1px solid var(--line);
+  transition: all 0.15s ease;
+}
+.theme-picker button:hover { color: var(--ink); background: var(--card-hover); }
+.theme-picker button[aria-selected="true"] { color: #2a0f12; background: var(--peach); border-color: var(--peach); font-weight: 600; }
+.theme-stage { margin-top: 30px; }
+.theme-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 24px; }
+.theme-head h3 { margin: 0; font: 700 28px/1.2 var(--display); }
+.theme-head p { margin: 4px 0 0; color: var(--ink-soft); max-width: 640px; }
+.looks { display: inline-flex; padding: 4px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); }
+.looks button { font: 500 13px var(--body); color: var(--ink-soft); background: none; border: 0; padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+.looks button[aria-pressed="true"] { background: rgba(248, 236, 226, 0.14); color: var(--ink); }
+.looks button:disabled { opacity: 0.35; cursor: default; }
+.theme-shots { display: grid; grid-template-columns: 2.6fr 1fr; gap: 28px; align-items: center; margin-top: 26px; }
+.theme-shots img { width: 100%; height: auto; filter: drop-shadow(var(--shadow)); transition: opacity 0.25s ease; }
+.theme-shots img.loading { opacity: 0.25; }
+@media (max-width: 880px) { .theme-shots { grid-template-columns: 1fr; } .theme-shots .phone { width: 70%; margin: 0 auto; } }
+.diy { margin-top: 30px; color: var(--ink-dim); font-size: 15px; }
+
+/* --- generations ---------------------------------------------------------- */
+.gens {
+  margin-top: 40px; padding: 28px; border-radius: var(--radius);
+  background: #fbf5ee; box-shadow: var(--shadow);
+}
+.gen-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 36px; }
+.gen-card { padding: 22px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); }
+.gen-card b { display: block; font: 700 24px var(--display); color: var(--peach); }
+.gen-card span { display: block; margin-top: 2px; font-size: 13px; color: var(--ink-dim); font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
+.gen-card p { margin: 10px 0 0; color: var(--ink-soft); font-size: 15px; }
+@media (max-width: 760px) { .gen-cards { grid-template-columns: 1fr; } }
+
+/* --- install -------------------------------------------------------------- */
+.install { display: grid; grid-template-columns: 300px 1fr; gap: 28px; margin-top: 44px; align-items: start; }
+.install > * { min-width: 0; }
+.install-tabs { display: grid; gap: 10px; }
+.install-tabs button {
+  text-align: left; padding: 18px 20px; border-radius: 14px; cursor: pointer;
+  background: var(--card); border: 1px solid var(--line); color: var(--ink);
+  font: 600 16px var(--body); transition: all 0.15s ease;
+}
+.install-tabs button small { display: block; margin-top: 2px; font: 400 13px var(--body); color: var(--ink-dim); }
+.install-tabs button[aria-selected="true"] { border-color: var(--orange); background: rgba(232, 116, 59, 0.12); }
+.install-panel {
+  padding: 30px 32px; border-radius: var(--radius); background: var(--night-2); border: 1px solid var(--line);
+}
+.install-panel[hidden] { display: none; }
+.install-panel h3 { margin: 0 0 6px; font-size: 20px; }
+.install-panel ol { padding-left: 22px; margin: 14px 0 0; }
+.install-panel li { margin: 10px 0; color: var(--ink-soft); }
+.install-panel li b { color: var(--ink); }
+.install-panel .note { color: var(--ink-dim); font-size: 14px; margin-top: 18px; }
+.code {
+  position: relative; margin: 10px 0 4px; padding: 14px 52px 14px 16px; border-radius: 12px;
+  background: #0d0710; border: 1px solid rgba(246, 176, 122, 0.12);
+  font: 14px/1.5 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; color: var(--sand);
+  overflow-x: auto; white-space: pre;
+}
+.code button {
+  position: absolute; top: 8px; right: 8px; padding: 5px 10px; border-radius: 8px; cursor: pointer;
+  font: 500 12px var(--body); color: var(--ink-soft); background: rgba(248, 236, 226, 0.08); border: 0;
+}
+.code button:hover { color: var(--ink); background: rgba(248, 236, 226, 0.16); }
+code.inline { font: 0.92em ui-monospace, Menlo, Consolas, monospace; color: var(--sand); background: rgba(248, 236, 226, 0.08); padding: 1px 6px; border-radius: 6px; }
+@media (max-width: 880px) { .install { grid-template-columns: 1fr; } .install-tabs { grid-template-columns: repeat(3, 1fr); } .install-tabs button small { display: none; } }
+@media (max-width: 520px) { .install-tabs { grid-template-columns: 1fr; } .install-panel { padding: 22px 18px; } }
+
+/* --- faq ------------------------------------------------------------------ */
+.faq { max-width: 820px; margin: 40px auto 0; }
+.faq details { border-bottom: 1px solid var(--line); padding: 4px 0; }
+.faq summary {
+  cursor: pointer; list-style: none; padding: 18px 36px 18px 0; position: relative;
+  font-size: 18px; font-weight: 600;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "+"; position: absolute; right: 4px; top: 14px; font-size: 26px; font-weight: 400; color: var(--peach);
+  transition: transform 0.2s ease;
+}
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { margin: 0 0 18px; color: var(--ink-soft); }
+
+/* --- closing + footer ----------------------------------------------------- */
+.closing {
+  margin-top: 120px; padding: 80px 24px; text-align: center; border-radius: 28px;
+  background:
+    radial-gradient(120% 140% at 50% 120%, rgba(232, 116, 59, 0.55), rgba(185, 69, 47, 0.25) 45%, transparent 75%),
+    var(--plum);
+  border: 1px solid var(--line);
+}
+.closing h2 { max-width: 20ch; margin: 0 auto; }
+.closing p { color: var(--ink-soft); max-width: 560px; margin: 16px auto 0; font-size: 18px; }
+.closing .hero-actions { margin-top: 30px; }
+footer { padding: 60px 0 50px; color: var(--ink-dim); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 18px 40px; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 30px; }
+footer nav { display: flex; flex-wrap: wrap; gap: 20px; }
+footer nav a { color: var(--ink-soft); }
+.disclaimer { max-width: 560px; }
+
+/* Things slide up a little as they come into view. */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.shown { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .btn, .feature { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="nav-brand" href="#top"><img src="img/icon.webp" alt="">Sonora</a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#themes">Themes</a>
+      <a href="#hardware">Hardware</a>
+      <a href="#faq">FAQ</a>
+      <a class="nav-cta" href="#install">Install</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <img class="hero-mark" src="img/wordmark.webp" alt="Sonora" width="2042" height="381">
+      <h1>The Sonos controller you've <em>always wanted</em></h1>
+      <p class="lede">A self-hosted web controller for S1 and S2 systems. It runs on a small computer in your home and works in any browser, on any screen. Linux finally gets a desktop Sonos controller.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#install">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>
+          Install Sonora
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/Bretteroo/Sonora">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.7 5.39-5.27 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
+    <div class="hero-shot">
+      <img src="img/liquidglass/spread.webp" width="1940" height="805" alt="Sonora's Liquid Glass theme: the home page, Now Playing, and a music library being browsed">
+    </div>
+    <div class="facts">
+      <span><b>S1 and S2</b> in one app</span>
+      <span><b>12</b> themes</span>
+      <span><b>20</b> languages</span>
+      <span>Runs on a <b>Raspberry Pi</b></span>
+      <span><b>Free</b> and open source</span>
+    </div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="center reveal">
+        <div class="eyebrow">Features</div>
+        <h2>Everything the Sonos apps do, and then some</h2>
+        <p class="section-lede">Most of what Sonos' own desktop and web apps offer is here, plus a few things they never had.</p>
+      </div>
+      <div class="features">
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="16" rx="2"/><rect x="14" y="4" width="7" height="16" rx="2"/><circle cx="6.5" cy="14" r="2"/><circle cx="17.5" cy="14" r="2"/></svg>
+          <h3>S1 and S2 together</h3>
+          <p>Every Sonos speaker ever made, from one app. Each system keeps its own groups and music services, as Sonos requires.</p>
+        </article>
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="15" height="11" rx="2"/><path d="M6 19h7"/><rect x="17" y="9" width="5" height="11" rx="1.5"/></svg>
+          <h3>Any browser, any screen</h3>
+          <p>A phone, a tablet, a laptop, a wall-mounted screen. Nothing to install on them, and every layout adapts to its screen.</p>
+        </article>
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.2a1.6 1.6 0 0 1 1.2-2.7H16a5 5 0 0 0 5-5C21 6.4 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10" cy="7" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></svg>
+          <h3>Twelve themes</h3>
+          <p>Faithful recreations of the Sonos Windows, Mac and web apps, plus nine designs of its own. Or write your own theme.</p>
+        </article>
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <h3>All your music</h3>
+          <p>Streaming services, your local library, Sonos Favorites and every playlist you've built over the years.</p>
+        </article>
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
+          <h3>Every room</h3>
+          <p>Grouping, volume, EQ, sleep timers and alarms, for every room in the house.</p>
+        </article>
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+          <h3>"This browser" as a speaker</h3>
+          <p>Play through the device in your hand as if it were one more room. Headphones on, music from your Sonos sources.</p>
+        </article>
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+          <h3>Network check</h3>
+          <p>How every speaker is doing on your network, in plain words: which ones are fine, which to watch, and where the music cut out this week.</p>
+        </article>
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 5 5.6.8-4 3.9.9 5.5L12 14.6 7.1 17.2 8 11.7 4 7.8 9.6 7z"/></svg>
+          <h3>S2 upgrade advisor</h3>
+          <p>Which of your speakers can move to S2, which can't, and roughly what replacing them would cost.</p>
+        </article>
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          <h3>Local first</h3>
+          <p>Sonora talks to your speakers directly on your own network. Signing in to Sonos is optional, as it is in their apps.</p>
+        </article>
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
+          <h3>Away from home</h3>
+          <p>Already have a VPN into your home network? Then Sonora works from wherever you are, with nothing exposed to the internet.</p>
+        </article>
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h9M8.5 3v2M6 5c0 4 3 7 6 8M11 5c-1 4-4 7-7 8"/><path d="M13 21l4-10 4 10M14.5 17h5"/></svg>
+          <h3>Twenty languages</h3>
+          <p>Sonora uses your browser's language, or the one you pick in Settings.</p>
+        </article>
+        <article class="feature reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.4-9.2C1.1 8.3 3.3 4.6 7 4.6c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.7 0 5.9 3.7 4.4 7.2C19.5 16.4 12 21 12 21z"/></svg>
+          <h3>Free software</h3>
+          <p>Licensed AGPL-3.0, so it stays free. Built by someone who uses it every day.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="spotlight">
+    <div class="wrap">
+      <div class="spot reveal">
+        <div class="spot-text">
+          <div class="eyebrow">On your phone</div>
+          <h3>A real controller in your pocket</h3>
+          <p>Every theme reflows for a phone. Open Sonora's address in your phone's browser, and add it to your home screen to have it a tap away.</p>
+          <ul>
+            <li>The whole house at a glance, with each room's music and volume</li>
+            <li>A full-screen player for whatever's on</li>
+            <li>Light and dark versions in five of the themes</li>
+          </ul>
+        </div>
+        <img src="img/liquidglass/spread-mobile.webp" width="1120" height="905" loading="lazy" alt="Liquid Glass on a phone: the home page and the full-screen player, in light and dark">
+      </div>
+      <div class="spot flip reveal">
+        <div class="spot-text">
+          <div class="eyebrow">For the long-time owner</div>
+          <h3>The desktop apps you remember</h3>
+          <p>Sonora's Windows and Mac themes rebuild the classic Sonos desktop controllers for the browser: the Rooms column, Now Playing with the queue, the Music pane, the menus and dialogs. They control S1 and S2 speakers alike, and they run on Linux, which Sonos never made a controller for.</p>
+        </div>
+        <img src="img/windows/spread.webp" width="1940" height="805" loading="lazy" alt="The Sonos Windows Desktop theme: rooms, Now Playing with its queue, and a music library">
+      </div>
+    </div>
+  </section>
+
+  <section id="themes">
+    <div class="wrap">
+      <div class="reveal">
+        <div class="eyebrow">Themes</div>
+        <h2>Twelve ways to look at your music</h2>
+        <p class="section-lede">Change theme whenever you like, from Settings. Each one is a complete design, not just a new color scheme.</p>
+      </div>
+      <div class="theme-picker" role="tablist" aria-label="Themes"></div>
+      <div class="theme-stage">
+        <div class="theme-head">
+          <div>
+            <h3 id="theme-name"></h3>
+            <p id="theme-blurb"></p>
+          </div>
+          <div class="looks" role="group" aria-label="Appearance">
+            <button type="button" data-look="light" aria-pressed="true">Light</button>
+            <button type="button" data-look="dark" aria-pressed="false">Dark</button>
+          </div>
+        </div>
+        <div class="theme-shots">
+          <img id="theme-desk" alt="" width="1940" height="805">
+          <img id="theme-phone" class="phone" alt="" width="1120" height="905">
+        </div>
+      </div>
+      <p class="diy">Want something else? Themes are plain files you can upload from Settings, and <a href="https://github.com/Bretteroo/Sonora/blob/main/THEMES.md">THEMES.md</a> shows how to make one.</p>
+    </div>
+  </section>
+
+  <section id="hardware">
+    <div class="wrap">
+      <div class="center reveal">
+        <div class="eyebrow">Hardware</div>
+        <h2>Three generations, one controller</h2>
+        <p class="section-lede">Sonos split its speakers into S1 and S2 in 2020, and into S2 and what Sonora calls S2.1 in 2025. Sonora controls all three.</p>
+      </div>
+      <div class="gen-cards">
+        <div class="gen-card reveal"><b>S1</b><span>2005 onward</span><p>The originals, many still going strong. Sonos' current app leaves them out, so they need the S1 app, or Sonora.</p></div>
+        <div class="gen-card reveal"><b>S2</b><span>2020 onward</span><p>Speakers that met the 2020 hardware bar, controlled by the Sonos app.</p></div>
+        <div class="gen-card reveal"><b>S2.1</b><span>August 2025</span><p>The newest tier, and the only one that still gets new features from Sonos.</p></div>
+      </div>
+      <div class="gens reveal">
+        <img src="img/sonos-hardware-generations-2026.svg" loading="lazy" alt="Timeline of Sonos hardware across the S1, S2 and S2.1 generations">
+      </div>
+      <p class="section-lede" style="margin-top: 24px">S1 and S2 rooms can't be grouped together, and each system keeps its own music service links. That's Sonos' wall, not Sonora's. The built-in upgrade advisor shows what moving everything to S2 would take.</p>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <div class="reveal">
+        <div class="eyebrow">Install</div>
+        <h2>Up and running in a few minutes</h2>
+        <p class="section-lede">Sonora runs on any always-on computer on the same network as your speakers. Even an older Raspberry Pi is plenty. Images are built for <code class="inline">amd64</code> and <code class="inline">arm64</code>.</p>
+      </div>
+      <div class="install reveal">
+        <div class="install-tabs" role="tablist">
+          <button type="button" role="tab" aria-selected="true" data-panel="docker">Docker<small>Recommended</small></button>
+          <button type="button" role="tab" aria-selected="false" data-panel="ha">Home Assistant<small>As an app</small></button>
+          <button type="button" role="tab" aria-selected="false" data-panel="source">Without Docker<small>Python and Node.js</small></button>
+        </div>
+        <div>
+          <div class="install-panel" id="panel-docker">
+            <h3>Install with Docker</h3>
+            <ol>
+              <li>Install <a href="https://docs.docker.com/engine/install/">Docker Engine</a> with <a href="https://docs.docker.com/compose/install/">Docker Compose</a>.</li>
+              <li>Download <a href="https://github.com/Bretteroo/Sonora/blob/main/docker-compose.yml"><code class="inline">docker-compose.yml</code></a> into a folder of its own.</li>
+              <li>From that folder, start Sonora:
+                <div class="code">docker compose up -d<button type="button">Copy</button></div>
+              </li>
+              <li>Open <b>http://localhost:50205</b>, or the machine's address from any other device.</li>
+            </ol>
+            <p class="note">To update later, from the same folder:</p>
+            <div class="code">docker compose pull &amp;&amp; docker compose up -d<button type="button">Copy</button></div>
+          </div>
+          <div class="install-panel" id="panel-ha" hidden>
+            <h3>Install in Home Assistant</h3>
+            <ol>
+              <li>In Home Assistant, go to <b>Settings &gt; Apps</b> and choose <b>Install App</b>.</li>
+              <li>Open the ⋮ menu at the top right, choose <b>Repositories</b>, and add:
+                <div class="code">https://github.com/Bretteroo/Sonora<button type="button">Copy</button></div>
+              </li>
+              <li>Find <b>Sonora</b> in the store, then install and start it.</li>
+              <li>Turn on <b>Show in sidebar</b>.</li>
+            </ol>
+            <p class="note">Needs Home Assistant OS or a Supervised install. Phones and other computers can also open Sonora directly at http://homeassistant.local:50205. Home Assistant offers each new release as an app update.</p>
+          </div>
+          <div class="install-panel" id="panel-source" hidden>
+            <h3>Install without Docker</h3>
+            <p style="color: var(--ink-soft); margin: 0">For a machine you'd rather not run Docker on. You'll need Python 3.11 or newer, Node.js 20.19 or newer, and git. Sonora then runs as an ordinary service.</p>
+            <p class="note">The full steps, including a systemd unit to start it with the machine, are in the <a href="https://github.com/Bretteroo/Sonora#-get-started">README</a>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="center reveal">
+        <div class="eyebrow">Questions</div>
+        <h2>Good to know</h2>
+      </div>
+      <div class="faq reveal">
+        <details>
+          <summary>Is Sonora made by Sonos?</summary>
+          <p>No. Sonora is an independent project by a Sonos owner, and is not affiliated with or endorsed by Sonos, Inc.</p>
+        </details>
+        <details>
+          <summary>Do I need a Sonos account?</summary>
+          <p>No. Sonora talks to your speakers on your own network. Signing in to Sonos is optional, as it is in their apps, and only needed for the few things that live in Sonos' cloud.</p>
+        </details>
+        <details>
+          <summary>Does it work with S1 speakers?</summary>
+          <p>Yes, and with S2 speakers in the same house. Sonora shows both systems side by side. You can't group an S1 room with an S2 room, since the speakers themselves don't allow it.</p>
+        </details>
+        <details>
+          <summary>Which music services work?</summary>
+          <p>The ones linked to your Sonos system, plus your local music library and Sonos Favorites. A few services, SoundCloud among them, refuse apps like Sonora. You can still start them from a Sonos app and use Sonora's playback controls.</p>
+        </details>
+        <details>
+          <summary>What does it run on?</summary>
+          <p>Any always-on Linux machine on the same network as your speakers: a home server, a NAS that runs Docker, Home Assistant, or a Raspberry Pi. Your phone and other computers then use it from their browsers.</p>
+        </details>
+        <details>
+          <summary>Can I use it away from home?</summary>
+          <p>Yes, over a VPN into your home network. Sonora is meant for your own network, so don't put it directly on the internet.</p>
+        </details>
+        <details>
+          <summary>What does it cost?</summary>
+          <p>Nothing. Sonora is free software under the AGPL-3.0. If it's useful to you, you can <a href="https://ko-fi.com/bretteroo">support the project</a>.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="closing reveal">
+      <h2>Give your Sonos system a new controller</h2>
+      <p>Free, open source, and running in your home in a few minutes.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#install">Install Sonora</a>
+        <a class="btn btn-ghost" href="https://ko-fi.com/bretteroo">Support the project</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="disclaimer">Sonora is not affiliated with or endorsed by Sonos, Inc. Sonos is a trademark of Sonos, Inc. Sonora is free software under the AGPL-3.0-only license.</p>
+    <nav>
+      <a href="https://github.com/Bretteroo/Sonora">GitHub</a>
+      <a href="https://github.com/Bretteroo/Sonora/releases">Releases</a>
+      <a href="https://github.com/Bretteroo/Sonora/issues">Issues</a>
+      <a href="https://ko-fi.com/bretteroo">Ko-fi</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+const THEMES = [
+  { id: 'coromar', name: 'Coromar', dark: false, blurb: "Sonora's own default: light concrete and navy glass, inspired by the seaside office building Sonos calls home." },
+  { id: 'liquidglass', name: 'Liquid Glass', dark: true, blurb: 'The visual design language made popular by the fruit company.' },
+  { id: 'materialgirl', name: 'Material Girl', dark: true, blurb: "Built on Google's Material 3 Expressive: shape-shifting covers, a floating player tinted by what's playing, and a menu for the whole house." },
+  { id: 'sonofuture', name: 'Sonofuture', dark: true, blurb: 'The controller thought out again: every room at a glance, and drag one onto another to group them.' },
+  { id: 'hifi', name: 'Hi-Fi', dark: true, blurb: 'Your house as a rack of audio components: a turning record, a glowing display, knobs, and a cassette deck for the queue.' },
+  { id: 'outrun', name: 'Outrun', dark: false, blurb: 'Neon, lasers, and a setting sun.' },
+  { id: 'sedona', name: 'Sedona', dark: false, blurb: 'Red rocks and desert sky.' },
+  { id: 'solarized', name: 'Solarized', dark: true, blurb: "Ethan Schoonover's famous palette, in light and dark." },
+  { id: 'hotdog', name: 'Hot Dog Stand', dark: false, blurb: 'For the OGs.' },
+  { id: 'web', name: 'Sonos Web', dark: false, blurb: "A recreation of Sonos' own web player, with support for S1 added." },
+  { id: 'macos', name: 'Sonos macOS Desktop', dark: false, blurb: 'A recreation of the Sonos desktop controller for macOS.' },
+  { id: 'windows', name: 'Sonos Windows Desktop', dark: false, blurb: 'The Sonos desktop controller from Windows, rebuilt for the web.' },
+]
+
+const picker = document.querySelector('.theme-picker')
+const desk = document.getElementById('theme-desk')
+const phone = document.getElementById('theme-phone')
+const lookButtons = [...document.querySelectorAll('.looks button')]
+let current = THEMES[0]
+let look = 'light'
+
+function show(theme, nextLook) {
+  current = theme
+  look = theme.dark ? nextLook : 'light'
+  document.getElementById('theme-name').textContent = theme.name
+  document.getElementById('theme-blurb').textContent = theme.blurb
+  for (const b of picker.children) b.setAttribute('aria-selected', String(b.dataset.id === theme.id))
+  for (const b of lookButtons) {
+    b.disabled = !theme.dark && b.dataset.look === 'dark'
+    b.setAttribute('aria-pressed', String(b.dataset.look === look))
+  }
+  const src = `img/${theme.id}/spread${look === 'dark' ? '-dark' : ''}.webp`
+  if (!desk.src.endsWith(src)) {
+    desk.classList.add('loading')
+    desk.onload = () => desk.classList.remove('loading')
+    desk.src = src
+    desk.alt = `${theme.name} theme${look === 'dark' ? ' in dark' : ''}: home, Now Playing and a music library`
+  }
+  const phoneSrc = `img/${theme.id}/spread-mobile.webp`
+  if (!phone.src.endsWith(phoneSrc)) {
+    phone.src = phoneSrc
+    phone.alt = `${theme.name} theme on a phone`
+  }
+}
+
+for (const theme of THEMES) {
+  const b = document.createElement('button')
+  b.type = 'button'
+  b.role = 'tab'
+  b.dataset.id = theme.id
+  b.textContent = theme.name
+  b.addEventListener('click', () => show(theme, look))
+  picker.append(b)
+}
+for (const b of lookButtons) b.addEventListener('click', () => { if (!b.disabled) show(current, b.dataset.look) })
+show(THEMES[0], 'light')
+
+// Install tabs.
+const tabs = [...document.querySelectorAll('.install-tabs button')]
+for (const tab of tabs) {
+  tab.addEventListener('click', () => {
+    for (const t of tabs) {
+      t.setAttribute('aria-selected', String(t === tab))
+      document.getElementById(`panel-${t.dataset.panel}`).hidden = t !== tab
+    }
+  })
+}
+
+// Copy buttons.
+for (const button of document.querySelectorAll('.code button')) {
+  button.addEventListener('click', async () => {
+    const text = button.parentElement.firstChild.textContent.trim()
+    try { await navigator.clipboard.writeText(text); button.textContent = 'Copied' }
+    catch { button.textContent = 'Select it' }
+    setTimeout(() => { button.textContent = 'Copy' }, 1600)
+  })
+}
+
+// Reveal on scroll.
+const seen = new IntersectionObserver((entries) => {
+  for (const e of entries) if (e.isIntersecting) { e.target.classList.add('shown'); seen.unobserve(e.target) }
+}, { rootMargin: '0px 0px -8% 0px' })
+document.querySelectorAll('.reveal').forEach((el) => seen.observe(el))
+</script>
+</body>
+</html>

@@ -882,6 +882,8 @@ export default {
   'about.title': 'Acerca de Sonora',
   'about.menu': 'Acerca de Sonora',
   'about.version': 'Versión {version}',
+  'about.updateAvailable': 'Sonora {version} está disponible.',
+  'about.whatsNew': 'Ver novedades',
   'about.tagline': 'Un controlador web autoalojado para todos los altavoces Sonos.',
   'about.pointLocal': 'Control local primero',
   'about.pointThemes': 'Temas muy cuidados',

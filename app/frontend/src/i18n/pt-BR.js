@@ -1052,6 +1052,8 @@ export default {
   'about.title': 'Sobre o Sonora',
   'about.menu': 'Sobre o Sonora',
   'about.version': 'Versão {version}',
+  'about.updateAvailable': 'O Sonora {version} está disponível.',
+  'about.whatsNew': 'Veja as novidades',
   'about.tagline': 'Um controlador web auto-hospedado para todos os alto-falantes Sonos.',
   'about.pointLocal': 'Controle local em primeiro lugar',
   'about.pointThemes': 'Temas muito bem acabados',

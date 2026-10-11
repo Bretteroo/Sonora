@@ -880,6 +880,8 @@ export default {
   'about.title': 'A Sonoráról',
   'about.menu': 'A Sonoráról',
   'about.version': '{version} verzió',
+  'about.updateAvailable': 'Elérhető a Sonora {version}.',
+  'about.whatsNew': 'Az újdonságok',
   'about.tagline': 'Saját szerveren futó webes vezérlő minden Sonos hangszóróhoz.',
   'about.pointLocal': 'Elsősorban helyi vezérlés',
   'about.pointThemes': 'Kidolgozott témák',

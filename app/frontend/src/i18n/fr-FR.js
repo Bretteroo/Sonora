@@ -1067,6 +1067,8 @@ export default {
   'about.title': 'À propos de Sonora',
   'about.menu': 'À propos de Sonora',
   'about.version': 'Version {version}',
+  'about.updateAvailable': 'Sonora {version} est disponible.',
+  'about.whatsNew': 'Voir les nouveautés',
   'about.tagline': 'Un contrôleur web auto-hébergé pour toutes les enceintes Sonos.',
   'about.pointLocal': 'Contrôle local avant tout',
   'about.pointThemes': 'Des thèmes très soignés',

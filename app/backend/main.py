@@ -41,6 +41,7 @@ from .sonos.artcache import upsized
 from .sonos import const
 from .sonos import smb
 from . import ingress, origin
+from . import release
 from . import locale as locales
 from .errorlog import ErrorLog
 from .sonos import fetchguard, localplay
@@ -124,10 +125,12 @@ async def lifespan(app: FastAPI):
         except Exception as exc:
             log.info("service list warm-up failed: %s", exc)
     warming = asyncio.create_task(warm_services())
+    release.start()
     try:
         yield
     finally:
         warming.cancel()
+        await release.stop()
         await controller.stop()
         await session.close()
         await outward.close()
@@ -481,6 +484,13 @@ async def set_player_color(uuid: str, body: PlayerColorBody) -> dict:
     choices: ColorChoices = state["colors"]
     choices.set(uuid, color)
     return await player_details(uuid)
+
+
+@app.get("/api/app-update")
+async def app_update() -> dict:
+    """Whether a newer Sonora has been released, from the daily check
+    (release.py); reading it never asks GitHub."""
+    return release.status()
 
 
 @app.get("/api/products/{name}")

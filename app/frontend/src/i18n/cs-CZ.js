@@ -1051,6 +1051,8 @@ export default {
   'about.title': 'O aplikaci Sonora',
   'about.menu': 'O aplikaci Sonora',
   'about.version': 'Verze {version}',
+  'about.updateAvailable': 'Je k dispozici Sonora {version}.',
+  'about.whatsNew': 'Co je nového',
   'about.tagline': 'Webový ovladač pro všechny reproduktory Sonos, provozovaný na vlastním serveru.',
   'about.pointLocal': 'Ovládání především v místní síti',
   'about.pointThemes': 'Vyladěné motivy',

@@ -221,6 +221,7 @@ export const api = {
   // A product's own facts for View System Details (model, color, Max
   // Volume, version), read from the player; its picture at playerIcon.
   playerDetails: (uuid) => request(`/api/players/${encodeURIComponent(uuid)}/details`),
+  appUpdate: () => request('/api/app-update'),
   playerIcon: (uuid) => `/api/players/${encodeURIComponent(uuid)}/icon`,
   // For a player that names no color of its own; '' is Unknown. Answers
   // with the player's details as they now read.

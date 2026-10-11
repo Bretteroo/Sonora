@@ -1044,6 +1044,8 @@ export default {
   'about.title': 'Over Sonora',
   'about.menu': 'Over Sonora',
   'about.version': 'Versie {version}',
+  'about.updateAvailable': 'Sonora {version} is beschikbaar.',
+  'about.whatsNew': 'Bekijk wat er nieuw is',
   'about.tagline': 'Een zelf gehoste webcontroller voor alle Sonos-speakers.',
   'about.pointLocal': 'Lokale bediening voorop',
   'about.pointThemes': 'Verfijnde thema’s',

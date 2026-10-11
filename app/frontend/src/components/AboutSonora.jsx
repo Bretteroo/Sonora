@@ -1,6 +1,7 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useI18n } from '../i18n/index.jsx'
 import { APP } from '../lib/meta.js'
+import { api } from '../lib/api.js'
 import { Heart } from './Icons.jsx'
 import icon from '../assets/sonora.png'
 import './about.css'
@@ -21,6 +22,15 @@ import { guardAboutText } from '../lib/aboutGuard.js'
 
 export default function AboutSonora({ onClose }) {
   const { t } = useI18n()
+
+  // Whether a newer release is out, from the server's daily check of GitHub;
+  // opening the card only reads its answer, and nothing shows without one.
+  const [latest, setLatest] = useState(null)
+  useEffect(() => {
+    let live = true
+    api.appUpdate().then((r) => { if (live && r?.available) setLatest({ version: r.latest, url: r.url }) }).catch(() => {})
+    return () => { live = false }
+  }, [])
 
   // The words are Sonora's: a theme may restyle the card but not hide what it says
   // (lib/aboutGuard.js). Checked as it opens, once the fonts are in, and again
@@ -66,6 +76,17 @@ export default function AboutSonora({ onClose }) {
         <img className="about-icon" src={icon} width="88" height="88" alt="" />
         <h1 className="about-name" data-about-text>{APP.name}</h1>
         <p className="about-version" data-about-text>{t('about.version', { version: APP.version })}</p>
+        {latest && (
+          <p className="about-update">
+            <span data-about-text>{t('about.updateAvailable', { version: latest.version })}</span>
+            {latest.url && (
+              <>
+                {' '}
+                <a href={latest.url} target="_blank" rel="noopener noreferrer" data-about-text>{t('about.whatsNew')}</a>
+              </>
+            )}
+          </p>
+        )}
         <p className="about-tagline" data-about-text>{t('about.tagline')}</p>
 
         <ul className="about-points">

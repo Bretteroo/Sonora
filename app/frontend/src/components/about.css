@@ -72,6 +72,18 @@
   color: var(--t-fg-muted, #9aa3ad);
 }
 
+.about-update {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--t-accent, #3b82f6);
+}
+
+.about-update a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 .about-tagline {
   margin: 14px 0 0;
   font-size: 15px;

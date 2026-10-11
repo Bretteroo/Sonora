@@ -1023,6 +1023,8 @@ export default {
   'about.title': 'Про Sonora',
   'about.menu': 'Про Sonora',
   'about.version': 'Версія {version}',
+  'about.updateAvailable': 'Доступна Sonora {version}.',
+  'about.whatsNew': 'Що нового',
   'about.tagline': 'Вебконтролер для всіх колонок Sonos, що працює на вашому власному сервері.',
   'about.pointLocal': 'Керування насамперед у локальній мережі',
   'about.pointThemes': 'Ретельно опрацьовані теми',

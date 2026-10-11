@@ -950,6 +950,8 @@ export default {
   'about.title': 'Sonora 정보',
   'about.menu': 'Sonora 정보',
   'about.version': '버전 {version}',
+  'about.updateAvailable': 'Sonora {version}을(를) 사용할 수 있습니다.',
+  'about.whatsNew': '새로운 기능 보기',
   'about.tagline': '모든 Sonos 스피커를 위한 자체 호스팅 웹 컨트롤러.',
   'about.pointLocal': '로컬 우선 제어',
   'about.pointThemes': '세련된 테마',

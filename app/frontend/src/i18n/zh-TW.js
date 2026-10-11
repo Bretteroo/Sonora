@@ -912,6 +912,8 @@ export default {
   'about.title': '關於 Sonora',
   'about.menu': '關於 Sonora',
   'about.version': '版本 {version}',
+  'about.updateAvailable': 'Sonora {version} 已推出。',
+  'about.whatsNew': '查看新功能',
   'about.tagline': '適用於所有 Sonos 喇叭的自架網頁控制器。',
   'about.pointLocal': '以本機控制為優先',
   'about.pointThemes': '精心打磨的主題',

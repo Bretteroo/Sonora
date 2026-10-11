@@ -1066,6 +1066,8 @@ export default {
   'about.title': 'O aplikacji Sonora',
   'about.menu': 'O aplikacji Sonora',
   'about.version': 'Wersja {version}',
+  'about.updateAvailable': 'Dostępna jest Sonora {version}.',
+  'about.whatsNew': 'Zobacz, co nowego',
   'about.tagline': 'Samodzielnie hostowany kontroler webowy dla wszystkich głośników Sonos.',
   'about.pointLocal': 'Sterowanie przede wszystkim lokalne',
   'about.pointThemes': 'Dopracowane motywy',

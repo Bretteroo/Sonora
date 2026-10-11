@@ -1051,6 +1051,8 @@ export default {
   'about.title': 'Tietoja Sonorasta',
   'about.menu': 'Tietoja Sonorasta',
   'about.version': 'Versio {version}',
+  'about.updateAvailable': 'Sonora {version} on saatavilla.',
+  'about.whatsNew': 'Katso mitä uutta',
   'about.tagline': 'Itse ylläpidettävä verkko-ohjain kaikille Sonos-kaiuttimille.',
   'about.pointLocal': 'Ohjaus ensisijaisesti paikallisesti',
   'about.pointThemes': 'Viimeistellyt teemat',

@@ -1046,6 +1046,8 @@ export default {
   'about.title': 'Om Sonora',
   'about.menu': 'Om Sonora',
   'about.version': 'Version {version}',
+  'about.updateAvailable': 'Sonora {version} finns tillgänglig.',
+  'about.whatsNew': 'Se vad som är nytt',
   'about.tagline': 'En självhostad webbkontroll för alla Sonos-högtalare.',
   'about.pointLocal': 'Lokal styrning först',
   'about.pointThemes': 'Genomarbetade teman',

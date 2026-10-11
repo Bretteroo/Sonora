@@ -1059,6 +1059,8 @@ export default {
   'about.title': 'Informazioni su Sonora',
   'about.menu': 'Informazioni su Sonora',
   'about.version': 'Versione {version}',
+  'about.updateAvailable': 'È disponibile Sonora {version}.',
+  'about.whatsNew': 'Scopri le novità',
   'about.tagline': 'Un controller web self-hosted per tutti gli altoparlanti Sonos.',
   'about.pointLocal': 'Controllo prima di tutto locale',
   'about.pointThemes': 'Temi molto curati',

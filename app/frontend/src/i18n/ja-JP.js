@@ -942,6 +942,8 @@ export default {
   'about.title': 'Sonora について',
   'about.menu': 'Sonora について',
   'about.version': 'バージョン {version}',
+  'about.updateAvailable': 'Sonora {version} が利用できます。',
+  'about.whatsNew': '新機能を見る',
   'about.tagline': 'すべての Sonos スピーカーのための、セルフホスト型 Web コントローラー。',
   'about.pointLocal': 'ローカル優先の操作',
   'about.pointThemes': '洗練されたテーマ',

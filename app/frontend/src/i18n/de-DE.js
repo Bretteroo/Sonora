@@ -1061,6 +1061,8 @@ export default {
   'about.title': 'Über Sonora',
   'about.menu': 'Über Sonora',
   'about.version': 'Version {version}',
+  'about.updateAvailable': 'Sonora {version} ist verfügbar.',
+  'about.whatsNew': 'Neuerungen ansehen',
   'about.tagline': 'Ein selbst gehosteter Web-Controller für alle Sonos-Lautsprecher.',
   'about.pointLocal': 'Lokale Steuerung zuerst',
   'about.pointThemes': 'Ausgefeilte Designs',

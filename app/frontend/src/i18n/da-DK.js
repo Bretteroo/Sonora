@@ -1040,6 +1040,8 @@ export default {
   'about.title': 'Om Sonora',
   'about.menu': 'Om Sonora',
   'about.version': 'Version {version}',
+  'about.updateAvailable': 'Sonora {version} er tilgængelig.',
+  'about.whatsNew': 'Se nyhederne',
   'about.tagline': 'En selvhostet webcontroller til alle Sonos-højttalere.',
   'about.pointLocal': 'Lokal styring først',
   'about.pointThemes': 'Gennemarbejdede temaer',

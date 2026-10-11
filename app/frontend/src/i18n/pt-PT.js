@@ -1089,6 +1089,8 @@ export default {
   'about.title': 'Acerca do Sonora',
   'about.menu': 'Acerca do Sonora',
   'about.version': 'Versão {version}',
+  'about.updateAvailable': 'O Sonora {version} está disponível.',
+  'about.whatsNew': 'Ver as novidades',
   'about.tagline': 'Um controlador web alojado por si para todas as colunas Sonos.',
   'about.pointLocal': 'Controlo local em primeiro lugar',
   'about.pointThemes': 'Temas muito cuidados',

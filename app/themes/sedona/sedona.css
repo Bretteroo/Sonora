@@ -256,7 +256,7 @@
 .sd-root .dk-empty svg { color: var(--t-sand-dark); }
 
 /* The survey fills its window rather than keeping the old page's column. */
-.sd-root .sd-survey .sd-ground { max-width: none; width: auto; margin: 0; padding: 18px 24px 28px; min-height: 100%; }
+.sd-root .sd-survey .sd-ground { flex: 1; min-width: 0; max-width: none; width: auto; margin: 0; padding: 18px 24px 28px; min-height: 100%; }
 .sd-root .sd-survey .sd-section { max-width: none; }
 
 /* --- the Windows accent, recolored to rock and ochre --------------------------- */

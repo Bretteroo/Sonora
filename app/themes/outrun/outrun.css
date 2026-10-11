@@ -264,6 +264,7 @@
 .or-root .or-diag-window { width: min(1000px, 94vw); height: min(740px, 90vh); display: flex; flex-direction: column; overflow: hidden; }
 .or-root .or-diag-window .dk-window-title { flex: none; display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; }
 .or-root .or-diag-body { flex: 1; min-height: 0; overflow: auto; }
+.or-root .or-diag-body .or-body { flex: 1; min-width: 0; }
 .or-root .or-body { padding: 18px 22px 28px; }
 
 /* --- Outrun's own rules the Troubleshoot view uses ------------------------------------------- */

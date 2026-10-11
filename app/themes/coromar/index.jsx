@@ -1,6 +1,9 @@
 import React from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { Shell as DesktopShell } from './DesktopShell.jsx'
+import { useI18n } from '../../frontend/src/i18n/index.jsx'
+import TroubleshootingWindow from './Troubleshooting.jsx'
+import strings from './strings.js'
 import { tokens } from './tokens.js'
 import './coromar.css'
 import thumbnail from './thumbnail.webp'
@@ -33,8 +36,11 @@ function Top({ title, openAbout, t }) {
 }
 
 function Shell() {
+  const { t } = useI18n()
   return (
-    <DesktopShell rootClass="co-root" frame={(ctx) => <Top title={ctx.title} openAbout={ctx.openAbout} t={ctx.t} />} />
+    <DesktopShell rootClass="co-root" frame={(ctx) => <Top title={ctx.title} openAbout={ctx.openAbout} t={ctx.t} />}
+                  extraHelpItems={(open) => [{ id: 'troubleshoot', label: `${t('coromar.troubleshoot')}…`, onSelect: () => open('troubleshoot') }]}
+                  extraDialogs={(dialog, close, { systemFilter }) => (dialog?.kind === 'troubleshoot' ? <TroubleshootingWindow onClose={close} systemFilter={systemFilter} /> : null)} />
   )
 }
 
@@ -49,6 +55,7 @@ export default {
     + 'and mullions for the chrome, sandstone from the entry piers, and the '
     + 'cobalt sky of Goleta in the corner of the window.',
   colorScheme: 'light',
+  strings,
   tokens,
   Shell,
 }

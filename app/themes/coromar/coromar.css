@@ -465,3 +465,22 @@
 /* the Sleep Timer popover is glass: the dialogs' concrete ground must not cover it */
 .co-root.win-root .dk-sleep-window .dk-sleep, .co-root.win-root .dk-sleep-window .dk-window-body { background: transparent; }
 .co-root.win-root.win-root .dk-window.dk-sleep-window :is(h3, h4, p, .dk-sleep-title, .dk-sleep-choose) { color: #e9f3f6; }
+
+/* Troubleshooting (Help): a large window that scrolls inside, as in Outrun and Sedona. */
+.co-root .co-troubleshoot { width: min(960px, 94vw); height: min(720px, 90vh); overflow: hidden; }
+.co-root .co-troubleshoot .dk-window-body { flex: 1; min-height: 0; display: flex; }
+.co-root .co-ts-body { flex: 1; min-width: 0; overflow: auto; padding: 16px 22px 26px; box-sizing: border-box; }
+.co-root .co-ts-blurb, .co-root .co-ts-note { margin: 0 0 12px; font-size: 12px; opacity: 0.75; }
+.co-root .co-ts-error { color: var(--t-critical, #d0453d); }
+.co-root .co-ts-system { margin: 18px 0 0; }
+.co-root .co-ts-system h3 { margin: 0 0 8px; font-size: 14px; }
+.co-root .co-ts-findings { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+.co-root .co-ts-findings li { padding: 8px 12px; border-left: 3px solid var(--t-fair, #d9a227); background: color-mix(in srgb, currentColor 6%, transparent); }
+.co-root .co-ts-findings li[data-severity='critical'] { border-left-color: var(--t-critical, #d0453d); }
+.co-root .co-ts-findings li[data-severity='info'] { border-left-color: var(--t-accent, currentColor); }
+.co-root .co-ts-findings p { margin: 4px 0 0; font-size: 12px; line-height: 1.5; }
+.co-root .co-ts-remedy { opacity: 0.75; }
+.co-root .co-ts-links { margin-top: 12px; font-size: 12px; }
+.co-root .co-ts-links summary { cursor: pointer; font-weight: 600; }
+.co-root .co-ts-links ul { list-style: none; margin: 0; padding: 0; }
+.co-root .co-ts-links li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }

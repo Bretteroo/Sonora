@@ -1,5 +1,8 @@
 import React from 'react'
 import { Shell as DesktopShell } from './DesktopShell.jsx'
+import { useI18n } from '../../frontend/src/i18n/index.jsx'
+import TroubleshootingWindow from './Troubleshooting.jsx'
+import strings from './strings.js'
 import { tokens, lightTokens } from './tokens.js'
 import './solarized.css'
 import thumbnail from './thumbnail.webp'
@@ -16,7 +19,12 @@ import lightThumbnail from './thumbnail-light.webp'
 // the Appearance setting.
 
 function Shell() {
-  return <DesktopShell rootClass="sz-root" />
+  const { t } = useI18n()
+  return (
+    <DesktopShell rootClass="sz-root"
+                  extraHelpItems={(open) => [{ id: 'troubleshoot', label: `${t('solarized.troubleshoot')}…`, onSelect: () => open('troubleshoot') }]}
+                  extraDialogs={(dialog, close, { systemFilter }) => (dialog?.kind === 'troubleshoot' ? <TroubleshootingWindow onClose={close} systemFilter={systemFilter} /> : null)} />
+  )
 }
 
 export default {
@@ -38,5 +46,6 @@ export default {
     dark: { tokens: {}, colorScheme: 'dark', thumbnail },
     light: { tokens: lightTokens, colorScheme: 'light', thumbnail: lightThumbnail },
   },
+  strings,
   Shell,
 }

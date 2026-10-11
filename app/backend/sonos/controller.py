@@ -2607,16 +2607,19 @@ class SonosController:
             log.info("no player settings from %s: %s", player.host, exc)
         model = (device.get("modelDisplayName") or player.display_name
                  or player.model.removeprefix("Sonos ").strip())
+        # A player that did not answer keeps the color it last reported, so
+        # its picture does not change while it is away.
+        color = device.get("color") or getattr(self, "_known", {}).get(uuid, {}).get("color", "")
         self.remember_player(uuid, {"name": player.name, "model": model,
                                     "model_number": player.model_number,
-                                    "color": device.get("color") or "",
+                                    "color": color,
                                     "serial": device.get("serialNumber") or player.serial})
         return {
             "uuid": uuid,
             "name": player.name,
             "model": model_label(model, player.model_number),
             "model_number": player.model_number,
-            "color": device.get("color") or "",
+            "color": color,
             "serial": device.get("serialNumber") or player.serial,
             "software_version": device.get("softwareVersion") or player.software_version,
             "display_version": getattr(player, "display_version", "") or "",

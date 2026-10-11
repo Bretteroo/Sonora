@@ -39,6 +39,7 @@ from .diagnostics import (MARGIN_FAIR, MARGIN_POOR, InterfaceCounters,
                           WirelessStatus, mac_from_uuid, parse_ifconfig,
                           parse_enetports, parse_showstp, parse_wireless_status, rate_margin)
 from .models import Household, Player, Zone
+from .products import model_label
 from .probe import (JITTER_FAIR_MS, LATENCY_FAIR_MS, LATENCY_GOOD_MS, P95_FAIR_MS,
                     P95_GOOD_MS, STALL_MS, LatencyReport,
                     probe_all)
@@ -258,7 +259,9 @@ class NetworkSnapshot:
     #: WiFi stations, so it is kept beside the radio data rather than under it.
     latency: dict[str, LatencyReport] = field(default_factory=dict)
     findings: list[Finding] = field(default_factory=list)
-    unreachable: list[str] = field(default_factory=list)
+    #: Speakers that did not answer: each one's room label, uuid and model,
+    #: so its card can still show what it is.
+    unreachable: list[dict] = field(default_factory=list)
 
     @property
     def peers_audible(self) -> bool:
@@ -330,7 +333,9 @@ class NetworkCollector:
                 self._fetch(host, ENETPORTS_PATH),
             )
             if wireless_body is None:
-                snapshot.unreachable.append(label)
+                snapshot.unreachable.append({
+                    "name": label, "player": player.uuid,
+                    "model": model_label(player.model, player.model_number)})
                 return
             wireless = parse_wireless_status(host, wireless_body)
             wireless.bridge_stp = parse_showstp(stp_body)

@@ -218,7 +218,8 @@ export default function NetworkMap({ data, loading = false, systemFilter = 'all'
   const { signedIn } = useCloudAccount()
   const households = forSystem(data, systemFilter)?.households || []
   const scanning = loading && !households.length
-  const pictures = useProductPictures(households.flatMap((h) => (h.rooms || []).map((r) => r.player).filter(Boolean)), signedIn)
+  const pictures = useProductPictures(households.flatMap((h) => [...(h.rooms || []), ...(h.unreachable || [])]
+    .map((r) => r?.player).filter(Boolean)), signedIn)
   return (
     <section className="nm" aria-label={t('net.mapTitle')}>
       {/* The heading and its blurb wait for the scan: while it runs there
@@ -289,11 +290,12 @@ export default function NetworkMap({ data, loading = false, systemFilter = 'all'
                   </article>
                 )
               })}
-              {(household.unreachable || []).map((name) => (
-                <article key={`gone-${name}`} className="nm-card nm-card-gone" data-quality="critical">
-                  <span className="nm-art">{React.createElement(deviceGlyph(''))}</span>
+              {(household.unreachable || []).map((gone) => (
+                <article key={`gone-${gone.player || gone.name}`} className="nm-card nm-card-gone" data-quality="critical">
+                  <span className="nm-art"><DeviceArt model={gone.model} picture={pictures[gone.player]} /></span>
                   <div className="nm-text">
-                    <p className="nm-room">{typeof name === 'string' ? name : name?.name || ''}</p>
+                    <p className="nm-room">{gone.name}</p>
+                    {gone.model && <p className="nm-model">{gone.model}</p>}
                     <p className="nm-verdict" data-level="problem">{t('net.health.problem')}</p>
                     <p className="nm-why">{t('net.unreachable')}</p>
                   </div>

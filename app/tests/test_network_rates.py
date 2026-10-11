@@ -58,3 +58,23 @@ def test_a_speaker_listing_no_radio_interface_has_no_drop_rate():
                    "eth0": InterfaceCounters(name="eth0"),
                    "lo": InterfaceCounters(name="lo", rx_packets=3)}
     assert NetworkCollector._drop_total(only_bridge) is None
+
+
+def test_a_speaker_that_does_not_answer_keeps_its_model():
+    """Its card had only a name, so it lost the product picture the other
+    cards show while it was away."""
+    from backend.sonos.discovery import rebuild_zones
+    from backend.sonos.models import Household, Player
+
+    collector = NetworkCollector(session=None)  # type: ignore[arg-type]
+
+    async def nothing(host, path):
+        return None
+
+    collector._fetch = nothing
+    player = Player(uuid="RINCON_P", name="Porch", host="h", model="Sonos Connect", model_number="ZP90")
+    players = {player.uuid: player}
+    household = Household(id="HH", players=players, zones=rebuild_zones(players), groups={},
+                          control_id="", vanished=[])
+    snapshot = asyncio.run(collector.collect(household, probe=False))
+    assert snapshot.unreachable == [{"name": "Porch", "player": "RINCON_P", "model": "Sonos Connect (Gen 1)"}]

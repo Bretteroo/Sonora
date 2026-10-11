@@ -2,7 +2,7 @@ import React from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { useDiagnostics } from '../../frontend/src/lib/useDiagnostics.js'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
-import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance, forSystem } from '../../frontend/src/components/NetworkMap.jsx'
 
 // The troubleshooting view.
 //
@@ -13,7 +13,7 @@ import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/compon
 // with the 95th percentile given equal billing to the median, and the findings
 // list leads with whatever is actually wrong rather than dumping counters.
 
-export default function Diagnostics() {
+export default function Diagnostics({ systemFilter }) {
   const { data, loading, error } = useDiagnostics()
   const { t } = useI18n()
 
@@ -32,7 +32,7 @@ export default function Diagnostics() {
       {error && <p className="or-diag-error">{error}</p>}
       {loading && !data && <p className="or-empty">Measuring…</p>}
 
-      {data?.households.map((household) => (
+      {forSystem(data, systemFilter)?.households.map((household) => (
         <section key={household.household} className="or-diag-house">
           <h3 className="or-diag-house-title">
             {household.generation} system
@@ -50,7 +50,7 @@ export default function Diagnostics() {
           <Links links={household.links} />
         </section>
       ))}
-      <NetworkMap data={data} loading={loading} />
+      <NetworkMap data={data} loading={loading} systemFilter={systemFilter} />
     </div>
   )
 }

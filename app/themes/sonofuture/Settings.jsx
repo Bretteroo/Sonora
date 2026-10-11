@@ -19,7 +19,7 @@ import { Sheet, SheetHeader, Button, IconButton, Toggle, Field, Confirm, Empty, 
 import { readLibraryPrefs, writeLibraryPrefs, FOLDER_SORTS } from '../../frontend/src/lib/libraryPrefs.js'
 import ThemeChooser from '../../frontend/src/components/ThemeChooser.jsx'
 import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
-import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance, forSystem } from '../../frontend/src/components/NetworkMap.jsx'
 import Swirl from '../../frontend/src/components/Swirl.jsx'
 import AlarmsSection from './Alarms.jsx'
 import ParentalControls from '../../frontend/src/components/ParentalControls.jsx'
@@ -87,7 +87,7 @@ export default function SettingsSection({ households, zones, activeZone, activeG
         {current === 'systems' && <SystemsPage households={households} zones={zones} />}
         {current === 'parental' && <ParentalPage />}
         {current === 's2' && <S2Upgrade />}
-        {current === 'network' && <NetworkPage />}
+        {current === 'network' && <NetworkPage systemFilter={systemFilter} />}
         {current === 'appearance' && <AppearancePage />}
         {current === 'log' && <LogPage />}
       </section>
@@ -650,7 +650,7 @@ function AccountPage() {
 
 // --- network ------------------------------------------------------------------------------
 
-function NetworkPage() {
+function NetworkPage({ systemFilter }) {
   const { t } = useI18n()
   const { data, loading, error } = useDiagnostics()
   return (
@@ -658,7 +658,7 @@ function NetworkPage() {
       <MeshGuidance />
       {error && <p className="sf-error">{error}</p>}
       {loading && !data && <div className="sf-loading"><Spinner />{t('net.probing')}</div>}
-      {data?.households.map((h) => (
+      {forSystem(data, systemFilter)?.households.map((h) => (
         <section key={h.household} className="sf-system">
           <h3 className="sf-h3">{h.generation} <small>{t.plural('common.speakers', h.rooms.length)}</small></h3>
           <HealthDonut household={h} />
@@ -675,7 +675,7 @@ function NetworkPage() {
           ) : null}
         </section>
       ))}
-      <NetworkMap data={data} loading={loading} />
+      <NetworkMap data={data} loading={loading} systemFilter={systemFilter} />
     </div>
   )
 }

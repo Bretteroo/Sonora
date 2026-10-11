@@ -424,7 +424,8 @@ class SonosController:
         self._last_play_error: dict[str, tuple[tuple[str, str], float]] = {}
         #: Playback dropouts (dropouts.py). The log's file is set at start-up
         #: by main.py, so a controller built in a test writes nothing.
-        self.dropouts = DropoutWatch(DropoutLog(), self._position_seconds)
+        self.dropouts = DropoutWatch(DropoutLog(), self._position_seconds,
+                                     household_of=lambda uuid: getattr(self.household_of(uuid), "id", ""))
         #: Last ThirdPartyMediaServersX per host, to notice a service being
         #: added or removed (in another app) and refresh the list live.
         self._service_blob: dict[str, str] = {}

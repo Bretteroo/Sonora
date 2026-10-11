@@ -18,7 +18,7 @@ import { Panel, PanelHead, Button, IconKey, Lever, Field, Confirm, Empty, Loadin
 import { readLibraryPrefs, writeLibraryPrefs, FOLDER_SORTS } from '../../frontend/src/lib/libraryPrefs.js'
 import ThemeChooser from '../../frontend/src/components/ThemeChooser.jsx'
 import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
-import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance, forSystem } from '../../frontend/src/components/NetworkMap.jsx'
 import Swirl from '../../frontend/src/components/Swirl.jsx'
 import ParentalControls from '../../frontend/src/components/ParentalControls.jsx'
 import { chosenHousehold } from '../../frontend/src/lib/shellSelection.js'
@@ -44,7 +44,7 @@ export function SystemTabs({ households, value, onChange }) {
   return <KeyBank value={value} onChange={onChange} label={t('desk.showSystem')} options={households.map((h) => ({ id: h.id, label: h.generation }))} />
 }
 
-export default function SetupUnit({ households, zones, page, setPage, onLinkService, servicesVersion, onServicesChanged, onMessage, onAbout, onShortcuts }) {
+export default function SetupUnit({ households, zones, systemFilter, page, setPage, onLinkService, servicesVersion, onServicesChanged, onMessage, onAbout, onShortcuts }) {
   const { t } = useI18n()
   const current = PAGES.includes(page) ? page : 'services'
   return (
@@ -86,7 +86,7 @@ export default function SetupUnit({ households, zones, page, setPage, onLinkServ
           {current === 'systems' && <SystemsPage households={households} zones={zones} />}
           {current === 'parental' && <ParentalPage />}
           {current === 's2' && <S2Upgrade />}
-          {current === 'network' && <NetworkPage />}
+          {current === 'network' && <NetworkPage systemFilter={systemFilter} />}
           {current === 'appearance' && <AppearancePage />}
           {current === 'log' && <LogPage />}
         </section>
@@ -647,7 +647,7 @@ function AccountPage() {
 
 // --- network ------------------------------------------------------------------------------
 
-function NetworkPage() {
+function NetworkPage({ systemFilter }) {
   const { t } = useI18n()
   const { data, loading, error } = useDiagnostics()
   return (
@@ -655,7 +655,7 @@ function NetworkPage() {
       <MeshGuidance />
       {error && <p className="hf-error">{error}</p>}
       {loading && !data && <Loading>{t('net.probing')}</Loading>}
-      {data?.households.map((h) => (
+      {forSystem(data, systemFilter)?.households.map((h) => (
         <section key={h.household} className="hf-system">
           <h3 className="hf-h3">{h.generation} <small>{t.plural('common.speakers', h.rooms.length)}</small></h3>
           <HealthDonut household={h} />
@@ -672,7 +672,7 @@ function NetworkPage() {
           ) : null}
         </section>
       ))}
-      <NetworkMap data={data} loading={loading} />
+      <NetworkMap data={data} loading={loading} systemFilter={systemFilter} />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { useDiagnostics } from '../../frontend/src/lib/useDiagnostics.js'
-import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance, forSystem } from '../../frontend/src/components/NetworkMap.jsx'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
 import { Row, Section } from './SettingsPage.jsx'
 
@@ -14,7 +14,7 @@ import { Row, Section } from './SettingsPage.jsx'
 // The product has no equivalent page; its Diagnostics section submits to
 // Sonos support, where this measures locally.
 
-export default function TroubleshootingPage({ onClose }) {
+export default function TroubleshootingPage({ onClose, systemFilter }) {
   const { t } = useI18n()
   const { data, loading, error } = useDiagnostics()
 
@@ -36,7 +36,7 @@ export default function TroubleshootingPage({ onClose }) {
         <p className="wb-diag-status">{t('net.probing')}</p>
       )}
 
-      {data?.households.map((household) => (
+      {forSystem(data, systemFilter)?.households.map((household) => (
         <React.Fragment key={household.household}>
           <Section
             title={`${t('diag.findings')} · ${t('common.system', { generation: household.generation })}`}
@@ -69,7 +69,7 @@ export default function TroubleshootingPage({ onClose }) {
           )}
         </React.Fragment>
       ))}
-      <NetworkMap data={data} loading={loading} />
+      <NetworkMap data={data} loading={loading} systemFilter={systemFilter} />
     </section>
   )
 }

@@ -194,10 +194,23 @@ export function byHealth(rooms) {
 // own link drops. The rest is under Details, each figure labeled for what it
 // is: how loudly the speaker hears the other Sonos speakers is not its
 // Wi-Fi signal, which no speaker reports.
-export default function NetworkMap({ data, loading = false }) {
+// The systems the S1/S2/All picker leaves in view: a household's id, or
+// 'all' (or nothing) for every system.
+export function inSystem(systemFilter, household) {
+  return !systemFilter || systemFilter === 'all' || household === systemFilter
+}
+
+// The diagnostics with only the picked system's speakers, for the donuts and
+// findings a theme draws above the map.
+export function forSystem(data, systemFilter) {
+  if (!data) return data
+  return { ...data, households: (data.households || []).filter((h) => inSystem(systemFilter, h.household)) }
+}
+
+export default function NetworkMap({ data, loading = false, systemFilter = 'all' }) {
   const { t } = useI18n()
   const { signedIn } = useCloudAccount()
-  const households = data?.households || []
+  const households = forSystem(data, systemFilter)?.households || []
   const scanning = loading && !households.length
   const pictures = useProductPictures(households.flatMap((h) => (h.rooms || []).map((r) => r.player).filter(Boolean)), signedIn)
   return (
@@ -284,7 +297,7 @@ export default function NetworkMap({ data, loading = false }) {
           </div>
         )
       })}
-      {!scanning && <Dropouts />}
+      {!scanning && <Dropouts systemFilter={systemFilter} />}
     </section>
   )
 }
@@ -294,7 +307,7 @@ export default function NetworkMap({ data, loading = false }) {
 // play. Read when the page opens and every minute while it stays open.
 const DROPOUTS_SHOWN = 30
 
-function Dropouts() {
+function Dropouts({ systemFilter }) {
   const { t, language } = useI18n()
   const [entries, setEntries] = useState(null)
   useEffect(() => {
@@ -305,7 +318,7 @@ function Dropouts() {
     return () => { live = false; clearInterval(id) }
   }, [])
   if (entries === null) return null
-  const newest = [...entries].reverse()
+  const newest = entries.filter((e) => inSystem(systemFilter, e.household)).reverse()
   const when = new Intl.DateTimeFormat(language || undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' })
   const what = (e) => (e.kind === 'buffering' ? t('net.drop.buffering', { seconds: e.seconds })
     : e.kind === 'skipped' ? t('net.drop.skipped') : t('net.drop.failed'))

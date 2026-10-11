@@ -59,7 +59,8 @@ function WinIcon() {
 // receives what it needs from the shell; `rootClass` adds a theme's own class
 // to the root so its stylesheet can restyle everything below; `extraHelpItems`
 // appends entries to the Help menu (given the shell's dialog opener); and
-// `extraDialogs` renders a theme's own dialog kinds. Sedona uses all four.
+// `extraDialogs` renders a theme's own dialog kinds (given the picked system).
+// Sedona uses all four.
 export function Shell({ rootClass = '', frame = null, extraHelpItems = null, extraDialogs = null }) {
   const { zones, groups, households, connected, actions, notices, dismiss, servicesEpoch } = useSystem()
   const { t } = useI18n()
@@ -470,7 +471,7 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
                  cancelLabel={t('common.cancel')}
                  onConfirm={dialog.onConfirm} onClose={() => setDialog(null)} />
       )}
-      {extraDialogs ? extraDialogs(dialog, () => setDialog(null)) : null}
+      {extraDialogs ? extraDialogs(dialog, () => setDialog(null), { systemFilter }) : null}
 
       {(notices.length > 0 || !connected) && (
         <div className="dk-notices" aria-live="polite">

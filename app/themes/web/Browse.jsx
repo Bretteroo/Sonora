@@ -345,7 +345,7 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
   if (nav.view.kind === 'troubleshooting') {
     return (
       <div className="wb-content wb-content-panel">
-        <TroubleshootingPage onClose={nav.back} />
+        <TroubleshootingPage onClose={nav.back} systemFilter={systemFilter} />
       </div>
     )
   }

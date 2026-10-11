@@ -1,13 +1,13 @@
 import React from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { useDiagnostics } from '../../frontend/src/lib/useDiagnostics.js'
-import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance, forSystem } from '../../frontend/src/components/NetworkMap.jsx'
 
 // Troubleshooting: the system's field notes, then the shared network map,
 // which gives each speaker its verdict. The core-sample drawing of each
 // room's response times went with the per-room views the map replaced.
 
-export default function Canyon() {
+export default function Canyon({ systemFilter }) {
   const { data, loading, error } = useDiagnostics()
   const { t } = useI18n()
 
@@ -26,7 +26,7 @@ export default function Canyon() {
       {error && <p className="sd-empty">{error}</p>}
       {loading && !data && <p className="sd-empty">{t('net.probing')}</p>}
 
-      {data?.households.map((household) => (
+      {forSystem(data, systemFilter)?.households.map((household) => (
         <section className="sd-section" key={household.household}>
           <h3 className="sd-canyon-title">
             {household.generation} system
@@ -42,7 +42,7 @@ export default function Canyon() {
           <Audible links={household.links} />
         </section>
       ))}
-      <NetworkMap data={data} loading={loading} />
+      <NetworkMap data={data} loading={loading} systemFilter={systemFilter} />
     </div>
   )
 }

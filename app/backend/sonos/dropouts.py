@@ -94,15 +94,19 @@ class DropoutWatch:
     """Turns transport changes into dropout entries.
 
     ``read_position(state)`` answers the group's position in seconds, or None
-    when it cannot be read; ``on_entry(entry)`` hears each new entry.
+    when it cannot be read; ``on_entry(entry)`` hears each new entry;
+    ``household_of(uuid)`` names the system a room belongs to, so the
+    Network check can show one system's dropouts.
     """
 
     def __init__(self, log_: DropoutLog,
                  read_position: Callable[[object], Awaitable[float | None]],
-                 on_entry: Callable[[dict], Awaitable[None] | None] | None = None) -> None:
+                 on_entry: Callable[[dict], Awaitable[None] | None] | None = None,
+                 household_of: Callable[[str], str] | None = None) -> None:
         self.log = log_
         self.read_position = read_position
         self.on_entry = on_entry
+        self.household_of = household_of
         self._stalls: dict[str, _Stall] = {}
 
     async def transport(self, state, before: str, after: str) -> None:
@@ -143,6 +147,7 @@ class DropoutWatch:
         entry = {
             "time": when or time.time(),
             "zone": state.uuid,
+            "household": self.household_of(state.uuid) if self.household_of else "",
             "room": state.name,
             "kind": kind,
             "seconds": seconds,

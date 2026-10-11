@@ -87,3 +87,12 @@ def test_the_log_keeps_a_week():
     for age in (8 * 86400, 2, 1, 0.5, 0):
         log.add({"time": now - age})
     assert len(log.recent()) == 3 and all(now - e["time"] < 86400 for e in log.recent())
+
+
+def test_each_dropout_names_its_system():
+    """The Network check shows only the picked system's dropouts."""
+    watch = DropoutWatch(DropoutLog(), lambda _s: None, household_of=lambda uuid: f"Sonos_{uuid}")
+    asyncio.run(watch.failed(room(), carried_on=False, item="Digitalis",
+                             service="SomaFM Radio", reason="ERROR_CANT_REACH_SERVER"))
+    [entry] = watch.log.recent()
+    assert entry["household"] == "Sonos_Z"

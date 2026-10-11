@@ -5054,8 +5054,16 @@ async def delete_alarm(alarm_id: str, zone: str) -> dict:
 async def dropouts() -> dict:
     """The playback dropouts of the last seven days, newest last
     (sonos/dropouts.py): pauses to buffer mid-track and sources a speaker
-    could not play."""
-    return {"entries": controller().dropouts.log.recent()}
+    could not play. Each names its system; one logged before entries
+    recorded it takes the system its room is in now."""
+    ctl = controller()
+    entries = []
+    for entry in ctl.dropouts.log.recent():
+        if not entry.get("household"):
+            household = ctl.household_of(entry.get("zone", ""))
+            entry = {**entry, "household": household.id if household else ""}
+        entries.append(entry)
+    return {"entries": entries}
 
 
 @app.get("/api/log")

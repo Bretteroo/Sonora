@@ -244,7 +244,7 @@ export function Shell() {
   ) : fn === 'timer' ? (
     <TimerUnit households={households} zones={zones} activeZone={activeZone} activeGroup={activeGroup} systemFilter={systemFilter} />
   ) : (
-    <SetupUnit households={households} zones={zones} page={setupPage} setPage={setSetupPage}
+    <SetupUnit households={households} zones={zones} systemFilter={systemFilter} page={setupPage} setPage={setSetupPage}
                onLinkService={setLinking} servicesVersion={servicesVersion + servicesEpoch} onServicesChanged={() => setServicesVersion((v) => v + 1)}
                onMessage={toast} onAbout={() => setAbout(true)} onShortcuts={() => setShortcuts(true)} />
   )

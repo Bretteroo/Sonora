@@ -34,7 +34,7 @@ function Top({ title, openAbout, t }) {
   )
 }
 
-function DiagnosticsWindow({ onClose }) {
+function DiagnosticsWindow({ onClose, systemFilter }) {
   const { t } = useI18n()
   return (
     <div className="or-modal-backdrop" onClick={(event) => { if (event.target === event.currentTarget) onClose() }}>
@@ -44,7 +44,7 @@ function DiagnosticsWindow({ onClose }) {
           <span>{t('outrun.troubleshoot')}</span>
         </div>
         <div className="dk-window-body or-diag-body">
-          <Diagnostics />
+          <Diagnostics systemFilter={systemFilter} />
         </div>
       </div>
     </div>
@@ -58,7 +58,7 @@ function Shell() {
       rootClass="or-root"
       frame={(ctx) => <Top title={ctx.title} openAbout={ctx.openAbout} t={ctx.t} />}
       extraHelpItems={(open) => [{ id: 'diag', label: `${t('outrun.troubleshoot')}…`, onSelect: () => open('diag') }]}
-      extraDialogs={(dialog, close) => (dialog?.kind === 'diag' ? <DiagnosticsWindow onClose={close} /> : null)}
+      extraDialogs={(dialog, close, { systemFilter }) => (dialog?.kind === 'diag' ? <DiagnosticsWindow onClose={close} systemFilter={systemFilter} /> : null)}
     />
   )
 }

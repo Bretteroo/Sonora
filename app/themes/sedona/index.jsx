@@ -33,7 +33,7 @@ function Sky({ title, openAbout, t }) {
 }
 
 // The Troubleshooting survey in a window of its own.
-function SurveyWindow({ onClose }) {
+function SurveyWindow({ onClose, systemFilter }) {
   const { t } = useI18n()
   return (
     <div className="sd-survey-backdrop" onClick={(event) => { if (event.target === event.currentTarget) onClose() }}>
@@ -43,7 +43,7 @@ function SurveyWindow({ onClose }) {
           <span>{t('sedona.survey')}</span>
         </div>
         <div className="dk-window-body sd-survey-body">
-          <Canyon />
+          <Canyon systemFilter={systemFilter} />
         </div>
       </div>
     </div>
@@ -59,7 +59,7 @@ function Shell() {
       extraHelpItems={(open) => [
         { id: 'survey', label: `${t('sedona.survey')}…`, onSelect: () => open('survey') },
       ]}
-      extraDialogs={(dialog, close) => (dialog?.kind === 'survey' ? <SurveyWindow onClose={close} /> : null)}
+      extraDialogs={(dialog, close, { systemFilter }) => (dialog?.kind === 'survey' ? <SurveyWindow onClose={close} systemFilter={systemFilter} /> : null)}
     />
   )
 }

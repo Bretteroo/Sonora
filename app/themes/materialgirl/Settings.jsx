@@ -16,7 +16,7 @@ import { readLibraryPrefs, writeLibraryPrefs, FOLDER_SORTS } from '../../fronten
 import { chosenHousehold } from '../../frontend/src/lib/shellSelection.js'
 import ThemeChooser from '../../frontend/src/components/ThemeChooser.jsx'
 import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
-import NetworkMap, { HealthDonut, MeshGuidance } from '../../frontend/src/components/NetworkMap.jsx'
+import NetworkMap, { HealthDonut, MeshGuidance, forSystem } from '../../frontend/src/components/NetworkMap.jsx'
 import ParentalControls from '../../frontend/src/components/ParentalControls.jsx'
 import * as I from './icons.jsx'
 import { Sheet, SheetBar, Button, IconButton, Switch, Confirm, Empty, Busy, Menu, MenuItem, MenuSep, Select, TextField, ListItem, SystemPicker, Loading, Kbd, Skeleton } from './m3.jsx'
@@ -34,7 +34,7 @@ import { useSpeakerUpdates } from './data.js'
 export const PAGES = ['account', 'services', 'library', 'time', 'systems', 'parental', 's2', 'network', 'appearance', 'log']
 const PAGE_ICONS = { account: I.Person, services: I.Link, library: I.Library, time: I.Clock, systems: I.Speaker, parental: I.Prohibit, s2: I.Sparkle, network: I.Signal, appearance: I.Palette, log: I.Warning }
 
-export default function SettingsPage({ households, zones, page, setPage, onLinkService, servicesVersion, onServicesChanged, onMessage, onAbout, onShortcuts, compact }) {
+export default function SettingsPage({ households, zones, systemFilter, page, setPage, onLinkService, servicesVersion, onServicesChanged, onMessage, onAbout, onShortcuts, compact }) {
   const { t } = useI18n()
   const current = PAGES.includes(page) ? page : (compact ? '' : 'services')
   // On a phone the list and a page are two levels: a page slides in forward, the list comes back
@@ -58,7 +58,7 @@ export default function SettingsPage({ households, zones, page, setPage, onLinkS
       {current === 'systems' && <SystemsPage households={households} zones={zones} />}
       {current === 'parental' && <ParentalPage />}
       {current === 's2' && <S2Upgrade />}
-      {current === 'network' && <NetworkPage />}
+      {current === 'network' && <NetworkPage systemFilter={systemFilter} />}
       {current === 'appearance' && <AppearancePage />}
       {current === 'log' && <LogPage />}
     </section>
@@ -578,7 +578,7 @@ function AccountPage() {
 
 // --- network ---------------------------------------------------------------------------
 
-function NetworkPage() {
+function NetworkPage({ systemFilter }) {
   const { t } = useI18n()
   const { data, loading, error } = useDiagnostics()
   return (
@@ -586,7 +586,7 @@ function NetworkPage() {
       <MeshGuidance />
       {error && <p className="mg-error">{error}</p>}
       {loading && !data && <Busy label={t('net.probing')} />}
-      {data?.households.map((h) => (
+      {forSystem(data, systemFilter)?.households.map((h) => (
         <section key={h.household} className="mg-stack">
           <h3 className="mg-title-m">{h.generation} <small className="mg-muted">{t.plural('common.speakers', h.rooms.length)}</small></h3>
           <HealthDonut household={h} />
@@ -603,7 +603,7 @@ function NetworkPage() {
           ) : null}
         </section>
       ))}
-      <NetworkMap data={data} loading={loading} />
+      <NetworkMap data={data} loading={loading} systemFilter={systemFilter} />
     </div>
   )
 }

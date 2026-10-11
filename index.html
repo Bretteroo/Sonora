@@ -156,6 +156,7 @@ h2 { margin: 10px 0 0; font: 700 clamp(30px, 4vw, 46px)/1.12 var(--display); let
   transition: all 0.15s ease;
 }
 .theme-picker button:hover { color: var(--ink); background: var(--card-hover); }
+.theme-picker .break { flex-basis: 100%; height: 0; }
 .theme-picker button[aria-selected="true"] { color: #2a0f12; background: var(--peach); border-color: var(--peach); font-weight: 600; }
 .theme-stage { margin-top: 30px; }
 .theme-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 24px; }
@@ -182,6 +183,39 @@ h2 { margin: 10px 0 0; font: 700 clamp(30px, 4vw, 46px)/1.12 var(--display); let
 .gen-card span { display: block; margin-top: 2px; font-size: 13px; color: var(--ink-dim); font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
 .gen-card p { margin: 10px 0 0; color: var(--ink-soft); font-size: 15px; }
 @media (max-width: 760px) { .gen-cards { grid-template-columns: 1fr; } }
+
+/* --- upgrade advisor mock-up ------------------------------------------------ */
+.advisor-intro { margin-top: 70px; }
+.advisor-intro h3 { margin: 0; font: 700 clamp(26px, 3vw, 34px)/1.15 var(--display); }
+.advisor {
+  margin-top: 34px; border-radius: var(--radius); overflow: hidden;
+  background: #fbf7f2; color: #2b2024; box-shadow: var(--shadow);
+}
+.advisor-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: #efe6dc; border-bottom: 1px solid #e2d5c8; font-size: 13px; font-weight: 600; color: #5b4a4f; }
+.advisor-bar i { width: 11px; height: 11px; border-radius: 50%; background: #d9c9bb; }
+.advisor-bar span { margin-left: 6px; }
+.advisor-body { padding: 26px 28px 22px; }
+.advisor h4 { margin: 0; font: 700 22px/1.2 var(--display); color: #2b2024; }
+.advisor .lede { margin: 6px 0 0; font-size: 14px; color: #6b5a5f; max-width: 70ch; }
+.advisor h5 { margin: 24px 0 4px; font-size: 16px; font-weight: 650; }
+.advisor .blurb { margin: 0 0 12px; font-size: 13px; color: #6b5a5f; }
+.advisor-table { overflow-x: auto; }
+.advisor table { width: 100%; min-width: 680px; border-collapse: collapse; font-size: 14px; }
+.advisor th, .advisor td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eadfd4; white-space: nowrap; }
+.advisor thead th { font-size: 12px; font-weight: 600; color: #7d6b70; text-transform: uppercase; letter-spacing: 0.4px; }
+.advisor tbody th { font-weight: 600; }
+.advisor .num { text-align: right; font-variant-numeric: tabular-nums; }
+.advisor .mid { text-align: center; }
+.advisor .dash { color: #b9a9ad; }
+.advisor .tier { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.advisor .tier.legacy { background: #fbe1dc; color: #a33a26; }
+.advisor .tier.ready { background: #dff1e5; color: #23774a; }
+.advisor .tier.update { background: #fff0cf; color: #8a5a00; }
+.advisor .act { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #2b2024; color: #fbf7f2; }
+.advisor .act.soft { background: #efe6dc; color: #5b4a4f; }
+.advisor tfoot th, .advisor tfoot td { border-bottom: 0; padding-top: 14px; font-size: 15px; font-weight: 700; }
+.advisor .fine { margin: 14px 0 0; font-size: 12px; color: #8d7c80; }
+@media (max-width: 520px) { .advisor-body { padding: 20px 16px 18px; } }
 
 /* --- install -------------------------------------------------------------- */
 .install { display: grid; grid-template-columns: 300px 1fr; gap: 28px; margin-top: 44px; align-items: start; }
@@ -258,7 +292,7 @@ footer nav a.support {
 }
 footer nav a.support:hover { text-decoration: none; background: rgba(232, 116, 59, 0.28); }
 footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
-.disclaimer { max-width: 560px; }
+.disclaimer { margin: 0; }
 
 /* Things slide up a little as they come into view. */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
@@ -318,8 +352,8 @@ footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
     <div class="wrap">
       <div class="center reveal">
         <div class="eyebrow">Features</div>
-        <h2>Everything the Sonos apps do, and then some</h2>
-        <p class="section-lede">Most of what Sonos' own desktop and web apps offer is here, plus a few things they never had.</p>
+        <h2>Everyday control, and then some</h2>
+        <p class="section-lede">Most of what you do day to day in Sonos' own apps is here, plus a few things they never had. Setting up new speakers still happens in the Sonos app.</p>
       </div>
       <div class="features">
         <article class="feature reveal">
@@ -418,7 +452,7 @@ footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
       <div class="reveal">
         <div class="eyebrow">Themes</div>
         <h2>Twelve ways to look at your music</h2>
-        <p class="section-lede">Change theme whenever you like, from Settings. Each one is a complete design, not just a new color scheme.</p>
+        <p class="section-lede">Change the theme whenever you like.<br>Each one is a complete design, not just a new color scheme.</p>
       </div>
       <div class="theme-picker" role="tablist" aria-label="Themes"></div>
       <div class="theme-stage">
@@ -456,7 +490,37 @@ footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
       <div class="gens reveal">
         <img src="img/sonos-hardware-generations-2026.svg" loading="lazy" alt="Timeline of Sonos hardware across the S1, S2 and S2.1 generations">
       </div>
-      <p class="section-lede" style="margin-top: 24px">S1 and S2 rooms can't be grouped together, and each system keeps its own music service links. That's Sonos' wall, not Sonora's. The built-in upgrade advisor shows what moving everything to S2 would take.</p>
+      <div class="center reveal advisor-intro">
+        <h3>Thinking of moving to S2?</h3>
+        <p class="section-lede">S1 and S2 rooms can't be grouped together, and each system keeps its own music service links. That's Sonos' wall, not Sonora's. The built-in upgrade advisor shows what moving everything to S2 would take.</p>
+      </div>
+      <div class="advisor reveal" role="img" aria-label="An illustration of Sonora's Upgrade Advisor for a five-room household: three speakers need replacing, one needs a software update, and one already runs S2, for a total of $1,897.">
+        <div class="advisor-bar"><i></i><i></i><i></i><span>Sonos Upgrade Advisor</span></div>
+        <div class="advisor-body">
+          <h4>Sonos Upgrade Advisor</h4>
+          <p class="lede">Understand what hardware you would need to go all-in on S2 or S2.1, along with the approximate cost to do so.</p>
+          <h5>What reaching S2 in every room would cost</h5>
+          <p class="blurb">Every device in the household and what it needs to reach S2: a software update, a replacement at its list price, or nothing.</p>
+          <div class="advisor-table">
+            <table>
+              <thead>
+                <tr><th>Room</th><th>Product</th><th class="mid">Why</th><th>S2 equivalent</th><th class="num">US MSRP</th><th class="mid">Action</th></tr>
+              </thead>
+              <tbody>
+                <tr><th>Kitchen</th><td>Play:5 (gen 1)</td><td class="mid"><span class="tier legacy">Cannot run S2</span></td><td>Sonos Five</td><td class="num">$599</td><td class="mid"><span class="act">Buy now</span></td></tr>
+                <tr><th>Study</th><td>Connect (gen 1)</td><td class="mid"><span class="tier legacy">Cannot run S2</span></td><td>Sonos Port</td><td class="num">$499</td><td class="mid"><span class="act">Buy now</span></td></tr>
+                <tr><th>Deck</th><td>Connect:Amp (gen 1)</td><td class="mid"><span class="tier legacy">Cannot run S2</span></td><td>Sonos Amp</td><td class="num">$799</td><td class="mid"><span class="act">Buy now</span></td></tr>
+                <tr><th>Living Room</th><td>Play:1</td><td class="mid"><span class="tier update">Upgradable</span></td><td><span class="dash">-</span></td><td class="num"><span class="dash">-</span></td><td class="mid"><span class="act soft">Update now</span></td></tr>
+                <tr><th>Bedroom</th><td>One</td><td class="mid"><span class="tier ready">Running S2</span></td><td><span class="dash">-</span></td><td class="num"><span class="dash">-</span></td><td class="mid"></td></tr>
+              </tbody>
+              <tfoot>
+                <tr><th colspan="4">Total to move this system to S2</th><td class="num">$1,897</td><td></td></tr>
+              </tfoot>
+            </table>
+          </div>
+          <p class="fine">US list prices, checked Q4 2026. Prices can change, so confirm before buying.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -583,9 +647,9 @@ const THEMES = [
   { id: 'sedona', name: 'Sedona', dark: false, blurb: 'Red rocks and desert sky.' },
   { id: 'solarized', name: 'Solarized', dark: true, blurb: "Ethan Schoonover's famous palette, in light and dark." },
   { id: 'hotdog', name: 'Hot Dog Stand', dark: false, blurb: 'For the OGs.' },
-  { id: 'web', name: 'Sonos Web', dark: false, blurb: "A recreation of Sonos' own web player, with support for S1 added." },
-  { id: 'macos', name: 'Sonos macOS Desktop', dark: false, blurb: 'A recreation of the Sonos desktop controller for macOS.' },
   { id: 'windows', name: 'Sonos Windows Desktop', dark: false, blurb: 'The Sonos desktop controller from Windows, rebuilt for the web.' },
+  { id: 'macos', name: 'Sonos macOS Desktop', dark: false, blurb: 'A recreation of the Sonos desktop controller for macOS.' },
+  { id: 'web', name: 'Sonos Web', dark: false, blurb: "A recreation of Sonos' own web player, with support for S1 added." },
 ]
 
 const picker = document.querySelector('.theme-picker')
@@ -636,6 +700,7 @@ for (const theme of THEMES) {
   b.textContent = theme.name
   b.addEventListener('click', () => show(theme, look))
   picker.append(b)
+  if (theme.id === 'hotdog') picker.append(Object.assign(document.createElement('span'), { className: 'break' }))
 }
 for (const b of lookButtons) b.addEventListener('click', () => show(current, b.dataset.look))
 show(THEMES[0], 'light')

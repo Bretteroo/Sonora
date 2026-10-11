@@ -5278,12 +5278,16 @@ if _DIST.is_dir():
             "etag": f'"{hashlib.md5(body).hexdigest()}"',
         })
 
-    # Root-level static files the bundle ships (favicon and touch icon). The
-    # SPA mounts hashed bundles under /assets, but these are referenced at the
-    # site root, so they are served by name here.
+    # Root-level static files the bundle ships (favicon, touch icon and the
+    # web app manifest with its icons). The SPA mounts hashed bundles under
+    # /assets, but these are referenced at the site root, so they are served
+    # by name here.
     _ROOT_FILES = {
         "favicon.ico": "image/x-icon",
         "apple-touch-icon.png": "image/png",
+        "manifest.webmanifest": "application/manifest+json",
+        "icon-192.png": "image/png",
+        "icon-512.png": "image/png",
     }
 
     @app.get("/{filename}")

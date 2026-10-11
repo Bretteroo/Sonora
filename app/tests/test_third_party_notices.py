@@ -21,6 +21,9 @@ NOTICES = (ROOT.parent / "THIRD-PARTY-NOTICES.md").read_text(encoding="utf-8")
 #: Every picture in the repository, each Sonora's own drawing.
 OWN_PICTURES = {
     "app/frontend/public/apple-touch-icon.png",
+    # The web app manifest's icons: the touch icon's picture at 192 and 512px.
+    "app/frontend/public/icon-192.png",
+    "app/frontend/public/icon-512.png",
     "app/frontend/public/favicon.ico",
     "app/frontend/src/assets/sonora.png",
     # The README's logo, uploaded by the project's author.

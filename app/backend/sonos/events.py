@@ -15,6 +15,7 @@ flat dictionaries.
 from __future__ import annotations
 
 import asyncio
+from time import monotonic
 import logging
 import re
 import socket
@@ -107,9 +108,10 @@ class EventListener:
         self._port = port
         self._runner: web.AppRunner | None = None
         self._subs: dict[tuple[str, str], _Subscription] = {}
-        #: Players whose last round of subscriptions failed, and why, so a
-        #: slow player is reported once rather than once per service per try.
-        self._failing: dict[str, str] = {}
+        #: Players that have stopped taking subscriptions, and when that was
+        #: last a warning, so a slow player is reported once rather than once
+        #: per service per try (see _failed).
+        self._failing: dict[str, float] = {}
         self._handlers: dict[str, list[EventHandler]] = defaultdict(list)
         self._any_handlers: list[EventHandler] = []
         self.bound_port: int | None = None
@@ -204,8 +206,8 @@ class EventListener:
                     if why is not None:
                         why.append((service.name, f"HTTP {resp.status}"))
                     else:
-                        log.warning("SUBSCRIBE %s %s -> HTTP %s",
-                                    host, service.name, resp.status)
+                        self._failed(host, "SUBSCRIBE %s %s -> HTTP %s",
+                                     host, service.name, resp.status)
                     return False
                 sid = resp.headers.get("SID", "")
                 timeout = _parse_timeout(resp.headers.get("TIMEOUT", ""))
@@ -213,7 +215,7 @@ class EventListener:
             if why is not None:
                 why.append((service.name, _why(exc)))
             else:
-                log.warning("SUBSCRIBE %s %s failed: %s", host, service.name, _why(exc))
+                self._failed(host, "SUBSCRIBE %s %s failed: %s", host, service.name, _why(exc))
             return False
 
         if not sid:
@@ -240,23 +242,41 @@ class EventListener:
         )
         # One line for the player: which services failed and why. A player
         # that answers slowly (a Connect on a weak link) failed all nine at
-        # each try, nine warnings a time; the same failure again while it is
-        # still failing is only noted, and it is a warning again once the
-        # player has recovered or the reason changes.
+        # each try, nine warnings a time.
         if failures:
             reasons = sorted({reason for _, reason in failures})
-            summary = "; ".join(reasons)
             names = ", ".join(name for name, _ in failures)
-            level = logging.INFO if self._failing.get(host) == summary else logging.WARNING
-            log.log(level, "SUBSCRIBE %s failed for %d of %d services (%s): %s",
-                    host, len(failures), len(services), names, summary)
-            self._failing[host] = summary
+            self._failed(host, "SUBSCRIBE %s failed for %d of %d services (%s): %s",
+                         host, len(failures), len(services), names, "; ".join(reasons))
         else:
             self._failing.pop(host, None)
         return {
             s.name: (r is True)
             for s, r in zip(services, results)
         }
+
+    #: How long a player that keeps failing stays quiet before it is a
+    #: warning again.
+    QUIET_S = 3600.0
+
+    def _failed(self, host: str, message: str, *args) -> None:
+        """Log a player's failed subscription: a warning the first time, and
+        only a note while it goes on failing, whatever the reason this time.
+
+        A speaker on a weak wireless link timed out one try, refused the
+        connection the next, and failed the renewals one service at a time,
+        and each of those had been a fresh warning: 98 of the error log's 100
+        entries in a day were one speaker, and pushed out everything else. It
+        is a warning again once every subscription to it has succeeded, or
+        after an hour of failing.
+        """
+        now = monotonic()
+        warned = self._failing.get(host)
+        if warned is not None and now - warned < self.QUIET_S:
+            log.info(message, *args)
+            return
+        self._failing[host] = now
+        log.warning(message, *args)
 
     async def unsubscribe(self, host: str, service_name: str) -> None:
         sub = self._subs.pop((host, service_name), None)

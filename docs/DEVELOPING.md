@@ -161,13 +161,14 @@ The published image, for x64 and arm64:
     docker compose up -d
 
 `.github/workflows/docker.yml` builds it on GitHub for both platforms and
-pushes it to `ghcr.io/bretteroo/sonora`: `:edge` and `:sha-<short>` from
-every push to main; `:1.2.3`, `:1.2` and `:latest` from a `v1.2.3` tag.
-`docker-compose.yml` pulls `:latest`, so users move only on a release. To make
-one, tag main and push the tag:
+pushes it to `ghcr.io/bretteroo/sonora` only for a release: `:1.2.3`, `:1.2`
+and `:latest` from a `v1.2.3` tag. Pushes to main publish nothing, and
+`docker-compose.yml` pulls `:latest`. To make a release, tag main and push the
+tag:
 
-    git tag v1.2.3 && git push github v1.2.3 A pull request
-builds both without publishing. To run a copy built from this checkout
+    git tag v1.2.3 && git push github v1.2.3
+
+A pull request builds both platforms without publishing. To run a copy built from this checkout
 instead, tag it with the same name and compose uses it:
 
     docker build -t ghcr.io/bretteroo/sonora:latest . && docker compose up -d

@@ -1,12 +1,11 @@
 # The Docker image, for x64 and arm64, published to GitHub's container
 # registry as ghcr.io/bretteroo/sonora.
 #
-#   push to main     -> :edge and :sha-<short>
 #   tag v1.2.3       -> :1.2.3, :1.2 and :latest
 #   pull request     -> built for both platforms, not published
 #
-# :latest is what docker-compose.yml pulls, so it moves only on a release;
-# :edge is the newest work, for anyone who wants it.
+# Only a release publishes; a push to main builds nothing. :latest is what
+# docker-compose.yml pulls.
 #
 # The frontend stage runs on the runner's own platform (the Dockerfile pins it
 # to $BUILDPLATFORM), so only the Python stage is emulated for arm64.
@@ -14,10 +13,8 @@ name: Docker image
 
 on:
   push:
-    branches: [main]
     tags: ["v*"]
   pull_request:
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -51,8 +48,6 @@ jobs:
         with:
           images: ghcr.io/bretteroo/sonora
           tags: |
-            type=raw,value=edge,enable={{is_default_branch}}
-            type=sha,prefix=sha-,enable={{is_default_branch}}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}

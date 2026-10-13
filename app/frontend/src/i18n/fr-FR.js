@@ -1183,6 +1183,17 @@ export default {
     + 'mettre à niveau. Tu es soit très nouveau chez Sonos, soit très riche. '
     + 'Dans les deux cas, félicitations !',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': 'Paroles',
+  'lyrics.loading': 'Recherche des paroles…',
+  'lyrics.none': 'Aucune parole trouvée pour ce morceau.',
+  'lyrics.instrumental': 'Ce morceau est instrumental.',
+  'lyrics.error': 'Impossible de joindre la bibliothèque de paroles. Réessayez plus tard.',
+  'lyrics.untimed': 'Ces paroles ne sont pas synchronisées avec cet enregistrement.',
+  'lyrics.credit': 'Paroles fournies par LRCLIB',
+  'lyrics.notice': 'Les paroles proviennent de LRCLIB (lrclib.net), une bibliothèque gratuite gérée par la communauté. Ces paroles ne sont jamais stockées sur votre serveur Sonora : c’est votre navigateur, et non le serveur Sonora, qui les demande directement à LRCLIB. En continuant, vous comprenez que votre navigateur enverra à LRCLIB le titre, l’artiste, l’album et la durée de chaque morceau, et que LRCLIB verra votre adresse IP. Rien n’est envoyé avant que vous activiez les paroles, et plus rien n’est envoyé une fois que vous les désactivez.',
+  'lyrics.agree': 'J’ai compris. Continuer.',
+
   // --- the network map ---
   'net.mapTitle': 'Tous les appareils du réseau',
   'net.mapBlurb': 'Une carte par enceinte. Chacune indique si sa connexion est saine et pourquoi, selon la rapidité et la fiabilité de ses réponses. Ouvrez Détails pour le reste.',

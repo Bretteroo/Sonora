@@ -48,10 +48,12 @@ export function Unit({ name, model = '', className = '', children, as: Tag = 'se
 }
 
 // The glass a display sits behind.
-export function Display({ className = '', children, ...rest }) {
+// `outside` is printed on the metal around the display rather than lit in it.
+export function Display({ className = '', children, outside = null, ...rest }) {
   return (
     <div className={`hf-display ${className}`.trim()} {...rest}>
       <div className="hf-display-inner">{children}</div>
+      {outside}
     </div>
   )
 }

@@ -1049,6 +1049,17 @@ export default {
     '모든 기기가 Sonos S2.1 플랫폼입니다. 업그레이드할 것이 없습니다. Sonos를 막 시작했거나 아주 부유하신 듯합니다. '
     + '어느 쪽이든 축하합니다!',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': '가사',
+  'lyrics.loading': '가사 찾는 중…',
+  'lyrics.none': '이 곡의 가사를 찾을 수 없습니다.',
+  'lyrics.instrumental': '이 곡은 연주곡입니다.',
+  'lyrics.error': '가사 라이브러리에 연결할 수 없습니다. 나중에 다시 시도하세요.',
+  'lyrics.untimed': '이 가사는 이 녹음과 시간이 맞춰져 있지 않습니다.',
+  'lyrics.credit': '가사 제공: LRCLIB',
+  'lyrics.notice': '가사는 커뮤니티가 운영하는 무료 라이브러리인 LRCLIB(lrclib.net)에서 가져옵니다. 가사는 Sonora 서버에 저장되지 않으며, Sonora 서버가 아닌 브라우저가 LRCLIB에 직접 요청합니다. 계속하면 브라우저가 각 곡의 제목, 아티스트, 앨범, 길이를 LRCLIB에 보내고 LRCLIB이 사용자의 IP 주소를 볼 수 있다는 점을 이해한 것으로 간주됩니다. 가사를 켜기 전에는 아무것도 보내지 않으며, 끈 후에도 아무것도 보내지 않습니다.',
+  'lyrics.agree': '이해했습니다. 계속',
+
   // --- the network map ---
   'net.mapTitle': '네트워크의 모든 기기',
   'net.mapBlurb': '스피커마다 카드 한 장. 얼마나 빠르고 안정적으로 응답하는지로 연결 상태가 양호한지와 그 이유를 알려 줍니다. 나머지는 세부 정보에서 확인하세요.',

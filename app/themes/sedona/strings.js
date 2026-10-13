@@ -1,4 +1,5 @@
-// Sedona's own words: the labels its own shell draws.
+// Sedona's own words: the labels its own shell draws, and the credit its
+// lyrics pane gives in its header.
 
 const enUS = {
   'sedona.alarms': 'Alarms',
@@ -13,6 +14,7 @@ const enUS = {
   'sedona.nothingHere': 'Nothing here.',
   'sedona.alsoRemembered': 'Also remembered but out of reach: {names}.',
   'sedona.roomsInGroups': '{rooms} in {groups}',
+  'sedona.lyrics.providedBy': "(provided by LRCLIB)",
 }
 
 const esES = {
@@ -28,6 +30,7 @@ const esES = {
   'sedona.nothingHere': 'Aquí no hay nada.',
   'sedona.alsoRemembered': 'También recordadas pero fuera de alcance: {names}.',
   'sedona.roomsInGroups': '{rooms} en {groups}',
+  'sedona.lyrics.providedBy': "(proporcionadas por LRCLIB)",
 }
 
 const huHU = {
@@ -43,6 +46,7 @@ const huHU = {
   'sedona.nothingHere': 'Itt nincs semmi.',
   'sedona.alsoRemembered': 'Emlékszik rájuk, de nem éri el: {names}.',
   'sedona.roomsInGroups': '{rooms} ennyiben: {groups}',
+  'sedona.lyrics.providedBy': "(forrás: LRCLIB)",
 }
 
 const frFR = {
@@ -61,6 +65,7 @@ const frFR = {
   'sedona.alsoRemembered':
     'Également en mémoire mais hors de portée : {names}.',
   'sedona.roomsInGroups': '{rooms} dans {groups}',
+  'sedona.lyrics.providedBy': "(fournies par LRCLIB)",
 }
 
 
@@ -80,6 +85,7 @@ const deDE = {
   'sedona.alsoRemembered':
     'Ebenfalls bekannt, aber außer Reichweite: {names}.',
   'sedona.roomsInGroups': '{rooms} in {groups}',
+  'sedona.lyrics.providedBy': "(bereitgestellt von LRCLIB)",
 }
 
 const itIT = {
@@ -97,6 +103,7 @@ const itIT = {
   'sedona.nothingHere': 'Niente qui.',
   'sedona.alsoRemembered': 'Ricordati ma fuori portata: {names}.',
   'sedona.roomsInGroups': '{rooms} in {groups}',
+  'sedona.lyrics.providedBy': "(forniti da LRCLIB)",
 }
 
 const ptBR = {
@@ -114,6 +121,7 @@ const ptBR = {
   'sedona.nothingHere': 'Nada aqui.',
   'sedona.alsoRemembered': 'Também lembrados, mas fora de alcance: {names}.',
   'sedona.roomsInGroups': '{rooms} em {groups}',
+  'sedona.lyrics.providedBy': "(fornecidas pelo LRCLIB)",
 }
 
 const nlNL = {
@@ -131,6 +139,7 @@ const nlNL = {
   'sedona.nothingHere': 'Hier is niets.',
   'sedona.alsoRemembered': 'Ook bekend maar buiten bereik: {names}.',
   'sedona.roomsInGroups': '{rooms} in {groups}',
+  'sedona.lyrics.providedBy': "(aangeleverd door LRCLIB)",
 }
 
 const ukUA = {
@@ -148,6 +157,7 @@ const ukUA = {
   'sedona.nothingHere': 'Тут нічого немає.',
   'sedona.alsoRemembered': 'Також у пам’яті, але поза досяжністю: {names}.',
   'sedona.roomsInGroups': '{rooms} у {groups}',
+  'sedona.lyrics.providedBy': "(надає LRCLIB)",
 }
 
 const jaJP = {
@@ -163,6 +173,7 @@ const jaJP = {
   'sedona.nothingHere': 'ここには何もありません。',
   'sedona.alsoRemembered': '覚えてはいますが届きません：{names}。',
   'sedona.roomsInGroups': '{groups} に {rooms}',
+  'sedona.lyrics.providedBy': "（提供: LRCLIB）",
 }
 
 const koKR = {
@@ -178,6 +189,7 @@ const koKR = {
   'sedona.nothingHere': '여기에는 아무것도 없습니다.',
   'sedona.alsoRemembered': '기억하고 있지만 닿지 않음: {names}.',
   'sedona.roomsInGroups': '{groups}에 {rooms}',
+  'sedona.lyrics.providedBy': "(제공: LRCLIB)",
 }
 
 const zhCN = {
@@ -193,6 +205,7 @@ const zhCN = {
   'sedona.nothingHere': '这里什么也没有。',
   'sedona.alsoRemembered': '还记得但无法触及：{names}。',
   'sedona.roomsInGroups': '{groups} 中的 {rooms}',
+  'sedona.lyrics.providedBy': "（由 LRCLIB 提供）",
 }
 
 const zhTW = {
@@ -208,6 +221,7 @@ const zhTW = {
   'sedona.nothingHere': '這裡什麼也沒有。',
   'sedona.alsoRemembered': '還記得但搆不著：{names}。',
   'sedona.roomsInGroups': '{groups} 裡的 {rooms}',
+  'sedona.lyrics.providedBy': "（由 LRCLIB 提供）",
 }
 
 const csCZ = {
@@ -225,6 +239,7 @@ const csCZ = {
   'sedona.nothingHere': 'Nic tu není.',
   'sedona.alsoRemembered': 'Zapamatované, ale mimo dosah: {names}.',
   'sedona.roomsInGroups': '{rooms} · {groups}',
+  'sedona.lyrics.providedBy': "(poskytuje LRCLIB)",
 }
 
 
@@ -244,6 +259,7 @@ const daDK = {
   'sedona.nothingHere': 'Intet her.',
   'sedona.alsoRemembered': 'Husket, men uden for rækkevidde: {names}.',
   'sedona.roomsInGroups': '{rooms} i {groups}',
+  'sedona.lyrics.providedBy': "(leveret af LRCLIB)",
 }
 
 
@@ -264,6 +280,7 @@ const fiFI = {
   'sedona.alsoRemembered':
     'Muistetaan myös, mutta ei tavoitettavissa: {names}.',
   'sedona.roomsInGroups': '{rooms}, {groups}',
+  'sedona.lyrics.providedBy': "(lähde: LRCLIB)",
 }
 
 
@@ -283,6 +300,7 @@ const nbNO = {
   'sedona.nothingHere': 'Ingenting her.',
   'sedona.alsoRemembered': 'Husket, men utenfor rekkevidde: {names}.',
   'sedona.roomsInGroups': '{rooms} i {groups}',
+  'sedona.lyrics.providedBy': "(levert av LRCLIB)",
 }
 
 
@@ -303,6 +321,7 @@ const plPL = {
   'sedona.nothingHere': 'Nic tu nie ma.',
   'sedona.alsoRemembered': 'Zapamiętane, ale poza zasięgiem: {names}.',
   'sedona.roomsInGroups': '{rooms}, {groups}',
+  'sedona.lyrics.providedBy': "(dostarcza LRCLIB)",
 }
 
 
@@ -322,6 +341,7 @@ const ptPT = {
   'sedona.nothingHere': 'Nada aqui.',
   'sedona.alsoRemembered': 'Também memorizadas, mas fora de alcance: {names}.',
   'sedona.roomsInGroups': '{rooms} em {groups}',
+  'sedona.lyrics.providedBy': "(fornecidas pelo LRCLIB)",
 }
 
 
@@ -341,6 +361,7 @@ const svSE = {
   'sedona.nothingHere': 'Ingenting här.',
   'sedona.alsoRemembered': 'Minns också, men utom räckhåll: {names}.',
   'sedona.roomsInGroups': '{rooms} i {groups}',
+  'sedona.lyrics.providedBy': "(tillhandahålls av LRCLIB)",
 }
 
 

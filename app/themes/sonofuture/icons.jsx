@@ -97,6 +97,10 @@ export const Crossfade = (p) => (
 export const Moon = (p) => (
   <svg {...base} {...p}><path d="M13.2 9.8A5.6 5.6 0 0 1 6.2 2.8a5.6 5.6 0 1 0 7 7z" /></svg>
 )
+// Lyrics: a speech bubble with two lines of words in it.
+export const Lyrics = (p) => (
+  <svg {...base} {...p}><path d="M3.5 2.5h9a1.5 1.5 0 0 1 1.5 1.5v6a1.5 1.5 0 0 1-1.5 1.5H8L5 14v-2.5H3.5A1.5 1.5 0 0 1 2 10V4a1.5 1.5 0 0 1 1.5-1.5z" /><path d="M5 5.5h6M5 8.2h4" /></svg>
+)
 export const Info = (p) => (
   <svg {...base} {...p}><circle cx="8" cy="8" r="5.8" /><path d="M8 7.2v4M8 4.9v.1" /></svg>
 )

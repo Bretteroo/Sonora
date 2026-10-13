@@ -2700,6 +2700,100 @@ button.wb-settings-row:disabled {
   height: 140px;
 }
 
+/* The lyrics in the cover's place: wider than the cover, since words need
+   the width a picture does not, on the card's own raised color. The line
+   being sung is white and held in the middle; the ones sung fade back. */
+.wb-np-art[data-lyrics] {
+  display: block;
+  /* Not centered: a centered block shrinks to its content, and a size
+     container has none. */
+  place-items: normal;
+  width: min(440px, 52cqi);
+  background: var(--t-tint-raise, rgba(255, 255, 255, 0.06));
+}
+.wb-lyrics {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-align: left;
+  /* Its height is what the lines are centered in (cqh below). */
+  container-type: size;
+}
+.wb-lyrics-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px;
+  scrollbar-width: none;
+  outline: none;
+  /* The lines fade out at the top and the foot rather than being cut. */
+  mask-image: linear-gradient(transparent, #000 48px, #000 calc(100% - 48px), transparent);
+}
+.wb-lyrics-scroll::-webkit-scrollbar { display: none; }
+/* Room above the first line and below the last, so either can stand in the
+   middle. */
+.wb-lyrics-timed { padding-block: 40cqh; }
+.wb-lyrics-timed p {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 28px;
+  color: var(--t-tint-fg2, #c4c6ca);
+  opacity: 0.55;
+  transition: color 0.3s, opacity 0.3s;
+}
+.wb-lyrics-timed p[data-at='past'] { opacity: 0.35; }
+.wb-lyrics-timed p[data-at='now'] { color: #fff; opacity: 1; }
+.wb-lyrics-plain {
+  margin: 0;
+  font-size: 17px;
+  line-height: 26px;
+  color: var(--t-art-fg);
+}
+.wb-lyrics-untimed,
+.wb-lyrics-credit {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--t-tint-fg2, #c4c6ca);
+}
+.wb-lyrics-untimed { margin-bottom: 16px; }
+.wb-lyrics-credit { flex: none; padding: 0 24px 14px; }
+.wb-lyrics-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.wb-lyrics-note {
+  margin: auto;
+  padding: 24px;
+  font-size: 16px;
+  line-height: 22px;
+  text-align: center;
+  color: var(--t-tint-fg2, #c4c6ca);
+}
+/* Before the first lookup, what it sends and a button to go ahead. */
+.wb-lyrics-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  margin: auto 0;
+  padding: 24px;
+  overflow-y: auto;
+}
+.wb-lyrics-notice p { margin: 0; font-size: 14px; line-height: 20px; color: var(--t-art-fg); }
+.wb-lyrics-agree {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--t-tint-color, #16181a);
+  background: #fff;
+}
+.wb-lyrics-agree:hover { opacity: 0.9; }
+@media (prefers-reduced-motion: reduce) {
+  .wb-lyrics-timed p { transition: none; }
+}
+
 .wb-np-text {
   flex: 1;
   min-width: 0;
@@ -2935,7 +3029,7 @@ button.wb-settings-row:disabled {
   margin-top: 40px;
 }
 
-.wb-np-foot-side { display: flex; }
+.wb-np-foot-side { display: flex; gap: 12px; }
 .wb-np-more { position: relative; display: inline-flex; }
 .wb-np-foot-end { justify-content: flex-end; }
 
@@ -3069,6 +3163,9 @@ button.wb-settings-row:disabled {
     aspect-ratio: 1;
     align-self: center;
   }
+  /* The lyrics are not a square: they take the whole width and whatever
+     height the cover would have had. */
+  .wb-np-art[data-lyrics] { width: 100%; aspect-ratio: auto; max-height: none; align-self: stretch; }
   .wb-np-text { flex: none; }
   .wb-np-progress { margin-top: 16px; }
   .wb-np-controls { gap: 0; justify-content: space-between; padding-top: 24px; }
@@ -5122,3 +5219,16 @@ button.wb-settings-row:disabled {
 
 /* A rating the service gives no way to undo: lit, and not pressable. */
 .wb-transport-rate .wb-rate-btn[aria-disabled='true'] { cursor: default; }
+
+/* Art and lyrics trade places as a view transition (lib/lyrics.js): the box
+   moves and resizes between the two while one fades into the other. */
+.wb-np-art { view-transition-name: wb-np-art; }
+/* The title beside it slides to its new place rather than fading there. */
+.wb-np-text { view-transition-name: wb-np-text; }
+/* At its own size, so the words are not stretched as the box resizes. */
+:root[data-theme='web']::view-transition-old(wb-np-text),
+:root[data-theme='web']::view-transition-new(wb-np-text) { inline-size: auto; block-size: auto; }
+:root[data-theme='web']::view-transition-group(*) {
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}

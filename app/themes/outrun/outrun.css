@@ -1034,6 +1034,38 @@
 .or-root.win-root input[type='radio']:checked { background-image: radial-gradient(circle, var(--t-cyan) 0 3px, transparent 3.5px); }
 .or-root.win-root input[type='radio']:disabled { background-color: #160a33; border-color: rgba(233, 230, 255, 0.2); }
 
+/* --- lyrics, in the queue's place ------------------------------------------------------------------------- */
+/* Clear of the song count beside it, as far as from the caret on its other side. */
+.or-root .dk-queue-lyrics { margin-left: 6px; }
+.or-root .dk-queue-lyrics[aria-pressed='true'], .or-root .dk-queue-lyrics[aria-pressed='true'] svg { background: var(--t-accent); color: var(--t-accent-fg); }
+.or-root .dk-queue-lyrics:disabled, .or-root .dk-queue-lyrics:disabled svg { color: var(--t-fg-dim); background: none; }
+.or-root .dk-lyrics { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; container-type: size; }
+.or-root .dk-lyrics-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 28px 20px 16px; scrollbar-width: none; outline: none;
+  mask-image: linear-gradient(transparent, #000 24px, #000 86%, transparent); }
+.or-root .dk-lyrics-scroll::-webkit-scrollbar { display: none; }
+.or-root .dk-lyrics-scroll:focus-visible { box-shadow: inset 0 0 0 2px var(--t-accent); }
+/* Room below the last line to bring it up to the third line, where the line
+   being sung is held. Above the first there is only the narrow band the top
+   edge fades over, so the song starts at the top and its first lines are
+   drawn whole. */
+.or-root .dk-lyrics-timed { padding-block: 28px max(16px, calc(100cqh - 140px)); }
+.or-root .dk-lyrics-timed p { margin: 0 0 12px; font-size: 19px; font-weight: 600; line-height: 1.3; color: var(--t-fg-muted); opacity: 0.7; transition: color 0.3s, opacity 0.3s; }
+.or-root .dk-lyrics-timed p[data-at='past'] { opacity: 0.45; }
+/* The line being sung in the theme's magenta, edged in its cyan grid line. */
+.or-root .dk-lyrics-timed p[data-at='now'] { color: var(--t-accent); opacity: 1; box-shadow: inset 3px 0 0 #19e6ff; margin-left: -12px; padding-left: 12px; }
+.or-root .dk-lyrics-plain { margin: 0; font-size: 14px; line-height: 1.55; color: var(--t-fg); }
+.or-root .dk-lyrics-untimed { margin: 0 0 12px; font-size: 11px; color: var(--t-fg-muted); }
+.or-root .dk-lyrics-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.or-root .dk-lyrics-notice { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin: auto 0; padding: 16px 20px; overflow-y: auto; }
+.or-root .dk-lyrics-notice p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--t-fg); }
+.or-root .dk-lyrics .dk-lyrics-agree { height: 28px; padding: 0 16px; border: 0; border-radius: 0; font-size: 12px; font-weight: 600; background: var(--t-accent); color: var(--t-accent-fg); }
+.or-root .dk-lyrics .dk-lyrics-agree:hover { filter: brightness(1.12); }
+.or-root .dk-lyrics-note { margin: auto; padding: 20px; font-size: 13px; text-align: center; color: var(--t-fg-muted); }
+/* The queue and the lyrics trade places as a view transition (lib/lyrics.js). */
+.or-root .dk-queue-pane { view-transition-name: outrun-queue-pane; }
+:root[data-theme='outrun']::view-transition-group(*) { animation-duration: 260ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+@media (prefers-reduced-motion: reduce) { .or-root .dk-lyrics-timed p { transition: none; } }
+
 /* --- search results' category bar ------------------------------------------------------------------------ */
 /* Outrun's own bar in place of the Windows build's gray gradients. */
 .or-root.win-root .dk-scopebar { background: #160a33; border-bottom: 1px solid var(--t-border); }

@@ -1151,6 +1151,17 @@ export default {
     + 'opgradere. Enten er du helt ny med Sonos, eller også er du meget rig. '
     + 'Tillykke under alle omstændigheder!',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': 'Sangtekst',
+  'lyrics.loading': 'Leder efter sangtekst…',
+  'lyrics.none': 'Der blev ikke fundet nogen sangtekst til denne sang.',
+  'lyrics.instrumental': 'Denne sang er instrumental.',
+  'lyrics.error': 'Biblioteket med sangtekster kunne ikke nås. Prøv igen senere.',
+  'lyrics.untimed': 'Denne sangtekst er ikke tidsindstillet til denne indspilning.',
+  'lyrics.credit': 'Sangtekster fra LRCLIB',
+  'lyrics.notice': 'Sangtekster kommer fra LRCLIB (lrclib.net), et gratis bibliotek drevet af fællesskabet. Sangteksterne lægges aldrig på din Sonora-server, og det er din browser, ikke Sonora-serveren, der henter dem direkte fra LRCLIB. Ved at fortsætte forstår du, at din browser sender LRCLIB hver sangs titel, kunstner, album og længde, og at LRCLIB ser din IP-adresse. Intet sendes, før du slår sangtekster til, og intet sendes, når du har slået dem fra.',
+  'lyrics.agree': 'Jeg forstår. Fortsæt.',
+
   // --- the network map ---
   'net.mapTitle': 'Alle enheder på netværket',
   'net.mapBlurb': 'Ét kort pr. højttaler. Hvert siger, om forbindelsen er sund og hvorfor, ud fra hvor hurtigt og pålideligt den svarer. Åbn Detaljer for resten.',

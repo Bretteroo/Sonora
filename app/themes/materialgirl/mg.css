@@ -958,6 +958,36 @@
   & .mg-player[data-playing] .mg-player-cover img { animation: mg-breathe-still 6s var(--mg-effects) infinite alternate; }
   & .mg-player-tv { display: grid; place-items: center; width: min(360px, 60vw); aspect-ratio: 1; background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
   & .mg-player-tv svg { width: 30%; height: 30%; }
+  /* The lyrics in the cover's place: a rounded pane as tall as the cover and wider, since words need
+     the width a picture does not. The line being sung is in the primary color, a size up and held in
+     the middle; the ones sung fall back to the variant ink. */
+  & .mg-player-art[data-lyrics] { width: 100%; max-width: 640px; }
+  & .mg-lyrics { position: relative; display: flex; flex-direction: column; width: 100%; height: min(420px, 62vw, 46vh);
+    border-radius: 28px; background: var(--mg-surface-container-low); overflow: hidden; text-align: left; container-type: size; }
+  & .mg-lyrics-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 24px 28px; scrollbar-width: none; outline: none;
+    mask-image: linear-gradient(transparent, #000 56px, #000 calc(100% - 56px), transparent); }
+  & .mg-lyrics-scroll::-webkit-scrollbar { display: none; }
+  & .mg-lyrics-scroll:focus-visible { box-shadow: inset 0 0 0 2px var(--mg-secondary); border-radius: 28px; }
+  & .mg-lyrics-timed { padding-block: 40cqh; }
+  /* Every line wraps at the width the current one grows to fill when scaled,
+     so the current line stays inside the card and no line rewraps as the
+     music reaches it. */
+  & .mg-lyrics-timed p { width: calc(100% / 1.06); margin: 0 0 16px; font-size: 24px; line-height: 32px; font-weight: 600; color: var(--mg-on-surface-variant); opacity: 0.6;
+    transform-origin: left center; transition: color 300ms var(--mg-effects), opacity 300ms var(--mg-effects), transform 500ms var(--mg-spring); }
+  & .mg-lyrics-timed p[data-at='past'] { opacity: 0.38; }
+  & .mg-lyrics-timed p[data-at='now'] { color: var(--mg-primary); opacity: 1; transform: scale(1.06); }
+  & .mg-lyrics-plain { margin: 0; font-size: 16px; line-height: 24px; color: var(--mg-on-surface); }
+  & :is(.mg-lyrics-untimed, .mg-lyrics-credit) { margin: 0; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-on-surface-variant); }
+  & .mg-lyrics-untimed { margin-bottom: 16px; }
+  & .mg-lyrics-credit { flex: none; padding: 0 28px 16px; }
+  & .mg-lyrics-credit a { color: var(--mg-primary); text-decoration: underline; text-underline-offset: 2px; }
+  /* Before the first lookup, what it sends and a filled button to go ahead. */
+  & .mg-lyrics-notice { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin: auto 0; padding: 24px 28px; overflow-y: auto; }
+  & .mg-lyrics-notice p { margin: 0; font-size: 14px; line-height: 20px; letter-spacing: 0.25px; color: var(--mg-on-surface); }
+  & .mg-lyrics-agree { height: 40px; padding: 0 24px; border: 0; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
+    background: var(--mg-primary); color: var(--mg-on-primary); }
+  & .mg-lyrics-agree:hover { box-shadow: var(--mg-elev-1); }
+  & .mg-lyrics-note { margin: auto; padding: 24px; font-size: 16px; line-height: 24px; text-align: center; color: var(--mg-on-surface-variant); }
   & .mg-player-lines { width: 100%; max-width: 640px; text-align: center; display: flex; flex-direction: column; gap: 4px; }
   & .mg-player-over { margin: 0; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-primary); }
   & .mg-player-title { margin: 0; font-size: 36px; line-height: 44px; font-weight: 500; letter-spacing: 0; }
@@ -1017,6 +1047,8 @@
   & .mg-player:not(.mg-player-wide) .mg-player-art { flex: 1 1 0; min-height: 64px; width: 100%; container-type: size; }
   /* A square, the largest that fits the room the column leaves it either way. */
   & .mg-player:not(.mg-player-wide) .mg-player-art > * { width: min(100cqw, 100cqh, 420px); height: min(100cqw, 100cqh, 420px); }
+  /* The lyrics are not a square: they fill the room the cover would have had. */
+  & .mg-player:not(.mg-player-wide) .mg-player-art[data-lyrics] > * { width: 100%; height: 100cqh; }
   & .mg-player:not(.mg-player-wide) .mg-player-lines,
   & .mg-player:not(.mg-player-wide) .mg-player-controls { flex: none; }
   & .mg-player:not(.mg-player-wide) .mg-player-controls { gap: clamp(8px, 1.6vh, 16px); }
@@ -1584,3 +1616,15 @@
 
 /* A rating the service gives no way to undo: lit, and not pressable. */
 :root[data-theme='materialgirl'] .mg-player-ratings [aria-disabled='true'] { cursor: default; }
+
+/* Art and lyrics trade places as a view transition (lib/lyrics.js): the card
+   moves and resizes between the two on the emphasized curve while one fades
+   into the other. */
+:root[data-theme='materialgirl'] .mg-player-art { view-transition-name: mg-player-art; }
+/* What sits under it slides to its new place rather than fading there. */
+:root[data-theme='materialgirl'] .mg-player-lines { view-transition-name: mg-player-lines; }
+:root[data-theme='materialgirl'] .mg-player-controls { view-transition-name: mg-player-controls; }
+:root[data-theme='materialgirl']::view-transition-group(*) {
+  animation-duration: 500ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}

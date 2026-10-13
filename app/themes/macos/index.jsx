@@ -16,6 +16,7 @@ import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
 import ErrorLog from '../../frontend/src/components/ErrorLog.jsx'
 import TransientMessage from '../../frontend/src/components/TransientMessage.jsx'
 import { tokens } from './tokens.js'
+import strings from './strings.js'
 import Mini, { openMiniWindow, openMiniPip, isMiniWindow } from './Mini.jsx'
 import { MINI_CHANNEL } from '../../frontend/src/lib/miniWindow.js'
 import { isBrowserRoom } from '../../frontend/src/lib/browserRoom.js'
@@ -28,6 +29,7 @@ import thumbnail from './thumbnail.webp'
 import { useNarrow } from '../../frontend/src/lib/useNarrow.js'
 import ConnectionOverlay from './ConnectionOverlay.jsx'
 import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
+import { lyricsSong, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
 
 // A replication of the Sonos S1 desktop controller, built from the Mac build's
 // own interface files.
@@ -60,6 +62,8 @@ function Shell() {
   const [activeId, setActiveId] = useState(readStoredGroup)
   const [pane, setPane] = useState('now')
   const [queueExpanded, setQueueExpanded] = useState(false)
+  // The playing song's lyrics, in the queue's place while they are on.
+  const [lyricsOpen, toggleLyrics] = useLyricsOpen()
   const paneDirection = usePaneDirection(pane)
   // Info & Options opens in the music pane. On a wide screen that pane is
   // already beside Now Playing; on a narrow one it is not on screen at all,
@@ -118,6 +122,8 @@ function Shell() {
     () => visibleGroups.find((g) => g.coordinator === activeId) || visibleGroups[0] || null,
     [visibleGroups, activeId])
   const activeZone = activeGroup ? zones[activeGroup.coordinator] : null
+  const hasLyrics = Boolean(lyricsSong(activeZone?.transport))
+  const showLyrics = lyricsOpen && hasLyrics
 
   const select = useCallback((uuid) => {
     setActiveId(uuid)
@@ -389,7 +395,8 @@ function Shell() {
           <NowPlaying zone={activeZone} onInfo={() => showInfo(null)} onMessage={setTransient} marquee="mac" />
           <div className="dk-divider" style={{ height: 1 }} />
           <Queue zone={activeZone} ClearDialog={ClearQueueConfirm} onInfo={(item) => showInfo(item)} cloudQueueInUse={false}
-                 expanded={queueExpanded} onExpand={() => setQueueExpanded((v) => !v)} />
+                 expanded={queueExpanded} onExpand={() => setQueueExpanded((v) => !v)}
+                 lyrics={{ open: showLyrics, available: hasLyrics, toggle: toggleLyrics }} />
         </div>
         <div className="dk-divider" />
         <Browse households={households} zones={zones} groups={groups} librarySongArt
@@ -470,6 +477,7 @@ export default {
   thumbnail,
   description: 'Replicates the Sonos S1 desktop controller as shipped for the Mac: its menus, the transport strip, and Rooms, Now Playing, Queue and Music panes side by side.',
   colorScheme: 'dark',
+  strings,
   tokens,
   Shell,
 }

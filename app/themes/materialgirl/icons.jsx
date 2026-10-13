@@ -86,6 +86,8 @@ export const Radio = (p) => <G {...p}><path d="M4 8.5 16.8 4l.6 1.7-8 2.8H19a2 2
 export const Tv = (p) => <G {...p}><rect {...line} x="3" y="5" width="18" height="12" rx="2" /><path {...line} d="M8 20.5h8" /></G>
 export const LineIn = (p) => <G {...p}><path {...line} d="M12 3v7M8.5 10h7v3.5a3.5 3.5 0 0 1-7 0zM12 17v4" /></G>
 export const Info = (p) => <G {...p}><circle {...line} cx="12" cy="12" r="8.5" /><path d="M11 11h2v6h-2zM12 7a1.25 1.25 0 1 0 .01 0" /></G>
+// Lyrics: a speech bubble with two lines of words cut out of it.
+export const Lyrics = (p) => <G {...p}><path fillRule="evenodd" d="M5 3.5h14A2.5 2.5 0 0 1 21.5 6v9.5A2.5 2.5 0 0 1 19 18h-7.6l-4.6 3.4a.8.8 0 0 1-1.3-.6V18H5a2.5 2.5 0 0 1-2.5-2.5V6A2.5 2.5 0 0 1 5 3.5M7.5 8.2a.9.9 0 0 0 0 1.8h9a.9.9 0 0 0 0-1.8zm0 3.8a.9.9 0 0 0 0 1.8h6a.9.9 0 0 0 0-1.8z" /></G>
 export const Moon = (p) => <G {...p}><path d="M14.5 3.3a8.7 8.7 0 1 0 6.2 11.2A7 7 0 0 1 14.5 3.3" /></G>
 export const Group = (p) => <G {...p}><rect x="2" y="6" width="7" height="12" rx="2" /><rect x="15" y="6" width="7" height="12" rx="2" /><path {...line} d="M10.5 12h3M12 10.5v3" /></G>
 export const Link = (p) => <G {...p}><path {...line} d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></G>

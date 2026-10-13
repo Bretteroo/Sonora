@@ -1168,6 +1168,17 @@ export default {
     + 'Olet joko hyvin uusi Sonos-käyttäjä tai hyvin rikas. Kummin vain, '
     + 'onnittelut!',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': 'Sanat',
+  'lyrics.loading': 'Haetaan sanoja…',
+  'lyrics.none': 'Tälle kappaleelle ei löytynyt sanoja.',
+  'lyrics.instrumental': 'Tämä kappale on instrumentaali.',
+  'lyrics.error': 'Sanakirjastoon ei saatu yhteyttä. Yritä myöhemmin uudelleen.',
+  'lyrics.untimed': 'Näitä sanoja ei ole ajastettu tähän tallenteeseen.',
+  'lyrics.credit': 'Sanat: LRCLIB',
+  'lyrics.notice': 'Sanat tulevat LRCLIBistä (lrclib.net), joka on ilmainen yhteisön ylläpitämä kirjasto. Sanoja ei koskaan tallenneta Sonora-palvelimellesi, ja ne pyytää LRCLIBiltä suoraan selaimesi, ei Sonora-palvelin. Jatkamalla ymmärrät, että selaimesi lähettää LRCLIBille kunkin kappaleen nimen, esittäjän, albumin ja keston ja että LRCLIB näkee IP-osoitteesi. Mitään ei lähetetä ennen kuin otat sanat käyttöön, eikä mitään lähetetä, kun poistat ne käytöstä.',
+  'lyrics.agree': 'Ymmärrän. Jatka.',
+
   // --- the network map ---
   'net.mapTitle': 'Verkon kaikki laitteet',
   'net.mapBlurb': 'Yksi kortti kaiutinta kohden. Jokainen kertoo, onko yhteys kunnossa ja miksi, sen mukaan, kuinka nopeasti ja luotettavasti kaiutin vastaa. Loput löytyvät Tiedoista.',

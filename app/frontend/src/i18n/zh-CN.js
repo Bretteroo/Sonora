@@ -1006,6 +1006,17 @@ export default {
   's2.allReady': '这里的每台 S1 设备都能运行 S2。这套系统不用买任何东西就能迁移。',
   's2.allS21': '你的所有设备都在 Sonos S2.1 平台上，没有什么需要升级。你要么刚接触 Sonos，要么非常富有。无论哪种，恭喜！',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': '歌词',
+  'lyrics.loading': '正在查找歌词…',
+  'lyrics.none': '未找到这首歌的歌词。',
+  'lyrics.instrumental': '这是一首纯音乐。',
+  'lyrics.error': '无法连接歌词库。请稍后再试。',
+  'lyrics.untimed': '这些歌词与此录音的时间不匹配。',
+  'lyrics.credit': '歌词来自 LRCLIB',
+  'lyrics.notice': '歌词来自 LRCLIB (lrclib.net)，一个由社区维护的免费歌词库。这些歌词从不存放在你的 Sonora 服务器上，而是由你的浏览器（而非 Sonora 服务器）直接向 LRCLIB 请求。继续即表示你了解：你的浏览器会向 LRCLIB 发送每首歌的标题、艺人、专辑和时长，LRCLIB 也会看到你的 IP 地址。在你打开歌词之前不会发送任何内容，关闭之后也不会再发送。',
+  'lyrics.agree': '我了解，继续',
+
   // --- the network map ---
   'net.mapTitle': '网络上的所有设备',
   'net.mapBlurb': '每个扬声器一张卡片。每张卡片根据响应的速度和可靠性，说明连接是否正常及原因。其余内容请打开“详细信息”。',

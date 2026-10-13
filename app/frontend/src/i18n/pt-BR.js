@@ -1166,6 +1166,17 @@ export default {
     + 'tem nada a atualizar. Ou é muito novo na Sonos ou é muito rico. De '
     + 'todo modo, parabéns!',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': 'Letra',
+  'lyrics.loading': 'Procurando a letra…',
+  'lyrics.none': 'Nenhuma letra encontrada para esta música.',
+  'lyrics.instrumental': 'Esta música é instrumental.',
+  'lyrics.error': 'Não foi possível acessar a biblioteca de letras. Tente novamente mais tarde.',
+  'lyrics.untimed': 'Esta letra não está sincronizada com esta gravação.',
+  'lyrics.credit': 'Letras do LRCLIB',
+  'lyrics.notice': 'As letras vêm do LRCLIB (lrclib.net), uma biblioteca gratuita mantida pela comunidade. Essas letras nunca são colocadas no seu servidor Sonora, e é o seu navegador, não o servidor Sonora, que as solicita diretamente ao LRCLIB. Ao continuar, você entende que seu navegador enviará ao LRCLIB o título, o artista, o álbum e a duração de cada música, e que o LRCLIB verá seu endereço IP. Nada é enviado até você ativar as letras, e nada é enviado depois que você as desativa.',
+  'lyrics.agree': 'Entendi. Continuar.',
+
   // --- the network map ---
   'net.mapTitle': 'Todos os dispositivos da rede',
   'net.mapBlurb': 'Um cartão por alto-falante. Cada um diz se a conexão está saudável e por quê, pela rapidez e confiabilidade das respostas. Abra Detalhes para ver o resto.',

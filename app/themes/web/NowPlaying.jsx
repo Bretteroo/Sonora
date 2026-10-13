@@ -9,7 +9,9 @@ import Slider from './Slider.jsx'
 import { broadcastLines, heldStation, heldStationLines, isStation, restingSecondary, useTransport } from './useTransport.js'
 import { anchorAbove } from './menus.js'
 import PlayerMenu, { hasPlayerMenu } from './PlayerMenu.jsx'
-import { NpPause, NpPlay, NpRepeat, NpRepeatOne, NpShuffle, NpStop, NpVolume, NpVolumeMute, SpeakerOutline, StationGlyph } from './icons.jsx'
+import { LyricsGlyph, NpPause, NpPlay, NpRepeat, NpRepeatOne, NpShuffle, NpStop, NpVolume, NpVolumeMute, SpeakerOutline, StationGlyph } from './icons.jsx'
+import Lyrics from './Lyrics.jsx'
+import { lyricsSong, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
 
 // Now Playing, as the product opens it from the artwork in the bottom-left:
 // a card that takes the browse column's place while "Your System" stays put
@@ -34,6 +36,8 @@ export default function NowPlaying({ zone, label = '', grouping = false, onClose
   // disc's own rectangle instead of inside the card, which clipped it.
   const [moreAt, setMoreAt] = useState(null)
   const more = useRef(null)
+  // The lyrics take the art's place while they are open (Lyrics.jsx).
+  const [lyricsOpen, toggleLyrics] = useLyricsOpen()
   // The controls a service declares for the playing item are not drawn here:
   // the product keeps them in the bar along the bottom, and this card's foot
   // holds the queue, the room and the options disc alone (2026-09-15).
@@ -86,6 +90,10 @@ export default function NowPlaying({ zone, label = '', grouping = false, onClose
   const remaining = duration ? Math.max(0, duration - elapsed) : 0
   // The panel wears the cover's color, the same one the room's card takes.
   const tint = useTint(nowPlayingArt(zone.host, transport)[0] || '')
+  // The button is there for anything with a song to look up, and stays while
+  // the lyrics are open so they can be put away again.
+  const hasLyrics = Boolean(lyricsSong(transport))
+  const showLyrics = lyricsOpen && hasLyrics
 
   return (
     <section className="wb-np" aria-label={t('web.nowPlaying')}
@@ -101,14 +109,15 @@ export default function NowPlaying({ zone, label = '', grouping = false, onClose
             art at the top and the discs at the foot (measured 2026-09-21). */}
         <div className="wb-np-main">
         <div className="wb-np-top">
-          <div className="wb-np-art"
-               data-station={(transport.source !== 'tv' && !nowPlayingArt(zone.host, transport).length
+          <div className="wb-np-art" data-lyrics={showLyrics || undefined}
+               data-station={(!showLyrics && transport.source !== 'tv' && !nowPlayingArt(zone.host, transport).length
                  && isStation(transport)) || undefined}>
-            {transport.source === 'tv'
-              ? <Icon.Tv width={140} height={140} />
-              : !nowPlayingArt(zone.host, transport).length && isStation(transport)
-                ? <StationGlyph className="wb-np-station" />
-                : <Art src={nowPlayingArt(zone.host, transport)} size={342} />}
+            {showLyrics ? <Lyrics transport={transport} />
+              : transport.source === 'tv'
+                ? <Icon.Tv width={140} height={140} />
+                : !nowPlayingArt(zone.host, transport).length && isStation(transport)
+                  ? <StationGlyph className="wb-np-station" />
+                  : <Art src={nowPlayingArt(zone.host, transport)} size={342} />}
           </div>
           <div className="wb-np-text">
             <h1 className="wb-np-title">
@@ -196,6 +205,12 @@ export default function NowPlaying({ zone, label = '', grouping = false, onClose
             {hasQueue && (
               <button type="button" className="wb-np-disc wb-np-small" title={t('common.queue')} onClick={onQueue}>
                 <Icon.Queue width={24} height={24} />
+              </button>
+            )}
+            {hasLyrics && (
+              <button type="button" className="wb-np-disc wb-np-small wb-np-toggle" title={t('lyrics.show')}
+                      aria-pressed={showLyrics} onClick={toggleLyrics}>
+                <LyricsGlyph />
               </button>
             )}
           </span>

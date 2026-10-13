@@ -962,6 +962,17 @@ export default {
   's2.allReady': 'Itt minden S1-es eszköz tudja futtatni az S2-t. A rendszer vásárlás nélkül átléphet.',
   's2.allS21': 'Minden eszközöd a Sonos S2.1 platformon van. Nincs mit frissítened. Vagy nagyon új vagy a Sonosnál, vagy nagyon gazdag. Akárhogy is, gratulálunk!',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': 'Dalszöveg',
+  'lyrics.loading': 'Dalszöveg keresése…',
+  'lyrics.none': 'Ehhez a dalhoz nem található dalszöveg.',
+  'lyrics.instrumental': 'Ez a dal instrumentális.',
+  'lyrics.error': 'A dalszöveg-könyvtár nem érhető el. Próbáld újra később.',
+  'lyrics.untimed': 'Ez a dalszöveg nincs időzítve ehhez a felvételhez.',
+  'lyrics.credit': 'Dalszövegek: LRCLIB',
+  'lyrics.notice': 'A dalszövegek az LRCLIB-ből (lrclib.net) származnak, amely egy ingyenes, közösség által fenntartott könyvtár. Ezek a dalszövegek soha nem kerülnek a Sonora szerveredre: a böngésződ kéri le őket közvetlenül az LRCLIB-től, nem a Sonora szerver. A folytatással tudomásul veszed, hogy a böngésződ elküldi az LRCLIB-nek minden dal címét, előadóját, albumát és hosszát, és az LRCLIB látja az IP-címedet. Semmit sem küld el, amíg be nem kapcsolod a dalszövegeket, és semmit sem, miután kikapcsoltad őket.',
+  'lyrics.agree': 'Értem. Tovább.',
+
   // --- the network map ---
   'net.mapTitle': 'A hálózat összes eszköze',
   'net.mapBlurb': 'Hangszórónként egy kártya. Mindegyik megmondja, rendben van-e a kapcsolata és miért, aszerint, milyen gyorsan és megbízhatóan válaszol. A többi a Részletekben.',

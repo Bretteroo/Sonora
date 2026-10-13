@@ -1181,6 +1181,17 @@ export default {
     + 'czego aktualizować. Albo jesteś nowy w świecie Sonos, albo bardzo '
     + 'bogaty. Tak czy inaczej, gratulacje!',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': 'Tekst',
+  'lyrics.loading': 'Szukanie tekstu…',
+  'lyrics.none': 'Nie znaleziono tekstu tego utworu.',
+  'lyrics.instrumental': 'Ten utwór jest instrumentalny.',
+  'lyrics.error': 'Nie można połączyć się z biblioteką tekstów. Spróbuj ponownie później.',
+  'lyrics.untimed': 'Ten tekst nie jest zsynchronizowany z tym nagraniem.',
+  'lyrics.credit': 'Teksty z LRCLIB',
+  'lyrics.notice': 'Teksty pochodzą z LRCLIB (lrclib.net), bezpłatnej biblioteki prowadzonej przez społeczność. Te teksty nigdy nie trafiają na Twój serwer Sonora: pobiera je bezpośrednio z LRCLIB Twoja przeglądarka, a nie serwer Sonora. Kontynuując, przyjmujesz do wiadomości, że przeglądarka wyśle do LRCLIB tytuł, wykonawcę, album i długość każdego utworu, a LRCLIB zobaczy Twój adres IP. Nic nie jest wysyłane, dopóki nie włączysz tekstów, i nic nie jest wysyłane po ich wyłączeniu.',
+  'lyrics.agree': 'Rozumiem. Kontynuuj.',
+
   // --- the network map ---
   'net.mapTitle': 'Wszystkie urządzenia w sieci',
   'net.mapBlurb': 'Jedna karta na głośnik. Każda mówi, czy połączenie jest w porządku i dlaczego, na podstawie tego, jak szybko i niezawodnie głośnik odpowiada. Resztę znajdziesz w Szczegółach.',

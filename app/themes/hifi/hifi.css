@@ -2118,3 +2118,20 @@
    the wider rules it was meant to override, which the :not() makes more
    specific (the queue deck stood side by side on a phone). */
 :root[data-theme='hifi'][data-desktop-mode] .hf-preamp-side { --hf-volume-knob: calc(0.56 * 278px); }
+
+/* --- lyrics on the display -------------------------------------------------------------------------------- */
+:root[data-theme='hifi'] .hf-vfd-lines { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+/* The title coming back when lyrics go off fades up as the words did. */
+:root[data-theme='hifi'] .hf-vfd-lines[data-back] { animation: hf-lyric-in 260ms ease-out; }
+/* The line being sung in the title's lettering, the two after it dim. */
+:root[data-theme='hifi'] .hf-vfd-lyric { line-height: 1.2; animation: hf-lyric-in 260ms ease-out; }
+:root[data-theme='hifi'] .hf-lyrics-credit { position: absolute; top: 100%; right: 0; margin: 2px 0 0; opacity: 0; visibility: hidden;
+  transition: opacity 260ms ease, visibility 0s linear 260ms; }
+/* Fainter than the keys' legends, as fine print is: deeper into the black
+   face on the dark finish, paler on the silver. */
+:root[data-theme='hifi'] .hf-lyrics-credit[data-shown] { opacity: 0.55; visibility: visible; transition: opacity 260ms ease, visibility 0s; }
+:root[data-theme='hifi'] .hf-lyrics-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+:root[data-theme='hifi'] .hf-vfd-lyric-next { opacity: 0.5; animation: hf-lyric-in 260ms ease-out; }
+:root[data-theme='hifi'] .hf-vfd-lyric-note { animation: hf-lyric-in 260ms ease-out; font-size: 16px; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+@keyframes hf-lyric-in { from { opacity: 0; transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { :root[data-theme='hifi'] .hf-vfd-lyric, :root[data-theme='hifi'] .hf-vfd-lyric-next, :root[data-theme='hifi'] .hf-vfd-lyric-note, :root[data-theme='hifi'] .hf-vfd-lines[data-back] { animation: none; } :root[data-theme='hifi'] .hf-lyrics-credit { transition: none; } }

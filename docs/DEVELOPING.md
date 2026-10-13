@@ -41,6 +41,20 @@ configured comes from the speakers' own account list; their logos come from
 the public manifest the desktop controller reads, cached on disk, so they
 survive a sign-out and a restart.
 
+Lyrics need the internet too. Every theme's Lyrics button has the browser
+look the playing song up on [LRCLIB](https://lrclib.net), a free library of
+time-stamped lyrics, directly (`app/frontend/src/lib/lrclib.js`): Sonora's
+backend never fetches, holds, or passes on a song's words. Lyrics are off
+until someone turns them on, the first time after a notice saying that each
+song's title, artist, album, and length go to LRCLIB along with the browser's
+IP address. Requests name Sonora in LRCLIB's `X-User-Agent` header, and the
+answers live in the page's memory only, for as long as the page is open; they
+are fetched with `cache: 'no-store'`, so the browser's own disk cache never
+holds them either. Following LRCLIB's implementation
+requirements, a page sends its requests one at a time, 300 ms apart, waits
+out the `Retry-After` of a 429 or 503 before sending another, and drops a
+lookup for a song the player has already moved past.
+
 **The speakers are the source of truth.** Every service definition in this
 project was read from the devices themselves rather than guessed. Each
 ZonePlayer publishes an SCPD document per service enumerating every action, its

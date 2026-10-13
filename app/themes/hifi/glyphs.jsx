@@ -39,6 +39,8 @@ export const Trash = make(<><path d="M5 7h14M10 4.5h4M7 7l.8 12h8.4L17 7" /><pat
 export const Pencil = make(<><path d="M5 19l1-4 9.5-9.5 3 3L9 18z" /><path d="M13.5 7.5l3 3" /></>)
 export const Star = make(<path d="M12 4.2l2.4 5 5.4.6-4 3.7 1.1 5.4L12 16.2l-4.9 2.7 1.1-5.4-4-3.7 5.4-.6z" />)
 export const Heart = make(<path d="M12 19s-7-4.3-7-9.6A3.9 3.9 0 0 1 12 7a3.9 3.9 0 0 1 7 2.4C19 14.7 12 19 12 19z" />)
+// Lyrics: a speech bubble with two lines of words in it.
+export const Lyrics = make(<><path d="M4.5 5.5h15v10h-9l-4 3.5v-3.5h-2z" /><path d="M8 9h8M8 12h5" /></>)
 export const Info = make(<><circle cx="12" cy="12" r="8" /><path d="M12 11v5.5" /><circle cx="12" cy="8" r="0.6" fill="currentColor" /></>)
 export const Search = make(<><circle cx="10.5" cy="10.5" r="5.5" /><path d="M14.7 14.7 19.5 19.5" /></>)
 export const Link = make(<><path d="M10 14a4 4 0 0 0 5.7 0l2.6-2.6a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-2.6 2.6a4 4 0 0 0 5.7 5.7l1-1" /></>)

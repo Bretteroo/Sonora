@@ -75,6 +75,23 @@ inside the image, under `/venv/lib/python3.*/site-packages/<package>.dist-info/`
 | [websockets](https://github.com/python-websockets/websockets) | 17.1 | BSD-3-Clause |
 | [yarl](https://github.com/aio-libs/yarl) | 1.24.5 | Apache-2.0 |
 
+## Lyrics: LRCLIB
+
+The lyrics Sonora shows come from [LRCLIB](https://lrclib.net), a
+free library of synced lyrics built by tranxuanthang and filled by its
+community of contributors. Its server is open source under the MIT license
+(<https://github.com/tranxuanthang/lrclib>). LRCLIB doesn't require credit,
+but Sonora gives it here and beside the lyrics themselves ("Lyrics from
+LRCLIB").
+
+Sonora contains none of LRCLIB's code or lyrics. When someone turns lyrics
+on, their own browser asks LRCLIB's public API for each song
+(`app/frontend/src/lib/lrclib.js`), and the answer is kept only in that
+page's memory, for as long as the page is open, and never in the browser's
+cache or anywhere else on disk; the Sonora server never fetches, stores, or
+passes on lyrics. The words of every song belong to their songwriters and
+publishers.
+
 ## Not part of Sonora
 
 A running copy shows pictures it fetches as it goes, and none of them is in

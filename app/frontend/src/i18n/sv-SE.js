@@ -1157,6 +1157,17 @@ export default {
     + 'uppgradera. Antingen är du helt ny på Sonos eller väldigt rik. Grattis '
     + 'i vilket fall!',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': 'Låttext',
+  'lyrics.loading': 'Letar efter låttext…',
+  'lyrics.none': 'Ingen låttext hittades för den här låten.',
+  'lyrics.instrumental': 'Den här låten är instrumental.',
+  'lyrics.error': 'Det gick inte att nå låttextbiblioteket. Försök igen senare.',
+  'lyrics.untimed': 'Den här låttexten är inte tidsinställd till den här inspelningen.',
+  'lyrics.credit': 'Låttexter från LRCLIB',
+  'lyrics.notice': 'Låttexter kommer från LRCLIB (lrclib.net), ett kostnadsfritt bibliotek som drivs av communityn. Låttexterna hamnar aldrig på din Sonora-server, och det är din webbläsare, inte Sonora-servern, som hämtar dem direkt från LRCLIB. Genom att fortsätta förstår du att din webbläsare skickar varje låts titel, artist, album och längd till LRCLIB och att LRCLIB ser din IP-adress. Inget skickas förrän du slår på låttexter, och inget skickas när du har stängt av dem.',
+  'lyrics.agree': 'Jag förstår. Fortsätt.',
+
   // --- the network map ---
   'net.mapTitle': 'Alla enheter på nätverket',
   'net.mapBlurb': 'Ett kort per högtalare. Varje kort visar om anslutningen är frisk och varför, utifrån hur snabbt och tillförlitligt den svarar. Öppna Detaljer för resten.',

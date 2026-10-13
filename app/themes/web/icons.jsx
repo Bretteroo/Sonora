@@ -197,3 +197,13 @@ export const StationGlyph = (p) => (
     <path d="M3.5 4.2a5.9 5.9 0 0 0 0 7.6M12.5 4.2a5.9 5.9 0 0 1 0 7.6" />
   </svg>
 )
+
+// Lyrics: a speech bubble with two lines of words in it. Sonora's own; the
+// product has no lyrics to draw a glyph for.
+export const LyricsGlyph = (p) => (
+  <svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke="currentColor"
+       strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...p}>
+    <path d="M5 4.5h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8l-4.5 3.5v-3.5H5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2z" />
+    <path d="M7.5 9h9M7.5 13h6" />
+  </svg>
+)

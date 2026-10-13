@@ -1156,6 +1156,17 @@ export default {
     + 'oppgradere. Enten er du helt ny med Sonos, eller så er du svært rik. '
     + 'Uansett: gratulerer!',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': 'Sangtekst',
+  'lyrics.loading': 'Ser etter sangtekst…',
+  'lyrics.none': 'Fant ingen sangtekst for denne sangen.',
+  'lyrics.instrumental': 'Denne sangen er instrumental.',
+  'lyrics.error': 'Fikk ikke kontakt med sangtekstbiblioteket. Prøv igjen senere.',
+  'lyrics.untimed': 'Denne sangteksten er ikke tidsinnstilt til dette opptaket.',
+  'lyrics.credit': 'Sangtekster fra LRCLIB',
+  'lyrics.notice': 'Sangtekster kommer fra LRCLIB (lrclib.net), et gratis bibliotek drevet av fellesskapet. Sangtekstene legges aldri på Sonora-serveren din, og det er nettleseren din, ikke Sonora-serveren, som henter dem direkte fra LRCLIB. Ved å fortsette forstår du at nettleseren din sender LRCLIB tittel, artist, album og lengde for hver sang, og at LRCLIB ser IP-adressen din. Ingenting sendes før du slår på sangtekster, og ingenting sendes etter at du har slått dem av.',
+  'lyrics.agree': 'Jeg forstår. Fortsett.',
+
   // --- the network map ---
   'net.mapTitle': 'Alle enheter på nettverket',
   'net.mapBlurb': 'Ett kort per høyttaler. Hvert forteller om tilkoblingen er sunn og hvorfor, ut fra hvor raskt og pålitelig den svarer. Åpne Detaljer for resten.',

@@ -1103,6 +1103,54 @@
 :where(:root[data-theme='sonofuture']) .sf-row[data-drop='before'] { box-shadow: inset 0 2px 0 var(--t-fg); }
 :where(:root[data-theme='sonofuture']) .sf-row[data-drop='after'] { box-shadow: inset 0 -2px 0 var(--t-fg); }
 
+/* The lyrics in the artwork's place, and wider than it, since words need the
+   width a picture does not. The line being sung is in full ink and held in the
+   middle; the ones sung fall back. */
+:where(:root[data-theme='sonofuture']) .sf-stage-main[data-lyrics] { grid-template-columns: minmax(280px, 520px) minmax(0, 1fr); }
+:where(:root[data-theme='sonofuture']) .sf-stage-art[data-lyrics] { display: block; place-items: normal; aspect-ratio: auto; max-width: 520px; height: clamp(260px, 46vh, 460px); }
+:where(:root[data-theme='sonofuture']) .sf-lyrics { display: flex; flex-direction: column; height: 100%; text-align: left; container-type: size; }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 22px 26px; scrollbar-width: none; outline: none;
+  mask-image: linear-gradient(transparent, #000 52px, #000 calc(100% - 52px), transparent); }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-scroll::-webkit-scrollbar { display: none; }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-scroll:focus-visible { box-shadow: inset 0 0 0 2px var(--t-accent); }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-timed { padding-block: 40cqh; }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-timed p { margin: 0 0 14px; font-size: 23px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.3; color: var(--t-fg-muted); opacity: 0.6; transition: color 0.3s, opacity 0.3s; }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-timed p[data-at='past'] { opacity: 0.35; }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-timed p[data-at='now'] { color: var(--t-fg); opacity: 1; }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-plain { margin: 0; font-size: 16px; line-height: 1.55; color: var(--t-fg); }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-untimed, :where(:root[data-theme='sonofuture']) .sf-lyrics-credit { margin: 0; font-size: 12px; color: var(--t-fg-muted); }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-untimed { margin-bottom: 14px; }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-credit { flex: none; padding: 0 26px 14px; }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-notice { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin: auto 0; padding: 22px 26px; overflow-y: auto; }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-notice p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--t-fg); }
+:where(:root[data-theme='sonofuture']) .sf-lyrics .sf-lyrics-agree { height: 36px; padding: 0 18px; border: 0; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px; font-weight: 600; background: var(--t-accent); color: var(--t-accent-fg); }
+:where(:root[data-theme='sonofuture']) .sf-lyrics .sf-lyrics-agree:hover { filter: brightness(1.08); }
+:where(:root[data-theme='sonofuture']) .sf-lyrics-note { margin: auto; padding: 24px; font-size: 15px; line-height: 1.5; text-align: center; color: var(--t-fg-muted); }
+@media (max-width: 1180px) {
+  :where(:root[data-theme='sonofuture']) .sf-stage-main[data-lyrics] { grid-template-columns: minmax(240px, 400px) minmax(0, 1fr); }
+}
+@media (max-width: 900px) {
+  :where(:root[data-theme='sonofuture']) .sf-stage-main[data-lyrics] { grid-template-columns: minmax(0, 1fr); }
+  :where(:root[data-theme='sonofuture']) .sf-stage-art[data-lyrics] { width: 100%; max-width: none; height: clamp(220px, 42vh, 420px); justify-self: stretch; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(:root[data-theme='sonofuture']) .sf-lyrics-timed p { transition: none; }
+}
+
+/* Art and lyrics trade places as a view transition (lib/lyrics.js): the
+   panel moves and resizes between the two while one fades into the other. */
+:where(:root[data-theme='sonofuture']) .sf-stage-art { view-transition-name: sf-stage-art; }
+/* The title beside it slides to its new place rather than fading there. */
+:where(:root[data-theme='sonofuture']) .sf-stage-lines { view-transition-name: sf-stage-lines; }
+/* At its own size, so the words are not stretched as the box resizes. */
+:root[data-theme='sonofuture']::view-transition-old(sf-stage-lines),
+:root[data-theme='sonofuture']::view-transition-new(sf-stage-lines) { inline-size: auto; block-size: auto; }
+:root[data-theme='sonofuture']::view-transition-group(*) {
+  animation-duration: 360ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   :where(:root[data-theme='sonofuture']) .sf-stage-body, :where(:root[data-theme='sonofuture']) .sf-stage-queue { transition: none !important; }
 }

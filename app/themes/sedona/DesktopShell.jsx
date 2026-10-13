@@ -42,6 +42,7 @@ import { useNarrow } from '../../frontend/src/lib/useNarrow.js'
 import ConnectionOverlay from './ConnectionOverlay.jsx'
 import { editState, editActions } from '../../frontend/src/lib/editMenu.js'
 import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
+import { lyricsSong, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
 
 // A replication of the Sonos S1 desktop controller as shipped for Windows.
 //
@@ -96,6 +97,10 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
   const [searchScopes, setSearchScopes] = useState([])
   // The app's queue header caret slides the queue up over Now Playing.
   const [queueExpanded, setQueueExpanded] = useState(false)
+  // The playing song's lyrics, in the queue's place while they are on.
+  const [lyricsOpen, toggleLyrics] = useLyricsOpen()
+  const hasLyrics = Boolean(lyricsSong(activeZone?.transport))
+  const showLyrics = lyricsOpen && hasLyrics
   // The queue as last read, so Now Playing can name the coming track.
   const [queueItems, setQueueItems] = useState([])
   // The (i) in Now Playing opens Info & Options in the browse pane.
@@ -427,7 +432,8 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
           <div className="dk-divider" style={{ height: 1 }} />
           <Queue zone={activeZone} expanded={queueExpanded} onExpand={() => setQueueExpanded((v) => !v)} SaveDialog={WinSaveQueue} ClearDialog={WinClearQueue} emptyKey="win.queue.empty" scrollSignal={queueScroll}
                  onItems={setQueueItems} onInfo={(item) => showInfo(item)}
-                 onEdited={() => setQueueEdited(true)} />
+                 onEdited={() => setQueueEdited(true)}
+                 lyrics={{ open: showLyrics, available: hasLyrics, toggle: toggleLyrics }} />
         </div>
         <div className="dk-divider" />
         <Browse households={households} zones={zones} groups={groups}

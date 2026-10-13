@@ -1007,6 +1007,17 @@ export default {
   's2.allS21':
     '你的所有裝置都在 Sonos S2.1 平台上，沒有什麼要升級的。你不是剛接觸 Sonos，就是非常富有。無論哪一種，恭喜！',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': '歌詞',
+  'lyrics.loading': '正在尋找歌詞…',
+  'lyrics.none': '找不到這首歌的歌詞。',
+  'lyrics.instrumental': '這是一首純音樂。',
+  'lyrics.error': '無法連線到歌詞庫。請稍後再試。',
+  'lyrics.untimed': '這些歌詞與此錄音的時間不相符。',
+  'lyrics.credit': '歌詞來自 LRCLIB',
+  'lyrics.notice': '歌詞來自 LRCLIB (lrclib.net)，一個由社群維護的免費歌詞庫。這些歌詞從不存放在你的 Sonora 伺服器上，而是由你的瀏覽器（而非 Sonora 伺服器）直接向 LRCLIB 要求。繼續即表示你了解：你的瀏覽器會將每首歌的標題、演出者、專輯和長度傳送給 LRCLIB，LRCLIB 也會看到你的 IP 位址。在你開啟歌詞之前不會傳送任何內容，關閉之後也不會再傳送。',
+  'lyrics.agree': '我了解，繼續',
+
   // --- the network map ---
   'net.mapTitle': '網路上的所有裝置',
   'net.mapBlurb': '每個喇叭一張卡片。每張卡片依回應的速度與可靠度，說明連線是否正常及原因。其餘內容請開啟「詳細資料」。',

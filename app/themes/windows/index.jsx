@@ -28,6 +28,7 @@ import ErrorLogWindow from './ErrorLogWindow.jsx'
 import Mini, { openMiniWindow, openMiniPip, isMiniWindow, MINI_CHANNEL } from './Mini.jsx'
 import appIcon from '../../frontend/src/assets/sonora.png'
 import { tokens } from './tokens.js'
+import strings from './strings.js'
 import './desktop.css'
 import './window-chrome.css'
 import './responsive.css'
@@ -36,6 +37,7 @@ import { useNarrow } from '../../frontend/src/lib/useNarrow.js'
 import ConnectionOverlay from './ConnectionOverlay.jsx'
 import { editState, editActions } from '../../frontend/src/lib/editMenu.js'
 import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
+import { lyricsSong, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
 
 // A replication of the Sonos S1 desktop controller as shipped for Windows.
 //
@@ -90,6 +92,10 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
   const [searchScopes, setSearchScopes] = useState([])
   // The app's queue header caret slides the queue up over Now Playing.
   const [queueExpanded, setQueueExpanded] = useState(false)
+  // The playing song's lyrics, in the queue's place while they are on.
+  const [lyricsOpen, toggleLyrics] = useLyricsOpen()
+  const hasLyrics = Boolean(lyricsSong(activeZone?.transport))
+  const showLyrics = lyricsOpen && hasLyrics
   // The queue as last read, so Now Playing can name the coming track.
   const [queueItems, setQueueItems] = useState([])
   // The (i) in Now Playing opens Info & Options in the browse pane.
@@ -421,7 +427,8 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
           <div className="dk-divider" style={{ height: 1 }} />
           <Queue zone={activeZone} expanded={queueExpanded} onExpand={() => setQueueExpanded((v) => !v)} SaveDialog={WinSaveQueue} ClearDialog={WinClearQueue} emptyKey="win.queue.empty" scrollSignal={queueScroll}
                  onItems={setQueueItems} onInfo={(item) => showInfo(item)}
-                 onEdited={() => setQueueEdited(true)} />
+                 onEdited={() => setQueueEdited(true)}
+                 lyrics={{ open: showLyrics, available: hasLyrics, toggle: toggleLyrics }} />
         </div>
         <div className="dk-divider" />
         <Browse households={households} zones={zones} groups={groups}
@@ -499,6 +506,7 @@ export default {
   thumbnail,
   description: 'Replicates the Sonos S1 desktop controller as shipped for Windows: a light title bar and menu bar over the same transport strip and Rooms, Now Playing, Queue and Music panes as the Mac build.',
   colorScheme: 'dark',
+  strings,
   tokens,
   Shell,
 }

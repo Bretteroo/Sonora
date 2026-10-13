@@ -485,6 +485,42 @@
 .co-root .co-ts-links ul { list-style: none; margin: 0; padding: 0; }
 .co-root .co-ts-links li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
 
+/* --- lyrics, in the queue's place ------------------------------------------------------------------------- */
+/* Clear of the song count beside it, as far as from the caret on its other side. */
+.co-root .dk-queue-lyrics { margin-left: 6px; }
+.co-root .dk-queue-lyrics[aria-pressed='true'], .co-root .dk-queue-lyrics[aria-pressed='true'] svg { background: var(--t-glass-lit); color: #fff; }
+.co-root .dk-queue-lyrics:disabled, .co-root .dk-queue-lyrics:disabled svg { color: var(--t-fg-dim); background: none; }
+/* On the surface the rows sit on, so the building's photograph under the
+   panes does not show through the words. */
+.co-root .dk-lyrics { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; container-type: size; background: var(--t-surface); }
+.co-root .dk-lyrics-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 28px 20px 16px; scrollbar-width: none; outline: none;
+  mask-image: linear-gradient(transparent, #000 24px, #000 86%, transparent); }
+.co-root .dk-lyrics-scroll::-webkit-scrollbar { display: none; }
+.co-root .dk-lyrics-scroll:focus-visible { box-shadow: inset 0 0 0 2px var(--t-glass-lit); }
+/* Room below the last line to bring it up to the third line, where the line
+   being sung is held. Above the first there is only the narrow band the top
+   edge fades over, so the song starts at the top and its first lines are
+   drawn whole. */
+.co-root .dk-lyrics-timed { padding-block: 28px max(16px, calc(100cqh - 140px)); }
+.co-root .dk-lyrics-timed p { margin: 0 0 12px; font-size: 19px; font-weight: 600; line-height: 1.3; color: var(--t-fg-muted); opacity: 0.7; transition: color 0.3s, opacity 0.3s; }
+.co-root .dk-lyrics-timed p[data-at='past'] { opacity: 0.45; }
+/* The line being sung in the navy of the glass, with the sky's edge the
+   playing queue row carries. */
+.co-root .dk-lyrics-timed p[data-at='now'] { color: var(--t-glass-lit); opacity: 1; box-shadow: inset 3px 0 0 var(--t-sky); margin-left: -12px; padding-left: 12px; }
+.co-root .dk-lyrics-plain { margin: 0; font-size: 14px; line-height: 1.55; color: var(--t-fg); }
+.co-root .dk-lyrics-untimed { margin: 0; font-size: 11px; color: var(--t-fg-muted); }
+.co-root .dk-lyrics-untimed { margin-bottom: 12px; }
+.co-root .dk-lyrics-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.co-root .dk-lyrics-notice { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin: auto 0; padding: 16px 20px; overflow-y: auto; }
+.co-root .dk-lyrics-notice p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--t-fg); }
+.co-root .dk-lyrics .dk-lyrics-agree { height: 28px; padding: 0 16px; border: 0; border-radius: 0; font-size: 12px; font-weight: 600; background: var(--t-glass-lit); color: #fff; }
+.co-root .dk-lyrics .dk-lyrics-agree:hover { filter: brightness(1.12); }
+.co-root .dk-lyrics-note { margin: auto; padding: 20px; font-size: 13px; text-align: center; color: var(--t-fg-muted); }
+/* The queue and the lyrics trade places as a view transition (lib/lyrics.js). */
+.co-root .dk-queue-pane { view-transition-name: co-queue-pane; }
+:root[data-theme='coromar']::view-transition-group(*) { animation-duration: 260ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+@media (prefers-reduced-motion: reduce) { .co-root .dk-lyrics-timed p { transition: none; } }
+
 /* --- search matches ----------------------------------------------------------------------------------------- */
 /* The words a search matched, in the concrete's dark ink: the Windows build's pale blue and
    white are made for its dark panes. */

@@ -14,6 +14,8 @@ import { QueueList, QueueActions, queueSummary } from './Queue.jsx'
 import { useOptimisticRatings } from '../../frontend/src/lib/optimisticRatings.js'
 import { useSeekDrag } from '../../frontend/src/lib/useSeekDrag.js'
 import { isConnectSession } from '../../frontend/src/lib/transport.js'
+import { lyricsSong, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
+import Lyrics from './Lyrics.jsx'
 
 // The music in the room in view, twice over: a floating toolbar at the foot
 // of every page, and the full player it opens into. The player's surface is
@@ -123,7 +125,8 @@ export function Transport({ zone, size = 'm', steps = false }) {
 }
 
 // Shuffle, repeat and crossfade as a connected group of toggles.
-export function Modes({ zone, size = 's' }) {
+// `children` join the row after Crossfade (the big player's Lyrics button).
+export function Modes({ zone, size = 's', children = null }) {
   const { actions } = useSystem()
   const { t } = useI18n()
   const tr = zone?.transport || {}
@@ -150,6 +153,7 @@ export function Modes({ zone, size = 's' }) {
       </IconButton>
       <IconButton size={size} variant="toggle" label={t('desk.transport.crossfade')} selected={Boolean(tr.crossfade)} disabled={!crossfadeOk}
                   onClick={() => actions.setCrossfade(zone.uuid, !tr.crossfade)}><I.Crossfade /></IconButton>
+      {children}
     </ButtonGroup>
   )
 }
@@ -402,6 +406,11 @@ export function PlayerView({ zone, group, zones, groups = [], onSelect, queue, c
   // itself fits the screen and never scrolls. null is both closed.
   const [drawer, setDrawer] = useState(null)
   const [roomMenu, setRoomMenu] = useState(null)
+  // The lyrics take the cover's place while they are open (Lyrics.jsx), for anything with a song to
+  // look up.
+  const [lyricsOpen, toggleLyrics] = useLyricsOpen()
+  const hasLyrics = Boolean(lyricsSong(tr))
+  const showLyrics = lyricsOpen && hasLyrics
 
   // Ratings: the service's own buttons from its presentation map.
   const serviceRatings = (provider?.ratings || []).filter((b) => b.icon)
@@ -511,10 +520,11 @@ export function PlayerView({ zone, group, zones, groups = [], onSelect, queue, c
       </header>
       <div className="mg-player-body">
         <section className="mg-player-main">
-          <div className="mg-player-art">
-            {tr.source === 'tv'
-              ? <span className="mg-player-tv" style={{ clipPath: SHAPES.squircle }}><I.Tv /></span>
-              : <ShapeArt src={art} shape={artShape} size={compact ? 300 : 420} fallback="note" className="mg-player-cover" />}
+          <div className="mg-player-art" data-lyrics={showLyrics || undefined}>
+            {showLyrics ? <Lyrics transport={tr} />
+              : tr.source === 'tv'
+                ? <span className="mg-player-tv" style={{ clipPath: SHAPES.squircle }}><I.Tv /></span>
+                : <ShapeArt src={art} shape={artShape} size={compact ? 300 : 420} fallback="note" className="mg-player-cover" />}
           </div>
           <div className="mg-player-lines">
             {shown && <p className="mg-player-over">{title[0]}</p>}
@@ -542,7 +552,7 @@ export function PlayerView({ zone, group, zones, groups = [], onSelect, queue, c
           <div className="mg-player-controls">
             <WavySeek zone={zone} />
             {/* The transport centered under the seek bar, and the modes in a
-                row of their own under it. */}
+                row of their own under it, with Lyrics beside them. */}
             <div className="mg-player-buttons">
               <Transport zone={zone} size="l" steps={!compact} />
             </div>
@@ -550,7 +560,9 @@ export function PlayerView({ zone, group, zones, groups = [], onSelect, queue, c
                 short wide window, where it joins their row (mg.css). */}
             <div className="mg-player-foot">
               <div className="mg-player-modes">
-                <Modes zone={zone} size={compact ? 's' : 'm'} />
+                <Modes zone={zone} size={compact ? 's' : 'm'}>
+                  {hasLyrics && <IconButton size={compact ? 's' : 'm'} variant="toggle" label={t('lyrics.show')} selected={showLyrics} onClick={toggleLyrics}><I.Lyrics /></IconButton>}
+                </Modes>
               </div>
               <MainVolume zone={zone} group={group} zones={zones} />
             </div>

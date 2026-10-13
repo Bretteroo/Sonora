@@ -9,6 +9,8 @@ import { QueueList } from './QueueDrawer.jsx'
 import { nowLines, isLoaded, useProviderMetadata, groupTitle } from './house.js'
 import { useOptimisticRatings } from '../../frontend/src/lib/optimisticRatings.js'
 import { isConnectSession } from '../../frontend/src/lib/transport.js'
+import { lyricsSong, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
+import Lyrics from './Lyrics.jsx'
 
 // The stage: the room in view filling the window. The artwork, blurred,
 // lights the whole surface; the lines are captioned the way the source calls
@@ -39,6 +41,11 @@ export default function Stage({ zone, group, zones, queue, queueOpen, onQueue, o
   const [peek, setPeek] = useState(false)
   useEffect(() => { setPeek(false) }, [queuePlays])
   const showQueue = queuePlays ? queueOpen : peek
+  // The lyrics take the artwork's place while they are open (Lyrics.jsx), for
+  // anything with a song to look up.
+  const [lyricsOpen, toggleLyrics] = useLyricsOpen()
+  const hasLyrics = Boolean(lyricsSong(tr))
+  const showLyrics = lyricsOpen && hasLyrics
 
   // Ratings: a service's own buttons from its presentation map, or Pandora's
   // thumbs. A press flips the icon and is confirmed by the service's message.
@@ -74,9 +81,10 @@ export default function Stage({ zone, group, zones, queue, queueOpen, onQueue, o
         <IconButton label={t('common.queue')} active={showQueue} onClick={queuePlays ? onQueue : () => setPeek((v) => !v)} badge={queueCount}><I.Queue /></IconButton>
       </header>
       <div className="sf-stage-body" data-queue={showQueue || undefined}>
-        <section className="sf-stage-main">
-          <div className="sf-stage-art">
-            {tr.source === 'tv' ? <I.Tv /> : <Art src={art} size={420} fallback="note" />}
+        <section className="sf-stage-main" data-lyrics={showLyrics || undefined}>
+          <div className="sf-stage-art" data-lyrics={showLyrics || undefined}>
+            {showLyrics ? <Lyrics transport={tr} />
+              : tr.source === 'tv' ? <I.Tv /> : <Art src={art} size={420} fallback="note" />}
           </div>
           <div className="sf-stage-lines">
             {loaded ? lines.map(([caption, value], index) => (
@@ -113,7 +121,9 @@ export default function Stage({ zone, group, zones, queue, queueOpen, onQueue, o
           <div className="sf-stage-controls">
             <SeekBar zone={zone} remaining={false} />
             <div className="sf-stage-transport">
-              <ModeToggles zone={zone} size="md" />
+              <ModeToggles zone={zone} size="md">
+                {hasLyrics && <IconButton size="md" label={t('lyrics.show')} active={showLyrics} onClick={toggleLyrics}><I.Lyrics /></IconButton>}
+              </ModeToggles>
               <TransportControls zone={zone} size="lg" showSeekSteps />
               <span className="sf-stage-spacer" />
             </div>

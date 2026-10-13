@@ -12,6 +12,7 @@ import { Unit, Display, Key, IconKey, Knob, Fader, Menu, MenuItem, Led, Select, 
 import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, nowSummary, groupTitle, useProviderMetadata } from './house.js'
 import { useSeekDrag } from '../../frontend/src/lib/useSeekDrag.js'
 import { isConnectSession } from '../../frontend/src/lib/transport.js'
+import { useDisplayLyrics, LyricsReading, LyricsCredit } from './Lyrics.jsx'
 
 // The control amplifier: the unit at the top of the rack that everything
 // else hangs off. A turntable whose record label is the cover of what plays,
@@ -236,7 +237,8 @@ function Reactions({ zone, onMessage }) {
   )
 }
 
-export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaining, compact = false }) {
+// `lyrics` (useDisplayLyrics) puts the song's words in place of its title.
+export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaining, compact = false, lyrics = null }) {
   const { t } = useI18n()
   const tr = zone?.transport || {}
   const summary = nowSummary(tr, t)
@@ -268,6 +270,13 @@ export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaini
   // The cover, printed on the display's left as the screen's own picture,
   // with everything else beside it. The remote's small display has no room.
   const art = zone && tr.source !== 'tv' ? nowPlayingArt(zone.host, tr) : ''
+  // The title and what follows it: the display's usual reading.
+  const reading = (
+    <div className="hf-vfd-lines" data-back={lyrics?.open === false || undefined}>
+      <p className="hf-vfd-title" title={title}>{title}</p>
+      <p className="hf-vfd-sub" title={summary.sub}>{zone ? (summary.sub || '') : t('desk.browse.selectRoom')}</p>
+    </div>
+  )
   const body = (
     <>
       <div className="hf-display-top">
@@ -285,13 +294,12 @@ export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaini
           </span>
         )}
       </div>
-      <p className="hf-vfd-title" title={title}>{title}</p>
-      <p className="hf-vfd-sub" title={summary.sub}>{zone ? (summary.sub || '') : t('desk.browse.selectRoom')}</p>
+      {lyrics?.open ? <LyricsReading transport={tr} onCancel={lyrics.toggle} waiting={reading} /> : reading}
       <Annunciators zone={zone} sleepRemaining={sleepRemaining} />
       {/* The station this plays from, where it is one and the lines above do
           not already name it (a Pandora or AccuRadio station hands back a
           song at a time; a broadcast's title is the station itself). */}
-      {!compact && station && (
+      {!compact && !lyrics?.open && station && (
         <p className="hf-vfd-next hf-vfd-station" title={station}>
           <span className="hf-vfd-caption">{t('desk.info.station')}</span>
           <span className="hf-vfd-next-text">{station}</span>
@@ -299,7 +307,7 @@ export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaini
       )}
       {/* What the speaker reports as up next, dim, in the display's own
           lettering; nothing for a station, which has no next. */}
-      {!compact && tr.next_title && (
+      {!compact && !lyrics?.open && tr.next_title && (
         <p className="hf-vfd-next" title={[tr.next_title, tr.next_artist].filter(Boolean).join(' · ')}>
           <span className="hf-vfd-caption">{t('common.next')}</span>
           <span className="hf-vfd-next-text">{[tr.next_title, tr.next_artist].filter(Boolean).join(' · ')}</span>
@@ -309,7 +317,8 @@ export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaini
     </>
   )
   return (
-    <Display className={`hf-main-display${compact ? ' hf-main-display-compact' : ''}`}>
+    <Display className={`hf-main-display${compact ? ' hf-main-display-compact' : ''}`}
+             outside={!compact && lyrics ? <LyricsCredit shown={lyrics.open} /> : null}>
       {compact ? body : (
         <div className="hf-vfd-split">
           <span className="hf-vfd-art" aria-hidden="true">
@@ -332,7 +341,7 @@ export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaini
   )
 }
 
-export function TransportKeys({ zone, onSleep, sleepOn, onInfo, onLink, full = true }) {
+export function TransportKeys({ zone, onSleep, sleepOn, onInfo, onLink, full = true, lyrics = null }) {
   const { actions } = useSystem()
   const { t } = useI18n()
   const tr = zone?.transport || {}
@@ -374,6 +383,10 @@ export function TransportKeys({ zone, onSleep, sleepOn, onInfo, onLink, full = t
           <Key legend={t('hifi.ann.sleep')} label={t('desk.browse.sleepTimer')} icon={<G.Moon />} led={sleepOn} disabled={!zone} onClick={onSleep} size="sm" />
           <Key legend={t('hifi.info')} label={t('desk.now.infoOptions')} icon={<G.Info />} disabled={!zone || !loaded} onClick={onInfo} size="sm" />
           <Key legend={t('hifi.link')} label={t('desk.grouping.title')} icon={<G.Link />} disabled={!zone || zone.local} onClick={onLink} size="sm" />
+          {lyrics && (
+            <Key legend={t('lyrics.show')} label={t('lyrics.show')} icon={<G.Lyrics />} led={lyrics.open} disabled={!lyrics.available}
+                 onClick={lyrics.toggle} size="sm" />
+          )}
         </div>
         </div>
       )}
@@ -549,6 +562,7 @@ export function SystemSwitch({ households, value, onChange, small = false }) {
 
 export default function Preamp({ zone, group, zones, groups, onSelect, fn, onFunction, sleepRemaining, onSleep, onInfo, onLink,
                                  connected, rooms, onAbout, systemSwitch = null, generation = '', onMessage = null }) {
+  const lyrics = useDisplayLyrics(zone)
   return (
     <Unit className="hf-preamp" aria-label="Sonora" as="header">
       <BrandPlate connected={connected} onAbout={onAbout} rooms={rooms} generation={generation} />
@@ -558,8 +572,8 @@ export default function Preamp({ zone, group, zones, groups, onSelect, fn, onFun
         <Turntable zone={zone} onOpen={onInfo} />
       </div>
       <div className="hf-preamp-center">
-        <MainDisplay zone={zone} group={group} zones={zones} groups={groups} onSelect={onSelect} sleepRemaining={sleepRemaining} />
-        <TransportKeys zone={zone} onSleep={onSleep} sleepOn={Boolean(sleepRemaining)} onInfo={onInfo} onLink={onLink} />
+        <MainDisplay zone={zone} group={group} zones={zones} groups={groups} onSelect={onSelect} sleepRemaining={sleepRemaining} lyrics={lyrics} />
+        <TransportKeys zone={zone} onSleep={onSleep} sleepOn={Boolean(sleepRemaining)} onInfo={onInfo} onLink={onLink} lyrics={lyrics} />
       </div>
       {/* The system switch under the record player. */}
       <div className="hf-preamp-system">{systemSwitch}</div>
@@ -616,6 +630,7 @@ function RemoteMini({ zone, group, zones, onExpand }) {
 }
 
 export function RemoteHead({ zone, group, zones, groups, onSelect, sleepRemaining, onSleep, onInfo, onLink, connected, onAbout, rooms, systemSwitch, generation = '', onMessage = null, collapsed = false, onExpand = null }) {
+  const lyrics = useDisplayLyrics(zone)
   return (
     <Unit className="hf-remote-head" as="header" aria-label="Sonora" data-collapsed={collapsed || undefined}>
       {collapsed && <RemoteMini zone={zone} group={group} zones={zones} onExpand={onExpand} />}
@@ -628,7 +643,7 @@ export function RemoteHead({ zone, group, zones, groups, onSelect, sleepRemainin
           keeps its height for the display and the keys. */}
       <div className="hf-remote-display">
         <Turntable zone={zone} onOpen={onInfo} size="sm" />
-        <MainDisplay zone={zone} group={group} zones={zones} groups={groups} onSelect={onSelect} sleepRemaining={sleepRemaining} compact />
+        <MainDisplay zone={zone} group={group} zones={zones} groups={groups} onSelect={onSelect} sleepRemaining={sleepRemaining} compact lyrics={lyrics} />
       </div>
       {/* The volume knob at the far left, the transport keys to its right;
           mute leads the row of keys below. */}
@@ -636,13 +651,13 @@ export function RemoteHead({ zone, group, zones, groups, onSelect, sleepRemainin
         <VolumeSection zone={zone} group={group} zones={zones} size="md" mute={false} />
         <TransportKeys zone={zone} onSleep={onSleep} sleepOn={Boolean(sleepRemaining)} onInfo={onInfo} onLink={onLink} full={false} />
       </div>
-      <RemoteModes zone={zone} onSleep={onSleep} sleepOn={Boolean(sleepRemaining)} onInfo={onInfo} onLink={onLink} />
+      <RemoteModes zone={zone} onSleep={onSleep} sleepOn={Boolean(sleepRemaining)} onInfo={onInfo} onLink={onLink} lyrics={lyrics} />
     </Unit>
   )
 }
 
 // The remote's second row of keys: the modes, sleep, info and link.
-function RemoteModes({ zone, onSleep, sleepOn, onInfo, onLink }) {
+function RemoteModes({ zone, onSleep, sleepOn, onInfo, onLink, lyrics = null }) {
   const { actions } = useSystem()
   const { t } = useI18n()
   const tr = zone?.transport || {}
@@ -661,6 +676,7 @@ function RemoteModes({ zone, onSleep, sleepOn, onInfo, onLink }) {
       <IconKey label={t('desk.browse.sleepTimer')} led={sleepOn} disabled={!zone} onClick={onSleep}><G.Moon /></IconKey>
       <IconKey label={t('desk.now.infoOptions')} disabled={!zone || !loaded} onClick={onInfo}><G.Info /></IconKey>
       <IconKey label={t('desk.grouping.title')} disabled={!zone || zone.local} onClick={onLink}><G.Link /></IconKey>
+      {lyrics && <IconKey label={t('lyrics.show')} led={lyrics.open} disabled={!lyrics.available} onClick={lyrics.toggle}><G.Lyrics /></IconKey>}
     </div>
   )
 }

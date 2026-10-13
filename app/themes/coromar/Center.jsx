@@ -10,6 +10,7 @@ import * as Icon from '../../frontend/src/components/Icons.jsx'
 import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import Art, { nowPlayingArt, cachedArt } from '../../frontend/src/components/Art.jsx'
 import { useOptimisticRatings } from '../../frontend/src/lib/optimisticRatings.js'
+import Lyrics, { Credit, LyricsGlyph } from './Lyrics.jsx'
 
 // The center column: Now Playing above (273px: a 32px header over a 241px
 // body with 139px art at (16,20) and text lines from x=182), the Queue below
@@ -332,7 +333,9 @@ export function NowPlaying({ zone, onInfo, onMessage, groupLabel = '', onArt, ne
   )
 }
 
-export function Queue({ zone, expanded = false, onExpand, SaveDialog = SaveQueueDialog, ClearDialog = null, onItems, onInfo, onEdited, emptyKey = 'desk.queue.empty', scrollSignal = 0, cloudQueueInUse = true }) {
+// `lyrics` ({ open, available, toggle }) puts the playing song's lyrics in the
+// list's place, switched from the header.
+export function Queue({ zone, expanded = false, onExpand, SaveDialog = SaveQueueDialog, ClearDialog = null, onItems, onInfo, onEdited, emptyKey = 'desk.queue.empty', scrollSignal = 0, cloudQueueInUse = true, lyrics = null }) {
   const { actions } = useSystem()
   const { t } = useI18n()
   // The fetch and its refresh rule are shared: lib/useQueue.js.
@@ -440,16 +443,24 @@ export function Queue({ zone, expanded = false, onExpand, SaveDialog = SaveQueue
   }
 
   const current = transport.track_number || 0
+  const showLyrics = Boolean(lyrics?.open)
 
   return (
-    <section className="dk-pane" aria-label={t('desk.queue.title')}>
+    <section className="dk-pane dk-queue-pane" aria-label={showLyrics ? t('lyrics.show') : t('desk.queue.title')}>
       <div className="dk-header">
         <h2 className="dk-header-title">
-          {t('desk.queue.title')}
+          {showLyrics ? t('lyrics.show') : t('desk.queue.title')}
           {expanded && zone && <span className="dk-header-sub dk-header-room">({zone.name})</span>}
-          {zone && !inUse && !expanded && <span className="dk-header-sub">{t('desk.queue.notInUse')}</span>}
+          {zone && !inUse && !expanded && !showLyrics && <span className="dk-header-sub">{t('desk.queue.notInUse')}</span>}
+          {showLyrics && <span className="dk-header-sub dk-lyrics-credit"><Credit text={t('coromar.lyrics.providedBy')} /></span>}
         </h2>
-        {zone && <span className="dk-header-sub dk-header-count">{t.plural('desk.queue.songs', total)}</span>}
+        {zone && !showLyrics && <span className="dk-header-sub dk-header-count">{t.plural('desk.queue.songs', total)}</span>}
+        {lyrics && (
+          <button type="button" className="dk-header-btn dk-queue-lyrics" aria-pressed={showLyrics}
+                  disabled={!lyrics.available} title={t('lyrics.show')} onClick={lyrics.toggle}>
+            <LyricsGlyph />
+          </button>
+        )}
         {onExpand && (
           <button type="button" className="dk-header-btn dk-queue-collapse" aria-expanded={expanded}
                   title={expanded ? t('desk.queue.collapse') : t('desk.queue.expand')} onClick={onExpand}>
@@ -461,6 +472,7 @@ export function Queue({ zone, expanded = false, onExpand, SaveDialog = SaveQueue
           items the service says are, or hold, tracks can be dragged at all
           (see canEnqueue), so anything arriving here is something the queue
           will take. */}
+      {showLyrics ? <Lyrics transport={transport} /> : (
       <div className={`dk-scroll dk-queue-list${drag ? ' dk-queue-dragging' : ''}${dropAt != null ? ' dk-queue-dropping' : ''}`} ref={listRef}
            onPointerMove={onListPointerMove} onPointerUp={onListPointerUp} onPointerCancel={onListPointerUp}
            onDragOver={(event) => {
@@ -535,6 +547,7 @@ export function Queue({ zone, expanded = false, onExpand, SaveDialog = SaveQueue
           )
         })}
       </div>
+      )}
       {drag && (
         <div className="dk-queue-ghost" style={{ left: drag.x - 25, top: drag.y - 25 }} aria-hidden="true">
           <Art src={items[drag.n - 1]?.art} size={50} />
@@ -554,7 +567,7 @@ export function Queue({ zone, expanded = false, onExpand, SaveDialog = SaveQueue
       {ClearDialog && confirming && (
         <ClearDialog onClose={() => setConfirming(false)} onConfirm={clearNow} />
       )}
-      <div className="dk-footer">
+      {!showLyrics && <div className="dk-footer">
         {confirming && !ClearDialog ? (
           <>
             <button type="button" onClick={() => setConfirming(false)}>{t('common.back')}</button>
@@ -573,7 +586,7 @@ export function Queue({ zone, expanded = false, onExpand, SaveDialog = SaveQueue
             </button>
           </>
         )}
-      </div>
+      </div>}
     </section>
   )
 }

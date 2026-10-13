@@ -964,6 +964,17 @@ export default {
   's2.allReady': 'Todos los dispositivos S1 de aquí pueden ejecutar S2. Este sistema puede pasarse sin comprar nada.',
   's2.allS21': 'Todos tus dispositivos están en la plataforma Sonos S2.1. No tienes nada que actualizar. O eres muy nuevo en Sonos o muy rico. En cualquier caso, ¡enhorabuena!',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': 'Letra',
+  'lyrics.loading': 'Buscando la letra…',
+  'lyrics.none': 'No se ha encontrado la letra de esta canción.',
+  'lyrics.instrumental': 'Esta canción es instrumental.',
+  'lyrics.error': 'No se ha podido conectar con la biblioteca de letras. Inténtalo más tarde.',
+  'lyrics.untimed': 'Esta letra no está sincronizada con esta grabación.',
+  'lyrics.credit': 'Letras de LRCLIB',
+  'lyrics.notice': 'Las letras proceden de LRCLIB (lrclib.net), una biblioteca gratuita mantenida por la comunidad. Estas letras nunca se guardan en tu servidor Sonora, y es tu navegador, no el servidor Sonora, quien las solicita directamente a LRCLIB. Al continuar, entiendes que tu navegador enviará a LRCLIB el título, el artista, el álbum y la duración de cada canción, y que LRCLIB verá tu dirección IP. No se envía nada hasta que activas las letras, y no se envía nada una vez que las desactivas.',
+  'lyrics.agree': 'Lo entiendo. Continuar.',
+
   // --- the network map ---
   'net.mapTitle': 'Todos los dispositivos de la red',
   'net.mapBlurb': 'Una tarjeta por altavoz. Cada una dice si su conexión está bien y por qué, según lo rápido y fiable que responde. Abre Detalles para ver el resto.',

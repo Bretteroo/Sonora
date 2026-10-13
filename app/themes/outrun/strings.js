@@ -1,4 +1,5 @@
-// Outrun's own words: the labels its own shell draws.
+// Outrun's own words: the labels its own shell draws, and the credit its
+// lyrics pane gives in its header.
 
 const enUS = {
   'outrun.rooms': 'Rooms',
@@ -13,6 +14,7 @@ const enUS = {
   'outrun.noRooms': 'No rooms in this system.',
   'outrun.alsoRemembers':
     'This system also remembers {names}, which it cannot currently reach.',
+  'outrun.lyrics.providedBy': "(provided by LRCLIB)",
 }
 
 const esES = {
@@ -28,6 +30,7 @@ const esES = {
   'outrun.noRooms': 'No hay habitaciones en este sistema.',
   'outrun.alsoRemembers':
     'Este sistema también recuerda {names}, pero ahora no puede alcanzarlas.',
+  'outrun.lyrics.providedBy': "(proporcionadas por LRCLIB)",
 }
 
 const huHU = {
@@ -43,6 +46,7 @@ const huHU = {
   'outrun.noRooms': 'Ebben a rendszerben nincs szoba.',
   'outrun.alsoRemembers':
     'A rendszer emlékszik erre is: {names}, de most nem éri el.',
+  'outrun.lyrics.providedBy': "(forrás: LRCLIB)",
 }
 
 const frFR = {
@@ -61,6 +65,7 @@ const frFR = {
   'outrun.alsoRemembers':
     'Ce système se souvient aussi de {names}, qu’il ne peut pas joindre '
     + 'actuellement.',
+  'outrun.lyrics.providedBy': "(fournies par LRCLIB)",
 }
 
 
@@ -80,6 +85,7 @@ const deDE = {
   'outrun.alsoRemembers':
     'Dieses System kennt außerdem {names}, kann sie aber derzeit nicht '
     + 'erreichen.',
+  'outrun.lyrics.providedBy': "(bereitgestellt von LRCLIB)",
 }
 
 const itIT = {
@@ -98,6 +104,7 @@ const itIT = {
   'outrun.alsoRemembers':
     'Questo sistema ricorda anche {names}, che al momento non riesce a '
     + 'raggiungere.',
+  'outrun.lyrics.providedBy': "(forniti da LRCLIB)",
 }
 
 const ptBR = {
@@ -116,6 +123,7 @@ const ptBR = {
   'outrun.alsoRemembers':
     'Este sistema também lembra de {names}, que no momento não consegue '
     + 'alcançar.',
+  'outrun.lyrics.providedBy': "(fornecidas pelo LRCLIB)",
 }
 
 const nlNL = {
@@ -133,6 +141,7 @@ const nlNL = {
   'outrun.noRooms': 'Geen ruimtes in dit systeem.',
   'outrun.alsoRemembers':
     'Dit systeem kent ook {names}, maar kan die nu niet bereiken.',
+  'outrun.lyrics.providedBy': "(aangeleverd door LRCLIB)",
 }
 
 const ukUA = {
@@ -150,6 +159,7 @@ const ukUA = {
   'outrun.noRooms': 'У цій системі немає кімнат.',
   'outrun.alsoRemembers':
     'Ця система пам’ятає також {names}, але зараз не може до них дістатися.',
+  'outrun.lyrics.providedBy': "(надає LRCLIB)",
 }
 
 const jaJP = {
@@ -164,6 +174,7 @@ const jaJP = {
   'outrun.notReachable': '接続できません',
   'outrun.noRooms': 'このシステムに部屋がありません。',
   'outrun.alsoRemembers': 'このシステムは {names} も覚えていますが、今は接続できません。',
+  'outrun.lyrics.providedBy': "（提供: LRCLIB）",
 }
 
 const koKR = {
@@ -178,6 +189,7 @@ const koKR = {
   'outrun.notReachable': '연결할 수 없음',
   'outrun.noRooms': '이 시스템에 방이 없습니다.',
   'outrun.alsoRemembers': '이 시스템은 {names}도 기억하고 있지만 지금은 연결할 수 없습니다.',
+  'outrun.lyrics.providedBy': "(제공: LRCLIB)",
 }
 
 const zhCN = {
@@ -192,6 +204,7 @@ const zhCN = {
   'outrun.notReachable': '无法连接',
   'outrun.noRooms': '此系统中没有房间。',
   'outrun.alsoRemembers': '此系统还记得 {names}，但目前无法连接它们。',
+  'outrun.lyrics.providedBy': "（由 LRCLIB 提供）",
 }
 
 const zhTW = {
@@ -206,6 +219,7 @@ const zhTW = {
   'outrun.notReachable': '無法連線',
   'outrun.noRooms': '這套系統裡沒有房間。',
   'outrun.alsoRemembers': '這套系統還記得 {names}，但目前連不上它們。',
+  'outrun.lyrics.providedBy': "（由 LRCLIB 提供）",
 }
 
 const csCZ = {
@@ -224,6 +238,7 @@ const csCZ = {
   'outrun.alsoRemembers':
     'Tento systém si pamatuje také {names}, ale momentálně je nemůže '
     + 'zastihnout.',
+  'outrun.lyrics.providedBy': "(poskytuje LRCLIB)",
 }
 
 
@@ -243,6 +258,7 @@ const daDK = {
   'outrun.noRooms': 'Ingen rum i dette system.',
   'outrun.alsoRemembers':
     'Systemet husker også {names}, som det ikke kan nå lige nu.',
+  'outrun.lyrics.providedBy': "(leveret af LRCLIB)",
 }
 
 
@@ -263,6 +279,7 @@ const fiFI = {
   'outrun.alsoRemembers':
     'Järjestelmä muistaa myös nämä, joita se ei tällä hetkellä tavoita: '
     + '{names}.',
+  'outrun.lyrics.providedBy': "(lähde: LRCLIB)",
 }
 
 
@@ -283,6 +300,7 @@ const nbNO = {
   'outrun.alsoRemembers':
     'Dette systemet husker også {names}, som det ikke kan nå for '
     + 'øyeblikket.',
+  'outrun.lyrics.providedBy': "(levert av LRCLIB)",
 }
 
 
@@ -304,6 +322,7 @@ const plPL = {
   'outrun.alsoRemembers':
     'Ten system pamięta też pomieszczenia, z którymi nie może się teraz '
     + 'połączyć: {names}.',
+  'outrun.lyrics.providedBy': "(dostarcza LRCLIB)",
 }
 
 
@@ -324,6 +343,7 @@ const ptPT = {
   'outrun.alsoRemembers':
     'Este sistema também se lembra de {names}, que de momento não consegue '
     + 'contactar.',
+  'outrun.lyrics.providedBy': "(fornecidas pelo LRCLIB)",
 }
 
 
@@ -343,6 +363,7 @@ const svSE = {
   'outrun.noRooms': 'Inga rum i det här systemet.',
   'outrun.alsoRemembers':
     'Systemet minns också {names}, som det för närvarande inte kan nå.',
+  'outrun.lyrics.providedBy': "(tillhandahålls av LRCLIB)",
 }
 
 

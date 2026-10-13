@@ -1156,6 +1156,17 @@ export default {
     + 'upgraden. Je bent óf heel nieuw bij Sonos óf heel rijk. Hoe dan ook: '
     + 'gefeliciteerd!',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': 'Songtekst',
+  'lyrics.loading': 'Songtekst zoeken…',
+  'lyrics.none': 'Geen songtekst gevonden voor dit nummer.',
+  'lyrics.instrumental': 'Dit nummer is instrumentaal.',
+  'lyrics.error': 'De songtekstbibliotheek is niet bereikbaar. Probeer het later opnieuw.',
+  'lyrics.untimed': 'Deze songtekst is niet getimed op deze opname.',
+  'lyrics.credit': 'Songteksten van LRCLIB',
+  'lyrics.notice': 'Songteksten komen van LRCLIB (lrclib.net), een gratis bibliotheek die door de community wordt beheerd. Deze songteksten komen nooit op je Sonora-server terecht: je browser, niet de Sonora-server, vraagt ze rechtstreeks op bij LRCLIB. Door verder te gaan begrijp je dat je browser de titel, artiest, het album en de lengte van elk nummer naar LRCLIB stuurt en dat LRCLIB je IP-adres ziet. Er wordt niets verstuurd totdat je songteksten aanzet, en niets meer zodra je ze uitzet.',
+  'lyrics.agree': 'Ik begrijp het. Doorgaan.',
+
   // --- the network map ---
   'net.mapTitle': 'Elk apparaat op het netwerk',
   'net.mapBlurb': 'Eén kaart per speaker. Elke kaart zegt of de verbinding in orde is en waarom, op basis van hoe snel en betrouwbaar de speaker antwoordt. Open Details voor de rest.',

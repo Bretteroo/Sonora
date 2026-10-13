@@ -305,6 +305,38 @@
 /* The quality scale in the scheme's own colors: green and red vanish on the red window. */
 .hd-root .hd-troubleshoot { --t-good: #ffff00; --t-fair: #ffffff; --t-poor: #ffffff; --t-critical: #000000; }
 
+/* --- lyrics, in the queue's place ------------------------------------------------------------------------- */
+/* Clear of the song count beside it, as far as from the caret on its other side. */
+.hd-root .dk-queue-lyrics { margin-left: 6px; }
+.hd-root .dk-queue-lyrics[aria-pressed='true'], .hd-root .dk-queue-lyrics[aria-pressed='true'] svg { background: var(--t-accent); color: var(--t-accent-fg); }
+.hd-root .dk-queue-lyrics:disabled, .hd-root .dk-queue-lyrics:disabled svg { color: var(--t-fg-dim); background: none; }
+.hd-root .dk-lyrics { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; container-type: size; }
+.hd-root .dk-lyrics-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 28px 20px 16px; scrollbar-width: none; outline: none;
+  mask-image: linear-gradient(transparent, #000 24px, #000 86%, transparent); }
+.hd-root .dk-lyrics-scroll::-webkit-scrollbar { display: none; }
+.hd-root .dk-lyrics-scroll:focus-visible { box-shadow: inset 0 0 0 2px var(--t-accent); }
+/* Room below the last line to bring it up to the third line, where the line
+   being sung is held. Above the first there is only the narrow band the top
+   edge fades over, so the song starts at the top and its first lines are
+   drawn whole. */
+.hd-root .dk-lyrics-timed { padding-block: 28px max(16px, calc(100cqh - 140px)); }
+.hd-root .dk-lyrics-timed p { margin: 0 0 12px; font-size: 19px; font-weight: 600; line-height: 1.3; color: var(--t-fg-muted); opacity: 0.7; transition: color 0.3s, opacity 0.3s; }
+.hd-root .dk-lyrics-timed p[data-at='past'] { opacity: 0.45; }
+/* The line being sung in the stand's mustard yellow, edged in black. */
+.hd-root .dk-lyrics-timed p[data-at='now'] { color: #ffff00; opacity: 1; box-shadow: inset 3px 0 0 #000000; margin-left: -12px; padding-left: 12px; }
+.hd-root .dk-lyrics-plain { margin: 0; font-size: 14px; line-height: 1.55; color: var(--t-fg); }
+.hd-root .dk-lyrics-untimed { margin: 0 0 12px; font-size: 11px; color: var(--t-fg-muted); }
+.hd-root .dk-lyrics-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.hd-root .dk-lyrics-notice { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin: auto 0; padding: 16px 20px; overflow-y: auto; }
+.hd-root .dk-lyrics-notice p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--t-fg); }
+.hd-root .dk-lyrics .dk-lyrics-agree { height: 28px; padding: 0 16px; border: 0; border-radius: 0; font-size: 12px; font-weight: 600; background: #000000; color: #ffffff; }
+.hd-root .dk-lyrics .dk-lyrics-agree:hover { filter: brightness(1.12); }
+.hd-root .dk-lyrics-note { margin: auto; padding: 20px; font-size: 13px; text-align: center; color: var(--t-fg-muted); }
+/* The queue and the lyrics trade places as a view transition (lib/lyrics.js). */
+.hd-root .dk-queue-pane { view-transition-name: hotdog-queue-pane; }
+:root[data-theme='hotdog']::view-transition-group(*) { animation-duration: 260ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+@media (prefers-reduced-motion: reduce) { .hd-root .dk-lyrics-timed p { transition: none; } }
+
 /* --- search results' category bar ------------------------------------------------------------------------ */
 /* Hot Dog Stand's own bar: the stand's red with black rules, the showing tab black as a selected row is. */
 .hd-root.win-root .dk-scopebar { background: #ff0000; border-bottom: 1px solid #000000; }

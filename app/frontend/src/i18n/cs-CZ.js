@@ -1164,6 +1164,17 @@ export default {
     + 'upgradovat. Buď jste v Sonos úplný nováček, nebo jste velmi bohatí. '
     + 'Tak či tak, gratulujeme!',
 
+  // --- lyrics in the big players ---------------------------------------
+  'lyrics.show': 'Text',
+  'lyrics.loading': 'Hledám text…',
+  'lyrics.none': 'Pro tuto skladbu nebyl nalezen žádný text.',
+  'lyrics.instrumental': 'Tato skladba je instrumentální.',
+  'lyrics.error': 'Knihovnu textů se nepodařilo zastihnout. Zkuste to později.',
+  'lyrics.untimed': 'Tento text není časován k této nahrávce.',
+  'lyrics.credit': 'Texty z LRCLIB',
+  'lyrics.notice': 'Texty pocházejí z LRCLIB (lrclib.net), bezplatné komunitní knihovny. Tyto texty se nikdy neukládají na váš server Sonora a žádá je od LRCLIB přímo váš prohlížeč, nikoli server Sonora. Pokračováním berete na vědomí, že váš prohlížeč pošle LRCLIB název, interpreta, album a délku každé skladby a LRCLIB uvidí vaši IP adresu. Dokud texty nezapnete, nic se neposílá, a jakmile je vypnete, nic se posílat nebude.',
+  'lyrics.agree': 'Rozumím. Pokračovat.',
+
   // --- the network map ---
   'net.mapTitle': 'Všechna zařízení v síti',
   'net.mapBlurb': 'Jedna karta na reproduktor. Každá říká, zda je jeho připojení v pořádku a proč, podle toho, jak rychle a spolehlivě odpovídá. Ostatní najdete v Podrobnostech.',

@@ -90,7 +90,8 @@ export function SeekBar({ zone, remaining = true }) {
   )
 }
 
-export function ModeToggles({ zone, size = 'sm' }) {
+// `children` join the row after Crossfade (the big player's Lyrics button).
+export function ModeToggles({ zone, size = 'sm', children = null }) {
   const { actions } = useSystem()
   const { t } = useI18n()
   const tr = zone?.transport || {}
@@ -117,6 +118,7 @@ export function ModeToggles({ zone, size = 'sm' }) {
       </IconButton>
       <IconButton size={size} label={t('desk.transport.crossfade')} active={Boolean(tr.crossfade)} disabled={!crossfadeOk}
                   onClick={() => actions.setCrossfade(zone.uuid, !tr.crossfade)}><I.Crossfade /></IconButton>
+      {children}
     </div>
   )
 }

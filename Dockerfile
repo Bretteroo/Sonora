@@ -53,12 +53,10 @@ VOLUME ["/data"]
 EXPOSE 50205
 
 # Asked where Sonora listens: 127.0.0.1 unless SONORA_WEB_HOST names one
-# address, as it may on a machine with several.
+# address, as it may on a machine with several; the port as Sonora reads it,
+# a Home Assistant app's options included (backend/healthcheck.py).
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD python -c "import os,urllib.request,sys; \
-h=os.environ.get('SONORA_WEB_HOST','') or '127.0.0.1'; h={'0.0.0.0':'127.0.0.1','::':'::1'}.get(h,h); \
-h='['+h+']' if ':' in h else h; \
-sys.exit(0 if urllib.request.urlopen('http://'+h+':'+os.environ.get('SONORA_WEB_PORT','50205')+'/api/health',timeout=4).status==200 else 1)"
+  CMD python -m backend.healthcheck
 
 # app/backend/__main__.py reads SONORA_WEB_HOST and SONORA_WEB_PORT itself. With host
 # networking there is no port mapping to fall back on, so the port has to be

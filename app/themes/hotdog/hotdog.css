@@ -304,3 +304,12 @@
 .hd-root .hd-ts-links li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
 /* The quality scale in the scheme's own colors: green and red vanish on the red window. */
 .hd-root .hd-troubleshoot { --t-good: #ffff00; --t-fair: #ffffff; --t-poor: #ffffff; --t-critical: #000000; }
+
+/* --- search results' category bar ------------------------------------------------------------------------ */
+/* Hot Dog Stand's own bar: the stand's red with black rules, the showing tab black as a selected row is. */
+.hd-root.win-root .dk-scopebar { background: #ff0000; border-bottom: 1px solid #000000; }
+.hd-root.win-root .dk-scopebar-back { color: #ffffff; border-right: 1px solid #000000; }
+.hd-root.win-root .dk-scopebar-back::after, .hd-root.win-root .dk-scopebar-tabs button::after { display: none; }
+.hd-root.win-root .dk-scopebar-tabs button { border: 0; border-right: 1px solid #000000; }
+.hd-root.win-root .dk-scopebar-tabs button:hover:not([aria-selected='true']) { background: #cc0000; }
+.hd-root.win-root .dk-scopebar-tabs button[aria-selected='true'] { background: #000000; box-shadow: inset 0 -2px 0 #ffff00; }

@@ -310,3 +310,12 @@
 .sz-root .sz-ts-links summary { cursor: pointer; font-weight: 600; }
 .sz-root .sz-ts-links ul { list-style: none; margin: 0; padding: 0; }
 .sz-root .sz-ts-links li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
+
+/* --- search results' category bar ------------------------------------------------------------------------ */
+/* Solarized's own bar in place of the Windows build's dark gradients, which the light variant left with dark labels on near-black. */
+.sz-root.win-root .dk-scopebar { background: var(--t-surface); border-bottom: 1px solid var(--t-border); }
+.sz-root.win-root .dk-scopebar-back { color: var(--t-fg-muted); border-right: 1px solid var(--t-border); }
+.sz-root.win-root .dk-scopebar-back::after, .sz-root.win-root .dk-scopebar-tabs button::after { display: none; }
+.sz-root.win-root .dk-scopebar-tabs button { border: 0; border-right: 1px solid var(--t-border); }
+.sz-root.win-root .dk-scopebar-tabs button:hover:not([aria-selected='true']) { background: var(--t-surface-hover); }
+.sz-root.win-root .dk-scopebar-tabs button[aria-selected='true'] { background: var(--t-bg); box-shadow: inset 0 -2px 0 #268bd2; }

@@ -373,3 +373,12 @@
 .sd-root .s2-dialog-head { border-bottom-color: var(--sd-rule); }
 .sd-root .s2-dialog-close { color: var(--sd-quiet); }
 .sd-root .s2-dialog-close:hover { background: var(--sd-panel); color: var(--sd-fg); }
+
+/* --- search results' category bar ------------------------------------------------------------------------ */
+/* Sedona's own bar in place of the Windows build's dark gradients. */
+.sd-root.win-root .dk-scopebar { background: linear-gradient(#f4ecdc, #ebdfc8); border-bottom: 1px solid var(--t-border); }
+.sd-root.win-root .dk-scopebar-back { color: var(--t-ink-muted); border-right: 1px solid var(--t-border); }
+.sd-root.win-root .dk-scopebar-back::after, .sd-root.win-root .dk-scopebar-tabs button::after { display: none; }
+.sd-root.win-root .dk-scopebar-tabs button { border: 0; border-right: 1px solid var(--t-border); }
+.sd-root.win-root .dk-scopebar-tabs button:hover:not([aria-selected='true']) { background: rgba(176, 102, 58, 0.1); }
+.sd-root.win-root .dk-scopebar-tabs button[aria-selected='true'] { background: #fbf6ea; box-shadow: inset 0 -2px 0 var(--t-rock-red); }

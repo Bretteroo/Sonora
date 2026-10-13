@@ -8,6 +8,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 // on pointer-up and clear the drag there; when an `input` landed after that, the drag stuck: the
 // time froze, Material Girl's wave lay flat, and since a bar stays mounted when the room changes,
 // it stayed so in every room. A new room also clears any drag.
+//
+// Firefox does not always fire that `change`: a click on a slider that does not have the focus
+// moves it first and focuses it after, and at release the value matches the one it had when it
+// was focused, so no `change` comes. Hi-Fi's bar jumped back on every click in "This browser".
+// So a release also sends whatever is still waiting, just after the `change` would have come;
+// when it did come there is nothing left to send.
 export function useSeekDrag(roomId, onSeek) {
   const [drag, setDrag] = useState(null)
   const pending = useRef(null)
@@ -31,6 +37,7 @@ export function useSeekDrag(roomId, onSeek) {
   const inputProps = {
     ref,
     onChange: (event) => { const at = Number(event.target.value); pending.current = at; setDrag(at) },
+    onPointerUp: () => { setTimeout(() => { if (pending.current != null) commit() }, 0) },
     onBlur: () => { pending.current = null; setDrag(null) },
   }
   return { drag, inputProps }

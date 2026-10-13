@@ -1567,13 +1567,14 @@
     linear-gradient(180deg, #1c1309 0%, #0d0905 55%, #080503 100%);
 }
 :root[data-theme='hifi'] .hf-select {
-  overflow: hidden; border: 1px solid #000; border-radius: 3px;
+  /* Framed as the display is: the bezel inside the box, 3px of it, so the two
+     windows' edges are drawn alike and meet where their boxes do. */
+  overflow: hidden; border: 3px solid var(--hf-bezel); border-radius: 6px;
   background: var(--hf-amber-glass);
   color: var(--hf-amber); text-shadow: var(--hf-amber-glow);
   font-weight: 600; letter-spacing: 0.05em;
   box-shadow:
-    0 0 0 2px rgba(0, 0, 0, 0.55),            /* the bezel's lip */
-    0 1px 0 2px var(--hf-edge-hi),            /* light catching the face below it */
+    0 1px 0 var(--hf-edge-hi),                /* light catching the face below it */
     inset 0 2px 5px rgba(0, 0, 0, 0.85),      /* set back into the face */
     inset 0 0 14px rgba(255, 140, 30, 0.08);  /* the lamp filling the glass */
   transition: filter 120ms, text-shadow 120ms;
@@ -1616,8 +1617,10 @@
 
 /* Its list, the same lit glass; the choice is marked by a lamp. */
 :root[data-theme='hifi'] .hf-menu.hf-menu-amber {
-  background: var(--hf-amber-glass); border-color: #000;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55), inset 0 0 18px rgba(255, 140, 30, 0.10), var(--t-shadow);
+  /* Framed as the field it opens from: the bezel inside the box, so the list
+     is drawn exactly as wide as the field. */
+  background: var(--hf-amber-glass); border: 3px solid var(--hf-bezel); border-radius: 6px;
+  box-shadow: inset 0 0 18px rgba(255, 140, 30, 0.10), var(--t-shadow);
 }
 :root[data-theme='hifi'] .hf-menu-amber .hf-menu-item {
   color: rgba(255, 178, 62, 0.72); font-weight: 600; letter-spacing: 0.05em;
@@ -1647,10 +1650,8 @@
     var(--hf-display-bg);
 }
 :root[data-theme='hifi'][data-variant='light'] .hf-select {
-  border-color: #3b3a36;
   box-shadow:
-    0 0 0 2px var(--hf-bezel),
-    0 1px 0 2px var(--hf-edge-hi),
+    0 1px 0 var(--hf-edge-hi),
     inset 0 2px 4px rgba(20, 30, 10, 0.45);
 }
 :root[data-theme='hifi'][data-variant='light'] .hf-select::before { background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.04)); }
@@ -1661,7 +1662,7 @@
 :root[data-theme='hifi'][data-variant='light'] .hf-select[aria-expanded='true'] { filter: brightness(1.04); text-shadow: none; }
 :root[data-theme='hifi'][data-variant='light'] .hf-select:disabled { color: rgba(28, 38, 22, 0.3); }
 :root[data-theme='hifi'][data-variant='light'] .hf-menu.hf-menu-amber {
-  border-color: #3b3a36; box-shadow: 0 0 0 2px var(--hf-bezel), inset 0 2px 4px rgba(20, 30, 10, 0.35), var(--t-shadow);
+  box-shadow: inset 0 2px 4px rgba(20, 30, 10, 0.35), var(--t-shadow);
 }
 :root[data-theme='hifi'][data-variant='light'] .hf-menu-amber .hf-menu-item { color: rgba(28, 38, 22, 0.72); }
 :root[data-theme='hifi'][data-variant='light'] .hf-menu-amber .hf-menu-item:hover:not(:disabled),

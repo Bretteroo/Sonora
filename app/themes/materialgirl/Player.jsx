@@ -541,12 +541,19 @@ export function PlayerView({ zone, group, zones, groups = [], onSelect, queue, c
           </div>
           <div className="mg-player-controls">
             <WavySeek zone={zone} />
+            {/* The transport centered under the seek bar, and the modes in a
+                row of their own under it. */}
             <div className="mg-player-buttons">
-              <Modes zone={zone} size={compact ? 's' : 'm'} />
               <Transport zone={zone} size="l" steps={!compact} />
             </div>
-            {/* The volume has a line of its own under the transport, wide or not. */}
-            <MainVolume zone={zone} group={group} zones={zones} />
+            {/* The volume has a line of its own under the modes, except in a
+                short wide window, where it joins their row (mg.css). */}
+            <div className="mg-player-foot">
+              <div className="mg-player-modes">
+                <Modes zone={zone} size={compact ? 's' : 'm'} />
+              </div>
+              <MainVolume zone={zone} group={group} zones={zones} />
+            </div>
           </div>
           {!wide && side}
         </section>

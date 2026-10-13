@@ -973,6 +973,14 @@
     mask: var(--mg-rating-icon) var(--mg-rating-pos, center) / var(--mg-rating-size, contain) no-repeat; }
   & .mg-player-controls { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 16px; }
   & .mg-player-buttons { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; }
+  & .mg-player-modes { display: flex; justify-content: center; }
+  & .mg-player-foot { display: flex; flex-direction: column; gap: inherit; }
+  /* A wide player under 960px tall has no room for the volume's own line
+     without shrinking the cover, so the volume moves up beside the modes. */
+  @media (max-height: 959px) {
+    & .mg-player-wide .mg-player-foot { flex-direction: row; align-items: center; justify-content: center; gap: 24px; }
+    & .mg-player-wide .mg-player-foot .mg-player-volume { flex: 1 1 0; min-width: 0; }
+  }
   & .mg-player-side { display: flex; flex-direction: column; min-height: 0; width: 100%; max-width: 720px; border-radius: 28px; background: var(--mg-surface-container-low); }
   & .mg-player-side-inner { display: flex; flex-direction: column; flex: 1; gap: 16px; min-height: 0; padding: 16px; }
   /* Showing and hiding it is a supporting pane's motion (M3 adaptive, PaneMotion: enter from the

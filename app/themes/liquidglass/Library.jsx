@@ -717,6 +717,8 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
         <Menu anchor={scopeMenu} onClose={() => setScopeMenu(null)} width={280} title={t('desk.search.scope')}>
           {scopes.map((s) => (
             <MenuItem key={s.key} checked={scope?.key === s.key} onSelect={() => { setScope(s); setScopeMenu(null); searchRef.current?.focus() }}>
+              {/* The service's own icon beside its name, as on the button. */}
+              <span className="sf-scope-logo" aria-hidden="true">{s.icon ? <img src={s.icon} alt="" /> : s.all ? <I.Search /> : <I.Radio />}</span>
               {s.all ? s.name : <>{(s.accounts > 1 || scopes.filter((o) => o.id === s.id).length > 1) && s.nickname ? `${s.name} (${s.nickname})` : s.name}{scopes.some((o) => !o.all && o.hh !== s.hh) ? ` · ${s.gen}` : ''}</>}
             </MenuItem>
           ))}

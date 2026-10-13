@@ -484,3 +484,8 @@
 .co-root .co-ts-links summary { cursor: pointer; font-weight: 600; }
 .co-root .co-ts-links ul { list-style: none; margin: 0; padding: 0; }
 .co-root .co-ts-links li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
+
+/* --- search matches ----------------------------------------------------------------------------------------- */
+/* The words a search matched, in the concrete's dark ink: the Windows build's pale blue and
+   white are made for its dark panes. */
+.co-root.win-root .dk-browse-title em, .co-root.win-root .dk-search-results .dk-browse-sub em { color: var(--t-fg); }

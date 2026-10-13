@@ -478,6 +478,7 @@
 :root[data-theme='liquidglass'] .sf-search:focus-within { box-shadow: var(--sf-ring), inset 0 0 0 1px var(--t-accent); }
 :root[data-theme='liquidglass'] .sf-search-scope { border-radius: 999px; background: var(--lg-neutral); }
 :root[data-theme='liquidglass'] .sf-search-scope img { border-radius: 999px; }
+:root[data-theme='liquidglass'] .sf-scope-logo img { border-radius: 999px; }
 :root[data-theme='liquidglass'] .sf-kbd { border-radius: 7px; border-color: var(--lg-hairline); background: var(--lg-fill-thin); }
 :root[data-theme='liquidglass'] .sf-code { border-radius: 16px; background: var(--lg-fill-thin); box-shadow: inset 0 0 0 1px var(--lg-hairline); }
 :root[data-theme='liquidglass'] .sf-quality { border-radius: 999px; }

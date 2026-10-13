@@ -139,12 +139,14 @@ export default function Stage({ zone, group, zones, queue, queueOpen, onQueue, o
             ))}
           </div>
         </section>
-        {showQueue && (
-          <aside className="sf-stage-queue" aria-label={t('desk.queue.title')}>
+        {/* Always there, so it can slide in and out (rail-shell.css); shut,
+            it is inert and hidden. */}
+        <aside className="sf-stage-queue" aria-label={t('desk.queue.title')} inert={!showQueue} aria-hidden={!showQueue || undefined}>
+          <div className="sf-stage-queue-inner">
             <h3>{t('desk.queue.title')} <small>{t.plural('desk.queue.songs', queueCount)}</small></h3>
             <QueueList zone={zone} queue={queue} onInfo={onInfo} onEdited={onQueueEdited} compact />
-          </aside>
-        )}
+          </div>
+        </aside>
       </div>
     </Sheet>
   )

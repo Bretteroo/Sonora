@@ -4229,6 +4229,11 @@ class TimeBody(BaseModel):
 #: Stations whose own picture was already asked for, so a list served again
 #: does not ask again (the answer, even an empty one, is kept).
 _STATION_ART: dict[tuple[str, str], str] = {}
+#: Service pictures on the list seen to load since Sonora started, as
+#: (household, URI, picture): each is tried once a run, not on every visit.
+_SERVICE_ART_LOADS: set[tuple[str, str, str]] = set()
+#: Pictures that failed and were looked up again: once a run is enough.
+_SERVICE_ART_RETRIED: set[tuple[str, str, str]] = set()
 
 
 async def _station_pictures(ctl, household, items: list[dict], host: str) -> None:
@@ -4243,7 +4248,9 @@ async def _station_pictures(ctl, household, items: list[dict], host: str) -> Non
     speaker answering 404 for the station's URI as well. The service knows
     the station's picture, so it is asked, once per station, and the answer
     is kept on the list. An album, playlist or track from a service that was
-    recorded with no picture at all is looked up the same way.
+    recorded with no picture at all is looked up the same way, and so is one
+    whose picture has stopped loading: Plex's picture addresses carry a token,
+    and one the server no longer takes would leave the tile on the empty note.
     """
     favorites: dict[str, str] | None = None
 
@@ -4262,12 +4269,15 @@ async def _station_pictures(ctl, household, items: list[dict], host: str) -> Non
                 log.info("no favorites for station pictures: %s", exc)
         return favorites.get(unquote(uri).split("?")[0], "")
 
-    async def service_art(entry: dict) -> None:
+    async def service_art(entry: dict, stale: str = "") -> None:
         # An album, playlist or track from a service, recorded with no picture
-        # because the metadata it was played with named none: the service
-        # describes the item, picture and all.
+        # because the metadata it was played with named none, or with one that
+        # no longer loads (`stale`): the service describes the item, picture
+        # and all.
         uri = entry.get("uri", "")
         key = (household.id, uri)
+        if stale and _STATION_ART.get(key) in ("", stale):
+            _STATION_ART.pop(key, None)
         if key not in _STATION_ART:
             opens = _opens_at(uri, entry.get("metadata", ""))
             sid, item_id = opens.get("sid"), opens.get("item")
@@ -4290,7 +4300,9 @@ async def _station_pictures(ctl, household, items: list[dict], host: str) -> Non
                 log.info("no picture for %s: %s", entry.get("title"), exc)
                 return
             _STATION_ART[key] = (item.art if item else "") or ""
-        if _STATION_ART[key]:
+        # The same address again is kept: the failure may have been the
+        # network's, and a tile with a picture that might load beats none.
+        if _STATION_ART[key] and _STATION_ART[key] != stale:
             entry["art"] = _STATION_ART[key]
             ctl.recent.set_art(household.id, uri, entry["art"])
 
@@ -4299,8 +4311,18 @@ async def _station_pictures(ctl, household, items: list[dict], host: str) -> Non
         # Streams of every kind a service hands the speaker: radio, plain and HLS (Mixcloud's
         # shows are x-sonosapi-hls-static, and had been left without a picture).
         if not uri.startswith(("x-sonosapi-radio:", "x-sonosapi-stream:", "x-sonosapi-hls:", "x-sonosapi-hls-static:")):
-            if not art and entry.get("service_id"):
+            if not entry.get("service_id"):
+                return
+            if not art:
                 await service_art(entry)
+            elif art.startswith(("http://", "https://")) and (household.id, uri, art) not in _SERVICE_ART_LOADS:
+                # Fetched into the cache the tile draws from, so the check
+                # costs the page nothing.
+                if await ctl.art_cache.get(art) is not None:
+                    _SERVICE_ART_LOADS.add((household.id, uri, art))
+                elif (household.id, uri, art) not in _SERVICE_ART_RETRIED:
+                    _SERVICE_ART_RETRIED.add((household.id, uri, art))
+                    await service_art(entry, stale=art)
             return
         # Only a speaker's picture is in doubt; a service's own URL stands.
         # One naming the station's own URI is asked about all the same: the

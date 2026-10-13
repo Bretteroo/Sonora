@@ -125,8 +125,12 @@ def playable(item: SmapiItem, sid: int, sn: str, *,
         author = item.author or item.artist
         if author:
             extra += f"<dc:creator>{escape(author)}</dc:creator>"
-        if item.art:
-            extra += f"<upnp:albumArtURI>{escape(item.art)}</upnp:albumArtURI>"
+    # The picture rides along for every kind, as it does in the apps' own
+    # metadata: what reads the room afterwards (Recently Played, another
+    # controller) has nothing else to draw. Plex's albums and tracks drew the
+    # empty note there while only audiobooks carried one.
+    if item.art:
+        extra += f"<upnp:albumArtURI>{escape(item.art)}</upnp:albumArtURI>"
     metadata = (
         f'<DIDL-Lite {_DIDL_NS}>'
         f'<{tag} id="{escape(did)}" parentID="0" restricted="true">'

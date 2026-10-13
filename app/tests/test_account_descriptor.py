@@ -42,3 +42,13 @@ def test_a_descriptor_is_escaped_not_pasted():
     # XML cares about. Element text needs & < > escaped and nothing else.
     _, metadata = playable(STATION, 236, "11", udn='SA_RINCON60423_X_&<>')
     assert "SA_RINCON60423_X_&amp;&lt;&gt;</desc>" in metadata
+
+
+def test_albums_and_tracks_carry_their_picture():
+    """What reads the room afterwards draws the item from this metadata:
+    Plex albums played from Sonora showed the empty note on Recently Played."""
+    for kind in ("album", "track"):
+        item = SmapiItem(id=f"abc:3:1:{kind}", title="Hello", item_type=kind, can_play=True,
+                         art="https://img.example/a.jpg?w=300&h=300")
+        _, metadata = playable(item, 212, "26")
+        assert "<upnp:albumArtURI>https://img.example/a.jpg?w=300&amp;h=300</upnp:albumArtURI>" in metadata

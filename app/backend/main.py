@@ -4242,7 +4242,8 @@ async def _station_pictures(ctl, household, items: list[dict], host: str) -> Non
     Alternative all drew the empty note on the home page, the
     speaker answering 404 for the station's URI as well. The service knows
     the station's picture, so it is asked, once per station, and the answer
-    is kept on the list.
+    is kept on the list. An album, playlist or track from a service that was
+    recorded with no picture at all is looked up the same way.
     """
     favorites: dict[str, str] | None = None
 
@@ -4261,11 +4262,45 @@ async def _station_pictures(ctl, household, items: list[dict], host: str) -> Non
                 log.info("no favorites for station pictures: %s", exc)
         return favorites.get(unquote(uri).split("?")[0], "")
 
+    async def service_art(entry: dict) -> None:
+        # An album, playlist or track from a service, recorded with no picture
+        # because the metadata it was played with named none: the service
+        # describes the item, picture and all.
+        uri = entry.get("uri", "")
+        key = (household.id, uri)
+        if key not in _STATION_ART:
+            opens = _opens_at(uri, entry.get("metadata", ""))
+            sid, item_id = opens.get("sid"), opens.get("item")
+            if not (sid and item_id):
+                _STATION_ART[key] = ""
+                return
+            service = await _cached_service(ctl, household, sid)
+            if service is None:
+                return
+            creds, _borrowed = _reading_creds(ctl, household, sid, str(opens.get("account") or ""))
+            if service.auth != "Anonymous" and not creds.get("token"):
+                return
+            try:
+                item = await asyncio.wait_for(ctl.smapi.get_extended_metadata_item(
+                    endpoint=service.endpoint, service_name=service.name,
+                    item_id=item_id, household_id=household.id,
+                    token=creds.get("token", ""), key=creds.get("key", ""),
+                    device_id=await ctl.device_serial(household)), timeout=5)
+            except Exception as exc:
+                log.info("no picture for %s: %s", entry.get("title"), exc)
+                return
+            _STATION_ART[key] = (item.art if item else "") or ""
+        if _STATION_ART[key]:
+            entry["art"] = _STATION_ART[key]
+            ctl.recent.set_art(household.id, uri, entry["art"])
+
     async def one(entry: dict) -> None:
         uri, art = entry.get("uri", ""), entry.get("art", "")
         # Streams of every kind a service hands the speaker: radio, plain and HLS (Mixcloud's
         # shows are x-sonosapi-hls-static, and had been left without a picture).
         if not uri.startswith(("x-sonosapi-radio:", "x-sonosapi-stream:", "x-sonosapi-hls:", "x-sonosapi-hls-static:")):
+            if not art and entry.get("service_id"):
+                await service_art(entry)
             return
         # Only a speaker's picture is in doubt; a service's own URL stands.
         # One naming the station's own URI is asked about all the same: the

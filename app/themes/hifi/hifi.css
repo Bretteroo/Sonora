@@ -655,7 +655,8 @@
 :root[data-theme='hifi'] .hf-posbar time:last-child { text-align: right; }
 :root[data-theme='hifi'] .hf-segments { position: relative; height: 12px; }
 :root[data-theme='hifi'] .hf-segments-row { position: absolute; inset: 2px 0; display: flex; gap: 2px; }
-:root[data-theme='hifi'] .hf-segments-row i { flex: 1; border-radius: 1px; background: var(--hf-vfd-off); }
+/* Every segment 6px with 2px between (SEGMENT in Preamp.jsx), as many as fit. */
+:root[data-theme='hifi'] .hf-segments-row i { flex: none; width: var(--hf-seg, 6px); border-radius: 1px; background: var(--hf-vfd-off); }
 :root[data-theme='hifi'] .hf-segments-row i[data-on] { background: var(--hf-vfd); box-shadow: 0 0 4px rgba(255, 160, 40, 0.5); }
 :root[data-theme='hifi'][data-variant='light'] .hf-segments-row i[data-on] { box-shadow: none; }
 :root[data-theme='hifi'] .hf-segments input { position: absolute; inset: -4px 0; width: 100%; height: 20px; margin: 0; opacity: 0; cursor: pointer; }

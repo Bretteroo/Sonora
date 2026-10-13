@@ -92,6 +92,10 @@ export function Turntable({ zone, onOpen, size = 'md' }) {
 // A bar of lit segments across the display, and under it the range input
 // that seeks. Inert where the track refuses to seek; a broadcast has no
 // length, and says LIVE.
+// One segment of the position bar and the space after it, in pixels.
+const SEGMENT = 6
+const SEGMENT_GAP = 2
+
 function PositionBar({ zone }) {
   const { actions } = useSystem()
   const { t } = useI18n()
@@ -101,14 +105,38 @@ function PositionBar({ zone }) {
   const { drag, inputProps } = useSeekDrag(zone?.uuid, (at) => actions.seek(zone.uuid, hms(at)))
   const shown = drag ?? elapsed
   const frac = duration ? Math.max(0, Math.min(1, shown / duration)) : 0
-  const SEGMENTS = 48
-  const lit = Math.round(frac * SEGMENTS)
+  // As many whole segments as the bar has room for, each the same width:
+  // stretched to fill it, they came out a fraction of a pixel apart in width
+  // and drew as a mix of narrow and wide ones.
+  // Sized in the screen's own pixels, and the row set on a pixel's edge, so a
+  // scaled display or a zoomed page draws them alike too.
+  const [row, setRow] = useState(null)
+  const [fitted, setFitted] = useState({ count: 48, style: undefined })
+  const count = fitted.count
+  useEffect(() => {
+    if (!row) return undefined
+    const fit = () => {
+      const ratio = window.devicePixelRatio || 1
+      const seg = Math.max(1, Math.round(SEGMENT * ratio)) / ratio
+      const gap = Math.max(1, Math.round(SEGMENT_GAP * ratio)) / ratio
+      const box = row.parentElement.getBoundingClientRect()
+      const shift = (Math.ceil(box.left * ratio - 0.001) - box.left * ratio) / ratio
+      setFitted({ count: Math.max(8, Math.floor((box.width - shift + gap) / (seg + gap))),
+                  style: { '--hf-seg': `${seg}px`, gap: `${gap}px`, left: `${shift}px` } })
+    }
+    fit()
+    const watch = new ResizeObserver(fit)
+    watch.observe(row.parentElement)
+    window.addEventListener('resize', fit)
+    return () => { watch.disconnect(); window.removeEventListener('resize', fit) }
+  }, [row])
+  const lit = Math.round(frac * count)
   return (
     <div className="hf-posbar" data-seekable={seekable || undefined}>
       <time className="hf-vfd-num">{duration ? formatDuration(shown) : (live && isLoaded(tr) ? t('common.live') : '--:--')}</time>
       <div className="hf-segments">
-        <span className="hf-segments-row" aria-hidden="true">
-          {Array.from({ length: SEGMENTS }, (_, i) => <i key={i} data-on={i < lit || undefined} />)}
+        <span className="hf-segments-row" aria-hidden="true" ref={setRow} style={fitted.style}>
+          {Array.from({ length: count }, (_, i) => <i key={i} data-on={i < lit || undefined} />)}
         </span>
         <input type="range" min={0} max={duration || 1} value={Math.min(shown, duration || 1)} disabled={!seekable}
                aria-label={t('common.seek')} aria-valuetext={duration ? `${formatDuration(shown)} / ${formatDuration(duration)}` : ''}

@@ -88,6 +88,7 @@ Images are provided for `linux/amd64` and `linux/arm64`. Sonora is lightweight e
 
 ### Install Sonora
 * Install [Docker Engine](https://docs.docker.com/engine/install/) with [Docker Compose](https://docs.docker.com/compose/install)
+  - If you're on macOS, enable Host Networking within Docker Desktop - it's disabled by default.
 * Download [`docker-compose.yml`](docker-compose.yml) into a folder of its own.
 * Then, from the folder holding `docker-compose.yml`:
 

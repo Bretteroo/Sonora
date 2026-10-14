@@ -53,7 +53,7 @@ Sonora is not affiliated with Sonos, Inc. and was created by an enthusiastic end
 - 🎵 **All your music**
   - Enjoy streamed music services, local libraries, Sonos Favorites, and all your old playlists.
 - 🎤 **Lyrics**
-  - Follow along with the words to whatever's playing, timed to the music where possible, in every theme. They come from [LRCLIB](https://lrclib.net/) straight to your browser, and only once you turn them on.
+  - Follow along with the words to whatever's playing, timed to the music where possible,
 - 🏠 **Every room**
   - Grouping, volume, EQ, sleep timers, and alarms are all included.
 - 📱 **A new virtual speaker: "This browser"**

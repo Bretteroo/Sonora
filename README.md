@@ -52,6 +52,8 @@ Sonora is not affiliated with Sonos, Inc. and was created by an enthusiastic end
   - Sonora comes with several themes, including three relatively close recreations of Sonos' own Windows, Mac, and web apps.
 - 🎵 **All your music**
   - Enjoy streamed music services, local libraries, Sonos Favorites, and all your old playlists.
+- 🎤 **Lyrics**
+  - Follow along with the words to whatever's playing, timed to the music where possible, in every theme. They come from [LRCLIB](https://lrclib.net/) straight to your browser, and only once you turn them on.
 - 🏠 **Every room**
   - Grouping, volume, EQ, sleep timers, and alarms are all included.
 - 📱 **A new virtual speaker: "This browser"**
@@ -479,6 +481,7 @@ There are many streaming services, each sending out a variety of content types (
 - Sonos has been working tirelessly to create hardware and the software that drives it for over 20 years.  Their early decision to create a (relatively) open platform with a local-first design allows Sonora, and tools like it, to exist and function.
 - The themes that follow Sonos' apps were made by using and measuring them. They contain none of Sonos' code, artwork, or translations.
 - Service logos, product pictures, and cover art are fetched while Sonora runs and belong to their owners.
+- Lyrics come from <a href="https://lrclib.net/">LRCLIB</a>, a free, community-run library. Big ups to the LRCLIB project.
 
 ## 🔒 License
 

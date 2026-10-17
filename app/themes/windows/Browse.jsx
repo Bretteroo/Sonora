@@ -483,8 +483,13 @@ export default function Browse({
   }
   const nowStream = streamId(activeZone?.transport?.media_uri || '')
   const playingSid = activeZone?.transport?.service_id ?? null
+  // Followed once per room and service: the services reload whenever the
+  // speakers report a change to them, and that must not undo a pick from
+  // the menu while the room plays on from the same service.
+  const followed = useRef('')
   useEffect(() => {
     if (!playingSid || !onScope || !activeZone) return
+    if (followed.current === `${activeZone.uuid}:${playingSid}`) return
     const hh = households.find((h) => h.zone_uuids.includes(activeZone.uuid))
     const match = (servicesByHh[hh?.id] || []).find((svc) => svc.id === playingSid)
     if (!match) return
@@ -492,6 +497,7 @@ export default function Browse({
     onScope({ key: `${hh.id}:${match.id}:${match.account_id ?? ''}`, id: match.id, name: match.name,
               nickname: match.nickname || '', icon: match.icon, account: match.account_id ?? '',
               hh: hh.id, hzone: hzone?.uuid || null, gen: hh.generation })
+    followed.current = `${activeZone.uuid}:${playingSid}`
   }, [playingSid, activeZone?.uuid, servicesByHh])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // Entering a service also makes it the scope, as the app's pill switches

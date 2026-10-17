@@ -17,10 +17,11 @@ integration works.
 
 ## Using it from a phone or another computer
 
-Sonora also answers on port 50205 of your Home Assistant machine, so any
-browser in the house can use it without signing in to Home Assistant:
-`http://homeassistant.local:50205`, or the machine's address in place of
-`homeassistant.local`.
+Sonora also answers on its own web port on your Home Assistant machine,
+50205 by default, so any browser in the house can use it without signing in
+to Home Assistant: `http://homeassistant.local:50205`, or the machine's
+address in place of `homeassistant.local`. If you've changed the web port on
+the **Configuration** tab, use that number instead.
 
 Sonora has no login of its own. Anyone who can reach that address on your
 home network can control your speakers, just as anyone there can with the
@@ -28,11 +29,16 @@ Sonos app.
 
 ## Ports
 
-The app uses the host's network, so these ports have to be free on the
-Home Assistant machine:
+The app uses the host's network, so its two ports have to be free on the
+Home Assistant machine. By default they are:
 
-- **50205** for the page, inside and outside Home Assistant.
-- **50206** for the speakers to report changes back to Sonora.
+- **50205**, the web port, for the page outside Home Assistant.
+- **50206**, the speaker callback port, for the speakers to report changes
+  back to Sonora.
+
+If something else on the machine already uses one of them, change it on the
+app's **Configuration** tab and restart the app. The page in Home Assistant's
+sidebar doesn't use either port, so it keeps working whatever you choose.
 
 ## Your data
 

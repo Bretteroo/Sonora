@@ -15,9 +15,13 @@ boot: auto
 # Sonora finds the speakers by multicast and they report every change by
 # calling it back, so it has to be on the home network itself.
 host_network: true
-# The page in Home Assistant's sidebar, for every user, not only admins.
+# The page in Home Assistant's sidebar, for every user, not only admins. Its
+# port is the Supervisor's choice (0), so moving the web port below cannot
+# break it; Sonora asks the Supervisor for it (backend/haoptions.py), which is
+# what hassio_api is for.
 ingress: true
-ingress_port: 50205
+ingress_port: 0
+hassio_api: true
 panel_icon: mdi:speaker-multiple
 panel_title: Sonora
 panel_admin: false
@@ -28,3 +32,11 @@ environment:
 backup_exclude:
   - logocache
   - products
+# The ports Sonora listens on, on the Configuration tab. The app uses the
+# host's network, so both have to be free on the Home Assistant machine.
+options:
+  web_port: 50205
+  event_port: 50206
+schema:
+  web_port: port
+  event_port: port

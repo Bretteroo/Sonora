@@ -1,0 +1,10 @@
+configuration:
+  web_port:
+    name: Web port
+    description: >-
+      Where Sonora's page answers on your network, for browsers outside
+      Home Assistant. The sidebar doesn't use it.
+  event_port:
+    name: Speaker callback port
+    description: >-
+      Where the speakers report changes back to Sonora. Any free port will do.

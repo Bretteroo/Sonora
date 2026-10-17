@@ -7,13 +7,16 @@ Strategy, in order of trust:
    including units SSDP missed.
 3. Per-player HTTP fetch of the device description, for model and serial detail
    that topology omits.
-4. Optional unicast sweep of the local subnet, for the case where multicast is
-   blocked outright by an access point.
+4. DNS-SD asked of the system's DNS server, when SSDP finds nothing because
+   no multicast reaches Sonora at all (see ``dnssd``), and then every address
+   on the named speakers' networks asked for a device description, for the
+   households DNS-SD left out.
 """
 
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import logging
 import re
 import socket
@@ -22,6 +25,7 @@ from dataclasses import dataclass
 import aiohttp
 from defusedxml import ElementTree as DET
 
+from . import dnssd
 from .const import (DEVICE_PROPERTIES, NS, SONOS_PORT, SSDP_ADDR, SSDP_PORT,
                     SSDP_TARGET, ZONE_GROUP_TOPOLOGY)
 from .models import Household, Player
@@ -141,6 +145,46 @@ async def fetch_device_description(
     }
 
 
+#: How long each address in a sweep is given, and how many are asked at once.
+#: Most speakers answer their description in milliseconds, but one took over
+#: three seconds on its first ask; one per household is enough, and the
+#: addresses that never answer are what the timeout costs.
+SWEEP_TIMEOUT_S = 2.0
+SWEEP_AT_ONCE = 128
+
+
+async def sweep_for_players(session: aiohttp.ClientSession, seeds: list[str]) -> list[str]:
+    """Every address on the seeds' /24s that answers as a Sonos player.
+
+    A DNS server that answers ``.local`` from the host's mDNS cache, as Docker
+    Desktop's does on a Mac, names what the cache holds or else only the first
+    speaker to answer: one household at best. Each household's topology names
+    all of its own players and none of another's, so the rest are found by
+    asking their network directly.
+    """
+    networks = {ipaddress.ip_network(f"{seed}/24", strict=False) for seed in seeds}
+    limit = asyncio.Semaphore(SWEEP_AT_ONCE)
+
+    async def ask(ip: str) -> str | None:
+        async with limit:
+            try:
+                async with session.get(
+                    f"http://{ip}:{SONOS_PORT}/xml/device_description.xml",
+                    timeout=aiohttp.ClientTimeout(total=SWEEP_TIMEOUT_S),
+                ) as resp:
+                    if resp.status == 200 and "<manufacturer>Sonos" in await resp.text():
+                        return ip
+            except Exception:
+                pass
+            return None
+
+    found = await asyncio.gather(*(ask(str(ip)) for network in sorted(networks)
+                                   for ip in network.hosts()))
+    hosts = [ip for ip in found if ip]
+    log.info("sweep of %d network(s) found %d player(s)", len(networks), len(hosts))
+    return hosts
+
+
 class HouseholdRegistry:
     """Discovers and holds every household visible on the network."""
 
@@ -153,6 +197,11 @@ class HouseholdRegistry:
 
     async def discover(self, *, timeout: float = 3.0) -> dict[str, Household]:
         replies = await ssdp_search(timeout=timeout)
+        if not replies:
+            seeds = await dnssd.sonos_hosts()
+            swept = await sweep_for_players(self._session, seeds) if seeds else []
+            replies = {host: SsdpReply(host=host, server="", usn="", location="")
+                       for host in [*seeds, *swept]}
         if not replies:
             log.warning("no ZonePlayers answered SSDP")
             return {}

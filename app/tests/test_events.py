@@ -190,3 +190,36 @@ def test_a_position_carries_how_old_it_is():
     # A position never read reports no age rather than the whole uptime.
     state.transport.position_read_at = 0.0
     assert state.as_dict()["transport"]["position_age"] == 0.0
+
+
+# -- the callback address -----------------------------------------------------
+
+ROUTES = (
+    "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT\n"
+    "eth0\t00000000\t0141A8C0\t0003\t0\t0\t0\t00000000\t0\t0\t0\n"   # default via 192.168.65.1
+    "eth0\t0041A8C0\t00000000\t0001\t0\t0\t0\t00FFFFFF\t0\t0\t0\n"   # 192.168.65.0/24
+)
+
+
+def test_a_speaker_reached_only_through_a_gateway_is_off_link(tmp_path):
+    from backend.sonos.events import on_own_link
+    table = tmp_path / "route"
+    table.write_text(ROUTES)
+    assert not on_own_link("192.168.1.138", table)
+    assert on_own_link("192.168.65.20", table)
+    # No table to read (not Linux): keep the plain choice.
+    assert on_own_link("192.168.1.138", tmp_path / "missing")
+
+
+async def test_the_sweep_finds_the_address_that_reaches_this_listener():
+    import aiohttp
+    from backend.sonos.events import EventListener
+    async with aiohttp.ClientSession() as session:
+        listener = EventListener(session, port=0)
+        await listener.start()
+        try:
+            # Every 127.0.0.x reaches a listener on all interfaces.
+            found = await listener._find_own_address("127.0.0.9")
+        finally:
+            await listener.stop()
+    assert found is not None and found.startswith("127.0.0.")

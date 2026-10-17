@@ -16,12 +16,16 @@ from __future__ import annotations
 
 import asyncio
 from time import monotonic
+import ipaddress
 import logging
 import re
+import secrets
 import socket
+import struct
 from collections import defaultdict
 from dataclasses import dataclass, field
 from html import unescape
+from pathlib import Path
 from typing import Awaitable, Callable
 
 import aiohttp
@@ -76,6 +80,32 @@ class _Subscription:
     task: asyncio.Task | None = None
 
 
+def on_own_link(host: str, route_table: Path = Path("/proc/net/route")) -> bool:
+    """Whether ``host`` is on a network this machine is directly attached to.
+
+    Read from the kernel's routing table. Where there is none to read (not
+    Linux), the answer is yes, which keeps the plain choice of address.
+    """
+    try:
+        rows = route_table.read_text().splitlines()[1:]
+        target = struct.unpack("!I", socket.inet_aton(host))[0]
+    except (OSError, ValueError):
+        return True
+    for row in rows:
+        cols = row.split()
+        if len(cols) < 8:
+            continue
+        try:
+            # The table prints each address as the host-order hex of its
+            # network-order bytes.
+            dest, gateway, mask = (socket.ntohl(int(c, 16)) for c in (cols[1], cols[2], cols[7]))
+        except ValueError:
+            continue
+        if gateway == 0 and mask and target & mask == dest:
+            return True
+    return False
+
+
 def local_ip_for(host: str) -> str:
     """Which of our addresses a speaker will be able to reach us on.
 
@@ -116,6 +146,9 @@ class EventListener:
         self._any_handlers: list[EventHandler] = []
         self.bound_port: int | None = None
         self._callback_ip: str | None = None
+        self._callback_lock = asyncio.Lock()
+        #: Answered at /whoami by this listener alone; see _find_own_address.
+        self._token = secrets.token_hex(16)
 
     # -- lifecycle -----------------------------------------------------------
 
@@ -126,6 +159,7 @@ class EventListener:
             self._session = self._own_session
         app = web.Application()
         app.router.add_route("NOTIFY", "/notify/{host}/{service}", self._on_notify)
+        app.router.add_get("/whoami", self._on_whoami)
         self._runner = web.AppRunner(app, access_log=None)
         await self._runner.setup()
         site = web.TCPSite(self._runner, "0.0.0.0", self._port)
@@ -178,6 +212,71 @@ class EventListener:
 
     # -- subscriptions -------------------------------------------------------
 
+    #: How long each address is given on each try, and how many are asked at
+    #: once. The address that forwards here answers in milliseconds, so the
+    #: first try is short and only addresses that never answer pay for it;
+    #: the later, longer ones are for a port the VM has only just started
+    #: forwarding. Docker Desktop relays every connection through the Mac,
+    #: and 254 at once under one short deadline came back with nothing.
+    SWEEP_TIMEOUTS_S = (0.5, 1.5)
+    SWEEP_AT_ONCE = 64
+
+    async def _on_whoami(self, request: web.Request) -> web.Response:
+        return web.Response(text=self._token)
+
+    async def _callback_address(self, host: str) -> str:
+        """The address to give speakers for their NOTIFYs.
+
+        Normally the kernel's own choice toward the speaker. When that address
+        is not on the speaker's network, Sonora is behind a NAT the speakers
+        cannot reach into (a container in Docker Desktop's VM on a Mac sees
+        only the VM's addresses), and the address they can reach is the
+        host's, found by _find_own_address.
+        """
+        local = local_ip_for(host)
+        if on_own_link(host):
+            return local
+        for each in self.SWEEP_TIMEOUTS_S:
+            found = await self._find_own_address(host, each)
+            if found:
+                log.info("speakers are not on this machine's network; NOTIFYs go to %s, "
+                         "which forwards to this listener", found)
+                return found
+        log.warning("speakers are not on this machine's network and no address "
+                    "near them forwards here; NOTIFYs go to %s, which they may not reach",
+                    local)
+        return local
+
+    async def _find_own_address(self, host: str, each: float = 1.5) -> str | None:
+        """An address on ``host``'s /24 that reaches this listener, if any.
+
+        Each one is asked for /whoami on the event port; only a host that
+        forwards that port here can answer with this listener's token.
+        """
+        network = ipaddress.ip_network(f"{host}/24", strict=False)
+        limit = asyncio.Semaphore(self.SWEEP_AT_ONCE)
+
+        async def ask(ip: str) -> str | None:
+            async with limit:
+                try:
+                    async with self._session.get(
+                        f"http://{ip}:{self.bound_port}/whoami",
+                        timeout=aiohttp.ClientTimeout(total=each),
+                    ) as resp:
+                        return ip if resp.status == 200 and await resp.text() == self._token else None
+                except Exception:
+                    return None
+
+        tasks = [asyncio.create_task(ask(str(ip))) for ip in network.hosts()]
+        try:
+            for done in asyncio.as_completed(tasks):
+                if found := await done:
+                    return found
+        finally:
+            for task in tasks:
+                task.cancel()
+        return None
+
     async def subscribe(self, host: str, service: Service, *, why: list | None = None) -> bool:
         """Subscribe to one service on one player, and keep it renewed.
 
@@ -187,7 +286,9 @@ class EventListener:
         if self.bound_port is None:
             raise RuntimeError("start() the listener before subscribing")
         if self._callback_ip is None:
-            self._callback_ip = local_ip_for(host)
+            async with self._callback_lock:
+                if self._callback_ip is None:
+                    self._callback_ip = await self._callback_address(host)
 
         callback = (f"<http://{self._callback_ip}:{self.bound_port}"
                     f"/notify/{host}/{service.name}>")

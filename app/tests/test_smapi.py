@@ -109,3 +109,10 @@ def test_the_display_type_map_is_read():
         "grid": {"mode": "GRID", "lines": []},
     }
     assert _parse_display_types("<Presentation/>") == {}
+
+
+def test_an_item_the_service_no_longer_has_is_missing_by_name_or_by_number():
+    assert SmapiError("Spotify", "ns0:Client.ItemNotFound", "Action not found.").missing
+    assert SmapiError("Spotify", "SOAP-ENV:Server", "SonosError 3", sonos_error=3).missing
+    assert not SmapiError("Spotify", "Client.LoginUnauthorized", "").missing
+    assert not SmapiError("x", "Client.NotLinkedRetry", "", sonos_error=5).missing

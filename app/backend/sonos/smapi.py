@@ -91,6 +91,18 @@ class SmapiError(Exception):
         return "notlinkedretry" in blob
 
     @property
+    def missing(self) -> bool:
+        """The provider no longer has the item asked for.
+
+        The ``ItemNotFound`` fault by name, or SonosError 3, which Spotify
+        answered with for the same removed playlist it named ItemNotFound
+        minutes later (observed 2026-10-16).
+        """
+        if self.sonos_error == 3:
+            return True
+        return "ItemNotFound" in self.code or "ItemNotFound" in self.detail
+
+    @property
     def needs_auth(self) -> bool:
         """Whether the fault means "log in" rather than "something broke"."""
         markers = ("Client.LoginUnauthorized", "Client.LoginUnsupported",

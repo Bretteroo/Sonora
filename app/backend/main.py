@@ -3288,9 +3288,12 @@ async def browse_service(
             # getMetadata with LoginUnsupported, because a station is played,
             # not browsed) is not asking for a link, and offering one named
             # after the item was wrong.
+            # An item the service no longer has (a favorite kept past the
+            # playlist it pointed at) is said plainly, not as the fault's text.
             payload["error"] = {
-                "message": str(exc),
+                "message": (f"{service.name} no longer has this item." if exc.missing else str(exc)),
                 "needs_auth": exc.needs_auth and item == "root",
+                "missing": exc.missing,
             }
             return payload
 

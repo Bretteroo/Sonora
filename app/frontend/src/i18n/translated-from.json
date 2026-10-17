@@ -1673,6 +1673,12 @@
   "win.shortcuts.toggleShuffle": "7fe5f14fc586d8b2",
   "win.shortcuts.topMenu": "aad945899eaf8b28",
   "win.sleep.choose": "330e5c0bfb25081d",
-  "win.sleep.title": "87bec5554b5829a9"
+  "win.sleep.title": "87bec5554b5829a9",
+  "hotdog:hotdog.lyrics.providedBy": "3c9cd4b392af5e5a",
+  "macos:macos.lyrics.providedBy": "3c9cd4b392af5e5a",
+  "outrun:outrun.lyrics.providedBy": "3c9cd4b392af5e5a",
+  "sedona:sedona.lyrics.providedBy": "3c9cd4b392af5e5a",
+  "solarized:solarized.lyrics.providedBy": "3c9cd4b392af5e5a",
+  "windows:windows.lyrics.providedBy": "3c9cd4b392af5e5a"
  }
 }

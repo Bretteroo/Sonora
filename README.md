@@ -110,7 +110,7 @@ docker compose pull && docker compose up -d
 <summary><strong>Install With Docker on macOS</strong></summary>
 
 ### Install Sonora
-* Install [Homebrew](https://brew.sh) from an administrator account, if it isn't installed already:
+* Install Homebrew from an administrator account, if it isn't installed already:
 
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -123,7 +123,7 @@ echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
 eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 
-* Install [Colima](https://github.com/abiosoft/colima), Docker, and Docker Compose, then start Colima. The first start asks for an administrator's password and takes a few minutes:
+* Install Colima, Docker, and Docker Compose, then start Colima. The first start takes a few minutes:
 
 ```
 brew install colima docker docker-compose

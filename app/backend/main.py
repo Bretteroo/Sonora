@@ -5331,7 +5331,7 @@ if _DIST.is_dir():
         # `no-cache` still lets the browser keep a copy; it just has to ask
         # whether it is current first, which is what the ETag answers cheaply.
         # Inside Home Assistant the page is told the path it lives under.
-        body = ingress.tag_page((_DIST / "index.html").read_bytes(),
+        body = ingress.tag_page(release.tag_page((_DIST / "index.html").read_bytes()),
                                 ingress.prefix(request.headers, ingress.client_host(request)))
         return Response(body, media_type="text/html", headers={
             "cache-control": _NEVER_STALE,

@@ -16,6 +16,7 @@ only logged, and is tried again the next day.
 from __future__ import annotations
 
 import asyncio
+import html
 import importlib.metadata
 import logging
 import pathlib
@@ -52,6 +53,17 @@ def app_version() -> str:
     except OSError:
         pass
     return "dev"
+
+
+def tag_page(body: bytes) -> bytes:
+    """index.html with the running version in it, for About to show.
+
+    The bundle carries package.json's version from when it was built, which a
+    version bump leaves behind until the next build; the page reads this one
+    first, so About always names the Sonora that is serving it.
+    """
+    tag = f'<meta name="sonora-version" content="{html.escape(app_version(), quote=True)}" />'
+    return body.replace(b"<head>", b"<head>\n    " + tag.encode(), 1)
 
 
 def version_key(version: str) -> tuple[int, ...]:

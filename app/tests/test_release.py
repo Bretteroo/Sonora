@@ -25,6 +25,31 @@ def test_the_running_version_is_known():
     assert importlib.reload(release).app_version() != "dev"
 
 
+def test_the_page_names_the_version_serving_it():
+    # About reads this before the version the bundle was built with.
+    page = b"<!doctype html><html><head><title>Sonora</title></head></html>"
+    assert b'<head>\n    <meta name="sonora-version" content="1.0.9" />' in release.tag_page(page)
+
+
+def test_every_copy_of_the_version_agrees():
+    # A release bumps four files; one left behind ships a mismatched build or
+    # leaves Home Assistant users on the old image.
+    import json
+    import pathlib
+    import re
+    root = pathlib.Path(__file__).resolve().parent.parent
+    lock = json.loads((root / "frontend/package-lock.json").read_text())
+    versions = {
+        "pyproject.toml": re.search(r'^version\s*=\s*"([^"]+)"', (root / "pyproject.toml").read_text(), re.M)[1],
+        "package.json": json.loads((root / "frontend/package.json").read_text())["version"],
+        "package-lock.json": lock["version"],
+        "package-lock.json packages": lock["packages"][""]["version"],
+        "config.yaml": re.search(r'^version:\s*"([^"]+)"',
+                                 (root.parent / "homeassistant/sonora/config.yaml").read_text(), re.M)[1],
+    }
+    assert len(set(versions.values())) == 1, versions
+
+
 class Response:
     def __init__(self, status, data):
         self.status, self.data = status, data

@@ -1226,7 +1226,7 @@ export default {
   'net.alone': 'Geen speaker binnen bereik',
   'net.mesh.title': 'Mesh-netwerk?',
   'net.mesh.blurb': 'Mesh-wifisystemen kunnen {sometimes} verhinderen dat Sonos-speakers betrouwbaar werken.',
-  'net.mesh.rules': 'Hun advies komt meestal neer op een paar regels:',
+  'net.mesh.rules': 'Het advies van hardwarefabrikanten komt meestal neer op een paar regels:',
   'net.mesh.rule.sameWay': 'Verbind alle speakers op dezelfde manier, allemaal via wifi of allemaal via ethernet',
   'net.mesh.rule.oneSwitch': 'Sluit bekabelde speakers aan op één routereenheid of één switch',
   'net.mesh.rule.multicast': 'Laat de access points multicastverkeer niet omzetten of filteren.',

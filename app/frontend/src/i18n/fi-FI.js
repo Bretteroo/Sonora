@@ -1238,7 +1238,7 @@ export default {
   'net.alone': 'Ei kaiutinta kantaman sisällä',
   'net.mesh.title': 'Mesh-verkko?',
   'net.mesh.blurb': 'Mesh-Wi-Fi-järjestelmät voivat {sometimes} estää Sonos-kaiuttimia toimimasta luotettavasti.',
-  'net.mesh.rules': 'Niiden ohjeet tiivistyvät yleensä muutamaan sääntöön:',
+  'net.mesh.rules': 'Laitevalmistajien ohjeet tiivistyvät yleensä muutamaan sääntöön:',
   'net.mesh.rule.sameWay': 'Liitä kaikki kaiuttimet samalla tavalla, kaikki Wi-Fin tai kaikki Ethernetin kautta',
   'net.mesh.rule.oneSwitch': 'Kytke kaapeloidut kaiuttimet yhteen reititinyksikköön tai yhteen kytkimeen',
   'net.mesh.rule.multicast': 'Älä anna tukiasemien muuntaa tai suodattaa multicast-liikennettä.',

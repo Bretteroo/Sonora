@@ -1251,7 +1251,7 @@ export default {
   'net.alone': 'Brak głośnika w zasięgu',
   'net.mesh.title': 'Sieć mesh?',
   'net.mesh.blurb': 'Systemy Wi-Fi mesh mogą {sometimes} utrudniać niezawodne działanie głośników Sonos.',
-  'net.mesh.rules': 'Ich zalecenia zwykle sprowadzają się do kilku zasad:',
+  'net.mesh.rules': 'Zalecenia producentów sprzętu zwykle sprowadzają się do kilku zasad:',
   'net.mesh.rule.sameWay': 'Podłącz wszystkie głośniki w ten sam sposób, wszystkie przez Wi-Fi albo wszystkie przez Ethernet',
   'net.mesh.rule.oneSwitch': 'Podłącz głośniki przewodowe do jednej jednostki routera lub jednego przełącznika',
   'net.mesh.rule.multicast': 'Nie pozwalaj punktom dostępowym konwertować ani filtrować ruchu multicast.',

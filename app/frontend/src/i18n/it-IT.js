@@ -1240,7 +1240,7 @@ export default {
   'net.alone': 'Nessun altoparlante nel raggio',
   'net.mesh.title': 'Rete mesh?',
   'net.mesh.blurb': 'I sistemi Wi-Fi mesh possono {sometimes} impedire agli altoparlanti Sonos di funzionare in modo affidabile.',
-  'net.mesh.rules': 'Le loro indicazioni si riducono in genere a poche regole:',
+  'net.mesh.rules': 'Le indicazioni dei produttori di hardware si riducono in genere a poche regole:',
   'net.mesh.rule.sameWay': 'Collega tutti gli altoparlanti allo stesso modo, tutti in Wi-Fi o tutti via Ethernet',
   'net.mesh.rule.oneSwitch': 'Collega gli altoparlanti cablati a un\'unica unità del router o a un unico switch',
   'net.mesh.rule.multicast': 'Non lasciare che gli access point convertano o filtrino il traffico multicast.',

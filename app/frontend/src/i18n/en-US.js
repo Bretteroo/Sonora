@@ -1052,7 +1052,7 @@ export default {
   'net.alone': 'No speaker in range',
   'net.mesh.title': 'On a mesh network?',
   'net.mesh.blurb': 'Mesh Wi-Fi systems can {sometimes} prevent Sonos speakers from working reliably.',
-  'net.mesh.rules': 'Their guidance generally comes down to a few rules:',
+  'net.mesh.rules': 'Hardware makers\' guidance generally comes down to a few rules:',
   'net.mesh.rule.sameWay': 'Connect every speaker the same way, all by Wi-Fi or all by Ethernet',
   'net.mesh.rule.oneSwitch': 'Wire any cabled speakers to one router unit or one switch',
   'net.mesh.rule.multicast': 'Don\'t let the access points convert or filter multicast traffic.',

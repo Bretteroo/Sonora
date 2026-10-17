@@ -1253,7 +1253,7 @@ export default {
   'net.alone': 'Aucune enceinte à portée',
   'net.mesh.title': 'Réseau maillé ?',
   'net.mesh.blurb': 'Les systèmes Wi-Fi maillés peuvent {sometimes} empêcher les enceintes Sonos de fonctionner de manière fiable.',
-  'net.mesh.rules': 'Leurs recommandations se résument généralement à quelques règles :',
+  'net.mesh.rules': 'Les recommandations des fabricants de matériel se résument généralement à quelques règles :',
   'net.mesh.rule.sameWay': 'Connectez toutes les enceintes de la même façon, toutes en Wi-Fi ou toutes en Ethernet',
   'net.mesh.rule.oneSwitch': 'Branchez les enceintes câblées sur un seul élément du routeur ou un seul commutateur',
   'net.mesh.rule.multicast': 'Ne laissez pas les points d\'accès convertir ou filtrer le trafic multicast.',

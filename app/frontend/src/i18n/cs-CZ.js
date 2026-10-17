@@ -1234,7 +1234,7 @@ export default {
   'net.alone': 'Žádný reproduktor v dosahu',
   'net.mesh.title': 'Síť mesh?',
   'net.mesh.blurb': 'Systémy Wi-Fi mesh mohou {sometimes} bránit spolehlivému fungování reproduktorů Sonos.',
-  'net.mesh.rules': 'Jejich doporučení se obvykle shrnují do několika pravidel:',
+  'net.mesh.rules': 'Doporučení výrobců hardwaru se obvykle shrnují do několika pravidel:',
   'net.mesh.rule.sameWay': 'Připojte všechny reproduktory stejně, buď všechny přes Wi-Fi, nebo všechny ethernetem',
   'net.mesh.rule.oneSwitch': 'Reproduktory připojené kabelem zapojte do jedné jednotky routeru nebo jednoho switche',
   'net.mesh.rule.multicast': 'Nedovolte přístupovým bodům převádět nebo filtrovat multicastový provoz.',

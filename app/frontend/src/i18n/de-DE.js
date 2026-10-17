@@ -1245,7 +1245,7 @@ export default {
   'net.alone': 'Kein Lautsprecher in Reichweite',
   'net.mesh.title': 'Mesh-Netzwerk?',
   'net.mesh.blurb': 'Mesh-WLAN-Systeme können {sometimes} verhindern, dass Sonos-Lautsprecher zuverlässig funktionieren.',
-  'net.mesh.rules': 'Ihre Empfehlungen lassen sich meist auf wenige Regeln bringen:',
+  'net.mesh.rules': 'Die Empfehlungen der Hardwarehersteller lassen sich meist auf wenige Regeln bringen:',
   'net.mesh.rule.sameWay': 'Alle Lautsprecher gleich anschließen, entweder alle per WLAN oder alle per Ethernet',
   'net.mesh.rule.oneSwitch': 'Verkabelte Lautsprecher an eine einzige Router-Einheit oder einen einzigen Switch anschließen',
   'net.mesh.rule.multicast': 'Die Access Points Multicast-Verkehr nicht umwandeln oder filtern lassen.',

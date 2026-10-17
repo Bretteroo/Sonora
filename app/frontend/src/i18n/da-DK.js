@@ -1221,7 +1221,7 @@ export default {
   'net.alone': 'Ingen højttaler inden for rækkevidde',
   'net.mesh.title': 'Mesh-netværk?',
   'net.mesh.blurb': 'Mesh-Wi-Fi-systemer kan {sometimes} forhindre Sonos-højttalere i at fungere pålideligt.',
-  'net.mesh.rules': 'Deres vejledning koger som regel ned til nogle få regler:',
+  'net.mesh.rules': 'Hardwareproducenternes vejledning koger som regel ned til nogle få regler:',
   'net.mesh.rule.sameWay': 'Forbind alle højttalere på samme måde, alle via Wi-Fi eller alle via Ethernet',
   'net.mesh.rule.oneSwitch': 'Tilslut alle kablede højttalere til én routerenhed eller én switch',
   'net.mesh.rule.multicast': 'Lad ikke adgangspunkterne konvertere eller filtrere multicast-trafik.',

@@ -1032,7 +1032,7 @@ export default {
   'net.alone': 'Nincs hangszóró hatótávon belül',
   'net.mesh.title': 'Mesh hálózatot használ?',
   'net.mesh.blurb': 'A mesh Wi-Fi-rendszerek {sometimes} megakadályozhatják a Sonos hangszórók megbízható működését.',
-  'net.mesh.rules': 'Útmutatásaik általában néhány szabályra vezethetők vissza:',
+  'net.mesh.rules': 'A hardvergyártók útmutatásai általában néhány szabályra vezethetők vissza:',
   'net.mesh.rule.sameWay': 'Minden hangszórót ugyanúgy csatlakoztasson, mindet Wi-Fi-n vagy mindet Etherneten',
   'net.mesh.rule.oneSwitch': 'A kábellel csatlakozó hangszórókat egyetlen routeregységre vagy egyetlen switchre kösse',
   'net.mesh.rule.multicast': 'Ne engedje, hogy a hozzáférési pontok átalakítsák vagy szűrjék a multicast forgalmat.',

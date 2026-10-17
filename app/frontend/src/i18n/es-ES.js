@@ -1034,7 +1034,7 @@ export default {
   'net.alone': 'Ningún altavoz al alcance',
   'net.mesh.title': '¿Usas una red mallada?',
   'net.mesh.blurb': 'Los sistemas Wi-Fi mallados pueden {sometimes} impedir que los altavoces Sonos funcionen de forma fiable.',
-  'net.mesh.rules': 'Sus recomendaciones suelen resumirse en unas pocas reglas:',
+  'net.mesh.rules': 'Las recomendaciones de los fabricantes de hardware suelen resumirse en unas pocas reglas:',
   'net.mesh.rule.sameWay': 'Conecta todos los altavoces de la misma forma, todos por Wi-Fi o todos por Ethernet',
   'net.mesh.rule.oneSwitch': 'Conecta los altavoces con cable a una sola unidad del router o a un solo switch',
   'net.mesh.rule.multicast': 'No dejes que los puntos de acceso conviertan o filtren el tráfico multicast.',

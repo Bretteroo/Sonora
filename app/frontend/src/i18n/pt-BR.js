@@ -1236,7 +1236,7 @@ export default {
   'net.alone': 'Nenhum alto-falante ao alcance',
   'net.mesh.title': 'Usa uma rede mesh?',
   'net.mesh.blurb': 'Sistemas Wi-Fi mesh podem {sometimes} impedir que os alto-falantes Sonos funcionem de forma confiável.',
-  'net.mesh.rules': 'As orientações deles geralmente se resumem a algumas regras:',
+  'net.mesh.rules': 'As orientações dos fabricantes de hardware geralmente se resumem a algumas regras:',
   'net.mesh.rule.sameWay': 'Conecte todos os alto-falantes da mesma forma, todos por Wi-Fi ou todos por Ethernet',
   'net.mesh.rule.oneSwitch': 'Ligue os alto-falantes cabeados a uma única unidade do roteador ou a um único switch',
   'net.mesh.rule.multicast': 'Não deixe os pontos de acesso converterem ou filtrarem o tráfego multicast.',

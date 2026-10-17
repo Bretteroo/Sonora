@@ -2134,5 +2134,17 @@
 :root[data-theme='hifi'] .hf-lyrics-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 :root[data-theme='hifi'] .hf-vfd-lyric-next { opacity: 0.5; animation: hf-lyric-in 260ms ease-out; }
 :root[data-theme='hifi'] .hf-vfd-lyric-note { animation: hf-lyric-in 260ms ease-out; font-size: 16px; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+/* The note over words with no timings opens them: the note's own lettering, a
+   dotted rule under it to say it can be pressed. */
+:root[data-theme='hifi'] .hf-vfd-lyric-open { appearance: none; background: none; border: 0; padding: 0 0 5px; color: inherit; font-family: inherit;
+  text-align: left; cursor: pointer; }
+/* On the words, not the button: Firefox draws no underline a button is given.
+   The padding under the button keeps the rule inside the box the note clips to. */
+:root[data-theme='hifi'] .hf-vfd-lyric-open span { text-decoration: underline dotted; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+:root[data-theme='hifi'] .hf-vfd-lyric-open:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: 2px; }
+/* The words in full, in a panel: one line of the song to a line, as written. */
+:root[data-theme='hifi'] .hf-lyrics-untimed { margin: 0; color: var(--hf-engrave-dim); font-size: 12px; }
+:root[data-theme='hifi'] .hf-lyrics-words { margin: 0; white-space: pre-line; font-size: 15px; line-height: 1.55; }
+:root[data-theme='hifi'] .hf-lyrics-panel .hf-lyrics-credit { position: static; margin: 4px 0 0; align-self: flex-end; }
 @keyframes hf-lyric-in { from { opacity: 0; transform: translateY(4px); } }
 @media (prefers-reduced-motion: reduce) { :root[data-theme='hifi'] .hf-vfd-lyric, :root[data-theme='hifi'] .hf-vfd-lyric-next, :root[data-theme='hifi'] .hf-vfd-lyric-note, :root[data-theme='hifi'] .hf-vfd-lines[data-back] { animation: none; } :root[data-theme='hifi'] .hf-lyrics-credit { transition: none; } }

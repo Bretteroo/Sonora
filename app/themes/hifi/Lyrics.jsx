@@ -30,6 +30,9 @@ export function LyricsReading({ transport, onCancel, waiting = null }) {
   const { t } = useI18n()
   const lyrics = useLyrics(transport, true)
   const [slow, setSlow] = useState(false)
+  // The words with no timings, opened from the display's note into a panel.
+  const [reading, setReading] = useState(false)
+  useEffect(() => { setReading(false) }, [transport?.track_uri, lyrics.state])
   const loading = lyrics.state === 'loading'
   useEffect(() => {
     setSlow(false)
@@ -50,10 +53,31 @@ export function LyricsReading({ transport, onCancel, waiting = null }) {
   }[lyrics.state] || ''
   return (
     <div className="hf-vfd-lines hf-vfd-lyrics">
-      <p className="hf-vfd-title hf-vfd-lyric-note" title={note}>{note}</p>
+      {lyrics.state === 'plain' ? (
+        <button type="button" className="hf-vfd-title hf-vfd-lyric-note hf-vfd-lyric-open" title={note}
+                aria-haspopup="dialog" onClick={() => setReading(true)}><span>{note}</span></button>
+      ) : <p className="hf-vfd-title hf-vfd-lyric-note" title={note}>{note}</p>}
       <p className="hf-vfd-sub" />
       {lyrics.state === 'notice' && <Notice onAgree={lyrics.agree} onClose={onCancel} />}
+      {reading && lyrics.state === 'plain' && <Words transport={transport} text={lyrics.text} onClose={() => setReading(false)} />}
     </div>
+  )
+}
+
+// Words with no timings that fit this recording: three lines of display
+// cannot hold them, so the note on the display opens them here, whole.
+function Words({ transport, text, onClose }) {
+  const { t } = useI18n()
+  const song = [transport?.title, transport?.artist].filter(Boolean).join(' · ')
+  return (
+    <Panel kind="center" title={t('lyrics.show')} onClose={onClose} className="hf-lyrics-panel">
+      <PanelHead title={t('lyrics.show')} sub={song} onClose={onClose} />
+      <div className="hf-panel-body">
+        <p className="hf-lyrics-untimed">{t('lyrics.untimed')}</p>
+        <p className="hf-lyrics-words">{text}</p>
+        <LyricsCredit shown />
+      </div>
+    </Panel>
   )
 }
 

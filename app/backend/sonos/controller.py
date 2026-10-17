@@ -3772,16 +3772,28 @@ class Commands:
         firmware reads it.
         """
         target = self._c.coordinator_of(zone_uuid)
-        result = await self.soap.call(
-            target.host, const.AV_TRANSPORT, "AddURIToQueue",
-            {"InstanceID": 0,
-             "EnqueuedURI": uri,
-             "EnqueuedURIMetaData": metadata,
-             "DesiredFirstTrackNumberEnqueued": max(0, position),
-             "EnqueueAsNext": next_},
-            # A whole album or playlist takes a player a while to take in, and
-            # this is not retried (soap.ONCE_ONLY), so it is given time.
-            timeout=20.0)
+        try:
+            result = await self.soap.call(
+                target.host, const.AV_TRANSPORT, "AddURIToQueue",
+                {"InstanceID": 0,
+                 "EnqueuedURI": uri,
+                 "EnqueuedURIMetaData": metadata,
+                 "DesiredFirstTrackNumberEnqueued": max(0, position),
+                 "EnqueueAsNext": next_},
+                # A whole album or playlist takes a player a while to take in, and
+                # this is not retried (soap.ONCE_ONLY), so it is given time.
+                timeout=20.0)
+        except SoapFault as fault:
+            # The refusal alone says nothing of what was asked; this line is
+            # what a report of one can be traced from. The metadata is left
+            # out: it names the account.
+            transport = target.transport
+            log.warning("queue add refused on %s (UPnP %s): %s, as next %s, at %s; "
+                        "the room was %s on %s, play mode %s, queue of %s",
+                        target.name, fault.code, uri, bool(next_), max(0, position),
+                        transport.state, transport.media_uri or "nothing",
+                        transport.play_mode, transport.queue_length)
+            raise
         return dict(result.args)
 
     async def add_oauth_account(self, zone_uuid: str, sid: int, token: str,

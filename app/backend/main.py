@@ -3814,6 +3814,13 @@ async def rate_item(sid: int, body: RateBody) -> dict:
                 rating=int(rating_id), household_id=household.id, token=creds.get("token", ""),
                 key=creds.get("key", ""), device_id=device_id)
         except SmapiError as exc:
+            # What was rated, for tracing a report: the provider's fault
+            # names neither the item nor the rating.
+            playing = ctl.coordinator_of(body.zone).transport if body.zone in ctl.zones else None
+            log.warning("%s refused rating %s for %s: %s; the room was playing %s from %s",
+                        service.name, rating_id, body.item_id, exc,
+                        getattr(playing, "track_uri", "") or "nothing",
+                        getattr(playing, "media_uri", "") or "nothing")
             raise HTTPException(502, str(exc)) from exc
         # The provider may also answer shouldSkip for a rating its map does
         # not mark.

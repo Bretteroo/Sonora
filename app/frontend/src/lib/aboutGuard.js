@@ -10,6 +10,8 @@
 // stylesheet rule, !important ones included.
 
 const px = (value) => parseFloat(value) || 0
+// A limit: `none` is no limit at all, not zero.
+const cap = (value) => (value === 'none' ? Infinity : px(value))
 
 function alpha(color) {
   if (!color || color === 'transparent') return 0
@@ -56,7 +58,7 @@ function repairsFor(el, s, text) {
     if (s.fontSize && s.color === s.backgroundColor) set('color', 'var(--t-fg, CanvasText)')
   }
   // Squeezed to nothing with its overflow cut off.
-  if ((s.overflow !== 'visible') && (px(s.height) < 2 || px(s.maxHeight) < 2 || px(s.width) < 2 || px(s.maxWidth) < 2)) {
+  if ((s.overflow !== 'visible') && (px(s.height) < 2 || cap(s.maxHeight) < 2 || px(s.width) < 2 || cap(s.maxWidth) < 2)) {
     set('overflow', 'visible'); set('height', 'auto'); set('max-height', 'none'); set('width', 'auto'); set('max-width', 'none')
   }
   // Thrown off the screen.

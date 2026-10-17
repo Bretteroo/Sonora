@@ -84,10 +84,11 @@ If you run Home Assistant, Sonora can also be installed as a Home Assistant app.
 Images are provided for `linux/amd64` and `linux/arm64`. Sonora is lightweight enough to run on an older Raspberry Pi.
 
 <details>
-<summary><strong>Install With Docker on Linux (recommended)</strong></summary>
+<summary><strong>Install With Docker (recommended)</strong></summary>
 
 ### Install Sonora
 * Install [Docker Engine](https://docs.docker.com/engine/install/) with [Docker Compose](https://docs.docker.com/compose/install)
+  - If you're on macOS, enable Host Networking within Docker Desktop - it's disabled by default.
 * Download [`docker-compose.yml`](docker-compose.yml) into a folder of its own.
 * Then, from the folder holding `docker-compose.yml`:
 
@@ -103,58 +104,6 @@ From the same folder:
 
 ```
 docker compose pull && docker compose up -d
-```
-</details>
-
-<details>
-<summary><strong>Install With Docker on macOS</strong></summary>
-
-### Install Sonora
-* Install Homebrew from an administrator account, if it isn't installed already:
-
-```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-* On a Mac with Apple silicon, add Homebrew to your shell, as the installer's "Next steps" say:
-
-```
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
-```
-
-* Install Colima, Docker, and Docker Compose, then start Colima. The first start takes a few minutes:
-
-```
-brew install colima docker docker-compose
-colima start --network-address --network-mode bridged --network-preferred-route
-```
-
-* Download [`docker-compose.yml`](docker-compose.yml) into a folder of its own.
-* Then, from the folder holding `docker-compose.yml`:
-
-```
-docker-compose up -d
-```
-
-Find it at <http://localhost:50205>.
-
-### Start at Login
-
-To start Sonora whenever you log in to the Mac:
-
-```
-colima stop && brew services start colima
-```
-
-Sonora runs only while you're logged in.
-
-### Future Updates
-
-From the same folder:
-
-```
-docker-compose pull && docker-compose up -d
 ```
 </details>
 

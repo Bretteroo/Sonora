@@ -231,8 +231,15 @@ class HouseholdRegistry:
         # answering HTTP, so the whole S1 system dropped out of Sonora while
         # ten other players were fine. Ask the missing household's other
         # players, and failing all of them keep the last picture.
+        claimed = {uuid for household in seen_households.values() for uuid in household.players}
         for household_id, previous in self.households.items():
             if household_id in seen_households:
+                continue
+            # Every one of its players answered this round as part of another household: it was
+            # a stand-in for that one, or the system has been merged into it. Not a missing one.
+            if previous.players and set(previous.players) <= claimed:
+                log.info("household %s: its players all belong to another household now; "
+                         "dropping it", household_id)
                 continue
             for host in sorted({p.host for p in previous.players.values()} - asked):
                 try:
@@ -314,6 +321,8 @@ class HouseholdRegistry:
         await self._enrich(players)
 
         household_id = await self._household_id(host)
+        if household_id.startswith("unknown-"):
+            household_id = self._known_household(players) or household_id
         control_id = await self._household_control_id(host)
         for player in players.values():
             player.household = household_id
@@ -331,6 +340,18 @@ class HouseholdRegistry:
                  household_id, len(players), len(zones),
                  len(household.groups), household.generation)
         return household
+
+    def _known_household(self, players: dict) -> str:
+        """The household already holding any of ``players``, if one does.
+
+        A speaker that misses its household-id question for one round still
+        reports the same players; filing them under a stand-in id would show
+        that system twice, so they go back under the id they had.
+        """
+        for household_id, household in self.households.items():
+            if not household_id.startswith("unknown-") and set(household.players) & set(players):
+                return household_id
+        return ""
 
     async def _household_id(self, host: str) -> str:
         """Ask a speaker which household it belongs to.

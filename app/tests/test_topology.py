@@ -390,3 +390,58 @@ def test_a_listed_speaker_unread_since_start_up_keeps_its_remembered_model():
     ctl._fill_from_known({"HH": Household(id="HH", players={player.uuid: player}, zones={}, groups={},
                                           control_id="", vanished=[])})
     assert (player.model, player.model_number, player.serial) == ("Sonos Play:1", "S1", "00-0E-58-AA-BB-CC:1")
+
+
+# --- one missed household-id answer does not make a second system --------------
+
+
+def _registry_for_discovery(answers):
+    """A registry whose SSDP round finds the hosts in ``answers`` and whose
+    topology asks return those households."""
+    from backend.sonos import discovery
+    from backend.sonos.discovery import HouseholdRegistry
+
+    registry = HouseholdRegistry(soap=None, session=None)
+
+    async def load_from(host):
+        return answers[host]()
+
+    async def second_opinion(household, host):
+        return household
+
+    registry.load_from = load_from
+    registry._second_opinion = second_opinion
+    return registry, discovery
+
+
+def _household(hid, *uuids):
+    from backend.sonos.models import Household
+
+    players = {u: _player(u, u) for u in uuids}
+    return Household(id=hid, players=players, zones={}, groups={}, control_id="", vanished=[])
+
+
+def test_a_stand_in_household_is_dropped_once_its_players_are_claimed(monkeypatch):
+    import asyncio
+
+    registry, discovery = _registry_for_discovery({"192.168.1.11": lambda: _household("Sonos_A", "RINCON_11", "RINCON_12")})
+    registry.households = {
+        "Sonos_A": _household("Sonos_A", "RINCON_11", "RINCON_12"),
+        "unknown-192.168.1.12": _household("unknown-192.168.1.12", "RINCON_11", "RINCON_12"),
+    }
+
+    async def ssdp(timeout):
+        return ["192.168.1.11"]
+
+    monkeypatch.setattr(discovery, "ssdp_search", ssdp)
+    assert list(asyncio.run(registry.discover())) == ["Sonos_A"]
+
+
+def test_a_missed_household_id_keeps_the_known_one():
+    from backend.sonos.discovery import HouseholdRegistry
+
+    registry = HouseholdRegistry(soap=None, session=None)
+    registry.households = {"Sonos_A": _household("Sonos_A", "RINCON_11", "RINCON_12"),
+                           "Sonos_B": _household("Sonos_B", "RINCON_21")}
+    assert registry._known_household({"RINCON_12": None}) == "Sonos_A"
+    assert registry._known_household({"RINCON_99": None}) == ""

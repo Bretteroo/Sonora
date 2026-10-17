@@ -36,6 +36,15 @@ def test_unread_bridge_falls_back_to_the_peer_table():
     assert status.on_sonosnet is True
 
 
+def test_a_station_whose_bridge_went_unread_is_still_not_a_mesh():
+    # A slow speaker's showstp can miss its read; its mode still says it is a
+    # client of the access point, and its peer table is no mesh.
+    status = _hearing()
+    status.mode = "INFRA (station)"
+    assert status.bridge_stp is None
+    assert status.on_sonosnet is False
+
+
 def test_the_speakers_own_port_table_says_whether_it_is_wired():
     from backend.sonos.diagnostics import parse_enetports
     off = "<ZPSupportInfo><EnetPorts><Port port='0'><Link>0</Link><Speed>0</Speed></Port></EnetPorts></ZPSupportInfo>"

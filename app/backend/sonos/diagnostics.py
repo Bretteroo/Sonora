@@ -125,7 +125,13 @@ class WirelessStatus:
         links between units that exchange nothing. A mesh is a
         bridge running spanning tree, so where ``showstp`` was read, it
         decides; the peer table alone stands in only when it was not.
+        A radio in infrastructure mode is a client of the household's
+        access point whatever else was read: a slow speaker whose
+        ``showstp`` went unread had its peer table taken for a mesh, and the
+        Network check called links lopsided between station-mode speakers.
         """
+        if self.mode.upper().startswith("INFRA"):
+            return False
         if self.bridge_stp is not None:
             return self.bridge_stp and bool(self.neighbors)
         return bool(self.neighbors)

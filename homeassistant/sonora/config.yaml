@@ -2,7 +2,7 @@
 # `version` must name a published tag of ghcr.io/bretteroo/sonora and moves
 # with every release.
 name: Sonora
-version: "1.0.2"
+version: "1.0.3"
 slug: sonora
 description: Control your Sonos S1 and S2 speakers from any browser.
 url: https://github.com/Bretteroo/Sonora

@@ -33,12 +33,18 @@ const API = 'https://lrclib.net/api'
 //: How far, in seconds, an entry's length may be from the track's for its
 //: timings to be trusted.
 const TIMING_SLACK = 3
-//: The pause, in milliseconds, between one request to LRCLIB and the next.
-const GAP_MS = 300
+//: The pause, in milliseconds, between one request to LRCLIB and the next. Each request is two
+//: to LRCLIB, since the X-User-Agent header makes the browser ask leave first (a CORS
+//: preflight), and LRCLIB counts both against a limit of about one a second.
+const GAP_MS = 1100
 //: The longest track /api/get takes, in seconds; it refuses longer ones.
 const LONGEST = 3600
 //: How long to hold off, in seconds, after a 429 or 503 that names no time.
 const BACK_OFF = { 429: 30, 503: 1 }
+//: How long to wait, in seconds, after a refusal the browser would not let the page read, and
+//: how many times to try again after one.
+const BLOCKED_WAIT = 2
+const BLOCKED_TRIES = 2
 
 const LRC_LINE = /^((?:\[\d+:\d+(?:[.:]\d+)?\])+)(.*)$/
 const LRC_STAMP = /\[(\d+):(\d+)(?:[.:](\d+))?\]/g
@@ -165,6 +171,9 @@ export async function findLyrics({ title, artist, album = '', duration = 0 }, { 
         const status = error?.status
         if (status === 429 || status === 503) pacer.hold(error.retryAfter || BACK_OFF[status])
         if (status === 429) { stop = 'limited'; return null }
+        // A refusal the browser hides: LRCLIB turns the preflight away with a 429 that carries no
+        // CORS headers, so the page sees only a failed request. Wait a moment and ask again.
+        if (error?.blocked && attempt <= BLOCKED_TRIES) { pacer.hold(BLOCKED_WAIT); continue }
         if (status >= 500 && attempt === 1) continue
         failed = true
         return null
@@ -198,8 +207,13 @@ export async function findLyrics({ title, artist, album = '', duration = 0 }, { 
 // on disk: LRCLIB's answers say nothing about caching, so a browser was free
 // to keep a copy of each song's lyrics there.
 async function request(path, params, client) {
-  const response = await fetch(`${API}${path}?${new URLSearchParams(params)}`,
-    { headers: { 'X-User-Agent': client }, credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' })
+  let response
+  try {
+    response = await fetch(`${API}${path}?${new URLSearchParams(params)}`,
+      { headers: { 'X-User-Agent': client }, credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' })
+  } catch (error) {
+    throw Object.assign(new Error('LRCLIB could not be read'), { blocked: true, cause: error })
+  }
   if (response.status === 404) return null
   if (response.ok) return response.json()
   const retryAfter = Number(response.headers.get('Retry-After'))

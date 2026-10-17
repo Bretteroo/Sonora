@@ -91,7 +91,7 @@ const timed = (c, answers) => {
   const pacer = createPacer(c)
   const t5 = timed(c, {})
   await findLyrics({ title: 'Song (Live)', artist: 'Band, Guest' }, { get: t5.get, pacer })
-  is(t5.asked.filter((x) => typeof x === 'number'), [0, 300, 600], 'requests go one at a time, 300 ms apart')
+  is(t5.asked.filter((x) => typeof x === 'number'), [0, 1100, 2200], 'requests go one at a time, 1100 ms apart')
 }
 {
   const c = clock()
@@ -110,6 +110,20 @@ const timed = (c, answers) => {
   const get = async () => { tries++; if (tries === 1) throw refusal(503, 2); return [entry(200)] }
   const got = await findLyrics({ title: 'Song', artist: 'Band', duration: 200 }, { get, pacer })
   is([got.synced.length, c.now() >= 2000], [1, true], 'a 503 is tried again after its Retry-After')
+}
+{
+  const c = clock()
+  const pacer = createPacer(c)
+  let tries = 0
+  const get = async () => { tries++; if (tries <= 2) throw Object.assign(new Error('blocked'), { blocked: true }); return [entry(200)] }
+  const got = await findLyrics({ title: 'Song', artist: 'Band', duration: 200 }, { get, pacer })
+  is([got.synced.length, tries, c.now() >= 4000], [1, 3, true], 'a refusal the browser hides is waited out and tried again')
+}
+{
+  let tries = 0
+  const get = async () => { tries++; throw Object.assign(new Error('blocked'), { blocked: true }) }
+  const got = await findLyrics({ title: 'Song', artist: 'Band' }, { get, pacer: createPacer(clock()) })
+  is([got.unreachable, tries], [true, 3], 'and is reported unreachable after two more tries')
 }
 {
   const t8 = table({})

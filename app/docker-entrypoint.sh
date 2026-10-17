@@ -16,6 +16,11 @@ if [ "$(id -u)" = 0 ]; then
         owner=$(id -u sonora)
         group=$(id -g sonora)
     fi
+    # Home Assistant writes the app's options before every start, as root and
+    # readable by root alone; Sonora reads its ports from them.
+    if [ -f /data/options.json ]; then
+        chown "$owner:$group" /data/options.json
+    fi
     exec setpriv --reuid="$owner" --regid="$group" --clear-groups -- "$@"
 fi
 exec "$@"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { lyricsSong, useLyrics, useLyricsLine, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
 import { Panel, PanelHead, Button } from './controls.jsx'
@@ -62,12 +62,28 @@ function Timed({ transport, lines }) {
   // Before the first line the display waits with the opening line dim.
   const now = index >= 0 ? lines[index][1] || '♪' : ''
   const after = [1, 2].map((n) => (lines[index + n] ? lines[index + n][1] || '♪' : ''))
+  // A line too long for the display runs on to a second line, and the last
+  // of the lines after it gives up its place, so the display keeps its height.
+  const current = useRef(null)
+  const [wrapped, setWrapped] = useState(false)
+  useLayoutEffect(() => {
+    const el = current.current
+    if (!el) return undefined
+    const measure = () => {
+      const height = parseFloat(getComputedStyle(el).lineHeight) || 0
+      setWrapped(height > 0 && el.scrollHeight > height * 1.5)
+    }
+    measure()
+    const watch = new ResizeObserver(measure)
+    watch.observe(el)
+    return () => watch.disconnect()
+  }, [now])
   return (
     <div className="hf-vfd-lines hf-vfd-lyrics">
       {/* Keyed by the line, so each new one comes up on the display rather
           than being swapped in place. */}
-      <p key={`now-${index}`} className="hf-vfd-title hf-vfd-lyric" title={now}>{now || '♪'}</p>
-      {after.map((words, n) => (
+      <p key={`now-${index}`} ref={current} className="hf-vfd-title hf-vfd-lyric" title={now}>{now || '♪'}</p>
+      {(wrapped ? after.slice(0, 1) : after).map((words, n) => (
         <p key={`next-${index}-${n}`} className="hf-vfd-sub hf-vfd-lyric-next" title={words}>{words}</p>
       ))}
     </div>

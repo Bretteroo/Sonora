@@ -7,7 +7,8 @@
 // shipped can run S2, the 2015 Connect and Connect:Amp included, which is why
 // the test below is on the model number a device reports rather than on its
 // name: a Connect answering ZP90 is legacy and one answering S15 is not, and
-// both call themselves "Sonos Connect".
+// both call themselves "Sonos Connect". The two Connect:Amps both answer
+// ZP120 and are told apart by the series id (P100 the old, C100 the new).
 //
 // A speaker cannot answer the question itself. Its device description carries
 // swGen, but that is the generation of the software it is running, so every
@@ -107,7 +108,10 @@ export function s2Tier(player) {
 export function classifyPlayer(player) {
   const number = String(player?.model_number || '').trim().toUpperCase()
   const name = String(player?.model || '').trim()
-  let hit = LEGACY_BY_MODEL_NUMBER[number]
+  const series = String(player?.series_id || '').trim().toUpperCase()
+  // Both Connect:Amps answer ZP120; the 2015 one, series C100, runs S2. With
+  // no series to go on, a ZP120 is taken for the older one, as it was.
+  let hit = number === 'ZP120' && series && series !== 'P100' ? null : LEGACY_BY_MODEL_NUMBER[number]
   if (!hit) {
     for (const [pattern, key] of LEGACY_BY_NAME) {
       if (pattern.test(name)) { hit = LEGACY_BY_MODEL_NUMBER[key]; break }

@@ -77,4 +77,4 @@ def test_a_speaker_that_does_not_answer_keeps_its_model():
     household = Household(id="HH", players=players, zones=rebuild_zones(players), groups={},
                           control_id="", vanished=[])
     snapshot = asyncio.run(collector.collect(household, probe=False))
-    assert snapshot.unreachable == [{"name": "Porch", "player": "RINCON_P", "model": "Sonos Connect (Gen 1)"}]
+    assert snapshot.unreachable == [{"name": "Porch", "player": "RINCON_P", "model": "Connect (Gen 1)"}]

@@ -741,7 +741,7 @@ class SonosController:
                     uuid=zone.uuid,
                     name=zone.name,
                     host=zone.primary.host,
-                    model=model_label(zone.primary.model, zone.primary.model_number),
+                    model=model_label(zone.primary.model, zone.primary.model_number, getattr(zone.primary, 'series_id', '')),
                     model_number=zone.primary.model_number,
                     generation=zone.primary.generation,
                     software_version=zone.primary.software_version,
@@ -2273,7 +2273,7 @@ class SonosController:
                     "players": [
                         {
                             "uuid": p.uuid, "zone": zone.uuid, "name": zone.name,
-                            "model": model_label(p.model, p.model_number), "host": p.host,
+                            "model": model_label(p.model, p.model_number, p.series_id), "host": p.host,
                             "display_version": (
                                 self.zones[zone.uuid].display_version
                                 if zone.uuid in self.zones else p.software_version),
@@ -2541,7 +2541,7 @@ class SonosController:
             return {
                 "uuid": uuid,
                 "name": gone.name or known.get("name", ""),
-                "model": model_label(model, number),
+                "model": model_label(model, number, known.get("series_id", "")),
                 "model_number": number,
                 "color": known.get("color", ""),
                 "serial": known.get("serial", ""),
@@ -2612,12 +2612,13 @@ class SonosController:
         color = device.get("color") or getattr(self, "_known", {}).get(uuid, {}).get("color", "")
         self.remember_player(uuid, {"name": player.name, "model": model,
                                     "model_number": player.model_number,
+                                    "series_id": getattr(player, "series_id", ""),
                                     "color": color,
                                     "serial": device.get("serialNumber") or player.serial})
         return {
             "uuid": uuid,
             "name": player.name,
-            "model": model_label(model, player.model_number),
+            "model": model_label(model, player.model_number, getattr(player, "series_id", "")),
             "model_number": player.model_number,
             "color": color,
             "serial": device.get("serialNumber") or player.serial,

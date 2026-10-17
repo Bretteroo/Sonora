@@ -335,7 +335,7 @@ class NetworkCollector:
             if wireless_body is None:
                 snapshot.unreachable.append({
                     "name": label, "player": player.uuid,
-                    "model": model_label(player.model, player.model_number)})
+                    "model": model_label(player.model, player.model_number, player.series_id)})
                 return
             wireless = parse_wireless_status(host, wireless_body)
             wireless.bridge_stp = parse_showstp(stp_body)
@@ -343,7 +343,7 @@ class NetworkCollector:
                 zone_uuid=zone.uuid,
                 zone_name=zone.name,
                 host=host,
-                model=player.model,
+                model=model_label(player.model, player.model_number, player.series_id),
                 wireless=wireless,
                 interfaces=parse_ifconfig(ifconfig_body) if ifconfig_body else {},
                 # Radio facts come from the room's own DeviceProperties events,

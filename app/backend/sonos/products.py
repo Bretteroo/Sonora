@@ -99,9 +99,10 @@ MODEL_NAMES = {
 #: The products Sonos sold under one name in more than one generation, by the
 #: model number each generation answers. A name the generations share cannot
 #: tell them apart, so the label says which one it is. The Sub's first two
-#: and both Connect:Amps answer the same number and stay unlabeled; products
-#: whose later generation carries a new name (Move 2, Roam 2, Sub 4) need no
-#: label either.
+#: answer the same number and stay unlabeled; products whose later generation
+#: carries a new name (Move 2, Roam 2, Sub 4) need no label either. Both
+#: Connect:Amps answer ZP120, and are told apart by the series id their
+#: description carries instead (SERIES_GENERATIONS).
 GENERATIONS = {
     "S5": 1, "S6": 2,        # Play:5
     "S13": 1, "S18": 2,      # One
@@ -113,12 +114,36 @@ GENERATIONS = {
 }
 
 
-def model_label(model: str, model_number: str) -> str:
-    """The model's name, with "(Gen 2)" and the like where it needs one."""
-    gen = GENERATIONS.get((model_number or "").upper())
-    if not gen or not model or re.search(r"\bgen\b", model, re.I):
+#: The products whose name carries "Sonos" in front. Sonos's own list of its
+#: products (support.sonos.com, "Sonos app version compatibility", read
+#: 2026-10-16) writes every player's name bare, Arc, Beam, One SL, Era 100,
+#: Play:1, and puts "Sonos" before three only. A player calls itself
+#: "Sonos <name>" whatever it is, so the label decides by the name.
+SONOS_NAMED = {"Ace", "Ace Ultra", "Play"}
+
+
+#: Generations told apart by the series id, for a number both share: the
+#: Connect:Amp of 2006 is series P100 (hardware 1.16) and the one of 2015,
+#: which runs S2, series C100 (hardware 1.17), as owners' descriptions show
+#: them (community.sonos.com, read 2026-10-16).
+SERIES_GENERATIONS = {"ZP120": {"P100": 1, "C100": 2}}
+
+
+def model_label(model: str, model_number: str, series_id: str = "") -> str:
+    """The model's name as Sonos writes it: "Sonos" in front only where the
+    product is named that way, and "(Gen 2)" and the like where it needs
+    one."""
+    if not model:
         return model
-    return f"{model} (Gen {gen})"
+    number = (model_number or "").upper()
+    name = re.sub(r"^\s*sonos\s+", "", model, flags=re.I)
+    bare = re.sub(r"\s*\(gen\s*\d+\)\s*$", "", name, flags=re.I)
+    if bare in SONOS_NAMED:
+        name = f"Sonos {name}"
+    gen = GENERATIONS.get(number) or SERIES_GENERATIONS.get(number, {}).get((series_id or "").upper())
+    if not gen or re.search(r"\bgen\b", name, re.I):
+        return name
+    return f"{name} (Gen {gen})"
 
 
 def picture_for(model_number: str, color: str = "", *, chosen: str = "") -> str | None:

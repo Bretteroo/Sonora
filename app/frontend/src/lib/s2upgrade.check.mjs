@@ -24,6 +24,9 @@ const zp90 = player('Study', 'Sonos Connect', 'ZP90')
 const play1 = player('Pantry', 'Sonos Play:1', 'S12')
 //: Current: an Era 100 is on neither list.
 const era100 = player('Den', 'Sonos Era 100', 'S38')
+//: Both Connect:Amps answer ZP120: the series id tells the 2015 one, which runs S2.
+const oldAmp = { ...player('Pool', 'Sonos Connect:Amp', 'ZP120'), series_id: 'P100' }
+const newAmp = { ...player('Deck', 'Sonos Connect:Amp', 'ZP120'), series_id: 'C100' }
 
 const s1House = (players) => ({ id: 'h1', generation: 'S1', players })
 const s2House = (players) => ({ id: 'h2', generation: 'S2', players })
@@ -76,5 +79,11 @@ is(plan.allS21, false, 'and the house is not called finished on its account')
 plan = upgradePlan([])
 is(plan.allS21, false, 'an empty house has not finished upgrading, it is just empty')
 is(plan.rows.length, 0, 'and has no rooms')
+
+// The Connect:Amps.
+plan = upgradePlan([s1House([oldAmp, newAmp])])
+is(plan.legacy.length, 1, 'connect:amps: the 2006 one cannot run S2')
+is(plan.rows.find((r) => r.room === 'Deck')?.s2, true, 'connect:amps: the 2015 one can')
+
 
 process.exit(failed ? 1 : 0)

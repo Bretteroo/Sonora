@@ -881,6 +881,9 @@
 :root[data-theme='hifi'] .hf-bay > .hf-tuner-unit,
 :root[data-theme='hifi'] .hf-bay > .hf-tape-unit,
 :root[data-theme='hifi'] .hf-bay > .hf-setup-unit { flex: 1; min-height: 520px; display: flex; flex-direction: column; }
+/* The rear panel's settings fit the window, so its two columns, the page list and the page, each
+   scroll on their own instead of the panel scrolling them together. */
+:root[data-theme='hifi'] .hf-bay > .hf-setup-unit { min-height: 280px; }
 :root[data-theme='hifi'] .hf-dial { margin-bottom: 12px; overflow-x: auto; scrollbar-width: thin; }
 /* The dial slides open and shut: its row grows from nothing to its own
    height as it drops into place, and back. */

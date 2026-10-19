@@ -1086,9 +1086,12 @@ function ReactionCluster({ zone, t, onMessage }) {
       // The key's picture is the rating not given, whatever the item's state: a press lights the
       // key's lamp and leaves its legend as it was.
       const icon = String(button.icon).replace(/_SELECTED(?=[-.])/i, '_UNSELECTED')
-      const lit = live && !stale && selected
+      // A button the service marks to always skip is an action, not a toggle, and has no lamp:
+      // AccuRadio's ban and Pandora's thumbs-down move straight on to the next track.
+      const toggle = String(button.skip || '').toUpperCase() !== 'ALWAYS'
+      const lit = toggle ? live && !stale && selected : null
       return (
-        <Key key={button.id} size="s" glyph={<RatingGlyph icon={icon} size={16} />} lit={lit} pressed={lit}
+        <Key key={button.id} size="s" glyph={<RatingGlyph icon={icon} size={16} />} lit={lit} pressed={toggle ? lit : null}
              label={button.inert ? t('rating.cannotUndo', { service: tr.service_name || '' }) : (button.label || '')}
              aria-disabled={button.inert || undefined} onPress={() => { if (live && !stale) press(button, rate) }} />
       )

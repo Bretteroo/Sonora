@@ -753,7 +753,10 @@
 :where(:root[data-theme='liquidglass']) .sf-stage-next .sf-value { color: var(--t-fg-muted); }
 :where(:root[data-theme='liquidglass']) .sf-ratings { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
 :where(:root[data-theme='liquidglass']) .sf-rating { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--t-border-strong); border-radius: 50%; background: rgba(148, 163, 184, 0.08); cursor: pointer; }
-:where(:root[data-theme='liquidglass']) .sf-rating img { width: 22px; height: 22px; }
+/* A service's icon is 40 by 32 with its glyph, 16 square, in the middle: drawn at that shape and
+   half again as large, the glyph fills about half the circle, and the empty margin is cut off. */
+:where(:root[data-theme='liquidglass']) .sf-rating { position: relative; padding: 0; overflow: hidden; }
+:where(:root[data-theme='liquidglass']) .sf-rating img { position: absolute; left: 50%; top: 50%; width: 60px; height: 48px; max-width: none; transform: translate(-50%, -50%); }
 :where(:root[data-theme='liquidglass']) .sf-rating:hover { background: rgba(148, 163, 184, 0.16); }
 :where(:root[data-theme='liquidglass']) .sf-stage-controls { grid-area: controls; display: flex; flex-direction: column; gap: 10px; }
 :where(:root[data-theme='liquidglass']) .sf-stage-transport { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }

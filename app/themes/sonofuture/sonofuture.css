@@ -58,3 +58,6 @@
 
 /* A rating the service gives no way to undo: lit, and not pressable. */
 :root[data-theme='sonofuture'] .sf-rating[aria-disabled='true'] { cursor: default; }
+/* A service draws its rating icons as white line art; by daylight they are inked dark, or they
+   vanish into the light chip. */
+:root[data-theme='sonofuture'][data-variant='light'] .sf-rating img { filter: brightness(0.25); }

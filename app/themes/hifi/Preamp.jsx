@@ -202,7 +202,7 @@ function Reactions({ zone, onMessage }) {
   const tr = zone?.transport || {}
   // A toggle's lamp lights at the press (lib/optimisticRatings.js).
   const { ratings: buttons, press } = useOptimisticRatings((provider?.ratings || []).filter((b) => b.icon), `${zone?.uuid}|${tr.track_uri || ''}`)
-  if (!zone || zone.local || !buttons.length || !isLoaded(tr)) return null
+  if (!zone || !buttons.length || !isLoaded(tr)) return null
   // The item a rating is for: the service's own id when the metadata gave
   // one, else the one in the track's URI.
   const fromUri = (() => {

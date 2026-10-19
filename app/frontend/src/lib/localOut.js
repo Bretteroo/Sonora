@@ -9,6 +9,7 @@
 
 import { api } from './api.js'
 import { setBrowserQueue } from './browserQueue.js'
+import { setBrowserItem } from './browserItem.js'
 
 const listeners = new Set()
 
@@ -116,6 +117,11 @@ let current = {
   album: '',
   art: '',
   service: '',
+  // The service's id, the playing item's id there, and the room the source
+  // was browsed from: what the panes' rating buttons are asked for by.
+  serviceId: 0,
+  itemId: '',
+  fromZone: '',
   //  Seconds. `duration` is 0 for a live stream, which has none.
   position: 0,
   duration: 0,
@@ -259,7 +265,7 @@ export const localOut = {
   /** Point the output at a URL and start it. */
   async load({ url, urls = null, title = '', sub = '', artist = '', album = '', art = '',
                service = '', mediaUri = '', station = '', hls: isHls = false, next = null,
-               queue, queueIndex = -1, jump, session }) {
+               queue, queueIndex = -1, jump, session, serviceId = 0, itemId = '', fromZone = '' }) {
     const able = typeof window !== 'undefined' && readable(url, isHls)
     if (!able && element && element === graphElement) retire()
     const el = audio()
@@ -272,10 +278,11 @@ export const localOut = {
     if (jump !== undefined) jumpTrack = jump
     if (!list) jumpTrack = null
     lastLoad = { url, urls, title, sub, artist, album, art, service, mediaUri, station, hls: isHls, next,
-                 queue: list, queueIndex, jump: jumpTrack }
+                 queue: list, queueIndex, jump: jumpTrack, serviceId, itemId, fromZone }
     nextTrack = next
     replay = null
-    current = { ...current, url, title, sub, artist, album, art, service, mediaUri, station, restored: false, readable: able,
+    current = { ...current, url, title, sub, artist, album, art, service, mediaUri, station, serviceId, itemId, fromZone,
+                restored: false, readable: able,
                 position: 0, duration: 0, hasNext: Boolean(next), streamText: '',
                 queue: list || null, queueIndex: list ? queueIndex : -1, session: held,
                 error: '', state: 'TRANSITIONING' }
@@ -390,6 +397,7 @@ export const localOut = {
     // so a double-click in it or Play starts the album again at that track.
     const list = Array.isArray(queue) && queue.length ? queue : null
     current = { ...current, title, sub, artist, album, art, service, mediaUri, station, restored: true,
+                serviceId: 0, itemId: '', fromZone: '',
                 duration: Number(duration) || 0, position: 0,
                 queue: list, queueIndex: list ? queueIndex : -1, session: null }
     emit()
@@ -503,7 +511,8 @@ export const localOut = {
     jumpTrack = null
     lastLoad = null
     current = { ...current, url: '', mediaUri: '', title: '', sub: '', artist: '', album: '', art: '', station: '',
-                service: '', streamText: '', hasNext: false, restored: false, queue: null, queueIndex: -1, session: null }
+                service: '', serviceId: 0, itemId: '', fromZone: '',
+                streamText: '', hasNext: false, restored: false, queue: null, queueIndex: -1, session: null }
     emit()
     return true
   },
@@ -550,3 +559,5 @@ setBrowserQueue((start = 0, count = 200) => {
   const list = current.queue || []
   return { items: list.slice(start, start + count), total: list.length }
 })
+
+setBrowserItem(() => ({ sid: current.url ? current.serviceId : 0, item: current.itemId, zone: current.fromZone }))

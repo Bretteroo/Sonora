@@ -486,8 +486,15 @@ export function SystemProvider({ children }) {
     // item: the id to send is the button's. Pandora's thumbs were once a
     // table written out by hand here, because its map uses the
     // newer spelling the reader did not know.
-    rateItemById: (uuid, sid, itemId, rating) =>
-      run(() => api.rateItem(sid, { zone: uuid, item_id: itemId, rating }), { describe: 'notice.error.title', uuid }),
+    rateItemById: (uuid, sid, itemId, rating) => (isBrowserRoom(uuid)
+      // The browser room rates with the service directly, and a rating the
+      // service skips on moves the page's own output on, as a speaker moves.
+      ? run(async () => {
+        const answer = await api.rateBrowserItem({ sid, item_id: itemId, rating, zone: localOut.state.fromZone || '' })
+        if (answer?.skip) localOut.next()
+        return answer && { ...answer, skipped: Boolean(answer.skip) }
+      }, { describe: 'notice.error.title' })
+      : run(() => api.rateItem(sid, { zone: uuid, item_id: itemId, rating }), { describe: 'notice.error.title', uuid })),
     serviceFavorite: (sid, body) => run(() => api.serviceFavorite(sid, body), { describe: 'notice.conflict.title', uuid: body.zone }),
     // The URL names which of the service's own declared actions to carry
     // out; the method and headers come from what the service declared, not
@@ -615,6 +622,11 @@ export function SystemProvider({ children }) {
         // What was asked for, not what it resolved to: the panes read this to
         // tell a station from a track.
         mediaUri: body.uri || '',
+        // The service and the track's id there, and the room the source was
+        // browsed from: what the room's rating buttons are asked for by.
+        serviceId: Number((/[?&]sid=(\d+)/.exec(body.uri || '') || [])[1]) || 0,
+        itemId: track?.id || '',
+        fromZone: body.from_zone || '',
         next: answer.session
           ? async () => {
             const more = await api.streamNext(answer.session).catch(() => null)

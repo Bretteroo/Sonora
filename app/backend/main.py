@@ -941,6 +941,19 @@ async def playing_item_metadata(uuid: str) -> dict:
         log.info("item-metadata: sid %s not in catalog", sid)
         return empty
     account = smapi_account_serial(transport.track_uri or "")
+    reported = ctl.zones[uuid].transport.rating if uuid in ctl.zones else 0
+    return await _provider_item(ctl, household, service, sid, item_id, account, reported, uuid)
+
+
+async def _provider_item(ctl, household, service, sid: int, item_id: str, account: str,
+                         reported: int, zone: str | None) -> dict:
+    """The provider's view of one item, with its rating buttons: what
+    /api/zones/{uuid}/item-metadata answers for a speaker, and
+    /api/stream/item-metadata for the browser room. ``reported`` is the
+    rating the speakers publish for the track (r:rating), 0 where none does.
+    """
+    empty = {"item_type": "", "semantic_type": "", "title": "", "artist": "",
+             "album": "", "podcast": "", "release_date": "", "summary": ""}
     creds, borrowed = _reading_creds(ctl, household, sid, account)
     if service.auth != "Anonymous" and not creds.get("token"):
         log.info("item-metadata: no token for %s (auth %s)", service.name, service.auth)
@@ -997,7 +1010,6 @@ async def playing_item_metadata(uuid: str) -> dict:
             # rating word the speakers themselves publish for the playing
             # track (NONE, THUMBSUP, THUMBSDOWN in r:rating). Where the map
             # gives those words, the speaker's own report picks the set.
-            reported = ctl.zones[uuid].transport.rating if uuid in ctl.zones else 0
             word = {1: "THUMBSUP", 2: "THUMBSDOWN"}.get(reported, "NONE")
             value = (rating_map.get("kinds") or {}).get(word, "")
         if prop and value != "":
@@ -1048,7 +1060,7 @@ async def playing_item_metadata(uuid: str) -> dict:
     # declare a "Start Plex Mix" item (inferred from three services,
     # 2026-09-06; Pocket Casts returns nothing either).
     try:
-        extended = await service_extended(sid, item_id, zone=uuid, account=account)
+        extended = await service_extended(sid, item_id, zone=zone, account=account)
     except Exception:
         extended = None
     if extended and (extended.get("related") or extended.get("text") or extended.get("related_play")):
@@ -3691,7 +3703,9 @@ def rating_is_inert(button: dict, rating_map: dict) -> bool:
     REMOVE_THUMBS_UP, Spotify's lit heart REMOVE_TRACK_FROM_YOUR_MUSIC. A few
     maps have no way back: AccuRadio's lit star is "VoteUp" with the success
     message of the star that gave it, and pressing it left the track loved
-    (measured 2026-10-01; iHeartRadio's lit thumbs are drawn the same way).
+    (measured 2026-10-01, and again 2026-10-19 with rateItem 3 sent straight
+    to the service: the vote stayed 1; iHeartRadio's lit thumbs are drawn the
+    same way).
     Such a button is lit and given in the same words as its unlit self, so
     that is the test: a selected icon whose string and success message are
     those of an unselected button of the same family. Read off the map, so it
@@ -3840,6 +3854,80 @@ async def rate_item(sid: int, body: RateBody) -> dict:
         # skipped, say); it takes precedence over the map's OnSuccess text.
         message = (await _rating_strings(ctl, service)).get(dynamic_message) or message
     return {"ok": True, "skipped": skipped, "state": next_state, "message": message}
+
+
+def _browser_household(ctl, zone: str):
+    """The household the browser room's stream was resolved through: the
+    room it was browsed from, else the first, as /api/stream decides."""
+    household = ctl.household_of(zone) if zone and zone in ctl.zones else None
+    return household or next(iter(ctl.ordered_households()), None)
+
+
+@app.get("/api/stream/item-metadata")
+async def browser_item_metadata(sid: int, item: str, zone: str = "") -> dict:
+    """What the service says about the track the browser room plays, with its
+    rating buttons, as /api/zones/{uuid}/item-metadata answers for a speaker.
+
+    No speaker plays it, so the room is named by what it plays: the service,
+    its item id, and the room it was browsed from (``zone``).
+    """
+    ctl = controller()
+    household = _browser_household(ctl, zone)
+    service = await _cached_service(ctl, household, sid) if household else None
+    if service is None:
+        return {"item_type": "", "semantic_type": "", "title": "", "artist": "",
+                "album": "", "podcast": "", "release_date": "", "summary": ""}
+    return await _provider_item(ctl, household, service, sid, item, "", 0, zone or None)
+
+
+class BrowserRateBody(BaseModel):
+    sid: int
+    item_id: str
+    rating: str
+    current: int = 0
+    #: The room the stream was browsed from, for its household.
+    zone: str = ""
+
+
+@app.post("/api/stream/rate")
+async def rate_browser_item(body: BrowserRateBody) -> dict:
+    """Rate the track the browser room plays.
+
+    Straight to the service with the login the stream was resolved with:
+    there is no player to rate through. A rating the service skips on is
+    answered with ``skip``, and the page moves its own output on.
+    """
+    ctl = controller()
+    household = _browser_household(ctl, body.zone)
+    if household is None:
+        raise HTTPException(503, "no household to rate through")
+    service = await _cached_service(ctl, household, body.sid)
+    if service is None:
+        raise HTTPException(404, f"service {body.sid} not in this household")
+    creds = ctl.credentials_for(household.id, body.sid, "", single_account=True) or {}
+    if service.auth != "Anonymous" and not creds.get("token"):
+        raise HTTPException(409, f"{service.name} is not linked in Sonora.")
+    button = await _rating_button(ctl, service, body.rating)
+    try:
+        inert = bool(button) and rating_is_inert(button, await ctl.presentation.ratings(service.manifest_uri))
+    except Exception:
+        inert = False
+    if inert:
+        return {"ok": True, "skip": False, "state": body.current, "message": "", "unchanged": True}
+    try:
+        answer = await ctl.smapi.rate_item(
+            endpoint=service.endpoint, service_name=service.name, item_id=body.item_id,
+            rating=int(body.rating), household_id=household.id, token=creds.get("token", ""),
+            key=creds.get("key", ""), device_id=await ctl.device_serial(household))
+    except SmapiError as exc:
+        log.warning("%s refused rating %s for %s in the browser room: %s",
+                    service.name, body.rating, body.item_id, exc)
+        raise HTTPException(502, str(exc)) from exc
+    skip = str(button.get("auto_skip", "")).upper() == "ALWAYS" or answer.should_skip
+    message = (await _rating_texts(service)).get(int(body.rating), "")
+    if answer.message_string_id:
+        message = (await _rating_strings(ctl, service)).get(answer.message_string_id) or message
+    return {"ok": True, "skip": skip, "state": body.current, "message": message}
 
 
 async def _rating_strings(ctl, service) -> dict[str, str]:

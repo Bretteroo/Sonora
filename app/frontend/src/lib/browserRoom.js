@@ -151,9 +151,14 @@ export function browserTransport(out) {
     service: out.service,
     // The service's name under the key a speaker's transport uses, which is
     // what every theme reads; without it Hi-Fi's display read "Radio" over
-    // AccuRadio. No service_id: the panes take that as a speaker
-    // to ask for ratings and the item's metadata, and there is none here.
+    // AccuRadio.
     service_name: out.service || '',
+    // The service's id and the item's, as a speaker's transport gives them:
+    // the panes ask for the item's rating buttons by these, and api.js
+    // answers for this room from the service itself (browserItem.js). Null
+    // where nothing a service serves is playing, as on a speaker.
+    service_id: out.url && out.serviceId ? out.serviceId : null,
+    item_id: out.url ? out.itemId || '' : '',
     // Radio does not fill a queue, here or on a speaker; an album does.
     queue_length: out.queue ? out.queue.length : 0,
     // A station or a book has a next track to ask the service for; a live

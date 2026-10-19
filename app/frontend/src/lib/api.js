@@ -8,6 +8,7 @@
 
 import { browserSleep } from './browserSleep.js'
 import { browserQueue } from './browserQueue.js'
+import { browserItem } from './browserItem.js'
 
 export class ApiError extends Error {
   constructor(status, payload) {
@@ -200,11 +201,17 @@ export const api = {
   addToUserPlaylist: (sid, body) => request(`/api/services/${sid}/user-playlists/add`, { method: 'POST', body }),
   serviceItem: (sid, item, zone, account = '') =>
     request(`/api/services/${sid}/item?item=${encodeURIComponent(item)}${zone ? `&zone=${zone}` : ''}${account ? `&account=${encodeURIComponent(account)}` : ''}`),
-  // The browser room belongs to no household and has no speaker behind it,
-  // so the household's lists and a player's own metadata have no answer
-  // there; it gets the empty one here, as its queue does above, rather than
+  // The browser room has no speaker behind it, so its item is asked for by
+  // what it plays (browserItem.js), straight from the service; with nothing
+  // a service serves playing there, the answer is the empty one, rather than
   // a 404 from the backend for every pane that asks (99 an hour).
-  itemMetadata: (uuid) => (uuid === 'SONORA_BROWSER' ? Promise.resolve(null) : request(`/api/zones/${uuid}/item-metadata`)),
+  itemMetadata: (uuid) => {
+    if (uuid !== 'SONORA_BROWSER') return request(`/api/zones/${uuid}/item-metadata`)
+    const { sid, item, zone } = browserItem()
+    if (!sid || !item) return Promise.resolve(null)
+    return request(`/api/stream/item-metadata?sid=${sid}&item=${encodeURIComponent(item)}${zone ? `&zone=${encodeURIComponent(zone)}` : ''}`)
+  },
+  rateBrowserItem: (body) => request('/api/stream/rate', { method: 'POST', body }),
   radioLocation: (zone) => request(`/api/radio-location${zone ? `?zone=${zone}` : ''}`),
   setRadioLocation: (body) => request('/api/radio-location', { method: 'POST', body }),
   favorites: (zone) => (zone === 'SONORA_BROWSER' ? Promise.resolve({ items: [] })

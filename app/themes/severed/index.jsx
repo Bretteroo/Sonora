@@ -1032,7 +1032,7 @@ function ReactionCluster({ zone, t, onMessage }) {
   const offered = (provider?.ratings || []).filter((b) => b.icon)
   const readKey = `${zone?.uuid || ''}|${tr.track_uri || ''}`
   const { ratings, press } = useOptimisticRatings(offered, readKey)
-  const playing = Boolean(zone && !zone.local && isLoaded(tr))
+  const playing = Boolean(zone && isLoaded(tr))
   // Until the item playing has been read (the next track, or another room's), its reactions are
   // not known, and a room skipping through Pandora, or one chosen after another, would show the
   // tempers for that moment. The keys already up stay, unlit, and a press waits; the new set

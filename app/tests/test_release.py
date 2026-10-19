@@ -75,6 +75,20 @@ def test_every_copy_of_the_version_agrees():
     assert len(set(versions.values())) == 1, versions
 
 
+def test_home_assistant_changelog_has_this_version():
+    # Home Assistant's update dialog shows the app folder's CHANGELOG.md, cut
+    # down to the sections between the installed version's heading and the
+    # newest one's. Without a heading for this version it says "No changelog
+    # found".
+    import pathlib
+    import re
+    app = pathlib.Path(__file__).resolve().parent.parent.parent / "homeassistant/sonora"
+    version = re.search(r'^version:\s*"([^"]+)"', (app / "config.yaml").read_text(), re.M)[1]
+    changelog = (app / "CHANGELOG.md").read_text()
+    headings = re.findall(r"^## (\S+)$", changelog, re.M)
+    assert headings[:1] == [version], headings
+
+
 class Response:
     def __init__(self, status, data):
         self.status, self.data = status, data

@@ -766,6 +766,8 @@
   & .mg-dialog-body p { margin: 0; }
   & .mg-dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding: 24px 24px 24px; flex: none; }
   & .mg-tabs { display: flex; flex: none; border-bottom: 1px solid var(--mg-outline-variant); padding: 0 8px; overflow-x: auto; }
+  /* A group's speakers, one chip each, above the tabs of the one in view. */
+  & .mg-roomsettings-members { flex: none; padding: 4px 24px 12px; }
   & .mg-tabs button { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 88px; padding: 10px 12px 12px; border: 0; background: none; cursor: pointer; color: var(--mg-on-surface-variant); font-size: 14px; font-weight: 500; }
   & .mg-tabs svg { width: 22px; height: 22px; }
   & .mg-tabs button[aria-selected='true'] { color: var(--mg-primary); }

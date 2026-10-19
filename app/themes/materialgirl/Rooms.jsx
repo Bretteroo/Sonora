@@ -7,7 +7,7 @@ import { roomSections, canStereoPair } from '../../frontend/src/lib/rooms.js'
 import { proposedGroups, groupingPlan, runPlan, leaderOf as groupLeader } from '../../frontend/src/lib/grouping.js'
 import { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
 import * as I from './icons.jsx'
-import { Sheet, SheetBar, IconButton, Button, Slider, Switch, Confirm, Empty, Select, TextField, ListItem, ShapeArt, Menu, MenuItem, cx } from './m3.jsx'
+import { Sheet, SheetBar, IconButton, Button, Chip, Slider, Switch, Confirm, Empty, Select, TextField, ListItem, ShapeArt, Menu, MenuItem, cx } from './m3.jsx'
 import { KIND_SHAPES, SHAPES } from './shapes.js'
 import { nowSummary, hasMusic, householdOf } from './data.js'
 import { PlayButton } from './Player.jsx'
@@ -212,9 +212,15 @@ function Tone({ label, value, min, max, onChange, minLabel = '-', maxLabel = '+'
   )
 }
 
-export function RoomSettings({ uuid, households, onClose }) {
-  const { zones, zoneList, actions } = useSystem()
+export function RoomSettings({ uuid: opened, households, onClose }) {
+  const { zones, zoneList, groups, actions } = useSystem()
   const { t } = useI18n()
+  // Opened for a group, the sheet steps through its speakers: each has its own sound and
+  // settings, and the group's first is only where it starts.
+  const [uuid, setUuid] = useState(opened)
+  useEffect(() => { setUuid(opened) }, [opened])
+  const members = ((groups || []).find((g) => g.members?.includes(opened))?.members || [])
+    .map((m) => zones[m]).filter((m) => m && !m.local)
   const zone = zones[uuid]
   const [tab, setTab] = useState('sound')
   const [name, setName] = useState(zone?.name || '')
@@ -224,6 +230,7 @@ export function RoomSettings({ uuid, households, onClose }) {
   const [partner, setPartner] = useState('')
   const [lineInName, setLineInName] = useState('')
   useEffect(() => { setName(zone?.name || '') }, [zone?.name])
+  useEffect(() => { setConfirm(null); setPartner('') }, [uuid])
   useEffect(() => {
     if (!uuid) return undefined
     let canceled = false
@@ -245,6 +252,11 @@ export function RoomSettings({ uuid, households, onClose }) {
   return (
     <Sheet kind="side" title={t('desk.prefs.settingsFor', { room: zone.name })} onClose={onClose} className="mg-roomsettings">
       <SheetBar title={zone.name} sub={`${zone.model}${household ? ` · ${household.generation}` : ''}`} onClose={onClose} />
+      {members.length > 1 && (
+        <div className="mg-chips mg-roomsettings-members" role="group" aria-label={t('desk.rooms.title')}>
+          {members.map((m) => <Chip key={m.uuid} selected={m.uuid === uuid} onClick={() => setUuid(m.uuid)}>{m.name}</Chip>)}
+        </div>
+      )}
       <div className="mg-tabs" role="tablist">
         {[['sound', t('desk.prefs.musicEq'), <I.Tune key="s" />], ['device', t('desk.prefs.device'), <I.Speaker key="d" />], ['about', t('win.about.title'), <I.Info key="a" />]].map(([id, label, icon]) => (
           <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>

@@ -16,11 +16,13 @@ only logged, and is tried again the next day.
 from __future__ import annotations
 
 import asyncio
+import functools
 import html
 import importlib.metadata
 import logging
 import pathlib
 import re
+import subprocess
 import time
 
 import aiohttp
@@ -38,13 +40,49 @@ _state: dict[str, object] = {"latest": None, "checked_at": 0.0}
 _task: asyncio.Task | None = None
 
 
+def from_describe(described: str) -> str | None:
+    """A version from `git describe --long`: the release itself on its tag
+    (v1.0.3-0-g1a2b3c4 is 1.0.3), and past it the next patch release as a
+    development build, with the commit (v1.0.3-10-g25ffe45 is
+    1.0.4-dev+25ffe45), so a copy run from source never names a release it
+    has moved on from. Releases go up by a patch at a time."""
+    match = re.fullmatch(r"v?(\d+)\.(\d+)\.(\d+)-(\d+)-g([0-9a-f]+)", described.strip())
+    if not match:
+        return None
+    major, minor, patch, ahead, commit = match.groups()
+    if ahead == "0":
+        return f"{major}.{minor}.{patch}"
+    return f"{major}.{minor}.{int(patch) + 1}-dev+{commit}"
+
+
+@functools.lru_cache(maxsize=1)
+def _checkout_version() -> str | None:
+    """The version of a git checkout, from its newest release tag; None when
+    the code is not in one (the Docker image and the Home Assistant app are
+    built without the repository's history) or git cannot say. Read once, so
+    a new release shows after a restart."""
+    root = pathlib.Path(__file__).resolve().parent.parent.parent
+    if not (root / ".git").exists():
+        return None
+    try:
+        out = subprocess.run(["git", "-C", str(root), "describe", "--tags", "--long", "--match", "v[0-9]*"],
+                             capture_output=True, text=True, timeout=5)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return from_describe(out.stdout) if out.returncode == 0 else None
+
+
 def app_version() -> str:
     """The version running: the installed package's (the Docker image and
-    the Home Assistant app), else pyproject.toml beside the code, else "dev"."""
+    the Home Assistant app), else a git checkout's, from its release tags,
+    else pyproject.toml beside the code, else "dev"."""
     try:
         return importlib.metadata.version("sonora")
     except importlib.metadata.PackageNotFoundError:
         pass
+    checkout = _checkout_version()
+    if checkout:
+        return checkout
     try:
         text = (pathlib.Path(__file__).resolve().parent.parent / "pyproject.toml").read_text()
         match = re.search(r'^version\s*=\s*"([^"]+)"', text, re.M)
@@ -67,8 +105,12 @@ def tag_page(body: bytes) -> bytes:
 
 
 def version_key(version: str) -> tuple[int, ...]:
-    """1.0.10 above 1.0.9; anything after the numbers (a -rc) is ignored."""
-    return tuple(int(n) for n in re.findall(r"\d+", version.split("-")[0])[:3]) or (0,)
+    """1.0.10 above 1.0.9, and a build of a release still to come (1.0.5-dev,
+    1.0.5-rc1) just below that release, so a copy run from source past 1.0.4
+    is told when 1.0.5 is out. What follows the hyphen is otherwise ignored."""
+    numbers, _, suffix = version.partition("-")
+    key = tuple(int(n) for n in re.findall(r"\d+", numbers)[:3]) or (0,)
+    return key + ((0,) if suffix else (1,))
 
 
 def status() -> dict[str, object]:

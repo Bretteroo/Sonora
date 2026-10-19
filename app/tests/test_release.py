@@ -16,13 +16,38 @@ def fresh_state(monkeypatch):
 
 def test_versions_compare_by_number():
     assert release.version_key("1.0.10") > release.version_key("1.0.9")
-    assert release.version_key("1.1.0-rc1") == (1, 1, 0)
+    assert release.version_key("1.1.0-rc1") < release.version_key("1.1.0")
+    assert release.version_key("1.1.0-rc1") > release.version_key("1.0.9")
 
 
 def test_the_running_version_is_known():
     # Read from the installed package, or pyproject.toml when run from source.
     import importlib
     assert importlib.reload(release).app_version() != "dev"
+
+
+def test_a_checkout_names_the_release_it_is_on_or_past():
+    # On a release's tag, that release; past it, the next one as a development
+    # build, so a copy run from source never claims to be a release it is not.
+    assert release.from_describe("v1.0.3-0-g1a2b3c4\n") == "1.0.3"
+    assert release.from_describe("v1.0.3-10-g25ffe45\n") == "1.0.4-dev+25ffe45"
+    assert release.from_describe("v1.2.9-1-gabc1234") == "1.2.10-dev+abc1234"
+    assert release.from_describe("") is None
+    assert release.from_describe("nightly-3-gabc1234") is None
+
+
+def test_a_development_build_is_told_of_the_release_it_was_heading_for(monkeypatch):
+    monkeypatch.setattr(release, "app_version", lambda: "1.0.5-dev+abc1234")
+    github(monkeypatch, 200, {"tag_name": "v1.0.5", "html_url": "u"})
+    asyncio.run(release.check_once())
+    assert release.status()["available"] is True
+
+
+def test_a_development_build_is_not_told_of_the_release_it_came_from(monkeypatch):
+    monkeypatch.setattr(release, "app_version", lambda: "1.0.4-dev+25ffe45")
+    github(monkeypatch, 200, {"tag_name": "v1.0.3", "html_url": "u"})
+    asyncio.run(release.check_once())
+    assert release.status()["available"] is False
 
 
 def test_the_page_names_the_version_serving_it():

@@ -1237,19 +1237,43 @@ function Filing({ job, onDone }) {
     const back = (p) => (p < 0.5 ? 2 * p * p : 1 - (-2 * p + 2) ** 2 / 2)
     const bar = bin.closest('.sv-binsbar')
     const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    let wait = 0
+    // Where the strip is scrolled to bring the bin into view, if it is not in view.
+    let target = null
     if (bar) {
       const start = bin.offsetLeft, end = start + bin.offsetWidth
-      if (start < bar.scrollLeft) { bar.scrollTo({ left: start - 4, behavior: still ? 'auto' : 'smooth' }); wait = 340 }
-      else if (end > bar.scrollLeft + bar.clientWidth) { bar.scrollTo({ left: end - bar.clientWidth + 4, behavior: still ? 'auto' : 'smooth' }); wait = 340 }
+      if (start < bar.scrollLeft) target = start - 4
+      else if (end > bar.scrollLeft + bar.clientWidth) target = end - bar.clientWidth + 4
+      if (target !== null) {
+        target = Math.max(0, Math.min(target, bar.scrollWidth - bar.clientWidth))
+        bar.scrollTo({ left: target, behavior: still ? 'auto' : 'smooth' })
+      }
     }
     const timers = []
     const later = (ms, fn) => timers.push(setTimeout(fn, ms))
+    // The bin is measured once, so nothing starts until the strip is there: at its target, or
+    // its scrollend, and never more than a second and a half. A smooth scroll's length is the
+    // browser's own (Firefox takes over half a second, and can wait a few frames to begin), and
+    // measuring partway through set the flaps off the bin's corners.
+    let ended = null
+    const settled = (fn) => {
+      if (target === null) { fn(); return }
+      let done = false
+      const go = () => { if (!done) { done = true; cancelAnimationFrame(frame); bar.removeEventListener('scrollend', ended); fn() } }
+      ended = go
+      bar.addEventListener('scrollend', go)
+      const t0 = performance.now()
+      const look = (now) => {
+        if (Math.abs(bar.scrollLeft - target) < 1 || now - t0 > 1500) go()
+        else frame = requestAnimationFrame(look)
+      }
+      frame = requestAnimationFrame(look)
+    }
     // The bin's own mark outlives the overlay, so its timer is not among those cleared with it.
     const feed = () => { bin.setAttribute('data-fed', ''); setTimeout(() => bin.removeAttribute('data-fed'), 300) }
-    if (still) { later(wait, () => { feed(); onDone() }); return () => timers.forEach(clearTimeout) }
+    const stop = () => { timers.forEach(clearTimeout); cancelAnimationFrame(frame); if (ended) bar.removeEventListener('scrollend', ended) }
+    if (still) { settled(() => { feed(); onDone() }); return stop }
     let jumble = 0
-    later(wait, () => {
+    settled(() => {
       const r = rectOf(bin)
       const at = { x: r.left, y: r.top, w: r.width, h: r.height }
       // Nothing drawn past the screen's glass: the overlay is cut to the CRT's face.
@@ -1287,7 +1311,7 @@ function Filing({ job, onDone }) {
       later(5100, () => setStage((v) => v && { ...v, flaps: 'shut' }))
       later(5300, onDone)
     })
-    return () => { timers.forEach(clearTimeout); clearInterval(jumble); cancelAnimationFrame(frame) }
+    return () => { stop(); clearInterval(jumble) }
   }, [job, onDone])
   if (!stage) return null
   const { bin, glass, glassTop, flaps, readout } = stage

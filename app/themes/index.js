@@ -38,6 +38,7 @@ import hotdog from './hotdog/index.jsx'
 import solarized from './solarized/index.jsx'
 import materialgirl from './materialgirl/index.jsx'
 import hifi from './hifi/index.jsx'
+import severed from './severed/index.jsx'
 
 export const THEMES = {
   [coromar.id]: coromar,
@@ -52,6 +53,7 @@ export const THEMES = {
   [solarized.id]: solarized,
   [materialgirl.id]: materialgirl,
   [hifi.id]: hifi,
+  [severed.id]: severed,
 }
 
 export const DEFAULT_THEME = coromar.id

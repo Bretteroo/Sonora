@@ -546,18 +546,7 @@
    "tile-hover",
    "tile-hover-edge",
    "tile-selected",
-   "tile-selected-edge",
-   "win-btn-hover",
-   "win-close-hover",
-   "win-menu-bg",
-   "win-menu-border",
-   "win-menu-hover",
-   "win-menu-hover-fg",
-   "win-menubar-bg",
-   "win-menubar-fg",
-   "win-titlebar",
-   "win-titlebar-border",
-   "win-titlebar-fg"
+   "tile-selected-edge"
   ],
   "note": "Each becomes --t-<name>. The core ones are read by the parts whatever your layout is; the rest are one theme's own and may change, so set your own value rather than relying on it."
  },

@@ -76,7 +76,7 @@ def test_the_about_windows_link_is_served():
 def test_no_picture_is_in_the_repository_that_is_not_accounted_for():
     tracked = subprocess.run(["git", "ls-files"], cwd=ROOT.parent, capture_output=True, text=True).stdout.split()
     pictures = {f for f in tracked
-                if re.search(r"\.(png|jpe?g|gif|webp|svg|ico|tiff?|bmp|woff2?|ttf|otf)$", f, re.I)}
+                if re.search(r"\.(png|jpe?g|gif|webp|svg|ico|tiff?|bmp|woff2?|ttf|otf|ogg|opus|wav|mp3|flac|m4a)$", f, re.I)}
     thumbnails = {f for f in pictures if re.fullmatch(r"app/themes/[a-z0-9]+/thumbnail(-[a-z]+)?\.webp", f)}
     # The README's screenshots of Sonora itself: each theme in light, in dark,
     # and on a phone.
@@ -93,6 +93,11 @@ THIRD_PARTY_FILES = {
     "app/themes/materialgirl/fonts/roboto-flex-latin-ext.woff2": "Roboto Flex",
     "app/themes/materialgirl/fonts/roboto-flex-cyrillic.woff2": "Roboto Flex",
     "app/themes/materialgirl/fonts/roboto-flex-cyrillic-ext.woff2": "Roboto Flex",
+    "app/themes/severed/fonts/vt323-latin.woff2": "VT323",
+    "app/themes/severed/fonts/vt323-latin-ext.woff2": "VT323",
+    "app/themes/severed/fonts/michroma-latin.woff2": "Michroma",
+    "app/themes/severed/fonts/michroma-latin-ext.woff2": "Michroma",
+    "app/themes/severed/sounds/keys.ogg": "Keyboard Soundpack #1",
 }
 
 

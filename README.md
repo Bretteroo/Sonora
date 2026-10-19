@@ -114,7 +114,7 @@ You'll need Home Assistant OS or a Supervised install. Container and Core instal
 
 ### Install Sonora
 * In Home Assistant, go to **Settings > Apps** and choose **Install App**.
-* Open the ⋮ menu at the top right, choose **Repositories**, and add `https://github.com/Bretteroo/Sonora`.
+* Open the **⋮** menu at the top right, choose **Repositories**, and add `https://github.com/Bretteroo/Sonora`.
 * Find **Sonora** in the store, then install and start it.
 * Turn on **Show in sidebar**.
 
@@ -231,7 +231,7 @@ Docker's `network_mode: host` is required for the same reason: the speakers have
 
 ## 🎨 Themes
 
-Sonora ships several themes. Five of them, Hi-Fi, Liquid Glass, Material Girl, Solarized and Sonofuture, come in both light and dark.
+Sonora ships several themes. Six of them, Hi-Fi, Liquid Glass, Material Girl, Severed, Solarized, and Sonofuture, come in both light and dark.
 
 You can make your own themes, too! [THEMES.md](THEMES.md) shows how.
 
@@ -356,6 +356,21 @@ The controller rebuilt on Google's Material 3 Expressive: shape-shifting covers,
 <br>
 <br>
 <img src="docs/screenshots/materialgirl/spread-mobile.webp" width="70%" alt="Material Girl theme on a phone: Home and the full-screen player, light and dark">
+</details>
+
+<details>
+<summary><b>Severed</b></summary>
+<br>
+A desk terminal for doing mysterious and important work. Soothing scanlines and a phosphor glow pour over your music library. Uniquely suited for macrodata refinement.
+<br>
+<br>
+<img src="docs/screenshots/severed/spread.webp" alt="Severed theme: Home, Now Playing, and a music service">
+<br>
+<br>
+<img src="docs/screenshots/severed/spread-dark.webp" alt="Severed theme in dark: Home, Now Playing, and a music service">
+<br>
+<br>
+<img src="docs/screenshots/severed/spread-mobile.webp" width="70%" alt="Severed theme on a phone: Home and the full-screen player, light and dark">
 </details>
 
 <details>

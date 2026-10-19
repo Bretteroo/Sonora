@@ -10,6 +10,7 @@ settings are depends on the theme being worn:
 | macOS | the application menu (named for the controller) → Settings… → the Sonora page |
 | Sonofuture, Liquid Glass, Material Girl | Settings → Appearance |
 | Hi-Fi | the Function knob turned to Setup → Appearance |
+| Severed | the Setup key on the keyboard deck → Appearance |
 | Sonos Web | Settings |
 | a theme installed from a file | its `settings` part, or the Settings button Sonora adds (see *Your layout must be escapable*) |
 

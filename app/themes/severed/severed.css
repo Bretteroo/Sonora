@@ -1,0 +1,1990 @@
+/* Severed: a desk terminal for Sonora.
+ *
+ * Every rule sits under :root[data-theme='severed'], so nothing here reaches
+ * another theme, and the windows and menus the shell portals into <body>
+ * wear it too.
+ *
+ * Two materials. The console is molded plastic -- cream with a navy keyboard
+ * deck in the light variant, graphite with a darker deck in the dark one --
+ * and its keys have a cap that travels down a few pixels over a darker body.
+ * The screen is a cathode-ray tube: phosphor on a dark glass, scan lines,
+ * a little glow on everything lit, darker toward its curved corners. The
+ * phosphor's color is the theme's own setting (data-sv-phosphor on the
+ * document); everything on the screen is drawn from --sv-ph and its washes. */
+
+/* A key's out-of-use tint and its highlight, registered as colors so a key fading between in use
+   and not (.sv-key[data-dim]) can blend them; unregistered, they could only switch. A press's
+   shade (--k-shade) stays unregistered, so a press still lands at once. Only this theme's keys
+   set them. */
+@property --k-off { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --k-hi { syntax: '<color>'; inherits: true; initial-value: transparent; }
+
+:root[data-theme='severed'] {
+  /* --- the console, light: cream plastic, navy deck -------------------------------- */
+  --sv-plastic: #ebe6d9;
+  --sv-plastic-hi: #f6f3eb;
+  --sv-plastic-lo: #d8d1bf;
+  --sv-plastic-edge: #bdb5a1;
+  --sv-shell: #f4f2ec;
+  --sv-shell-lo: #dcd8cd;
+  --sv-tray-rim: #e4dfd2;
+  /* A tile of grain for the molded plastic. */
+  --sv-grain: url('data:image/png;base64,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');
+  --sv-face: #213650;
+  --sv-drive-door: #cbc7bc; --sv-drive-slot: #1b1a17;
+  --sv-well-rim: rgba(57, 56, 47, 0.2); --sv-well-fill: color-mix(in srgb, var(--sv-plastic) 90%, black); --sv-button-shade: rgba(0, 0, 0, 0.26); --sv-button-lit: color-mix(in srgb, var(--sv-plastic) 40%, white);
+  --sv-face-hi: #2c4566;
+  --sv-print: #39382f;
+  --sv-print-soft: #77735f;
+  --sv-deck: #233c5a;
+  --sv-deck-hi: #2e4b6e;
+  --sv-deck-lo: #1a2e46;
+  --sv-deck-frame: #f1eee6;
+  --sv-deck-print: #c8d6e6;
+  --sv-shadow: rgba(48, 40, 20, 0.28);
+
+  /* keys: a face, its light and dark edges, the body under it, the legend; under each, the colors
+     its faces are drawn in, mixed from those four (see .sv-key[data-shade]) */
+  --sv-cream-face: #f3efe4; --sv-cream-hi: #fcfaf4; --sv-cream-lo: #e2dccb; --sv-cream-side: #c4bca7; --sv-cream-ink: #34332c;
+    --sv-cream-wl0: #eae5d6; --sv-cream-wl1: #f7f3ea; --sv-cream-wr0: #cdc6b2; --sv-cream-wr1: #dad4c2; --sv-cream-wf0: #dcd6c4; --sv-cream-wf1: #ccc4b0; --sv-cream-wf2: #a7a08e; --sv-cream-c5: #f8f6ee; --sv-cream-c6: #eeeadd; --sv-cream-c7: #d9d2c0; --sv-cream-c8: #d2cab7; --sv-cream-t0: #f1ede1; --sv-cream-t2: #f6f3ea;
+  --sv-navy-face: #2f4e72; --sv-navy-hi: #3d6089; --sv-navy-lo: #284463; --sv-navy-side: #172b42; --sv-navy-ink: #e6eef7;
+    --sv-navy-wl0: #2b486a; --sv-navy-wl1: #35557b; --sv-navy-wr0: #1c324c; --sv-navy-wr1: #243e5b; --sv-navy-wf0: #253f5c; --sv-navy-wf1: #1b314a; --sv-navy-wf2: #142538; --sv-navy-c5: #375980; --sv-navy-c6: #315174; --sv-navy-c7: #233c59; --sv-navy-c8: #1f3651; --sv-navy-t0: #2e4d70; --sv-navy-t2: #34547a;
+  --sv-teal-face: #43a0aa; --sv-teal-hi: #57b5be; --sv-teal-lo: #388c95; --sv-teal-side: #24686f; --sv-teal-ink: #f2fbfb;
+    --sv-teal-wl0: #3d959e; --sv-teal-wl1: #4ba8b2; --sv-teal-wr0: #2a737a; --sv-teal-wr1: #33838c; --sv-teal-wf0: #34858d; --sv-teal-wf1: #297178; --sv-teal-wf2: #1f585e; --sv-teal-c5: #4fadb6; --sv-teal-c6: #469ea7; --sv-teal-c7: #32818a; --sv-teal-c8: #2d7880; --sv-teal-t0: #429ea7; --sv-teal-t2: #4aa7b1;
+  --sv-sage-face: #bad59b; --sv-sage-hi: #cbe4af; --sv-sage-lo: #a7c488; --sv-sage-side: #7f9e60; --sv-sage-ink: #22361a;
+    --sv-sage-wl0: #b0cc91; --sv-sage-wl1: #c1dba3; --sv-sage-wr0: #8ba96c; --sv-sage-wr1: #9dba7e; --sv-sage-wf0: #9fbc80; --sv-sage-wf1: #89a86a; --sv-sage-wf2: #6c8652; --sv-sage-c5: #c4dea7; --sv-sage-c6: #b7d29a; --sv-sage-c7: #9bb97c; --sv-sage-c8: #91af72; --sv-sage-t0: #b8d399; --sv-sage-t2: #c0daa2;
+  --sv-aqua-face: #abdcd8; --sv-aqua-hi: #c3e9e5; --sv-aqua-lo: #96ccc7; --sv-aqua-side: #6aa6a1; --sv-aqua-ink: #1b3a37;
+    --sv-aqua-wl0: #9fd3cf; --sv-aqua-wl1: #b5e1dd; --sv-aqua-wr0: #77b1ac; --sv-aqua-wr1: #8bc2be; --sv-aqua-wf0: #8dc4bf; --sv-aqua-wf1: #75b0aa; --sv-aqua-wf2: #5a8d89; --sv-aqua-c5: #b9e4e0; --sv-aqua-c6: #aad9d4; --sv-aqua-c7: #89c1bc; --sv-aqua-c8: #7eb7b2; --sv-aqua-t0: #a8dad6; --sv-aqua-t2: #b3e1dd;
+  --sv-coral-face: #ea9473; --sv-coral-hi: #f4aa8d; --sv-coral-lo: #dc7f5e; --sv-coral-side: #ad5b3d; --sv-coral-ink: #3b160a;
+    --sv-coral-wl0: #e28867; --sv-coral-wl1: #ee9d7d; --sv-coral-wr0: #bb6647; --sv-coral-wr1: #d07656; --sv-coral-wf0: #d37857; --sv-coral-wf1: #b96445; --sv-coral-wf2: #934d34; --sv-coral-c5: #f0a183; --sv-coral-c6: #e79273; --sv-coral-c7: #ce7454; --sv-coral-c8: #c26b4c; --sv-coral-t0: #e89170; --sv-coral-t2: #ee9c7c;
+
+  /* --- the screen ------------------------------------------------------------------- */
+  --sv-ph-rgb: 210 240 255;
+  --sv-scr-rgb: 11 37 48;
+  --sv-scr-edge: #02101a;
+  --sv-good: #8ef0a2;
+  --sv-fair: #f2d27a;
+  --sv-poor: #f2a06e;
+  --sv-critical: #ff7a7a;
+
+  --sv-ph: rgb(var(--sv-ph-rgb));
+  --sv-ph-dim: rgb(var(--sv-ph-rgb) / 0.66);
+  --sv-ph-faint: rgb(var(--sv-ph-rgb) / 0.3);
+  --sv-ph-line: rgb(var(--sv-ph-rgb) / 0.4);
+  --sv-ph-wash: rgb(var(--sv-ph-rgb) / 0.12);
+  --sv-ph-wash-strong: rgb(var(--sv-ph-rgb) / 0.22);
+  --sv-scr: rgb(var(--sv-scr-rgb));
+  /* One device pixel, set from the screen's pixel ratio: segmented bars size their stripes in
+     whole device pixels, so a fractional ratio cannot make some segments or gaps a pixel wider. */
+  --sv-dpx: 1px;
+  --sv-scr-raised: rgb(var(--sv-scr-rgb) / 0.9);
+  --sv-glow: 0 0 1px rgb(var(--sv-ph-rgb) / 0.85), 0 0 7px rgb(var(--sv-ph-rgb) / 0.42);
+  --sv-glow-soft: 0 0 6px rgb(var(--sv-ph-rgb) / 0.32);
+
+  --sv-screen-font: "Severed Screen", "VT323", "Courier New", ui-monospace, monospace;
+  --sv-panel-font: "Severed Panel", "Michroma", "Eurostile", "Bank Gothic", "Arial Black", system-ui, sans-serif;
+  --sv-wing: 246px;
+  --sv-key-h: 56px;
+  color-scheme: dark;
+}
+
+/* The phosphors. Ice is the white-blue of a lab terminal; cyan the hard blue-green of an office
+   terminal, on a lighter, slate-blue tube; teal the mint of a holiday console; green and amber
+   the two every terminal of the period came in. */
+:root[data-theme='severed'][data-sv-phosphor='cyan'] { --sv-ph-rgb: 128 244 250; --sv-scr-rgb: 26 54 70; --sv-scr-edge: #0b1a23; }
+:root[data-theme='severed'][data-sv-phosphor='teal'] { --sv-ph-rgb: 150 240 214; --sv-scr-rgb: 8 38 36; --sv-scr-edge: #021210; }
+:root[data-theme='severed'][data-sv-phosphor='green'] { --sv-ph-rgb: 112 255 150; --sv-scr-rgb: 6 30 14; --sv-scr-edge: #010c04; }
+:root[data-theme='severed'][data-sv-phosphor='amber'] { --sv-ph-rgb: 255 190 96; --sv-scr-rgb: 36 20 6; --sv-scr-edge: #0d0602; }
+
+/* --- the console, dark: graphite plastic, a darker deck ------------------------------- */
+:root[data-theme='severed'][data-variant='dark'] {
+  --sv-plastic: #2a2f37;
+  --sv-plastic-hi: #353b45;
+  --sv-plastic-lo: #20242a;
+  --sv-plastic-edge: #14171c;
+  --sv-shell: #353a43;
+  --sv-shell-lo: #24282f;
+  --sv-tray-rim: #2c3139;
+  --sv-face: #10192a;
+  --sv-drive-door: #383d46; --sv-drive-slot: #0b0c0e;
+  --sv-well-rim: rgba(255, 255, 255, 0.09); --sv-well-fill: color-mix(in srgb, var(--sv-plastic) 72%, black); --sv-button-shade: rgba(0, 0, 0, 0.55); --sv-button-lit: color-mix(in srgb, var(--sv-plastic) 80%, white);
+  --sv-face-hi: #18243a;
+  --sv-print: #d9d3c4;
+  --sv-print-soft: #9a9584;
+  --sv-deck: #141f30;
+  --sv-deck-hi: #1c2a40;
+  --sv-deck-lo: #0d1522;
+  --sv-deck-frame: #3a3f49;
+  --sv-deck-print: #a9b8cb;
+  --sv-shadow: rgba(0, 0, 0, 0.5);
+  --sv-cream-face: #4c535e; --sv-cream-hi: #5b636f; --sv-cream-lo: #424852; --sv-cream-side: #2a2e35; --sv-cream-ink: #ece6d8;
+    --sv-cream-wl0: #464d57; --sv-cream-wl1: #525965; --sv-cream-wr0: #31363e; --sv-cream-wr1: #3c424b; --sv-cream-wf0: #3d434c; --sv-cream-wf1: #30343c; --sv-cream-wf2: #24272d; --sv-cream-c5: #555d68; --sv-cream-c6: #4d545f; --sv-cream-c7: #3b4049; --sv-cream-c8: #353a42; --sv-cream-t0: #4b525d; --sv-cream-t2: #515964;
+  --sv-navy-face: #283e5c; --sv-navy-hi: #334d71; --sv-navy-lo: #22354f; --sv-navy-side: #111c2c;
+    --sv-navy-wl0: #253955; --sv-navy-wl1: #2c4464; --sv-navy-wr0: #162436; --sv-navy-wr1: #1e2f46; --sv-navy-wf0: #1f3048; --sv-navy-wf1: #152235; --sv-navy-wf2: #0e1825; --sv-navy-c5: #2f4769; --sv-navy-c6: #2a405e; --sv-navy-c7: #1d2e44; --sv-navy-c8: #19273c; --sv-navy-t0: #273d5a; --sv-navy-t2: #2c4363;
+}
+
+:root[data-theme='severed'] {
+  & body {
+    background: var(--sv-plastic);
+    color: var(--sv-print);
+  }
+
+  /* --- the console ------------------------------------------------------------------ */
+  & .sv-root {
+    position: fixed; inset: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--sv-wing);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'head head' 'screen right' 'deck deck';
+    gap: 12px 20px;
+    padding: 10px 22px 16px;
+    font-family: var(--sv-panel-font);
+    color: var(--sv-print);
+    background:
+      radial-gradient(120% 70% at 50% 0%, var(--sv-plastic-hi), transparent 60%),
+      linear-gradient(180deg, var(--sv-plastic-hi), var(--sv-plastic) 30%, var(--sv-plastic-lo));
+    -webkit-font-smoothing: antialiased;
+    overflow: clip;
+  }
+  /* A fine grain in the molding. */
+  & .sv-root::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.045;
+    background-image: var(--sv-grain);
+  }
+  & .sv-root > :not(.about-backdrop, .sv-filing, .sv-trackball-laid) { position: relative; }
+  /* The About card can be taller than a phone: its backdrop scrolls, and the card starts at the top when it does not fit. */
+  & .about-backdrop { overflow-y: auto; overscroll-behavior: contain; place-items: safe center; }
+  & .sv-print { font-family: var(--sv-panel-font); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sv-print-soft); }
+
+  /* The head: the name between double rules, the model under it, the power lamp. */
+  /* Two equal outer columns keep the name at the middle of the console, whatever stands to its right. */
+  & .sv-head { grid-area: head; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 18px; min-height: 46px; }
+  & .sv-head-end { display: flex; align-items: center; gap: 18px; min-width: 0; }
+  & .sv-head-end .sv-brand-rule { flex: 1; min-width: 12px; }
+  & .sv-brand {
+    display: grid; justify-items: center;
+    background: none; border: 0; padding: 0; color: var(--sv-print); cursor: pointer; font: inherit;
+  }
+  & .sv-brand-rule { height: 7px; border-block: 2px solid var(--sv-print); opacity: 0.8; }
+  & .sv-brand-name { font-family: var(--sv-panel-font); font-size: 24px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 1; }
+  & .sv-brand-model { font-size: 8px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--sv-print-soft); text-align: center; margin-top: 4px; }
+  & .sv-brand:focus-visible { outline: 2px solid var(--sv-teal-face); outline-offset: 4px; border-radius: 4px; }
+  & .sv-power { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 64px; }
+
+  /* Lamps. */
+  & .sv-led {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none;
+    background: radial-gradient(circle at 35% 30%, #5d6157, #2e322b 70%);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  & .sv-led[data-on] { background: radial-gradient(circle at 35% 30%, #e9ffe9, #57f07a 45%, #1da33f); box-shadow: 0 0 6px 1px rgba(87, 240, 122, 0.7), inset 0 0 1px rgba(0, 0, 0, 0.3); }
+  & .sv-led[data-on][data-tone='amber'] { background: radial-gradient(circle at 35% 30%, #fff4dd, #ffbe4a 45%, #c97a0c); box-shadow: 0 0 6px 1px rgba(255, 180, 70, 0.7); }
+  & .sv-led[data-blink] { animation: sv-blink 1s steps(2, jump-none) infinite; }
+
+  /* --- keys ------------------------------------------------------------------------- */
+  /* A key is a sculpted cap with a broad top. The skirt drops almost straight
+     at the back and sides, so they show only as a thin edge, and slopes out at
+     the front into a deeper band: seen from in front and a little above, the
+     top sits toward the back of the key with the front skirt below it. Light
+     comes from above. Caps stand almost edge to edge in a dark tray cut into
+     the case. Pressing sinks the cap a little, so it darkens. */
+  & .sv-key {
+    --k-face: var(--sv-cream-face); --k-hi: var(--sv-cream-hi); --k-lo: var(--sv-cream-lo); --k-side: var(--sv-cream-side);
+    --k-pwl0: var(--sv-cream-wl0); --k-pwl1: var(--sv-cream-wl1); --k-pwr0: var(--sv-cream-wr0); --k-pwr1: var(--sv-cream-wr1); --k-pwf0: var(--sv-cream-wf0); --k-pwf1: var(--sv-cream-wf1); --k-pwf2: var(--sv-cream-wf2); --k-pc5: var(--sv-cream-c5); --k-pc6: var(--sv-cream-c6); --k-pc7: var(--sv-cream-c7); --k-pc8: var(--sv-cream-c8); --k-pt0: var(--sv-cream-t0); --k-pt2: var(--sv-cream-t2); --k-ink: var(--sv-cream-ink);
+    --k-w: 64px; --k-wall: 10px; --k-off: transparent; --k-shade: var(--k-off);
+    --k-back: calc(var(--k-wall) * 0.3); --k-left: calc(var(--k-wall) * 0.5); --k-right: calc(var(--k-wall) * 0.6); --k-front: calc(var(--k-wall) * 0.95);
+    position: relative; flex: none;
+    width: var(--k-w); height: var(--sv-key-h);
+    padding: 0; margin: 0;
+    border: 0; border-radius: 6px;
+    background: none;
+    color: var(--k-ink);
+    cursor: pointer;
+    font: inherit;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  /* The cap is built in three dimensions: a top raised --k-rise above the tray
+     and four sloped walls joining its edges to the cap's foot, each a real
+     plane tipped up from one edge of the footprint. Laid flat and seen from
+     straight above they draw the cap as a plan; on the deck, tipped back on
+     the table, the near rows show their front walls and the far rows mostly
+     their tops, as a keyboard does. */
+  & .sv-key { --k-rise: 18px; transform-style: preserve-3d; }
+  & .sv-key-cap {
+    position: relative; display: block;
+    height: 100%;
+    border-radius: var(--k-foot);
+    background: var(--k-floor);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 2px 3px rgba(0, 0, 0, 0.3);
+    transform-style: preserve-3d;
+    transform-origin: 50% 50% 0;
+    transition: transform 35ms ease-out;
+  }
+  & .sv-key-walls { position: absolute; inset: 0; pointer-events: none; transform-style: preserve-3d; }
+  & .sv-key-walls > i { position: absolute; display: block; backface-visibility: visible; }
+  /* The cap's foot and its top are both cut back at the corners, and each corner is a facet of its
+     own: the four walls meet the top only along its straight edges, and between two walls a
+     narrow face runs from the foot's corner to the top's, so the top's rounded corners stand
+     clear and nothing is open between the walls. Walls and facets are planes on the cap,
+     placed by rotation and skew alone. */
+  & .sv-key { --k-foot: 6px; }
+  /* The facets' shades, and the cap's floor: its corners, out past each facet's foot to the rounded
+     edge, take the facet's shade, so the facet seems to run out to the curve. */
+  & :is(.sv-key-cap, .sv-fader-cap) {
+    --k-c5: var(--k-pc5); --k-c6: var(--k-pc6); --k-c7: var(--k-pc7); --k-c8: var(--k-pc8);
+    /* One conic gradient, a quarter to each corner, in place of a layer per corner: only the corners
+       show past the walls. */
+    --k-floor: var(--k-shade-layer) conic-gradient(var(--k-c6) 0 25%, var(--k-c8) 0 50%, var(--k-c7) 0 75%, var(--k-c5) 0);
+  }
+  & .sv-fader-cap { --k-foot: 4px; }
+  /* back: hinged on the footprint's far edge */
+  & .sv-key-walls > i:nth-child(1) {
+    left: 0; right: 0; top: 0; height: hypot(var(--k-rise), var(--k-back));
+    transform-origin: 50% 0; transform: rotateX(atan2(var(--k-rise), var(--k-back)));
+    clip-path: polygon(var(--k-foot) 0, calc(100% - var(--k-foot)) 0, calc(100% - var(--k-right) - var(--k-foot)) 100%, calc(var(--k-left) + var(--k-foot)) 100%);
+    background: var(--k-shade-layer) var(--k-hi);
+  }
+  /* left */
+  & .sv-key-walls > i:nth-child(2) {
+    top: 0; bottom: 0; left: 0; width: hypot(var(--k-rise), var(--k-left));
+    transform-origin: 0 50%; transform: rotateY(calc(atan2(var(--k-rise), var(--k-left)) * -1));
+    clip-path: polygon(0 var(--k-foot), 100% calc(var(--k-back) + var(--k-foot)), 100% calc(100% - var(--k-front) - var(--k-foot)), 0 calc(100% - var(--k-foot)));
+    background: var(--k-shade-layer) linear-gradient(90deg, var(--k-pwl0), var(--k-pwl1));
+  }
+  /* right */
+  & .sv-key-walls > i:nth-child(3) {
+    top: 0; bottom: 0; right: 0; width: hypot(var(--k-rise), var(--k-right));
+    transform-origin: 100% 50%; transform: rotateY(atan2(var(--k-rise), var(--k-right)));
+    clip-path: polygon(100% var(--k-foot), 100% calc(100% - var(--k-foot)), 0 calc(100% - var(--k-front) - var(--k-foot)), 0 calc(var(--k-back) + var(--k-foot)));
+    background: var(--k-shade-layer) linear-gradient(90deg, var(--k-pwr0), var(--k-pwr1));
+  }
+  /* front: hinged on the near edge, the deep band below the top */
+  & .sv-key-walls > i:nth-child(4) {
+    left: 0; right: 0; bottom: 0; height: hypot(var(--k-rise), var(--k-front));
+    transform-origin: 50% 100%; transform: rotateX(calc(atan2(var(--k-rise), var(--k-front)) * -1));
+    clip-path: polygon(calc(var(--k-left) + var(--k-foot)) 0, calc(100% - var(--k-right) - var(--k-foot)) 0, calc(100% - var(--k-foot)) 100%, var(--k-foot) 100%);
+    background: var(--k-shade-layer) linear-gradient(0deg, var(--k-pwf0), var(--k-pwf1) 55%, var(--k-pwf2));
+  }
+  /* The corner facets. Each is laid out for the far left corner, then mirrored into its own: a
+     strip as long as the foot's cut, turned along it, tipped up to the top, and skewed by however
+     much the corner's two walls differ in depth (--k-a across, --k-b along the key). */
+  & .sv-key-walls > i:nth-child(n + 5) {
+    --k-in: calc((var(--k-a) + var(--k-b)) * 0.70711);
+    --k-along: calc((var(--k-a) - var(--k-b)) * 0.70711);
+    top: 0; left: 0; width: calc(var(--k-foot) * 1.41421); height: hypot(var(--k-rise), var(--k-in));
+    transform-origin: 0 0;
+    transform: scale(var(--k-sx), var(--k-sy)) translateY(var(--k-foot)) rotate(-45deg)
+               rotateX(atan2(var(--k-rise), var(--k-in))) skewX(atan2(var(--k-along), hypot(var(--k-rise), var(--k-in))));
+  }
+  & .sv-key-walls > i:nth-child(5) {
+    --k-a: var(--k-left); --k-b: var(--k-back); --k-sx: 1; --k-sy: 1;
+    background: var(--k-shade-layer) var(--k-c5);
+  }
+  & .sv-key-walls > i:nth-child(6) {
+    --k-a: var(--k-right); --k-b: var(--k-back); --k-sx: -1; --k-sy: 1; left: 100%;
+    background: var(--k-shade-layer) var(--k-c6);
+  }
+  & .sv-key-walls > i:nth-child(7) {
+    --k-a: var(--k-left); --k-b: var(--k-front); --k-sx: 1; --k-sy: -1; top: 100%;
+    background: var(--k-shade-layer) var(--k-c7);
+  }
+  & .sv-key-walls > i:nth-child(8) {
+    --k-a: var(--k-right); --k-b: var(--k-front); --k-sx: -1; --k-sy: -1; left: 100%; top: 100%;
+    background: var(--k-shade-layer) var(--k-c8);
+  }
+  /* The top is a broad square with well-rounded corners and no hard outline: its rounded edge
+     rolls over into the walls, a soft shade along the front where it turns down into the skirt.
+     It is dished, lit from above as a hollow is: the far slope, turned from the light, a shade
+     darker and shadowed under the far rim; the near slope, turned toward it, a shade lighter and
+     lit along the near rim; the middle the deepest, and the flat margin round it the lightest. */
+  & .sv-key-top {
+    position: absolute; inset: var(--k-back) var(--k-right) var(--k-front) var(--k-left);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    padding: 3px 3px 2px;
+    border-radius: 9px;
+    transform: translateZ(var(--k-rise));
+    background:
+      var(--k-shade-layer)
+      linear-gradient(180deg, rgb(0 0 0 / 0.06), transparent 40%, transparent 60%, rgb(255 255 255 / 0.07)),
+      radial-gradient(ellipse 80% 78% at 50% 54%, var(--k-pt0), var(--k-face) 62%, var(--k-pt2) 100%);
+    box-shadow:
+      0 1.5px 2px color-mix(in srgb, var(--k-side) 70%, transparent),
+      inset 0 2px 2px -1px color-mix(in srgb, var(--k-lo) 75%, transparent),
+      inset 0 -1px 1px color-mix(in srgb, var(--k-hi) 80%, white);
+  }
+  /* Matte plastic: a faint grain over the top. */
+  & .sv-key-top::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background-image: var(--sv-grain);
+    opacity: 0.035;
+  }
+  /* Pressed, the cap sinks most of the way into the tray and darkens. */
+  & .sv-key[data-down] .sv-key-cap, & .sv-key:active:not([aria-disabled]) .sv-key-cap {
+    transform: scale3d(0.98, 0.98, 0.35);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.32), 0 1px 1px rgba(0, 0, 0, 0.3);
+  }
+  /* A shade laid into the plastic rather than a filter over it, which would flatten the cap. */
+  & .sv-key[data-down], & .sv-key:active:not([aria-disabled]) { --k-shade: rgba(0, 0, 0, 0.07); }
+  /* The shade is a layer of its own over every face of the cap, and drawn only while it shows: on a
+     key out of use, for the moment it takes to fade back (data-shade), or pressed. Every gradient
+     costs the page a little each time anything on it is drawn, and there are dozens of keys. */
+  & :is(.sv-key, .sv-fader-cap) { --k-shade-layer: ; }
+  & .sv-key:is([data-shade], [data-down], :active:not([aria-disabled])) { --k-shade-layer: linear-gradient(var(--k-shade), var(--k-shade)), ; }
+  /* The faces' colors are mixed ahead of time, a set to each kind of key (--sv-<tone>-wl0 and the
+     rest, beside the tones): a gradient between colors made by color-mix() costs the page several
+     milliseconds every time anything on it is drawn, where the same gradient between plain colors
+     costs next to nothing. A key out of use or fading mixes its own, since its light changes. */
+  & .sv-key[data-shade] {
+    --k-pwl0: color-mix(in srgb, var(--k-face) 45%, var(--k-lo)); --k-pwl1: color-mix(in srgb, var(--k-face) 60%, var(--k-hi));
+    --k-pwr0: color-mix(in srgb, var(--k-lo) 30%, var(--k-side)); --k-pwr1: color-mix(in srgb, var(--k-lo) 75%, var(--k-side));
+    --k-pwf0: color-mix(in srgb, var(--k-lo) 80%, var(--k-side)); --k-pwf1: color-mix(in srgb, var(--k-lo) 25%, var(--k-side)); --k-pwf2: color-mix(in srgb, var(--k-side) 85%, black);
+    --k-pc5: color-mix(in srgb, var(--k-hi) 60%, var(--k-face)); --k-pc6: color-mix(in srgb, var(--k-hi) 45%, var(--k-lo));
+    --k-pc7: color-mix(in srgb, var(--k-lo) 70%, var(--k-side)); --k-pc8: color-mix(in srgb, var(--k-lo) 45%, var(--k-side));
+    --k-pt0: color-mix(in srgb, var(--k-face) 88%, var(--k-lo)); --k-pt2: color-mix(in srgb, var(--k-face) 65%, var(--k-hi));
+  }
+
+  /* The cursor keys' tray follows their T, with Enter's beside it, each cut into the case with
+     the rim the key runs have: a block under Esc, Up, Left, and Down; the right arrow's own
+     piece joined on, its top rim starting clear of the block; and Enter's. */
+  & .sv-cursor { padding: 3px; }
+  & .sv-cursor::before, & .sv-cursor::after, & .sv-cursor-right::before {
+    content: ''; position: relative; z-index: -1; margin: -3px; border-radius: 5px; pointer-events: none;
+    background: color-mix(in srgb, #0e0d0a 78%, var(--sv-tray-rim));
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.6),
+      0 0 0 3px var(--sv-tray-rim), 0 -1px 0 3px rgba(255, 255, 255, 0.45), 0 1px 0 3px rgba(0, 0, 0, 0.16), 0 3px 5px 3px rgba(0, 0, 0, 0.14);
+  }
+  & .sv-cursor::before { grid-area: 1 / 1 / 3 / 3; border-bottom-right-radius: 0; }
+  & .sv-cursor::after { grid-area: 1 / 5 / 3 / 6; }
+  & .sv-cursor-right::before {
+    position: absolute; inset: -3px; margin: 0; border-radius: 0 5px 5px 0;
+    clip-path: polygon(3px -8px, calc(100% + 8px) -8px, calc(100% + 8px) calc(100% + 12px), 0 calc(100% + 12px), 0 0, 3px 0);
+  }
+  /* An unavailable key: its plastic shaded, its highlights put out, with the legend dimmed further
+     below. */
+  & .sv-key[data-dim] { --k-off: rgba(6, 8, 12, 0.42); --k-hi: color-mix(in srgb, var(--k-face) 55%, var(--k-lo)); }
+  & .sv-key[data-dim] .sv-key-top {
+    box-shadow: 0 1.5px 2px color-mix(in srgb, var(--k-side) 70%, transparent),
+      inset 0 2px 2px -1px color-mix(in srgb, var(--k-lo) 75%, transparent), inset 0 -1px 1px rgba(255, 255, 255, 0.08);
+  }
+  & .sv-btnrow:empty { display: none; }
+  /* With no room to turn up, the fader's knob goes too, and leaves the slot bare. */
+  & .sv-volume-off :is(.sv-fader-cap, .sv-fader-fill) { visibility: hidden; }
+
+  /* The trays the keys stand in, cut into the case: one dark run under each row of keys, showing
+     between them, and around it a raised rim of the case, lit along its top. Drawn once for the
+     row, so nothing meets at a seam. */
+  & :is(.sv-cluster-keys:not(:has(.sv-fader)), .sv-volume-keys, .sv-programs, .sv-tools, .sv-transport) {
+    padding: 3px; gap: 3px; border-radius: 5px;
+    background: color-mix(in srgb, #0e0d0a 78%, var(--sv-tray-rim));
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.6),
+      0 0 0 3px var(--sv-tray-rim), 0 -1px 0 3px rgba(255, 255, 255, 0.45), 0 1px 0 3px rgba(0, 0, 0, 0.16), 0 3px 5px 3px rgba(0, 0, 0, 0.14);
+  }
+  & .sv-key[aria-disabled] { cursor: default; }
+  & .sv-key[aria-disabled] :is(.sv-key-glyph, .sv-key-legend, .sv-key-sub) { opacity: 0.42; }
+  /* A key coming into use or going out of it fades there, its plastic and its legend together. */
+  & .sv-key { transition: --k-off 0.7s ease, --k-hi 0.7s ease; }
+  & .sv-key :is(.sv-key-glyph, .sv-key-legend, .sv-key-sub) { transition: opacity 0.7s ease; }
+  & .sv-key-top { transition: box-shadow 0.7s ease; }
+  & .sv-key:focus-visible { outline: 2px solid var(--sv-teal-face); outline-offset: 3px; }
+  & .sv-key-glyph { display: grid; place-items: center; line-height: 0; }
+  & .sv-key-legend {
+    font-family: var(--sv-panel-font); font-size: 8.5px; letter-spacing: 0.08em; line-height: 1.1; text-transform: uppercase;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center;
+  }
+  & .sv-key-sub { position: absolute; top: 4px; right: 6px; font-size: 7px; letter-spacing: 0.06em; opacity: 0.7; }
+  & .sv-key-led { position: absolute; top: 3px; left: 4px; width: 6px; height: 6px; }
+  & .sv-key-lamp { left: 13px; }
+  & .sv-key-navy { --k-face: var(--sv-navy-face); --k-hi: var(--sv-navy-hi); --k-lo: var(--sv-navy-lo); --k-side: var(--sv-navy-side); --k-ink: var(--sv-navy-ink); --k-pwl0: var(--sv-navy-wl0); --k-pwl1: var(--sv-navy-wl1); --k-pwr0: var(--sv-navy-wr0); --k-pwr1: var(--sv-navy-wr1); --k-pwf0: var(--sv-navy-wf0); --k-pwf1: var(--sv-navy-wf1); --k-pwf2: var(--sv-navy-wf2); --k-pc5: var(--sv-navy-c5); --k-pc6: var(--sv-navy-c6); --k-pc7: var(--sv-navy-c7); --k-pc8: var(--sv-navy-c8); --k-pt0: var(--sv-navy-t0); --k-pt2: var(--sv-navy-t2); }
+  & .sv-key-teal { --k-face: var(--sv-teal-face); --k-hi: var(--sv-teal-hi); --k-lo: var(--sv-teal-lo); --k-side: var(--sv-teal-side); --k-ink: var(--sv-teal-ink); --k-pwl0: var(--sv-teal-wl0); --k-pwl1: var(--sv-teal-wl1); --k-pwr0: var(--sv-teal-wr0); --k-pwr1: var(--sv-teal-wr1); --k-pwf0: var(--sv-teal-wf0); --k-pwf1: var(--sv-teal-wf1); --k-pwf2: var(--sv-teal-wf2); --k-pc5: var(--sv-teal-c5); --k-pc6: var(--sv-teal-c6); --k-pc7: var(--sv-teal-c7); --k-pc8: var(--sv-teal-c8); --k-pt0: var(--sv-teal-t0); --k-pt2: var(--sv-teal-t2); }
+  & .sv-key-sage { --k-face: var(--sv-sage-face); --k-hi: var(--sv-sage-hi); --k-lo: var(--sv-sage-lo); --k-side: var(--sv-sage-side); --k-ink: var(--sv-sage-ink); --k-pwl0: var(--sv-sage-wl0); --k-pwl1: var(--sv-sage-wl1); --k-pwr0: var(--sv-sage-wr0); --k-pwr1: var(--sv-sage-wr1); --k-pwf0: var(--sv-sage-wf0); --k-pwf1: var(--sv-sage-wf1); --k-pwf2: var(--sv-sage-wf2); --k-pc5: var(--sv-sage-c5); --k-pc6: var(--sv-sage-c6); --k-pc7: var(--sv-sage-c7); --k-pc8: var(--sv-sage-c8); --k-pt0: var(--sv-sage-t0); --k-pt2: var(--sv-sage-t2); }
+  & .sv-key-aqua { --k-face: var(--sv-aqua-face); --k-hi: var(--sv-aqua-hi); --k-lo: var(--sv-aqua-lo); --k-side: var(--sv-aqua-side); --k-ink: var(--sv-aqua-ink); --k-pwl0: var(--sv-aqua-wl0); --k-pwl1: var(--sv-aqua-wl1); --k-pwr0: var(--sv-aqua-wr0); --k-pwr1: var(--sv-aqua-wr1); --k-pwf0: var(--sv-aqua-wf0); --k-pwf1: var(--sv-aqua-wf1); --k-pwf2: var(--sv-aqua-wf2); --k-pc5: var(--sv-aqua-c5); --k-pc6: var(--sv-aqua-c6); --k-pc7: var(--sv-aqua-c7); --k-pc8: var(--sv-aqua-c8); --k-pt0: var(--sv-aqua-t0); --k-pt2: var(--sv-aqua-t2); }
+  & .sv-key-coral { --k-face: var(--sv-coral-face); --k-hi: var(--sv-coral-hi); --k-lo: var(--sv-coral-lo); --k-side: var(--sv-coral-side); --k-ink: var(--sv-coral-ink); --k-pwl0: var(--sv-coral-wl0); --k-pwl1: var(--sv-coral-wl1); --k-pwr0: var(--sv-coral-wr0); --k-pwr1: var(--sv-coral-wr1); --k-pwf0: var(--sv-coral-wf0); --k-pwf1: var(--sv-coral-wf1); --k-pwf2: var(--sv-coral-wf2); --k-pc5: var(--sv-coral-c5); --k-pc6: var(--sv-coral-c6); --k-pc7: var(--sv-coral-c7); --k-pc8: var(--sv-coral-c8); --k-pt0: var(--sv-coral-t0); --k-pt2: var(--sv-coral-t2); }
+  & .sv-key-xs { --k-w: 38px; --k-wall: 8px; }
+  & .sv-key-s { --k-w: 50px; --k-wall: 9px; }
+  & .sv-key-m { --k-w: 72px; --k-wall: 7px; }
+  & .sv-wing .sv-volume-keys .sv-key-s { --k-w: 42px; --k-wall: 8px; }
+  /* The fader cap stands clear of the tray rim under it. */
+  & .sv-wing .sv-volume .sv-fader { margin-bottom: 8px; }
+  /* The room keys stay one row: glyphs alone, they fit the wing. */
+  & .sv-roomkeys .sv-cluster-keys { flex-wrap: nowrap; }
+  & .sv-key-l { --k-w: 72px; }
+  & .sv-key-xl { --k-w: 96px; }
+  & .sv-key-bar { --k-w: 200px; }
+  /* A key that is a switch keeps its cap a little lower while it is on. */
+  & .sv-key[aria-pressed='true']:not([data-down]) .sv-key-cap { transform: scale3d(1, 1, 0.8); }
+
+  /* Clusters: keys under a bracketed label, printed on the plastic. */
+  & .sv-cluster { display: grid; justify-items: center; gap: 8px; }
+  & .sv-cluster-label { display: flex; align-items: flex-start; width: 100%; height: 12px; }
+  & .sv-cluster-label::before, & .sv-cluster-label::after {
+    content: ''; flex: 1; height: 6px; margin-top: 5px; border-top: 1.5px solid var(--sv-print-soft);
+  }
+  & .sv-cluster-label::before { border-left: 1.5px solid var(--sv-print-soft); border-top-left-radius: 2px; }
+  & .sv-cluster-label::after { border-right: 1.5px solid var(--sv-print-soft); border-top-right-radius: 2px; }
+  /* Beside the screen the headings stand alone, with no bracket either side. */
+  & .sv-wing .sv-cluster-label::before, & .sv-wing .sv-cluster-label::after { border: 0; }
+  & .sv-wing .sv-cluster-label > span { max-width: none; }
+  /* A service's rating glyph on a key: its picture as a stencil in the legend's ink. */
+  & .sv-key .sv-rating-img {
+    display: block; width: 16px; height: 16px; background: currentColor;
+    -webkit-mask: var(--sv-rating-icon) var(--sv-rating-pos, center) / var(--sv-rating-size, contain) no-repeat;
+    mask: var(--sv-rating-icon) var(--sv-rating-pos, center) / var(--sv-rating-size, contain) no-repeat;
+  }
+  /* The four tempers' names on small keys, in the lettering the phone's function keys use:
+     Michroma is wide, and at the other keys' size FROLIC alone outruns the key. */
+  & .sv-reactionset-tempers { flex-wrap: nowrap; }
+  & .sv-reactionset-tempers .sv-key-legend { font-size: 6.5px; letter-spacing: -0.04em; }
+  /* One set of reaction keys giving way to another: the new set fades in where the old one is
+     fading out, the two in the same place. */
+  & .sv-reactionkeys > .sv-cluster-keys { grid-row: 2; grid-column: 1; }
+  & .sv-reactionkeys[data-entering] > .sv-cluster-keys:not(.sv-reaction-leaving) { animation: sv-reaction-in 0.4s ease both; }
+  & .sv-reaction-leaving { animation: sv-reaction-out 0.4s ease both; pointer-events: none; }
+  & .sv-cluster-label > span {
+    padding: 0 8px; font-family: var(--sv-panel-font); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sv-print); white-space: nowrap;
+    max-width: 75%; overflow: hidden; text-overflow: ellipsis;
+  }
+  & .sv-cluster-keys { display: flex; gap: 3px; justify-content: center; flex-wrap: wrap; }
+
+  /* --- wings ------------------------------------------------------------------------- */
+  & .sv-wing { display: flex; flex-direction: column; gap: 16px; padding-top: 8px; min-height: 0; overflow: clip; }
+  & .sv-wing > * { flex: none; }
+  & .sv-wing-right { grid-area: right; }
+
+  /* The liquid-crystal display: dark figures on lit gray-green glass, in a black bezel. */
+  & .sv-lcd {
+    border-radius: 6px; padding: 7px 10px;
+    background: linear-gradient(180deg, #b6c19c, #a5b18b);
+    color: #1f2617;
+    font-family: var(--sv-screen-font); font-size: 18px; line-height: 1;
+    box-shadow: 0 0 0 5px #1b1d1a, 0 0 0 6px rgba(255, 255, 255, 0.4), inset 0 2px 5px rgba(0, 0, 0, 0.35);
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+  }
+  & .sv-lcd-big { margin: 6px 6px 0; }
+  & .sv-lcd-now { display: grid; gap: 4px; }
+  & .sv-lcd-row { display: flex; justify-content: space-between; gap: 8px; white-space: nowrap; }
+  /* A sleep timer's countdown between the times, a small clock before it. */
+  & .sv-lcd-sleep { display: inline-flex; align-items: baseline; gap: 4px; }
+  /* The clock stands on the figures' baseline, a dot to a pixel, in their shadow too. */
+  & .sv-lcd-sleep .sv-glyph { width: 12px; height: 10px; filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.12)); }
+  & .sv-lcd-room { overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
+  & .sv-lcd-marquee { display: flex; gap: 3em; font-size: 22px; white-space: nowrap; overflow: hidden; }
+  & .sv-lcd-marquee > span { flex: none; }
+  & .sv-lcd-marquee[data-long] > span { animation: sv-marquee calc(var(--sv-marquee-n, 56) * 0.25s) steps(var(--sv-marquee-n, 56)) infinite; }
+  & .sv-lcd-small { min-width: 74px; text-align: center; font-size: 22px; padding: 4px 8px; margin-top: 4px; }
+  & .sv-lcd [data-blink] { animation: sv-blink 0.8s steps(2, jump-none) infinite; }
+
+  /* The volume fader: a cap riding in a slot, a scale printed beside it. */
+  & .sv-volume { width: 100%; }
+  & .sv-fader { position: relative; width: 100%; max-width: 220px; height: 52px; }
+  & .sv-fader-scale {
+    position: absolute; left: 12px; right: 12px; top: 0; height: 8px;
+    background: var(--sv-print-soft);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M0.5 0V10M10 0V10M20 0V10M30 0V10M40 0V10M50 0V10M60 0V10M70 0V10M80 0V10M90 0V10M99.5 0V10' stroke='black' stroke-width='1.5' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") 0 0 / 100% 100%;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M0.5 0V10M10 0V10M20 0V10M30 0V10M40 0V10M50 0V10M60 0V10M70 0V10M80 0V10M90 0V10M99.5 0V10' stroke='black' stroke-width='1.5' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") 0 0 / 100% 100%;
+  }
+  & .sv-fader-slot {
+    position: absolute; left: 6px; right: 6px; top: 23px; height: 12px; border-radius: 6px;
+    background: linear-gradient(180deg, #07080a, #1a1d21 55%, #30353c);
+    box-shadow: inset 0 3px 4px rgba(0, 0, 0, 0.85), inset 0 -1px 0 rgba(255, 255, 255, 0.1), 0 -1px 0 rgba(0, 0, 0, 0.22), 0 1px 0 rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+  }
+  & .sv-fader-fill { position: absolute; left: 0; top: 3px; bottom: 3px; width: calc(var(--sv-pct) * 1%); background: var(--sv-teal-face); border-radius: 3px; opacity: 0.85; }
+  & .sv-fader-cap {
+    position: absolute; top: 9px; width: 22px; height: 40px; left: calc(9px + (100% - 40px) * var(--sv-pct) / 100);
+    /* Built as a key is, a top raised off the slot on four sloped walls, but even all round: a
+       fader's cap is the same from either side, and it stands tall enough to throw a shadow. */
+    --k-face: var(--sv-cream-face); --k-hi: var(--sv-cream-hi); --k-lo: var(--sv-cream-lo); --k-side: var(--sv-cream-side);
+    --k-pwl0: var(--sv-cream-wl0); --k-pwl1: var(--sv-cream-wl1); --k-pwr0: var(--sv-cream-wr0); --k-pwr1: var(--sv-cream-wr1); --k-pwf0: var(--sv-cream-wf0); --k-pwf1: var(--sv-cream-wf1); --k-pwf2: var(--sv-cream-wf2); --k-pc5: var(--sv-cream-c5); --k-pc6: var(--sv-cream-c6); --k-pc7: var(--sv-cream-c7); --k-pc8: var(--sv-cream-c8); --k-pt0: var(--sv-cream-t0); --k-pt2: var(--sv-cream-t2);
+    --k-rise: 18px; --k-back: 6px; --k-left: 4px; --k-right: 4px; --k-front: 6px; --k-shade: transparent;
+    border-radius: var(--k-foot);
+    background: var(--k-floor);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 3px 3px rgba(0, 0, 0, 0.32), 2px 10px 12px -2px var(--sv-shadow);
+    transform-style: preserve-3d;
+    transition: left 80ms linear;
+  }
+  & .sv-fader-top {
+    position: absolute; inset: var(--k-back) var(--k-right) var(--k-front) var(--k-left); border-radius: 5px;
+    transform: translateZ(var(--k-rise));
+    /* Its top is peaked: two faces meet in a ridge down the middle, the one toward the light the paler. */
+    background: linear-gradient(90deg, color-mix(in srgb, var(--k-face) 85%, var(--k-hi)), color-mix(in srgb, var(--k-face) 30%, var(--k-hi)) 47%, color-mix(in srgb, var(--k-face) 82%, var(--k-lo)) 53%, color-mix(in srgb, var(--k-face) 62%, var(--k-lo)));
+    box-shadow: 0 1.5px 2px color-mix(in srgb, var(--k-side) 70%, transparent), inset 1px 1px 1px color-mix(in srgb, var(--k-hi) 80%, white), inset -1px -1px 2px color-mix(in srgb, var(--k-lo) 80%, transparent);
+  }
+  & .sv-fader[data-dragging] .sv-fader-cap { transition: none; }
+  /* The lamp in the ridge: a slot of dark glass, green while the room plays. Its light fades up
+     and away rather than snapping. */
+  & .sv-fader-lamp {
+    position: absolute; left: 50%; top: 50%; width: 3px; height: 16px; transform: translate(-50%, -50%); border-radius: 1.5px;
+    background: linear-gradient(90deg, #2e322b, #4a4f45 50%, #2e322b);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(0, 0, 0, 0.35);
+  }
+  & .sv-fader-lamp::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    /* brightest at its middle, dimming toward either end */
+    background: radial-gradient(ellipse 70% 55% at 50% 50%, #effff1, #7af596 40%, #2fbf55 75%, #157a30);
+    box-shadow: 0 0 4px 1px rgba(87, 240, 122, 0.55), 0 0 2px rgba(200, 255, 210, 0.6);
+    opacity: 0; transition: opacity 0.6s ease;
+  }
+  & .sv-fader-lamp[data-on]::after { opacity: 1; }
+  & .sv-fader input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
+  & .sv-fader input:focus-visible ~ .sv-fader-cap, & .sv-fader:has(input:focus-visible) .sv-fader-cap { outline: 2px solid var(--sv-teal-face); outline-offset: 2px; }
+  & .sv-fader[data-disabled] { opacity: 0.5; }
+  & .sv-volume-keys { display: flex; gap: 3px; justify-content: center; }
+  /* A drive's access lamp: a small green lens, dark
+     when the drive rests and bright while it works. */
+  /* The drive lamps set into the case's plastic, left of the screen's dark surround, each name printed
+     up the case above its lamp, their foot where the screen's straight left edge turns into its
+     corner: the frame's padding, the screen's margin, and the corner's height up from the foot. */
+  & .sv-bezel { position: relative; --sv-bz: 10px; --sv-cm: 14px; --sv-cr: 30px; }
+  & .sv-edgelamps {
+    position: absolute; z-index: 2; left: calc(var(--sv-bz) / 2); translate: -50% 0;
+    bottom: calc(var(--sv-bz) + var(--sv-cm) + var(--sv-cr));
+    display: grid; gap: 8px; justify-items: center; pointer-events: none;
+  }
+  & .sv-edgelamps .sv-drive { display: flex; flex-direction: column-reverse; align-items: center; gap: 3px; }
+  & .sv-edgelamps .sv-drive-lamp { width: 4px; height: 10px; border-radius: 1.5px; }
+  /* each name printed up the case, read from the foot */
+  & .sv-edgelamps .sv-drive-label { writing-mode: vertical-rl; rotate: 180deg; translate: none; font-family: var(--sv-panel-font); font-size: 6px; line-height: 1; letter-spacing: 0.18em; color: var(--sv-print-soft); }
+  & .sv-drive-lamp {
+    width: 9px; height: 4px; border-radius: 1px;
+    background: linear-gradient(90deg, #0d2a14, #1d4a26 45%, #0f2c16);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  & .sv-drive-lamp[data-on] {
+    background: linear-gradient(90deg, #6fe58a, #d8ffe0 45%, #5bd977);
+    box-shadow: 0 0 6px 2px rgba(110, 240, 140, 0.65), 0 0 0 1px rgba(0, 0, 0, 0.3);
+  }
+  /* Printed a hair below the lamp's middle, where a capital's weight sits level with the lens. */
+  & .sv-drive-label { font-size: 6.5px; letter-spacing: 0.18em; color: var(--sv-print-soft); translate: 0 1.5px; }
+  & .sv-size-compact .sv-bezel { --sv-bz: 6px; --sv-cm: 8px; --sv-cr: 18px; }
+  & .sv-size-compact .sv-edgelamps { gap: 6px; }
+  & .sv-size-compact .sv-edgelamps .sv-drive { gap: 2px; }
+  & .sv-size-compact .sv-edgelamps .sv-drive-lamp { width: 3px; height: 8px; }
+  & .sv-size-compact .sv-edgelamps .sv-drive-label { font-size: 5px; }
+  /* On a desk the lamp is in the left panel's bay, under the floppy drives. A short window leaves
+     the panel less room, so the second floppy goes first, then the first; shorter still, the
+     panel cannot show the lamp at all and it moves out to the screen's frame. */
+  & .sv-size-wide .sv-edgelamps { display: none; }
+  /* The panel holds the display, the volume, and the room, playback, and reaction keys over the
+     bay, about 720px of them, and a window shorter than about 1030px cannot show it all. What goes
+     first is what is least missed: the speaker grille (above), the empty second floppy, then the
+     first, then the bay, whose lamp moves out to the screen's frame; in a window shorter still, the
+     reaction keys, whose ratings the screen then shows itself. */
+  &[data-sv-short~='1030'] .sv-size-wide .sv-bay > .sv-floppy-wrap:nth-child(2) { display: none; }
+  &[data-sv-short~='975'] .sv-size-wide .sv-bay > .sv-floppy-wrap { display: none; }
+  &[data-sv-short~='945'] .sv-size-wide .sv-bay { display: none; }
+  &[data-sv-short~='945'] .sv-size-wide .sv-edgelamps { display: grid; }
+  /* The wing's reaction keys stand in for the screen's own buttons; on a screen too short for
+     them, the keys go and the buttons come back. */
+  & .sv-size-wide .sv-crt .sv-player-ratings { display: none; }
+  &[data-sv-short~='885'] .sv-size-wide .sv-wing .sv-reactionkeys { display: none; }
+  &[data-sv-short~='885'] .sv-size-wide .sv-crt .sv-player-ratings { display: flex; }
+
+  /* The drive bay on the left panel, under its keys: the floppy drive molded into the panel, and
+     the hard drive's lamp below it, in line with the floppy's. */
+  /* At the foot of the panel, whatever room the keys above leave, with the HDD lamp clear of its
+     edge. */
+  & .sv-bay { width: calc(202px * 7 / 6); justify-self: center; align-self: center; display: grid; gap: 9px; margin-top: auto; margin-bottom: 18px; }
+  & .sv-floppy {
+    display: block; width: calc(202px * 7 / 6); height: 49px;
+    /* No bezel: the slot, the recess, and the button are cut straight into the panel's plastic. */
+    --sv-drive-face: var(--sv-plastic);
+  }
+  & .sv-floppy-wrap { position: relative; display: block; }
+  & .sv-floppy-label { position: absolute; left: calc(34.5px * 7 / 6 + 6px); top: calc(37px * 7 / 6); translate: 0 calc(-50% + 1.5px); line-height: 1; }
+  & .sv-floppy-lip { fill: color-mix(in srgb, var(--sv-drive-face) 70%, black); }
+  & .sv-floppy-slot { fill: var(--sv-drive-slot); }
+  & .sv-floppy-door { fill: var(--sv-drive-door); }
+  & .sv-floppy-doorhi { stroke: rgba(255, 255, 255, 0.35); stroke-width: 0.6; }
+  & .sv-floppy-wrap[data-empty] .sv-floppy-door { fill: var(--sv-drive-face); }
+  & .sv-floppy-wrap[data-empty] .sv-floppy-slot { fill: color-mix(in srgb, var(--sv-drive-slot) 70%, var(--sv-drive-face)); }
+  & .sv-floppy-wrap[data-empty] .sv-floppy-doorhi { stroke: rgba(255, 255, 255, 0.18); }
+  & .sv-floppy-recess { fill: color-mix(in srgb, var(--sv-drive-face) 80%, black); }
+  /* The recess is cut in: its far wall in shadow under the slot, its left side dark, its right lit. */
+  & .sv-floppy-recesstop { fill: rgba(0, 0, 0, 0.22); }
+  & .sv-floppy-recesswall { fill: rgba(0, 0, 0, 0.16); }
+  & .sv-floppy-recesswall-lit { fill: rgba(255, 255, 255, 0.28); }
+  & .sv-floppy-recesslo { stroke: rgba(255, 255, 255, 0.45); stroke-width: 0.8; }
+  & .sv-floppy-lamp { fill: #142a19; stroke: rgba(0, 0, 0, 0.45); stroke-width: 0.5; }
+  & .sv-floppy-lamp[data-on] { fill: #b9ffc8; filter: drop-shadow(0 0 1.5px rgba(110, 240, 140, 0.9)); }
+  /* The well the button sits in: its floor a step in from the faint rim where the panel's plastic
+     turns down into it. */
+  & .sv-floppy-eject-rim { fill: none; stroke: var(--sv-well-rim); stroke-width: 0.9; }
+  & .sv-floppy-eject-well { fill: var(--sv-well-fill); }
+  & .sv-floppy-eject { fill: color-mix(in srgb, var(--sv-drive-face) 92%, white); }
+  & .sv-floppy-ejecthi { stroke: rgba(255, 255, 255, 0.7); stroke-width: 0.7; }
+  /* With the disk in, the button stands proud of the panel, as a drive's does: its face where it
+     was but lit a little brighter, and its side showing beneath it, with a shadow under that.
+     Pressed, or with the disk out, it sits flush. */
+  & .sv-floppy-eject-side { fill: color-mix(in srgb, var(--sv-drive-face) 60%, black); opacity: 0; transition: opacity 0.2s; }
+  & .sv-floppy-wrap[data-disk='in']:not([data-empty]) {
+    & .sv-floppy-eject-side { opacity: 1; filter: drop-shadow(0 1.5px 1.2px var(--sv-button-shade)); }
+    & .sv-floppy-eject { fill: var(--sv-button-lit); }
+  }
+  & .sv-floppy-wrap[data-disk='in']:not([data-empty]):has(.sv-floppy-eject-btn:active) {
+    & :is(.sv-floppy-eject, .sv-floppy-ejecthi) { translate: 0 0.8px; }
+    & .sv-floppy-eject { fill: color-mix(in srgb, var(--sv-drive-face) 80%, black); }
+    & .sv-floppy-eject-side { opacity: 0; }
+  }
+  /* The two buttons over the drawing: the eject button, and the disk's edge while it is out. */
+  & :is(.sv-floppy-eject-btn, .sv-floppy-disk-btn) { position: absolute; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 3px; }
+  & .sv-floppy-eject-btn { left: calc(151.65px * 7 / 6); top: calc(21.65px * 7 / 6); width: calc(24.7px * 7 / 6); height: calc(15.7px * 7 / 6); }
+  & .sv-floppy-disk-btn { left: calc(11px * 7 / 6); top: calc(10px * 7 / 6); width: calc(180px * 7 / 6); height: calc(22px * 7 / 6); cursor: grab; }
+  & :is(.sv-floppy-eject-btn, .sv-floppy-disk-btn):disabled { cursor: default; pointer-events: none; }
+  & :is(.sv-floppy-eject-btn, .sv-floppy-disk-btn):focus-visible { outline: 2px solid var(--sv-teal-face); outline-offset: 2px; }
+  & .sv-floppy-wrap:has(.sv-floppy-eject-btn:active) :is(.sv-floppy-eject, .sv-floppy-ejecthi) { translate: 0 0.8px; }
+  & .sv-floppy-wrap:has(.sv-floppy-eject-btn:active) .sv-floppy-eject { fill: color-mix(in srgb, var(--sv-drive-face) 80%, black); }
+  /* The disk: dark plastic, its top face lit from above, its back edge in shade, the label wrapped
+     over the two; it rides out of the slot and back in. */
+  & .sv-floppy-disk-face { fill: #3d424c; }
+  & .sv-floppy-disk-edge { fill: #22252b; }
+  & .sv-floppy-disk-label { fill: #ebe8de; }
+  & .sv-floppy-disk-labeledge { fill: #c9c6bc; }
+  & .sv-floppy-disk-rule { stroke: rgba(70, 115, 150, 0.5); stroke-width: 0.5; }
+  & .sv-floppy-disk-crease { stroke: rgba(0, 0, 0, 0.35); stroke-width: 0.5; }
+  & .sv-floppy-disk-ink { font-family: var(--sv-panel-font); font-size: 8px; font-weight: 700; letter-spacing: 0.1em; fill: #16171a; stroke: #16171a; stroke-width: 0.35; opacity: 0.92; }
+  & .sv-floppy-disk-shadow { fill: rgba(0, 0, 0, 0.55); translate: 0 1.5px; }
+  & .sv-floppy-disk-ride { translate: 0 0; }
+  /* Out: the latch's click first, then the half second of travel with the motor; in: the travel
+     with the motor, then the click as it seats. */
+  & .sv-floppy-wrap[data-disk='ejecting'] .sv-floppy-disk-ride { animation: sv-disk-out 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.05) 0.1s both; }
+  & .sv-floppy-wrap[data-disk='inserting'] .sv-floppy-disk-ride { animation: sv-disk-in 0.5s cubic-bezier(0.6, 0, 0.8, 0.4) both; }
+  & .sv-bay .sv-drive { display: flex; align-items: center; gap: 6px; margin-left: calc(25.5px * 7 / 6); }
+  & .sv-bay .sv-drive-lamp { width: calc(9px * 7 / 6); height: calc(4px * 7 / 6); border-radius: 0.7px; }
+  & .sv-bay .sv-drive-lamp:not([data-on]) { background: #142a19; box-shadow: 0 0 0 0.6px rgba(0, 0, 0, 0.45); }
+
+  /* The system selector: a rotary knob with its positions printed around the skirt. */
+  & .sv-systemswitch { display: grid; justify-items: center; gap: 2px; }
+  & .sv-knobswitch { --sv-knob-w: 132px; position: relative; width: var(--sv-knob-w); aspect-ratio: 120 / 76; }
+  & .sv-knob { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; overflow: visible; }
+  & .sv-knobswitch[data-dragging] .sv-knob { cursor: grabbing; }
+  /* The knob is molded in the navy keys' plastic, lit from the upper left. */
+  & .sv-knob-c0 { stop-color: color-mix(in srgb, var(--sv-navy-side) 70%, black); }
+  & .sv-knob-c1 { stop-color: var(--sv-navy-hi); }
+  & .sv-knob-c2 { stop-color: var(--sv-navy-face); }
+  & .sv-knob-c3 { stop-color: var(--sv-navy-side); }
+  & .sv-knob-c4 { stop-color: color-mix(in srgb, var(--sv-navy-side) 60%, black); }
+  & .sv-knob-ledge { fill: var(--sv-navy-lo); }
+  & .sv-knob-rim { fill: color-mix(in srgb, var(--sv-navy-lo) 75%, black); }
+  & .sv-knob-flute { stroke: rgba(0, 0, 0, 0.55); stroke-width: 0.8; }
+  & .sv-knob-flute-lit { stroke: rgba(255, 255, 255, 0.09); stroke-width: 0.9; }
+  & .sv-knob-white { fill: #f1f0eb; }
+  & .sv-knob-tick { stroke: var(--sv-print); stroke-width: 1.2; stroke-linecap: round; }
+  & .sv-knobswitch button {
+    position: absolute; transform: translate(-50%, -50%); background: none; border: 0; padding: 2px; cursor: pointer;
+    color: var(--sv-print); font-family: var(--sv-panel-font); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
+  }
+  & .sv-head .sv-knobswitch { --sv-knob-w: 84px; }
+  /* On the tipped-back keyboard the knob stands up off the deck, drawn face on to the reader as the
+     trackball is, set a little in toward the middle and nearer the front than its column puts it,
+     the move its own so nothing else on the deck shifts. */
+  & .sv-size-wide .sv-deck .sv-systemswitch { transform: translate(22px, 12px) rotateX(-48deg); transform-origin: 50% 100%; }
+  & .sv-deck .sv-knobswitch { --sv-knob-w: 120px; }
+  & .sv-deck .sv-systemswitch .sv-print { display: none; }
+  & .sv-head .sv-systemswitch .sv-print { display: none; }
+  /* The phone header's slide switch (SlideSwitch): a slot sunk into the case, the positions
+     printed along it, and a navy thumb riding over the chosen one. */
+  & .sv-slide {
+    --sv-slide-w: 96px;
+    position: relative; display: grid; grid-template-columns: repeat(var(--sv-slide-n), minmax(0, 1fr));
+    width: var(--sv-slide-w); height: 22px; padding: 0; border-radius: 5px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--sv-navy-side) 80%, black), var(--sv-navy-side));
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.55);
+    touch-action: pan-y;
+  }
+  & .sv-slide-thumb {
+    position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc((100% - 4px) / var(--sv-slide-n));
+    border-radius: 3px;
+    background: linear-gradient(180deg, var(--sv-navy-hi), var(--sv-navy-face) 55%, var(--sv-navy-lo));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.5);
+    transform: translateX(calc(var(--sv-slide-at) * 100% + var(--sv-slide-drag)));
+    transition: transform 0.11s ease-out;
+  }
+  & .sv-slide[data-dragging] .sv-slide-thumb { transition: none; }
+  & .sv-slide button {
+    position: relative; z-index: 1; min-width: 0; background: none; border: 0; padding: 0; cursor: pointer;
+    color: color-mix(in srgb, var(--sv-navy-ink) 55%, transparent);
+    font-family: var(--sv-panel-font); font-size: 8px; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+  }
+  & .sv-slide button[aria-checked='true'] { color: var(--sv-navy-ink); }
+  & .sv-slide button:focus-visible { outline: 2px solid var(--sv-teal-face); outline-offset: -2px; border-radius: 3px; }
+  & .sv-knobswitch button:focus-visible { outline: 2px solid var(--sv-teal-face); border-radius: 2px; }
+
+  /* The speaker grille, drawn hole by hole (SpeakerGrille in index.jsx): an oval wider than it is
+     tall, every hole whole. */
+  & .sv-grille {
+    flex: none; width: 200px; height: 89px; align-self: center; overflow: visible;
+  }
+  /* It takes about 105px of the panel on top of what the rest needs (see the bay's steps below),
+     and goes before anything else does, rather than shrink to a speck. */
+  &[data-sv-short~='1135'] .sv-wing .sv-grille { display: none; }
+
+  /* --- the monitor -------------------------------------------------------------------- */
+  & .sv-monitor { grid-area: screen; display: flex; min-height: 0; min-width: 0; }
+  & .sv-bezel {
+    flex: 1; display: flex; min-height: 0; min-width: 0; padding: 10px;
+    border-radius: 26px;
+    background: linear-gradient(180deg, var(--sv-shell), var(--sv-shell-lo));
+    box-shadow: 0 16px 30px -12px var(--sv-shadow), 0 2px 0 rgba(0, 0, 0, 0.12), inset 0 2px 0 rgba(255, 255, 255, 0.6), inset 0 -3px 6px rgba(0, 0, 0, 0.08);
+  }
+  /* The screen with no system disk (Crash): a screenful of garbage, torn and jittering, then
+     the BIOS's complaint, printed a line at a time. */
+  & .sv-crash {
+    grid-row: 1 / -1; grid-column: 1 / -1; position: relative; z-index: 1; overflow: hidden; margin: 0;
+    padding: 22px 26px; font-family: var(--sv-screen-font); font-size: 21px; line-height: 1.12; color: var(--sv-ph);
+    text-shadow: 0 0 4px rgb(var(--sv-ph-rgb) / 0.55);
+  }
+  & .sv-crash pre { margin: 0; font: inherit; white-space: pre; }
+  & .sv-crash .sv-crash-cell { position: absolute; visibility: hidden; letter-spacing: 0.04em; }
+  & .sv-crash[data-stage='garble'] { animation: sv-crash-flash 1.1s steps(1) both; }
+  & .sv-crash-garble { animation: sv-crash-tear 0.09s steps(3) infinite; letter-spacing: 0.04em; }
+  & .sv-crash-bios span { display: block; opacity: 0; animation: sv-crash-line 0.01s calc(0.12s * var(--sv-line)) both; }
+  & .sv-crash-cursor { animation: sv-blink 1s steps(2, jump-none) infinite; }
+  & .sv-crt {
+    position: relative; flex: 1; min-height: 0; min-width: 0;
+    display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto;
+    margin: 14px;
+    border-radius: 26px / 30px;
+    background:
+      radial-gradient(130% 120% at 50% 45%, color-mix(in srgb, var(--sv-scr) 82%, var(--sv-ph)) 0%, var(--sv-scr) 48%, var(--sv-scr-edge) 100%);
+    box-shadow:
+      0 0 0 14px var(--sv-face),
+      0 0 0 15px rgba(0, 0, 0, 0.35),
+      inset 0 0 18px 6px rgba(0, 0, 0, 0.65);
+    color: var(--sv-ph);
+    font-family: var(--sv-screen-font); font-size: 21px; line-height: 1.12;
+    text-shadow: var(--sv-glow);
+    overflow: clip;
+    isolation: isolate;
+  }
+  /* The glass over the phosphor: scan lines, the dark corners of a curved tube, a reflection. */
+  & .sv-crt-glass {
+    position: absolute; inset: 0; z-index: 4; pointer-events: none; border-radius: inherit;
+    background:
+      repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.2) 2px 3px),
+      radial-gradient(140% 120% at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.55) 100%),
+      linear-gradient(160deg, rgba(255, 255, 255, 0.07) 0%, transparent 30%);
+    box-shadow: inset 0 0 3px 1px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+  }
+  /* The refresh band: a faint brighter stripe rolling slowly up the tube. It is a strip a
+     few lines deep, moved by transform twenty times a second. Gliding at the display's rate, or
+     painted anew at each step, it kept the GPU four times as busy as the console without it. */
+  & .sv-crt-glass::after {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 12%;
+    background: linear-gradient(180deg, transparent, rgb(var(--sv-ph-rgb) / 0.035) 37%, rgb(var(--sv-ph-rgb) / 0.07) 50%, rgb(var(--sv-ph-rgb) / 0.02) 62%, transparent);
+    animation: sv-refresh-roll 9s steps(180) infinite;
+    will-change: transform;
+  }
+  & .sv-crt-head {
+    position: relative; z-index: 1; grid-row: 1;
+    display: grid; grid-template-columns: minmax(0, auto) 1fr auto auto; align-items: center; gap: 16px;
+    margin: 14px 26px 0; padding: 0 0 6px;
+    border-bottom: 3px double var(--sv-ph-line);
+  }
+  & .sv-crt-room {
+    padding: 2px 10px; border: 2px solid var(--sv-ph); font-size: 26px; text-transform: uppercase; letter-spacing: 0.02em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: var(--sv-glow-soft), inset var(--sv-glow-soft);
+  }
+  & .sv-crt-program { color: var(--sv-ph-dim); text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  & .sv-crt-complete { font-size: 26px; white-space: nowrap; }
+  /* The mark is a button: it opens About Sonora. */
+  & .sv-crt-mark {
+    display: flex; align-items: center; gap: 6px; padding: 1px 12px; border: 2px solid var(--sv-ph); border-radius: 50%;
+    appearance: none; background: none; color: inherit; text-shadow: inherit; cursor: pointer;
+    font-family: var(--sv-panel-font); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    &:hover { background: var(--sv-ph-wash); }
+    &:focus-visible { outline: 2px solid var(--sv-ph); outline-offset: 2px; }
+  }
+  /* The mark, in the phosphor: the logo's light parts cut from a block of it, by their brightness,
+     as the tube would draw the picture (the image comes in as a mask from the shell, so the
+     sheet names no file). */
+  & .sv-crt-logo {
+    display: inline-block; width: 16px; height: 16px; background: var(--sv-ph);
+    mask: var(--sv-logo) center / contain no-repeat luminance; -webkit-mask: var(--sv-logo) center / contain no-repeat;
+    mask-mode: luminance;
+    opacity: 0.9;
+  }
+  & .sv-crt-scroll {
+    position: relative; z-index: 1; grid-row: 3; min-height: 0; overflow: auto; overscroll-behavior: contain;
+    scrollbar-width: thin; scrollbar-color: var(--sv-ph-faint) transparent;
+  }
+  & .sv-program { padding: 14px 26px 18px; animation: sv-program-in 100ms steps(3, end); }
+  /* Beside its menu, a settings page scrolls on its own and the menu holds still, each in its own
+     column; on a phone the two are separate screens. */
+  & :is(.sv-size-wide, .sv-size-mid) .sv-crt-scroll:has(> .sv-program > .sv-setup) { overflow: hidden; display: grid; }
+  & :is(.sv-size-wide, .sv-size-mid) .sv-crt-scroll > .sv-program:has(> .sv-setup) { min-height: 0; display: grid; padding-top: 0; padding-bottom: 0; }
+  & :is(.sv-size-wide, .sv-size-mid) .sv-crt .sv-setup { min-height: 0; align-items: stretch; }
+  & :is(.sv-size-wide, .sv-size-mid) .sv-crt :is(.sv-setup-menu, .sv-setup-page) {
+    position: static; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 14px 0 18px;
+    scrollbar-width: thin; scrollbar-color: var(--sv-ph-faint) transparent;
+  }
+  & :is(.sv-size-wide, .sv-size-mid) .sv-crt .sv-setup-menu { align-content: start; }
+
+  /* The message line, under the head. It lies over the top of the program, taking no room of its
+     own, so nothing below moves as lines come and go, and under the glass, so the tube's scan lines
+     cross it as they cross everything else drawn on the screen. */
+  & .sv-ticker { position: absolute; z-index: 3; grid-row: 3; grid-column: 1; top: 2px; left: 26px; right: 26px; display: grid; }
+  & .sv-ticker:empty { display: none; }
+  & .sv-ticker-line {
+    display: flex; align-items: center; gap: 10px; margin-top: 6px; padding: 2px 8px;
+    background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; box-shadow: 0 0 10px rgb(var(--sv-ph-rgb) / 0.45);
+    animation: sv-type 150ms steps(6, end);
+  }
+  & .sv-ticker-line[data-kind='warn'] { animation: sv-type 150ms steps(6, end), sv-blink 1.2s steps(2, jump-none) 3; }
+  & .sv-ticker-text { flex: 1; min-width: 0; display: flex; gap: 10px; flex-wrap: wrap; }
+  & .sv-ticker-text strong { font-weight: 400; text-transform: uppercase; }
+  & .sv-ticker .sv-ibtn { color: var(--sv-scr); border-color: var(--sv-scr); }
+  & .sv-ticker-line[data-dismissible] { cursor: pointer; }
+
+  /* The bins along the foot of the screen, one for each room. */
+  & .sv-binsbar {
+    position: relative; z-index: 1; grid-row: 4;
+    display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden;
+    margin: 0 26px 14px; padding: 8px 0 2px;
+    border-top: 3px double var(--sv-ph-line);
+    scrollbar-width: none;
+  }
+  /* Filing (Filing): the flaps on a bin's top, the card swept into it, and the readout that rises
+     out of it, drawn over the page in the screen's own lines. */
+  /* Fixed, and no child of the root's grid: as a grid item it would add a row and shift the screen. */
+  & .sv-filing { position: fixed; inset: 0; z-index: 1150; pointer-events: none; }
+  /* The tube's scanlines over everything filed, in step with the glass's own (.sv-crt-glass). */
+  & .sv-filing::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.2) 2px 3px) 0 var(--sv-glass-top, 0px);
+  }
+  /* A flap (Filing): a thin outlined bar, drawn as a polygon over the page and reshaped through its
+     swing, so its base keeps to the bin's rim. Shut, it holds its place and fades. */
+  & .sv-filing-flaps { position: fixed; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  & .sv-filing-flap {
+    fill: var(--sv-scr); stroke: var(--sv-ph); stroke-width: 2; stroke-linejoin: miter;
+    filter: drop-shadow(0 0 3px rgb(var(--sv-ph-rgb) / 0.5));
+    &[data-flaps='shut'] { opacity: 0; transition: opacity 0.15s; }
+  }
+  & .sv-filing-ghost {
+    position: fixed; display: flex; align-items: center; gap: 8px; box-sizing: border-box; padding: 4px 10px; overflow: hidden;
+    border: 2px solid var(--sv-ph); background: var(--sv-scr); color: var(--sv-ph); box-shadow: 0 0 10px rgb(var(--sv-ph-rgb) / 0.5);
+    font-family: var(--sv-screen-font); font-size: 18px; line-height: 1.1; white-space: nowrap; text-overflow: ellipsis;
+    transform-origin: 50% 50%;
+    & span { overflow: hidden; text-overflow: ellipsis; }
+  }
+  /* Its cover, drawn in the phosphor as the covers on the screen are (.sv-art), or in its own
+     colors with the setting for color covers. */
+  & .sv-filing-art { position: relative; flex: none; width: 26px; height: 26px; overflow: hidden; isolation: isolate; }
+  & .sv-filing-art img { display: block; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.15) brightness(1.02); }
+  & .sv-filing-art::after { content: ''; position: absolute; inset: 0; background: var(--sv-ph); mix-blend-mode: multiply; pointer-events: none; }
+  &[data-sv-art='color'] .sv-filing-art img { filter: saturate(0.92) contrast(1.05); }
+  &[data-sv-art='color'] .sv-filing-art::after { content: none; }
+  /* The readout: the bin's width, rising out of its top; the bin's number in its own box over the
+     rows, each a label and a filled bar with the rest of its track dark. */
+  & .sv-filing-readout {
+    position: fixed; box-sizing: border-box; padding: 4px 5px 5px; display: grid; gap: 5px;
+    border: 2px solid var(--sv-ph); background: var(--sv-scr); color: var(--sv-ph); box-shadow: 0 0 10px rgb(var(--sv-ph-rgb) / 0.5);
+    font-family: var(--sv-screen-font); font-size: 15px; line-height: 1.1; text-transform: uppercase;
+    clip-path: inset(100% 0 0 0); transition: clip-path 0.3s cubic-bezier(0.3, 0.7, 0.3, 1);
+    &[data-state='full'] { clip-path: inset(0 0 0 0); }
+    &[data-state='down'] { clip-path: inset(100% 0 0 0); transition-timing-function: cubic-bezier(0.6, 0, 0.8, 0.4); }
+  }
+  & .sv-filing-readout-head { text-align: center; padding: 2px 4px 3px; border: 2px solid var(--sv-ph); font-size: 17px; }
+  & .sv-filing-row { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 6px; }
+  & .sv-filing-row em { font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .sv-filing-bar {
+    display: block; height: 16px; box-sizing: border-box; border: 2px solid var(--sv-ph);
+    background: linear-gradient(90deg, var(--sv-bar) calc(var(--p, 0) * 1%), transparent 0); transition: background 0.4s ease-out;
+    &[data-temper='woe'] { --sv-bar: color-mix(in srgb, var(--sv-ph) 70%, #7da8ff); }
+    &[data-temper='frolic'] { --sv-bar: color-mix(in srgb, var(--sv-ph) 70%, #ffe27a); }
+    &[data-temper='dread'] { --sv-bar: color-mix(in srgb, var(--sv-ph) 80%, #7dffb0); }
+    &[data-temper='malice'] { --sv-bar: color-mix(in srgb, var(--sv-ph) 70%, #ff8a7a); }
+  }
+  & .sv-binbtn[data-fed] { background: var(--sv-ph); color: var(--sv-scr); transition: none; }
+  & .sv-binbtn {
+    flex: none; width: 150px; display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; padding: 0;
+    background: none; border: 2px solid var(--sv-ph-line); color: inherit; font: inherit; font-size: 18px; text-shadow: inherit; cursor: pointer; text-align: left;
+  }
+  & .sv-binbtn-top { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; padding: 1px 8px; border-bottom: 2px solid var(--sv-ph-line); min-width: 0; }
+  & .sv-binbtn-n { flex: none; font-size: 20px; }
+  & .sv-binbtn-on { flex: none; animation: sv-blink 1.4s steps(2, jump-none) infinite; }
+  & .sv-binbtn-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  & .sv-binbtn-meter {
+    margin: 0 0 4px 8px; height: 10px; align-self: center;
+    background:
+      linear-gradient(90deg, var(--sv-ph) calc(var(--sv-pct) * 1%), transparent 0) 0 0 / 100% 100%,
+      repeating-linear-gradient(90deg, var(--sv-ph-faint) 0 round(5px, var(--sv-dpx)), transparent 0 calc(round(5px, var(--sv-dpx)) + round(2px, var(--sv-dpx))));
+    -webkit-mask: repeating-linear-gradient(90deg, #000 0 round(5px, var(--sv-dpx)), transparent 0 calc(round(5px, var(--sv-dpx)) + round(2px, var(--sv-dpx))));
+    mask: repeating-linear-gradient(90deg, #000 0 round(5px, var(--sv-dpx)), transparent 0 calc(round(5px, var(--sv-dpx)) + round(2px, var(--sv-dpx))));
+  }
+  & .sv-binbtn-pct { padding: 0 8px 3px 0; font-size: 16px; color: var(--sv-ph-dim); }
+  & .sv-binbtn:hover { border-color: var(--sv-ph-dim); background: var(--sv-ph-wash); }
+  & .sv-binbtn[aria-pressed='true'] { border-color: var(--sv-ph); box-shadow: var(--sv-glow-soft), inset var(--sv-glow-soft); }
+  & .sv-binbtn[aria-pressed='true'] .sv-binbtn-top { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; border-color: var(--sv-ph); }
+  & .sv-binbtn[data-over] { border-style: dashed; background: var(--sv-ph-wash-strong); }
+  & .sv-binbtn:focus-visible { outline: 2px dashed var(--sv-ph); outline-offset: 2px; }
+
+  /* --- the deck ----------------------------------------------------------------------- */
+  & .sv-deck {
+    /* The keys in two rows on the left; the trackball beside them, in the middle of both. */
+    grid-area: deck; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'fn ball' 'main ball';
+    row-gap: 12px; column-gap: 0; justify-items: center; align-items: center;
+    padding: 12px 22px 14px;
+    /* The panel sits a step down inside a broad rim, which rolls over at its outer edge. */
+    border-radius: 30px;
+    background: linear-gradient(180deg, var(--sv-deck-hi), var(--sv-deck) 30%, var(--sv-deck-lo));
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.28),
+      0 0 0 3px color-mix(in srgb, var(--sv-deck-frame) 80%, white),
+      0 0 0 11px var(--sv-deck-frame),
+      0 0 0 14px color-mix(in srgb, var(--sv-deck-frame) 86%, black),
+      0 0 0 15px rgba(0, 0, 0, 0.18),
+      0 18px 26px -12px var(--sv-shadow),
+      inset 0 2px 3px rgba(0, 0, 0, 0.35);
+    margin: 14px 14px 0;
+    --sv-print: var(--sv-deck-print);
+    --sv-tray-rim: var(--sv-deck-hi);
+    --sv-print-soft: color-mix(in srgb, var(--sv-deck-print) 65%, transparent);
+  }
+  /* On a desk or a tablet the keyboard lies on the table in front of the screen: tipped back
+     from its front edge, so the row nearest the reader is the largest and the top row recedes. */
+  /* Seen from straight above, off the tilted keyboard, a cap's height shows nothing: its walls are
+     drawn as their plan and the top laid over them in order, flat. A top lifted in depth there
+     would only be drawn apart and set down off the pixel grid, blurring its legend. */
+  & :is(.sv-key, .sv-key-cap, .sv-key-walls, .sv-fader-cap) { transform-style: flat; }
+  & :is(.sv-key-top, .sv-fader-top) { transform: none; }
+  & :is(.sv-size-wide, .sv-size-mid) .sv-deck {
+    & :is(.sv-key, .sv-key-cap, .sv-key-walls, .sv-fader-cap) { transform-style: preserve-3d; }
+    & :is(.sv-key-top, .sv-fader-top) { transform: translateZ(var(--k-rise)); }
+  }
+  & :is(.sv-size-wide, .sv-size-mid) .sv-deck {
+    transform: perspective(1100px) rotateX(48deg);
+    transform-origin: 50% 100%;
+    transform-style: preserve-3d;
+    margin-top: -128px; margin-bottom: 60px;
+    position: relative; z-index: 1;
+    /* More at the far edge than the near: the tilt foreshortens it, and the raised caps lean that
+       way, so this much reads as the same above the keys as below them. */
+    padding-top: 58px; padding-bottom: 34px; row-gap: 26px;
+    & .sv-cluster { gap: 18px; }
+    /* Everything between the deck and its keys keeps to the same space, so the caps stand up off it. */
+    & :is(.sv-fnrow, .sv-programs, .sv-tools, .sv-deck-main, .sv-deck-pair, .sv-transport, .sv-cursor, .sv-cluster, .sv-cluster-keys, .sv-volume, .sv-volume-keys, .sv-fader) { transform-style: preserve-3d; }
+    /* The deck's front edge: the thickness of the case, standing down from its near rim to the
+       table and carried on round both front corners, a narrow wall at a time (DeckEdge). */
+    & .sv-deck-edge { position: absolute; inset: 0; pointer-events: none; transform-style: preserve-3d; }
+    & .sv-deck-edge > i {
+      position: absolute; display: block; height: var(--sv-edge-h);
+      transform-origin: 50% 100%; transform: translateZ(var(--sv-drop, 0px)) rotateZ(var(--sv-turn)) rotateX(90deg);
+      background:
+        linear-gradient(rgba(0, 0, 0, var(--sv-shade)), rgba(0, 0, 0, var(--sv-shade))),
+        /* the inside corner where its foot meets the lip's top, in shadow */
+        linear-gradient(180deg, rgba(0, 0, 0, 0.22), transparent 6px),
+        linear-gradient(180deg, transparent 70%, rgba(0, 0, 0, 0.18)),
+        linear-gradient(180deg, color-mix(in srgb, var(--sv-deck-frame) 78%, black), color-mix(in srgb, var(--sv-deck-frame) 58%, black));
+    }
+  }
+  /* The lip round the case's foot: its face a low wall in the front edge's own color, a touch darker
+     where it meets the table, and its top a flat band parallel to the deck, a step out from the
+     wall above it, in the same color. */
+  & :is(.sv-size-wide, .sv-size-mid) .sv-deck .sv-deck-edge > i[data-kind='lip'] {
+    background:
+      linear-gradient(rgba(0, 0, 0, var(--sv-shade)), rgba(0, 0, 0, var(--sv-shade))),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.3), transparent 3px),
+      linear-gradient(180deg, color-mix(in srgb, var(--sv-deck-frame) 78%, black), color-mix(in srgb, var(--sv-deck-frame) 70%, black));
+  }
+  & :is(.sv-size-wide, .sv-size-mid) .sv-deck .sv-deck-liptop {
+    position: absolute; display: block; pointer-events: none;
+    left: calc(-1 * var(--sv-lip-out)); right: calc(-1 * var(--sv-lip-out)); bottom: calc(-1 * var(--sv-lip-out)); top: 40%;
+    border-radius: 0 0 var(--sv-lip-r) var(--sv-lip-r);
+    transform: translateZ(var(--sv-lip-z));
+    /* in shadow against the wall it meets, its outer edge lit (what shows is its last --sv-lip-step) */
+    background:
+      linear-gradient(0deg, transparent calc(var(--sv-lip-step) * 0.35), rgba(0, 0, 0, 0.2) var(--sv-lip-step)),
+      color-mix(in srgb, var(--sv-deck-frame) 74%, black);
+  }
+  /* The case's shadow on the table: its footprint, under the case, with a soft shadow round it
+     where the lip's foot meets the table. */
+  & :is(.sv-size-wide, .sv-size-mid) .sv-deck .sv-deck-shadow {
+    position: absolute; display: block; pointer-events: none;
+    left: calc(-1 * var(--sv-foot-out)); right: calc(-1 * var(--sv-foot-out)); bottom: calc(-1 * var(--sv-foot-out)); top: 40%;
+    border-radius: 0 0 var(--sv-foot-r) var(--sv-foot-r);
+    transform: translateZ(var(--sv-foot-z));
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 12px 2px rgba(0, 0, 0, 0.32), 0 0 3px 1px rgba(0, 0, 0, 0.35);
+  }
+  /* A tablet's keyboard wraps to more rows, so tipped back it falls farther below its top edge's
+     place; it comes up farther to sit as close under the screen as the desk's does. */
+  & .sv-size-mid .sv-deck { margin-top: -182px; }
+  /* The top row: the six program keys in one run, Find and Info in another. */
+  & .sv-fnrow { grid-area: fn; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  & :is(.sv-programs, .sv-tools) { display: flex; }
+  & .sv-fkey { --k-w: 92px; height: 64px; }
+  & .sv-fkey .sv-key-legend { font-size: 8px; }
+  & .sv-deck-main { grid-area: main; display: flex; align-items: center; justify-content: center; gap: 30px; width: 100%; flex-wrap: wrap; }
+  /* On a desk the two rows line up in columns: the program keys over the transport keys, Find and
+     Info over the cursor keys, and at either end, in the middle of both rows, the system switch
+     and the trackball, the latter just past Enter. */
+  & .sv-size-wide .sv-deck {
+    grid-template-columns: auto auto auto auto; grid-template-areas: 'switch programs tools ball' 'switch transport cursor ball';
+    column-gap: 24px; justify-content: center;
+    & :is(.sv-fnrow, .sv-deck-main) { display: contents; }
+    & .sv-programs { grid-area: programs; }
+    & .sv-tools { grid-area: tools; }
+    & .sv-systemswitch { grid-area: switch; }
+    & .sv-transport { grid-area: transport; }
+    & .sv-cursor { grid-area: cursor; }
+    & .sv-trackwell { margin-left: 6px; }
+  }
+  & .sv-transport { display: flex; gap: 3px; align-items: flex-end; }
+  & .sv-key-play { --k-w: 220px; }
+  & .sv-key-play .sv-key-top { flex-direction: row; gap: 10px; }
+  & .sv-key-play .sv-key-legend { font-size: 9px; }
+  & .sv-deck .sv-volume { width: auto; min-width: 220px; }
+
+  /* Cursor keys in a cross, the enter key in the middle. */
+  & .sv-cursor {
+    /* A narrow column of case sets Enter a little apart from the arrows. */
+    display: grid; grid-template-columns: repeat(3, 44px) 6px 54px; grid-template-rows: repeat(2, 44px); gap: 3px;
+    --sv-key-h: 44px;
+  }
+  & .sv-cursor .sv-key { --k-w: 44px; --k-wall: 8px; }
+  & .sv-cursor-esc { grid-area: 1 / 1; }
+  & .sv-cursor-esc .sv-key-legend { font-size: 8px; }
+  & .sv-cursor-up { grid-area: 1 / 2; }
+  & .sv-cursor-left { grid-area: 2 / 1; }
+  & .sv-cursor-down { grid-area: 2 / 2; }
+  & .sv-cursor-right { grid-area: 2 / 3; }
+  & .sv-cursor .sv-cursor-enter { grid-area: 1 / 5 / 3 / 6; --k-w: 54px; height: 91px; }
+  /* Find and Info together span what the cursor keys and Enter span below them. */
+  & .sv-size-wide .sv-tools .sv-fkey { --k-w: 100.5px; }
+
+  /* The trackball, sunk in its well. The well is a hole in the deck and lies flat with it, a turned
+     collar around the hole: lit on its far inside wall and its near outside. */
+  & .sv-trackwell {
+    --sv-well: 138px; --sv-hole: 105px;
+    --sv-collar: radial-gradient(circle calc(var(--sv-well) / 2) at 50% 50%,
+      transparent 0 calc(var(--sv-hole) / 2 - 1px), #2c3a50 calc(var(--sv-hole) / 2 + 0.5px), #8796ad calc(var(--sv-hole) / 2 + 2px),
+      #3b4b63 calc(var(--sv-hole) / 2 + 4.5px), #1d2737 calc(var(--sv-well) / 2 - 1.5px), rgba(0, 0, 0, 0.5) calc(var(--sv-well) / 2),
+      transparent calc(var(--sv-well) / 2 + 0.01px));
+    grid-area: ball; margin-left: 30px;
+    position: relative; width: var(--sv-well); height: var(--sv-well); border-radius: 50%;
+    transform-style: preserve-3d;
+    /* Under the ball the collar's wall color runs on to the hole's edge, so where a GPU
+       draws the ball a pixel short of the rim what shows is more rim, never the dark hole. */
+    background: radial-gradient(circle calc(var(--sv-well) / 2) at 50% 50%, #2c3a50 0 calc(var(--sv-hole) / 2 + 0.5px), transparent calc(var(--sv-hole) / 2 + 0.51px)),
+                var(--sv-collar);
+    box-shadow: 0 4px 0 -1px #121b29, 0 5px 0 -1px rgba(255, 255, 255, 0.12), 0 0 0 3px rgba(14, 13, 10, 0.55), 0 7px 8px rgba(0, 0, 0, 0.35);
+    /* The hole, dark, kept a step in from the rim for the same reason. */
+    &::before {
+      content: ''; position: absolute; inset: calc((var(--sv-well) - var(--sv-hole)) / 2 + 3px); border-radius: 50%; pointer-events: none;
+      background: #020306;
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.6);
+    }
+  }
+  /* Five points the ball is fitted by (Trackball): the well's corners, and its center stood up off
+     the deck. */
+  & .sv-trackwell-probe { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+  /* The ball lies on the deck as the shape its tilt shows of a sphere in a hole: its own outline
+     above, the hole's edge below, meeting where the eye's line grazes the ball at the hole's edge.
+     At rest a circle in the well; once measured, that shape flat over the well. Its box is
+     that shape on the screen, the center of the ball --sv-ball-h from its top and --sv-ball-b from
+     its foot; the face draws the shape itself (Face), so the box has no edge of its own. */
+  & .sv-trackball {
+    --sv-ball-w: calc(var(--sv-hole) * 1.05); --sv-ball-h: calc(var(--sv-ball-w) / 2); --sv-ball-b: var(--sv-ball-h);
+    position: absolute; left: calc(50% - var(--sv-ball-w) / 2); top: calc(50% - var(--sv-ball-h));
+    width: var(--sv-ball-w); height: calc(var(--sv-ball-h) + var(--sv-ball-b));
+    transform-origin: 50% var(--sv-ball-h);
+    cursor: grab; touch-action: none;
+  }
+  /* Measured, the ball leaves the deck for the console itself (Trackball): pinned over its well where
+     the well shows on the screen, turned to its axis, flat. Over the deck and under any window or
+     menu. */
+  & .sv-trackball-laid { position: fixed; z-index: 1; transform-origin: 50% var(--sv-ball-h); }
+  /* The face (Face): the shape and everything on it, drawn as the eye sees it. */
+  & .sv-trackball-face { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  & .sv-trackball:active { cursor: grabbing; }
+  & .sv-trackball:focus-visible { outline: 2px solid var(--sv-teal-face); outline-offset: 3px; }
+
+  /* The sleep timer, drawn on the screen's clock page and in its own window over the console. */
+  & :is(.sv-crt, .sv-screenlike) {
+    & .sv-sleep { margin-bottom: 26px; }
+    & .sv-sleep-main { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-bottom: 12px; }
+    & .sv-sleep-clock { font-weight: 400; font-size: 84px; line-height: 0.8; letter-spacing: 0.04em; }
+    & .sv-sleep-main:not([data-active]) .sv-sleep-clock { color: var(--sv-ph-faint); }
+    & .sv-sleep-others { margin-top: 14px; display: grid; gap: 4px; }
+  }
+
+  /* --- the screen's own drawing ---------------------------------------------------------- */
+  & .sv-screenlike {
+    font-family: var(--sv-screen-font); font-size: 21px; line-height: 1.12;
+    color: var(--sv-ph); text-shadow: var(--sv-glow);
+    -webkit-font-smoothing: antialiased;
+  }
+  & :is(.sv-crt, .sv-screenlike) {
+    & ::selection { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
+    & h1, & h2, & h3, & p { margin: 0; font-weight: 400; }
+    & a { color: inherit; }
+    & .sv-title { font-size: 34px; line-height: 1; text-transform: uppercase; letter-spacing: 0.02em; overflow-wrap: anywhere; }
+    & .sv-over { font-size: 17px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sv-ph-dim); }
+    & .sv-dim { color: var(--sv-ph-dim); }
+    & .sv-strong { font-size: 24px; }
+    & .sv-error { color: var(--sv-critical); text-shadow: 0 0 6px rgb(255 120 120 / 0.5); }
+    & .sv-error::before { content: '!! '; }
+    & .sv-grow { flex: 1; }
+    & .sv-stack { display: flex; flex-direction: column; gap: 16px; }
+    & .sv-inline { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+    & .sv-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    & .sv-toolrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    & .sv-box { border: 2px solid var(--sv-ph-line); padding: 12px 14px; }
+    & .sv-hint { margin-top: -10px; }
+    & .sv-fieldset { border: 0; padding: 0; margin: 0; }
+    & .sv-setting { display: grid; gap: 6px; }
+    & .sv-setting-label { font-size: 17px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sv-ph-dim); }
+    & .sv-setting-value { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    & .sv-dot { width: 10px; height: 10px; background: var(--sv-ph-faint); }
+    & .sv-dot[data-on] { background: var(--sv-ph); box-shadow: var(--sv-glow); animation: sv-blink 1.6s steps(2, jump-none) infinite; }
+    & .sv-code { font-size: 48px; letter-spacing: 0.2em; }
+    & .sv-done { display: flex; gap: 10px; align-items: center; }
+    & .sv-explicit { vertical-align: -2px; margin-left: 8px; color: var(--sv-ph-dim); }
+    & .sv-initials { font-size: 18px; }
+    & .sv-pagefoot { margin-top: 16px; }
+
+    /* A heading with a rule running out from it. */
+    & .sv-rule-head {
+      display: flex; align-items: center; gap: 12px; margin: 0 0 10px;
+      font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase;
+    }
+    & .sv-rule-head::after { content: ''; flex: 1; border-top: 2px solid var(--sv-ph-faint); min-width: 24px; }
+    & .sv-rule-head small { font-size: 16px; letter-spacing: 0.06em; text-transform: none; color: var(--sv-ph-dim); margin-left: 4px; }
+
+    /* Buttons: boxed, inverse when chosen or under the keyboard's cursor. */
+    & .sv-btn {
+      position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 34px;
+      padding: 1px 12px; border: 2px solid var(--sv-ph); background: transparent; color: var(--sv-ph);
+      font: inherit; font-size: 20px; line-height: 1; text-shadow: inherit; text-transform: uppercase; letter-spacing: 0.04em;
+      cursor: pointer; box-shadow: var(--sv-glow-soft);
+    }
+    & .sv-btn-s { min-height: 30px; padding: 1px 10px; font-size: 18px; }
+    & .sv-btn-m { min-height: 36px; }
+    & .sv-btn-text { border-color: transparent; box-shadow: none; padding-inline: 6px; }
+    & .sv-btn-solid, & .sv-btn[aria-pressed='true'] { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; box-shadow: 0 0 10px rgb(var(--sv-ph-rgb) / 0.4); }
+    & .sv-btn:hover:not(:disabled) { background: var(--sv-ph-wash-strong); }
+    & .sv-btn-solid:hover:not(:disabled), & .sv-btn[aria-pressed='true']:hover:not(:disabled) { background: rgb(var(--sv-ph-rgb) / 0.86); }
+    & .sv-btn:focus-visible { outline: 2px dashed var(--sv-ph); outline-offset: 3px; }
+    & .sv-btn:active:not(:disabled) { transform: translateY(1px); }
+    & .sv-btn:disabled { opacity: 0.4; border-style: dashed; cursor: default; box-shadow: none; }
+    & .sv-btn[data-danger] { background: var(--sv-critical); border-color: var(--sv-critical); color: #1a0505; }
+    & .sv-btn-icon { display: inline-grid; line-height: 0; }
+    & .sv-btn-img { width: 18px; height: 18px; }
+    & .sv-btnrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    & .sv-ibtn {
+      position: relative; display: inline-grid; place-items: center; flex: none; width: 38px; height: 38px; padding: 0;
+      background: transparent; border: 2px solid transparent; color: var(--sv-ph); cursor: pointer; line-height: 0;
+      filter: drop-shadow(0 0 3px rgb(var(--sv-ph-rgb) / 0.45));
+    }
+    & .sv-ibtn-s { width: 30px; height: 30px; }
+    & .sv-ibtn-l { width: 46px; height: 46px; border-color: var(--sv-ph-line); }
+    & .sv-ibtn-xl { width: 68px; height: 68px; border-color: var(--sv-ph); }
+    & .sv-ibtn:hover:not(:disabled) { background: var(--sv-ph-wash-strong); }
+    & .sv-ibtn[aria-pressed='true'], & .sv-ibtn:focus-visible { background: var(--sv-ph); color: var(--sv-scr); filter: none; outline: none; }
+    & .sv-ibtn:disabled { opacity: 0.35; cursor: default; }
+    & .sv-badge { position: absolute; top: -6px; right: -8px; padding: 0 4px; background: var(--sv-ph); color: var(--sv-scr); font-size: 15px; line-height: 16px; }
+
+    /* A switch is a box, filled when on. */
+    & .sv-toggle { display: inline-flex; align-items: center; gap: 12px; cursor: pointer; position: relative; min-height: 30px; }
+    & .sv-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    /* Content filters: each system's switch, and under it, in line with the switch's words, what the
+       system reports. */
+    & .sv-parental-row { display: grid; gap: 2px; }
+    & .sv-parental-row > .sv-dim { padding-left: 38px; }
+    & .sv-toggle-box { flex: none; width: 26px; height: 26px; border: 2px solid var(--sv-ph); position: relative; box-shadow: var(--sv-glow-soft); }
+    & .sv-toggle-box::after { content: ''; position: absolute; inset: 4px; background: var(--sv-ph); transform: scale(0); transition: transform 60ms steps(2); box-shadow: var(--sv-glow); }
+    & .sv-toggle input:checked + .sv-toggle-box::after { transform: scale(1); }
+    & .sv-toggle input:focus-visible + .sv-toggle-box { outline: 2px dashed var(--sv-ph); outline-offset: 3px; }
+    & .sv-toggle[data-disabled] { opacity: 0.4; cursor: default; }
+    & .sv-tick { position: relative; display: inline-grid; place-items: center; width: 30px; height: 30px; cursor: pointer; }
+    & .sv-tick input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+    & .sv-tick span { width: 18px; height: 18px; border: 2px solid var(--sv-ph-dim); }
+    & .sv-tick input:checked + span { background: var(--sv-ph); border-color: var(--sv-ph); box-shadow: var(--sv-glow); }
+    & .sv-tick input:focus-visible + span { outline: 2px dashed var(--sv-ph); outline-offset: 2px; }
+
+    /* One of a few, in a row of boxes. */
+    /* The choices share out each row they wrap onto, and the lines between them are the gaps,
+       so a second row joins the first with a line above it and no stretch of empty frame. */
+    & .sv-seg { display: inline-flex; flex-wrap: wrap; gap: 2px; border: 2px solid var(--sv-ph); background: var(--sv-ph-line); box-shadow: var(--sv-glow-soft); }
+    & .sv-seg button {
+      flex: 1 1 auto; display: inline-flex; align-items: center; gap: 8px; min-height: 30px; padding: 1px 12px;
+      border: 0; background: var(--sv-scr); color: var(--sv-ph);
+      font: inherit; font-size: 19px; text-shadow: inherit; text-transform: uppercase; cursor: pointer;
+    }
+    & .sv-seg button[aria-checked='true'] { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
+    & .sv-seg button:hover:not([aria-checked='true']) { background: color-mix(in srgb, var(--sv-ph) 18%, var(--sv-scr)); }
+    & .sv-seg button:focus-visible { outline: 2px dashed var(--sv-ph); outline-offset: -5px; }
+    & .sv-swatch { width: 14px; height: 14px; border: 1px solid currentColor; }
+    & .sv-swatch[data-phosphor='ice'] { background: rgb(210 240 255); }
+    & .sv-swatch[data-phosphor='cyan'] { background: rgb(128 244 250); }
+    & .sv-swatch[data-phosphor='teal'] { background: rgb(150 240 214); }
+    & .sv-swatch[data-phosphor='green'] { background: rgb(112 255 150); }
+    & .sv-swatch[data-phosphor='amber'] { background: rgb(255 190 96); }
+
+    /* A level in block characters. */
+    & .sv-bar { position: relative; display: flex; align-items: center; gap: 10px; min-width: 120px; flex: 1; height: 30px; }
+    & .sv-bar-track {
+      position: relative; flex: 1; height: 16px;
+      background: repeating-linear-gradient(90deg, var(--sv-ph-faint) 0 round(6px, var(--sv-dpx)), transparent 0 calc(round(6px, var(--sv-dpx)) + round(3px, var(--sv-dpx))));
+    }
+    & .sv-bar-fill {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(90deg, var(--sv-ph) 0 round(6px, var(--sv-dpx)), transparent 0 calc(round(6px, var(--sv-dpx)) + round(3px, var(--sv-dpx))));
+      clip-path: inset(0 calc(100% - var(--sv-pct) * 1%) 0 0);
+      filter: drop-shadow(0 0 3px rgb(var(--sv-ph-rgb) / 0.6));
+    }
+    & .sv-bar[data-center] .sv-bar-fill { clip-path: inset(0 calc(100% - max(50%, var(--sv-pct) * 1%)) 0 min(50%, var(--sv-pct) * 1%)); }
+    & .sv-bar[data-center] .sv-bar-track::before { content: ''; position: absolute; left: 50%; top: -5px; bottom: -5px; border-left: 2px solid var(--sv-ph-dim); }
+    & .sv-bar-head { position: absolute; top: -4px; bottom: -4px; width: 4px; left: calc(var(--sv-pct) * 1% - 2px); background: var(--sv-ph); box-shadow: var(--sv-glow); }
+    & .sv-bar-value { min-width: 3ch; text-align: right; font-size: 20px; }
+    & .sv-bar input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
+    & .sv-bar:has(input:focus-visible) .sv-bar-track { outline: 2px dashed var(--sv-ph); outline-offset: 4px; }
+    & .sv-bar[data-disabled] { opacity: 0.4; }
+
+    /* Fields: a label, and the entry in a box with the phosphor caret. */
+    & .sv-field { display: grid; gap: 4px; min-width: 200px; flex: 1; }
+    & .sv-field-label { font-size: 17px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sv-ph-dim); }
+    & .sv-field-box { display: flex; align-items: center; gap: 8px; border: 2px solid var(--sv-ph-line); padding: 0 10px; min-height: 38px; }
+    & .sv-field-box:focus-within { border-color: var(--sv-ph); box-shadow: var(--sv-glow-soft); }
+    & :is(.sv-field-box, .sv-prompt, .sv-command-bar) input {
+      flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; padding: 4px 0;
+      color: var(--sv-ph); caret-color: var(--sv-ph); font: inherit; font-size: 22px; text-shadow: inherit;
+    }
+    & :is(.sv-field-box, .sv-prompt, .sv-command-bar) input::placeholder { color: var(--sv-ph-faint); }
+    & input[type='search']::-webkit-search-cancel-button { display: none; }
+    & .sv-field[data-disabled] { opacity: 0.45; }
+    & .sv-time-input {
+      background: transparent; border: 2px solid var(--sv-ph-line); color: var(--sv-ph); font: inherit; font-size: 20px; padding: 2px 8px; min-height: 34px;
+      color-scheme: dark;
+    }
+    & .sv-prompt { display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--sv-ph); padding: 2px 0 4px; }
+    & .sv-prompt-sign { font-size: 24px; letter-spacing: 0.06em; white-space: nowrap; }
+    & .sv-prompt input { font-size: 26px; }
+
+    & .sv-select {
+      display: inline-flex; align-items: center; gap: 10px; min-height: 34px; max-width: 100%; padding: 1px 10px;
+      background: transparent; border: 2px solid var(--sv-ph); color: var(--sv-ph); font: inherit; font-size: 20px; text-shadow: inherit; cursor: pointer; text-align: left;
+    }
+    & .sv-select:hover:not(:disabled) { background: var(--sv-ph-wash-strong); }
+    & .sv-select:focus-visible, & .sv-select[data-open] { outline: 2px dashed var(--sv-ph); outline-offset: 3px; }
+    & .sv-select:disabled { opacity: 0.4; border-style: dashed; cursor: default; }
+    & .sv-select-value { display: grid; min-width: 0; }
+    & .sv-select-value > * { grid-area: 1 / 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    & .sv-select-sizer { visibility: hidden; height: 0; }
+
+    /* The art on a phosphor screen is drawn in the phosphor: the picture's light parts lit,
+       its dark parts dark. The setting for color covers takes it back to its own colors. */
+    & .sv-art { position: relative; display: inline-grid; place-items: center; overflow: hidden; flex: none; background: rgb(var(--sv-ph-rgb) / 0.06); color: var(--sv-ph-dim); }
+    & .sv-art img { display: block; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.15) brightness(1.02); }
+    & .sv-art:has(img)::after { content: ''; position: absolute; inset: 0; background: var(--sv-ph); mix-blend-mode: multiply; pointer-events: none; }
+    /* A cover with no picture shows Sonora's placeholder for its kind, drawn in the phosphor too. */
+    & .sv-art > svg { width: 70%; height: 70%; filter: grayscale(1) brightness(1.5) contrast(1.1); opacity: 0.7; }
+    & .sv-art:has(img)::before {
+      content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.18) 2px 3px);
+    }
+  }
+  &[data-sv-art='color'] :is(.sv-crt, .sv-screenlike) .sv-art img { filter: saturate(0.92) contrast(1.05); }
+  &[data-sv-art='color'] :is(.sv-crt, .sv-screenlike) .sv-art:has(img)::after { content: none; }
+
+  /* Service logos, drawn in the phosphor unless art is in color: the logo's own lightness lights
+     the tube's color, and its dark and clear parts stay dark. */
+  & .sv-svcimg { position: relative; display: inline-block; flex: none; line-height: 0; }
+  & .sv-svcimg img { visibility: hidden; }
+  & .sv-svcimg::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: var(--sv-ph);
+    mask: var(--sv-src) center / contain no-repeat luminance;
+  }
+  &[data-sv-art='color'] .sv-svcimg img { visibility: visible; }
+  &[data-sv-art='color'] .sv-svcimg::after { content: none; }
+
+  /* The caution on a service that is linked on one side only: phosphor too unless art is in
+     color, solid for one kind and drawn in outline for the other, so the two still differ. */
+  &:not([data-sv-art='color']) .svc-caution {
+    --svc-caution-ring: var(--sv-scr); background: var(--sv-ph); color: var(--sv-scr); --icon-hole: var(--sv-ph);
+  }
+  &:not([data-sv-art='color']) .svc-caution[data-kind='sonora'] {
+    background: var(--sv-scr); color: var(--sv-ph); --icon-hole: var(--sv-scr); box-shadow: 0 0 0 2px var(--sv-scr), inset 0 0 0 1.5px var(--sv-ph);
+  }
+  &:not([data-sv-art='color']) .svc-caution[data-size='large'] { box-shadow: inset 0 0 0 2px var(--sv-ph); }
+  &:not([data-sv-art='color']) .svc-caution-logo { background: var(--sv-ph); }
+  &:not([data-sv-art='color']) .svc-caution-logo img { filter: grayscale(1) contrast(1.1); mix-blend-mode: multiply; }
+
+  /* --- lists ----------------------------------------------------------------------------- */
+  & :is(.sv-crt, .sv-screenlike) {
+    & .sv-listing { display: grid; }
+    & .sv-listing-cols { grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); column-gap: 18px; }
+    & .sv-row, & .sv-li {
+      position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto auto; align-items: center; gap: 12px;
+      min-height: 46px; padding: 3px 8px; width: 100%;
+      background: transparent; border: 0; border-bottom: 1px dashed var(--sv-ph-faint); color: inherit; font: inherit; text-shadow: inherit; text-align: left;
+    }
+    & .sv-li { grid-template-columns: auto minmax(0, 1fr) auto; }
+    & .sv-li:not(:has(.sv-li-lead)) { grid-template-columns: minmax(0, 1fr) auto; }
+    & :is(.sv-row, .sv-li-action, .sv-li-check) { cursor: pointer; }
+    & :is(.sv-row, .sv-li-action, .sv-li-check):hover { background: var(--sv-ph-wash); }
+    & :is(.sv-row, .sv-li-action):focus-visible { outline: none; background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
+    & :is(.sv-row, .sv-li-action):focus-visible :is(.sv-row-sub, .sv-li-sub, .sv-dirtag, .sv-dim) { color: rgb(var(--sv-scr-rgb) / 0.75); }
+    & :is(.sv-row, .sv-li)[data-selected], & .sv-row[data-checked] { background: var(--sv-ph-wash-strong); }
+    & :is(.sv-row, .sv-li)[aria-disabled='true'], & .sv-li:disabled { opacity: 0.45; cursor: default; }
+    & .sv-row[data-dead] { opacity: 0.4; cursor: default; }
+    & .sv-row[data-restricted] .sv-row-title { color: var(--sv-ph-dim); }
+    & .sv-row[data-drop='before'] { box-shadow: inset 0 3px 0 var(--sv-ph); }
+    & .sv-row[data-drop='after'] { box-shadow: inset 0 -3px 0 var(--sv-ph); }
+    & .sv-row-art { position: relative; display: grid; place-items: center; width: 40px; height: 40px; line-height: 0; }
+    & .sv-row-art .sv-art { width: 36px; height: 36px; }
+    & .sv-row-art-round .sv-art { border-radius: 50%; }
+    & .sv-row-num { font-size: 22px; color: var(--sv-ph-dim); line-height: 1; }
+    & .sv-row-play {
+      position: absolute; inset: 0; display: grid; place-items: center; padding: 0; border: 0; cursor: pointer;
+      background: var(--sv-ph); color: var(--sv-scr); opacity: 0; line-height: 0;
+    }
+    & .sv-row:hover .sv-row-play, & .sv-row-play:focus-visible { opacity: 1; }
+    & :is(.sv-row-text, .sv-li-text) { display: grid; min-width: 0; }
+    & :is(.sv-row-title, .sv-li-title) { display: flex; align-items: center; min-width: 0; font-size: 22px; }
+    & :is(.sv-row-title, .sv-li-title) > span:first-child, & .sv-li-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & :is(.sv-row-sub, .sv-li-sub, .sv-li-over) { color: var(--sv-ph-dim); font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & .sv-li-lead, & .sv-li-trail { display: flex; align-items: center; gap: 6px; line-height: 0; }
+    & .sv-row-tools { display: flex; align-items: center; gap: 4px; }
+    & .sv-dirtag { min-width: 5ch; text-align: right; color: var(--sv-ph-dim); font-size: 19px; white-space: nowrap; }
+    & .sv-source-icon { display: grid; place-items: center; width: 32px; height: 32px; line-height: 0; }
+    & .sv-source-icon img { width: 30px; height: 30px; object-fit: contain; }
+    & .sv-caution-anchor { position: relative; }
+    & .sv-caution-anchor .caution-badge { position: absolute; right: -6px; bottom: -6px; }
+    & .sv-empty { display: grid; justify-items: center; gap: 10px; padding: 40px 16px; text-align: center; color: var(--sv-ph-dim); }
+    & .sv-empty-icon { color: var(--sv-ph-faint); line-height: 0; }
+    & .sv-empty-title { font-size: 26px; color: var(--sv-ph); text-transform: uppercase; }
+    & .sv-empty-body { max-width: 46ch; }
+
+    /* Under way: the label, and a run of blocks filling. */
+    & .sv-busy { display: flex; align-items: center; gap: 14px; padding: 18px 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+    & .sv-busy-inline { padding: 0; }
+    & .sv-busy-blocks { display: inline-flex; gap: 3px; }
+    & .sv-busy-blocks i { width: 9px; height: 16px; background: var(--sv-ph-faint); animation: sv-busy 1.2s steps(1, end) infinite; }
+    & .sv-busy-blocks i:nth-child(2) { animation-delay: 0.15s; }
+    & .sv-busy-blocks i:nth-child(3) { animation-delay: 0.3s; }
+    & .sv-busy-blocks i:nth-child(4) { animation-delay: 0.45s; }
+    & .sv-busy-blocks i:nth-child(5) { animation-delay: 0.6s; }
+    & .sv-busy-blocks i:nth-child(6) { animation-delay: 0.75s; }
+    & .sv-busy-blocks i:nth-child(7) { animation-delay: 0.9s; }
+    & .sv-busy-blocks i:nth-child(8) { animation-delay: 1.05s; }
+
+    /* Lines that run out to their values along a row of dots. */
+    & .sv-leaders { display: grid; gap: 4px; margin: 0; min-width: 0; }
+    & .sv-leaders > div { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+    & .sv-leaders > div::after { content: ''; order: 1; flex: 1 1 24px; min-width: 24px; border-bottom: 3px dotted var(--sv-ph-faint); transform: translateY(-5px); }
+    & .sv-leaders dt { order: 0; flex: none; font-size: 18px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sv-ph-dim); }
+    & .sv-leaders dd { order: 2; flex: 0 1 auto; min-width: 0; margin: 0; font-size: 22px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Shelves of covers, and a strip of them that scrolls sideways. */
+    & .sv-shelf { margin: 6px 0 22px; }
+    & .sv-shelf-head { display: flex; align-items: center; gap: 12px; }
+    & .sv-shelf-head .sv-rule-head { flex: 1; margin: 0; }
+    & .sv-strip { display: grid; grid-auto-flow: column; grid-auto-columns: 148px; gap: 16px; overflow-x: auto; padding: 10px 2px 8px; scrollbar-width: thin; scrollbar-color: var(--sv-ph-faint) transparent; }
+    & .sv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 18px 16px; padding-top: 10px; }
+    & .sv-tile { position: relative; display: grid; gap: 4px; align-content: start; cursor: pointer; min-width: 0; outline: none; }
+    & .sv-tile-art { width: 100%; aspect-ratio: 1; border: 2px solid var(--sv-ph-line); }
+    & .sv-tile-art[data-round] { border-radius: 50%; }
+    & .sv-tile-art > svg { width: 50%; height: 50%; }
+    & .sv-tile-play {
+      position: absolute; right: 6px; bottom: 6px; z-index: 2; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; line-height: 0;
+      border: 2px solid var(--sv-scr); background: var(--sv-ph); color: var(--sv-scr); opacity: 0; cursor: pointer;
+    }
+    & .sv-tile:hover .sv-tile-play, & .sv-tile:focus-visible .sv-tile-play, & .sv-tile-play:focus-visible { opacity: 1; }
+    & .sv-tile:hover .sv-tile-art, & .sv-tile:focus-visible .sv-tile-art { border-color: var(--sv-ph); box-shadow: var(--sv-glow-soft); }
+    & .sv-tile:focus-visible .sv-tile-title { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
+    & .sv-tile-title { font-size: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & .sv-tile-sub { font-size: 17px; color: var(--sv-ph-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 1em; }
+    & .sv-tile-tools { position: absolute; top: 4px; right: 4px; z-index: 2; display: flex; gap: 2px; opacity: 0; }
+    & .sv-tile-tools .sv-ibtn { background: var(--sv-scr); }
+    & .sv-tile:hover .sv-tile-tools, & .sv-tile:focus-within .sv-tile-tools { opacity: 1; }
+    & .sv-tile-tools .sv-dirtag { align-self: center; padding: 0 4px; background: var(--sv-scr); min-width: 0; }
+    & .sv-tile[aria-disabled='true'] { opacity: 0.45; }
+
+    /* What can be done with the ticked rows. */
+    & .sv-selectbar {
+      position: sticky; bottom: 0; z-index: 3; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding: 8px 10px;
+      background: var(--sv-scr); border: 2px solid var(--sv-ph); box-shadow: 0 -8px 16px rgb(var(--sv-scr-rgb) / 0.9);
+    }
+    & .sv-selectbar > span { margin-right: auto; text-transform: uppercase; }
+
+    & .sv-programhead { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    & .sv-programhead > div:first-child { display: grid; gap: 6px; min-width: 0; }
+    & .sv-programhead-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    & .sv-banner { display: flex; gap: 14px; align-items: flex-start; margin: 10px 0 16px; padding: 12px 14px; border: 2px dashed var(--sv-ph); }
+    & .sv-banner > div { display: grid; gap: 8px; justify-items: start; }
+
+    & .sv-table-wrap { overflow-x: auto; }
+    & .sv-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 19px; }
+    & .sv-table th, & .sv-table td { padding: 4px 8px; text-align: left; border-bottom: 1px dashed var(--sv-ph-faint); font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & .sv-table thead th { color: var(--sv-ph-dim); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 2px solid var(--sv-ph-line); }
+    & .sv-table tr[data-offline] { opacity: 0.5; }
+    & .sv-log td { white-space: normal; vertical-align: top; }
+    & .sv-log { table-layout: auto; }
+    & .sv-level { text-transform: uppercase; }
+    & .sv-level[data-level='error'] { color: var(--sv-critical); }
+    & .sv-level[data-level='warning'] { color: var(--sv-fair); }
+    & .sv-findings { display: grid; gap: 10px; }
+    & .sv-finding[data-severity='problem'], & .sv-finding[data-severity='critical'] { border-color: var(--sv-critical); }
+    & .sv-prose p { margin: 0 0 10px; max-width: 70ch; }
+  }
+
+  /* --- the programs ------------------------------------------------------------------------ */
+  & .sv-crt {
+    /* Player */
+    & .sv-player {
+      display: grid; grid-template-columns: minmax(200px, min(38%, calc(52 * var(--sv-vh, 1vh)))) minmax(0, 1fr);
+      grid-template-areas: 'art text' 'art seek' 'art buttons' 'panels panels';
+      grid-template-rows: auto auto 1fr auto;
+      gap: 12px 30px; align-items: start;
+    }
+    & .sv-player-none { padding: 40px 0; text-align: center; }
+    & .sv-player-art { grid-area: art; position: relative; aspect-ratio: 1; width: 100%; display: grid; }
+    & .sv-art-big { width: 100%; height: 100%; border: 2px solid var(--sv-ph-line); box-shadow: var(--sv-glow-soft); }
+    & .sv-art-big > svg { width: 40%; height: 40%; }
+    & .sv-player-art[data-lyrics] { aspect-ratio: auto; height: 100%; min-height: 260px; contain: size; align-self: stretch; }
+    & .sv-player-tv { display: grid; place-items: center; border: 2px solid var(--sv-ph-line); color: var(--sv-ph-dim); }
+    & .sv-player-text { grid-area: text; display: grid; gap: 10px; min-width: 0; }
+    & .sv-player-title { display: flex; align-items: center; font-size: 46px; line-height: 0.95; overflow-wrap: anywhere; }
+    & .sv-player-ratings { display: flex; gap: 8px; }
+    & .sv-rating-img {
+      display: block; width: 22px; height: 22px;
+      background: currentColor;
+      -webkit-mask: var(--sv-rating-icon) var(--sv-rating-pos, center) / var(--sv-rating-size, contain) no-repeat;
+      mask: var(--sv-rating-icon) var(--sv-rating-pos, center) / var(--sv-rating-size, contain) no-repeat;
+    }
+    & .sv-player-seek { grid-area: seek; }
+    & .sv-player-buttons { grid-area: buttons; display: grid; gap: 12px; align-content: start; }
+    & .sv-player-panels { grid-area: panels; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 12px 30px; margin-top: 8px; }
+    & .sv-panel { min-width: 0; }
+
+    & .sv-seek { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+    & .sv-seek-time { font-size: 22px; min-width: 4.5ch; }
+    & .sv-seek-end { text-align: right; }
+    & .sv-seek-track { position: relative; height: 22px; background: repeating-linear-gradient(90deg, var(--sv-ph-faint) 0 round(8px, var(--sv-dpx)), transparent 0 calc(round(8px, var(--sv-dpx)) + round(3px, var(--sv-dpx)))); }
+    & .sv-seek-done {
+      position: absolute; inset: 0; background: repeating-linear-gradient(90deg, var(--sv-ph) 0 round(8px, var(--sv-dpx)), transparent 0 calc(round(8px, var(--sv-dpx)) + round(3px, var(--sv-dpx))));
+      clip-path: inset(0 calc(100% - var(--sv-pct) * 1%) 0 0); filter: drop-shadow(0 0 4px rgb(var(--sv-ph-rgb) / 0.6));
+    }
+    & .sv-seek input { position: absolute; inset: -6px 0; width: 100%; height: calc(100% + 12px); margin: 0; opacity: 0; cursor: pointer; }
+    & .sv-seek input:disabled { cursor: default; }
+    & .sv-seek:has(input:focus-visible) .sv-seek-track { outline: 2px dashed var(--sv-ph); outline-offset: 4px; }
+
+    & .sv-upnext { list-style: none; margin: 0; padding: 0; display: grid; }
+    /* The track rows only: Full queue below them is a button of its own, and caught in the rows'
+       columns its words wrapped in the first. */
+    & .sv-upnext li:not(.sv-upnext-more) button {
+      display: grid; grid-template-columns: 4ch minmax(0, 1fr) minmax(0, 0.7fr); gap: 12px; align-items: baseline; width: 100%;
+      padding: 4px 6px; background: none; border: 0; border-bottom: 1px dashed var(--sv-ph-faint); color: inherit; font: inherit; text-shadow: inherit; text-align: left; cursor: pointer;
+    }
+    & .sv-upnext li:not(.sv-upnext-more) button:hover { background: var(--sv-ph-wash); }
+    & .sv-upnext li:not(.sv-upnext-more) button:focus-visible { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; outline: none; }
+    & .sv-upnext-n { color: var(--sv-ph-dim); }
+    & :is(.sv-upnext-title, .sv-upnext-sub) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & .sv-upnext-sub { color: var(--sv-ph-dim); font-size: 18px; }
+    & .sv-upnext-more { padding-top: 6px; }
+
+    /* Lyrics in the cover's place. */
+    & .sv-lyrics { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; min-height: 0; border: 2px solid var(--sv-ph-line); }
+    & .sv-lyrics-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 2px 4px 2px 10px; border-bottom: 1px dashed var(--sv-ph-faint);
+      font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sv-ph-dim);
+    }
+    & .sv-lyrics-close {
+      display: grid; place-items: center; width: 34px; height: 30px; padding: 0;
+      border: 1px solid var(--sv-ph-line); background: none; color: var(--sv-ph); cursor: pointer;
+      &:hover, &:focus-visible { background: var(--sv-ph); color: var(--sv-scr); outline: none; }
+    }
+    & .sv-lyrics-scroll { overflow: auto; min-height: 0; padding: min(40%, 96px) 14px; scrollbar-width: none; -webkit-mask: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent); mask: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent); }
+    & .sv-lyrics-scroll p { margin: 0 0 8px; font-size: 24px; }
+    & .sv-lyrics-timed p[data-at='past'] { color: var(--sv-ph-faint); }
+    & .sv-lyrics-timed p[data-at='now'] { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; padding: 0 6px; }
+    & .sv-lyrics-untimed { color: var(--sv-ph-dim); font-size: 18px !important; }
+    & .sv-lyrics-note { align-self: center; text-align: center; padding: 20px; color: var(--sv-ph-dim); }
+    /* The notice's words sit in the middle of the panel when they fit and scroll within it when the
+       panel is too short, from their first line; the button to go on stays in view under them. */
+    & .sv-lyrics-notice { align-self: stretch; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 12px; justify-items: start; padding: 14px 18px 16px; font-size: 19px; }
+    & .sv-lyrics-notice p { min-height: 0; max-height: 100%; overflow: auto; align-self: safe center; scrollbar-width: thin; scrollbar-color: var(--sv-ph-dim) transparent; }
+    & .sv-lyrics-credit { padding: 4px 10px; font-size: 16px; color: var(--sv-ph-dim); border-top: 1px dashed var(--sv-ph-faint); }
+
+    /* Queue */
+    & .sv-qlist { position: relative; display: grid; }
+    & .sv-qrow {
+      position: relative; display: grid; grid-template-columns: 14px 4ch 26px 32px minmax(0, 1fr) auto auto; align-items: center; gap: 10px;
+      height: 44px; padding: 0 6px; border-bottom: 1px dashed var(--sv-ph-faint); cursor: pointer; transition: transform 80ms ease; background: var(--sv-scr-raised);
+    }
+    & .sv-qrow:hover { background: var(--sv-ph-wash); }
+    & .sv-qrow:focus-visible { outline: none; background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
+    & .sv-qrow:focus-visible :is(.sv-qrow-sub, .sv-qrow-n, .sv-qrow-dur) { color: rgb(var(--sv-scr-rgb) / 0.75); }
+    & .sv-qrow[aria-current] { background: var(--sv-ph-wash-strong); }
+    & .sv-qrow[aria-current] .sv-qrow-title { text-decoration: underline; text-underline-offset: 4px; }
+    & .sv-qrow[data-playing] .sv-qrow-cursor { animation: sv-blink 1s steps(2, jump-none) infinite; }
+    & .sv-qrow[data-checked] { background: var(--sv-ph-wash-strong); }
+    & .sv-qrow[data-dragging] { opacity: 0.3; }
+    & .sv-qrow-n { color: var(--sv-ph-dim); }
+    & .sv-qrow-handle { display: grid; place-items: center; cursor: grab; color: var(--sv-ph-dim); line-height: 0; touch-action: none; }
+    & .sv-art-row { width: 32px; height: 32px; }
+    & .sv-qrow-text { display: grid; min-width: 0; }
+    & :is(.sv-qrow-title, .sv-qrow-sub) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & .sv-qrow-title { font-size: 21px; }
+    & .sv-qrow-sub { font-size: 17px; color: var(--sv-ph-dim); }
+    & .sv-qrow-dur { color: var(--sv-ph-dim); }
+    & .sv-qrow-tools { display: flex; align-items: center; }
+
+    /* Library */
+    & .sv-library-head { display: grid; gap: 8px; margin-bottom: 14px; }
+    & .sv-library-context { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: space-between; }
+    & .sv-library-room { display: inline-flex; align-items: center; gap: 8px; color: var(--sv-ph-dim); font-size: 18px; text-transform: uppercase; letter-spacing: 0.06em; }
+    & .sv-scope {
+      display: inline-flex; align-items: center; gap: 8px; max-width: 40%; padding: 1px 10px; min-height: 32px;
+      background: none; border: 2px solid var(--sv-ph-line); color: inherit; font: inherit; font-size: 19px; text-shadow: inherit; cursor: pointer;
+    }
+    & .sv-scope span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & .sv-scope img { width: 20px; height: 20px; object-fit: contain; }
+    & .sv-scope:hover { background: var(--sv-ph-wash-strong); }
+    & .sv-path { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; margin: 0 0 12px; padding: 4px 8px; border: 2px solid var(--sv-ph-line); font-size: 21px; }
+    & .sv-path-part { background: none; border: 0; padding: 0 2px; color: inherit; font: inherit; text-shadow: inherit; text-transform: uppercase; cursor: pointer; max-width: 28ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & button.sv-path-part:hover { background: var(--sv-ph-wash-strong); }
+    & button.sv-path-part:focus-visible { background: var(--sv-ph); color: var(--sv-scr); outline: none; text-shadow: none; }
+    & span.sv-path-part { cursor: default; }
+    & .sv-path-sep { color: var(--sv-ph-dim); }
+    & .sv-row-up .sv-row-title { letter-spacing: 0.2em; }
+    & .sv-dir { margin-top: 10px; }
+    & .sv-dir-system { margin-bottom: 14px; }
+    & .sv-dir-system[data-dim] .sv-listing { opacity: 0.55; }
+    & .sv-dir-drive {
+      display: flex; align-items: center; gap: 12px; padding: 2px 0; margin: 6px 0 4px; background: none; border: 0; color: inherit; font: inherit;
+      font-size: 22px; text-shadow: inherit; cursor: default;
+    }
+    & .sv-dir-drive:not(:disabled) { cursor: pointer; }
+    & .sv-dir-drive:not(:disabled):hover { background: var(--sv-ph-wash); }
+    & .sv-pins { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; }
+    & .sv-collection { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; align-items: end; margin-bottom: 16px; }
+    & .sv-collection-art { width: 180px; height: 180px; border: 2px solid var(--sv-ph-line); }
+    & .sv-collection-text { display: grid; gap: 8px; justify-items: start; min-width: 0; }
+    & .sv-results-service { margin: 14px 0; }
+    & .sv-results .sv-title { margin: 4px 0 12px; }
+    & .sv-results-icon { display: inline-grid; line-height: 0; }
+    & .sv-results-icon img { width: 22px; height: 22px; object-fit: contain; }
+    & .sv-servicegrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(190px, 100%), 1fr)); gap: 12px; }
+    & .sv-servicecard {
+      display: grid; justify-items: center; gap: 6px; padding: 14px 10px; background: none; border: 2px solid var(--sv-ph-line);
+      color: inherit; font: inherit; text-shadow: inherit; cursor: pointer; text-align: center;
+    }
+    & .sv-servicecard:hover:not(:disabled) { border-color: var(--sv-ph); background: var(--sv-ph-wash); }
+    & .sv-servicecard:focus-visible { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; outline: none; }
+    & .sv-servicecard:disabled { opacity: 0.4; cursor: default; }
+    & .sv-servicecard-title { font-size: 21px; }
+    & .sv-servicecard-sub { font-size: 16px; color: var(--sv-ph-dim); }
+
+    /* Rooms */
+    & .sv-bins { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr)); gap: 18px; margin-bottom: 18px; }
+    & .sv-bin { border: 2px solid var(--sv-ph-line); background: var(--sv-scr-raised); }
+    & .sv-bin[data-active] { border-color: var(--sv-ph); box-shadow: var(--sv-glow-soft), inset var(--sv-glow-soft); }
+    & .sv-bin[data-over] { border-style: dashed; background: var(--sv-ph-wash-strong); }
+    & .sv-bin[data-dragging] { opacity: 0.4; }
+    & .sv-bin[draggable='true'] .sv-bin-head { cursor: grab; }
+    & .sv-bin-head { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 8px 10px; border-bottom: 2px solid var(--sv-ph-line); cursor: pointer; }
+    & .sv-bin[data-active] .sv-bin-head { border-color: var(--sv-ph); }
+    & .sv-bin-head:focus-visible { outline: 2px dashed var(--sv-ph); outline-offset: -4px; }
+    & .sv-bin-n { font-size: 28px; padding: 0 6px; background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
+    & .sv-bin-art { width: 48px; height: 48px; padding: 0; border: 2px solid var(--sv-ph-line); cursor: pointer; color: inherit; }
+    & .sv-bin-text { display: grid; min-width: 0; }
+    & :is(.sv-bin-title, .sv-bin-sub) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & .sv-bin-title { font-size: 22px; }
+    & .sv-bin-sub { font-size: 17px; color: var(--sv-ph-dim); }
+    & .sv-bin-tools { display: flex; align-items: center; gap: 8px; }
+    & .sv-bin-rooms { display: grid; padding: 4px 10px 8px; }
+    /* The rows share the card's columns, so the group's bar and every room's start and end together
+       whether or not a row has a menu at its end. */
+    & .sv-bin-rooms { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(120px, 1.1fr) auto; column-gap: 8px; }
+    & .sv-member { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; gap: 8px; min-height: 46px; border-bottom: 1px dashed var(--sv-ph-faint); }
+    & .sv-member:last-child { border-bottom: 0; }
+    & .sv-member-name { display: grid; min-width: 0; }
+    & .sv-member-line { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 21px; }
+    & .sv-member-line .sn-name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & .sv-member-name small { font-size: 16px; color: var(--sv-ph-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & .sv-member-group .sv-member-name { text-transform: uppercase; color: var(--sv-ph-dim); }
+    & .sv-member[data-offline] { opacity: 0.45; }
+
+    /* Clock */
+    & .sv-alarm-table { display: grid; border-top: 2px solid var(--sv-ph-line); }
+    & .sv-alarm {
+      display: grid; grid-template-columns: 7ch auto minmax(0, 1fr) minmax(0, 1.2fr) auto; align-items: center; gap: 18px;
+      min-height: 52px; padding: 4px 8px; border-bottom: 1px dashed var(--sv-ph-faint); cursor: pointer;
+    }
+    & .sv-alarm:hover { background: var(--sv-ph-wash); }
+    & .sv-alarm:focus-visible { outline: 2px dashed var(--sv-ph); outline-offset: -3px; }
+    & .sv-alarm:not([data-on]) > :not(.sv-alarm-tools) { opacity: 0.45; }
+    & .sv-alarm-time { font-weight: 400; font-size: 34px; }
+    & .sv-alarm-days { display: flex; gap: 3px; }
+    & .sv-day { display: grid; place-items: center; width: 22px; height: 24px; color: var(--sv-ph-faint); }
+    & .sv-day[data-on] { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
+    & .sv-alarm-rec { text-transform: uppercase; color: var(--sv-ph-dim); }
+    & :is(.sv-alarm-room, .sv-alarm-music) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & .sv-alarm-music { color: var(--sv-ph-dim); }
+    & .sv-alarm-tools { display: flex; align-items: center; gap: 6px; }
+
+    /* Setup */
+    & .sv-setup { display: grid; grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); gap: 34px; align-items: start; }
+    & .sv-setup-single { display: block; }
+    & .sv-setup-menu { position: sticky; top: 0; display: grid; gap: 10px; }
+    & .sv-setup-menu ol { list-style: none; margin: 0; padding: 0; display: grid; }
+    & .sv-setup-menu button {
+      display: grid; grid-template-columns: 2ch 24px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 40px; padding: 2px 8px;
+      background: none; border: 0; color: inherit; font: inherit; text-shadow: inherit; text-align: left; cursor: pointer; text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    & .sv-setup-menu button > span:nth-child(3) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    & .sv-setup-menu button:hover { background: var(--sv-ph-wash); }
+    & .sv-setup-menu button[aria-current], & .sv-setup-menu button:focus-visible { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; outline: none; }
+    & .sv-setup-n { color: var(--sv-ph-dim); }
+    & .sv-setup-menu button[aria-current] .sv-setup-n, & .sv-setup-menu button:focus-visible .sv-setup-n { color: inherit; }
+    & .sv-setup-extra { border-top: 2px solid var(--sv-ph-faint); padding-top: 8px !important; }
+    & .sv-setup-page { min-width: 0; }
+    & .sv-setup-page .sv-programhead { align-items: center; justify-content: flex-start; flex-wrap: nowrap; }
+    & .sv-clockface { display: grid; gap: 4px; padding: 10px 0; }
+    & .sv-clockface strong { font-weight: 400; font-size: 72px; line-height: 0.85; }
+    & .sv-clockface span { font-size: 26px; }
+    & .sv-clockface small { color: var(--sv-ph-dim); font-size: 18px; }
+  }
+
+  /* --- windows, menus, tooltips: drawn over everything, in the screen's own type ---------------- */
+  & .sv-menu {
+    position: fixed; z-index: 1100; display: grid; min-width: 220px; max-width: min(420px, calc(calc(100 * var(--sv-vw, 1vw)) - 16px)); max-height: calc(calc(100 * var(--sv-vh, 1vh)) - 16px);
+    padding: 4px 0; overflow: auto; background: var(--sv-scr); border: 2px solid var(--sv-ph);
+    box-shadow: 0 0 0 1px #000, 0 0 16px rgb(var(--sv-ph-rgb) / 0.25), 0 14px 34px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+  }
+  & .sv-menu[data-ready] { opacity: 1; animation: sv-tube-on 70ms steps(2, end); }
+  & .sv-menu-title { margin: 0; padding: 4px 12px 6px; border-bottom: 2px solid var(--sv-ph-line); color: var(--sv-ph-dim); text-transform: uppercase; letter-spacing: 0.08em; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .sv-menu-item {
+    display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; min-height: 34px; padding: 2px 12px;
+    background: none; border: 0; color: var(--sv-ph); font: inherit; font-size: 21px; text-shadow: inherit; text-align: left; cursor: pointer;
+  }
+  & .sv-menu-item:hover:not(:disabled), & .sv-menu-item:focus-visible { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; outline: none; }
+  & .sv-menu-item:disabled { opacity: 0.4; cursor: default; }
+  & .sv-menu-item[data-danger] { color: var(--sv-critical); }
+  & .sv-menu-item[data-danger]:hover, & .sv-menu-item[data-danger]:focus-visible { background: var(--sv-critical); color: #1a0505; }
+  & .sv-menu-mark { display: grid; line-height: 0; }
+  & .sv-menu-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .sv-menu-img { width: 16px; height: 16px; object-fit: contain; }
+  & .sv-menu-sep { display: block; margin: 4px 10px; border-top: 1px dashed var(--sv-ph-faint); }
+  & .sv-menu-scroll { max-height: calc(50 * var(--sv-vh, 1vh)); overflow: auto; display: grid; }
+  & .sv-menu-pad { padding: 8px 12px; }
+  /* The mixer, on the player screen and in the keyboard's menu. */
+  & .sv-mixer { display: grid; gap: 4px; }
+  /* Room for most rooms' whole names; the slider takes what is left. */
+  & .sv-mixer-row { display: grid; grid-template-columns: auto minmax(0, 16ch) minmax(0, 1fr); align-items: center; gap: 10px; }
+  & .sv-mixer-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .sv-mixer-group .sv-mixer-name { text-transform: uppercase; color: var(--sv-ph-dim); }
+  & .sv-mixer-row[data-offline] { opacity: 0.45; }
+
+  & .sv-layer {
+    position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: calc(3 * var(--sv-vh, 1vh)) calc(3 * var(--sv-vw, 1vw));
+    background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.62) 0 2px, rgba(0, 0, 0, 0.72) 2px 3px);
+    animation: sv-fade 80ms ease-out;
+  }
+  & .sv-layer[data-exiting] { animation: sv-fade 80ms ease-in reverse forwards; }
+  & .sv-window {
+    position: relative; display: flex; flex-direction: column; width: min(560px, 100%); max-height: 100%; overflow: hidden;
+    background:
+      repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px),
+      radial-gradient(120% 120% at 50% 40%, color-mix(in srgb, var(--sv-scr) 85%, var(--sv-ph)), var(--sv-scr) 60%, var(--sv-scr-edge));
+    border: 2px solid var(--sv-ph); outline: none;
+    box-shadow: 0 0 0 6px var(--sv-face), 0 0 0 7px rgba(255, 255, 255, 0.12), 0 0 26px rgb(var(--sv-ph-rgb) / 0.25), 0 20px 50px rgba(0, 0, 0, 0.7);
+    animation: sv-tube-on 110ms cubic-bezier(.2, .9, .3, 1);
+    transform-origin: 50% 50%;
+  }
+  & .sv-layer[data-exiting] .sv-window { animation: sv-tube-off 80ms ease-in forwards; }
+  & .sv-window-panel { width: min(760px, 100%); max-height: min(860px, 100%); }
+  & .sv-window-panel .sv-window-body { min-height: 120px; }
+  & .sv-window-full { width: min(1100px, 100%); height: 100%; }
+  & .sv-window-bar {
+    flex: none; display: flex; align-items: center; gap: 10px; padding: 4px 6px 4px 14px;
+    background: var(--sv-ph); color: var(--sv-scr); text-shadow: none;
+  }
+  & .sv-window-bar .sv-ibtn { color: var(--sv-scr); filter: none; }
+  & .sv-window-bar .sv-ibtn:hover, & .sv-window-bar .sv-ibtn:focus-visible { background: var(--sv-scr); color: var(--sv-ph); }
+  & .sv-window-bar .sv-btn { border-color: var(--sv-scr); color: var(--sv-scr); background: transparent; text-shadow: none; box-shadow: none; }
+  & .sv-window-bar .sv-btn-solid { background: var(--sv-scr); color: var(--sv-ph); }
+  & .sv-window-titles { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 12px; }
+  & .sv-window-titles h2 { margin: 0; font-weight: 400; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  & .sv-window-titles p { margin: 0; font-size: 18px; opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  & .sv-window-tabs { padding: 12px 18px 0; }
+  & .sv-window-body { flex: 1; min-height: 0; overflow: auto; padding: 16px 18px; scrollbar-width: thin; scrollbar-color: var(--sv-ph-faint) transparent; }
+  & .sv-window-body > p { margin: 0 0 12px; }
+  & .sv-window-actions { flex: none; display: flex; justify-content: flex-end; gap: 12px; padding: 10px 18px 14px; border-top: 2px solid var(--sv-ph-faint); }
+  & .sv-confirm .sv-window-body { display: grid; gap: 14px; }
+  & .sv-confirm-icon { color: var(--sv-ph-dim); line-height: 0; }
+  & .sv-tone { display: grid; grid-template-columns: minmax(0, 9ch) auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+  & .sv-tone-label { text-transform: uppercase; letter-spacing: 0.06em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .sv-tone-end { color: var(--sv-ph-dim); font-size: 18px; }
+  & .sv-willplay { display: flex; gap: 14px; align-items: center; padding: 10px; margin-bottom: 12px; border: 2px dashed var(--sv-ph-line); }
+  & .sv-willplay-art { width: 56px; height: 56px; }
+  & .sv-info-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 2px solid var(--sv-ph-faint); }
+  & .sv-info-art { width: 112px; height: 112px; border: 2px solid var(--sv-ph-line); }
+  & .sv-leaders-wide dd { font-size: 22px; }
+  & .sv-shortcuts { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 18px; margin: 0; }
+  & .sv-shortcuts dt { color: var(--sv-ph-dim); }
+  & .sv-shortcuts dd { margin: 0; }
+  & .sv-kbd {
+    display: inline-block; padding: 0 6px; min-width: 22px; text-align: center; border: 2px solid var(--sv-ph-line); border-bottom-width: 4px;
+    font: inherit; font-size: 18px; color: var(--sv-ph);
+  }
+  & .sv-kbd-press { background: none; cursor: pointer; text-shadow: inherit; }
+  & .sv-kbd-press:hover { background: var(--sv-ph-wash); }
+  & .sv-kbd-press:active { border-bottom-width: 2px; margin-top: 2px; }
+  & .sv-kbd-press:focus-visible { outline: 2px solid var(--sv-ph); outline-offset: 2px; }
+  & .sv-linkflow { display: grid; gap: 14px; justify-items: start; }
+  /* The theme in hand: its picture framed on its own, with its name, version, and description
+     printed beside it as the page's other text is, and Apply under those. */
+  & .sv-theme-preview { display: grid; gap: 10px; max-width: 560px; }
+  & .sv-theme-preview img { display: block; width: 320px; max-width: 100%; height: auto; border: 2px solid var(--sv-ph-line); }
+  & .sv-theme-noshot { display: grid; place-items: center; width: 320px; max-width: 100%; aspect-ratio: 8 / 5; border: 2px dashed var(--sv-ph-line); color: var(--sv-ph-dim); }
+  & .sv-theme-preview .theme-about { display: grid; gap: 8px; justify-items: start; }
+  & .sv-theme-preview .theme-about p { margin: 0; }
+  & .sv-theme-version { color: var(--sv-ph-dim); }
+  & .sv-theme-version em { font-style: normal; }
+  & .sv-theme-manage { display: flex; gap: 10px; flex-wrap: wrap; }
+  /* The appearance choice the chooser brings, drawn as the console's own segmented control. */
+  & .sv-setup-page .theme-pill {
+    display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 0; border: 2px solid var(--sv-ph); border-radius: 0;
+    background: var(--sv-ph-line); box-shadow: var(--sv-glow-soft);
+    & button {
+      flex: 1 1 auto; min-height: 30px; padding: 1px 12px; margin: 0; border: 0; border-radius: 0; background: var(--sv-scr); color: var(--sv-ph);
+      font: inherit; font-size: 19px; text-shadow: inherit; text-transform: uppercase; cursor: pointer; box-shadow: none;
+    }
+    & button[aria-pressed='true'] { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
+    & button:hover:not([aria-pressed='true']) { background: color-mix(in srgb, var(--sv-ph) 18%, var(--sv-scr)); }
+    & button:focus-visible { outline: 2px dashed var(--sv-ph); outline-offset: -5px; }
+  }
+
+  & .sv-tooltip {
+    position: fixed; z-index: 1200; pointer-events: none; padding: 1px 8px; max-width: 320px;
+    background: var(--sv-scr); border: 2px solid var(--sv-ph); font-size: 19px;
+  }
+
+  /* The command line, over the screen. */
+  & .sv-layer-command { place-items: start center; padding-top: calc(10 * var(--sv-vh, 1vh)); }
+  & .sv-command {
+    width: min(720px, 100%); max-height: calc(72 * var(--sv-vh, 1vh)); display: flex; flex-direction: column; overflow: hidden;
+    background: var(--sv-scr); border: 2px solid var(--sv-ph);
+    box-shadow: 0 0 0 6px var(--sv-face), 0 0 26px rgb(var(--sv-ph-rgb) / 0.25), 0 20px 50px rgba(0, 0, 0, 0.7);
+    animation: sv-tube-on 100ms cubic-bezier(.2, .9, .3, 1);
+  }
+  & .sv-command-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 2px solid var(--sv-ph); }
+  & .sv-command-bar input { font-size: 26px; }
+  & .sv-command-kinds { padding: 10px 14px; }
+  & .sv-command-list { overflow: auto; padding: 0 14px 12px; }
+  & .sv-command-list .sv-rule-head { margin: 10px 0 4px; }
+  & .sv-command-row {
+    display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; min-height: 40px; padding: 2px 8px;
+    background: none; border: 0; color: inherit; font: inherit; text-shadow: inherit; text-align: left; cursor: pointer;
+  }
+  & .sv-command-row[aria-selected='true'] { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
+  & .sv-command-row[aria-selected='true'] .sv-kbd { color: var(--sv-scr); border-color: var(--sv-scr); }
+  & .sv-command-icon { display: grid; place-items: center; line-height: 0; }
+  & .sv-command-icon img { width: 26px; height: 26px; object-fit: contain; }
+  & .sv-command-icon .sv-art { width: 32px; height: 32px; }
+  & .sv-command-text { display: grid; min-width: 0; }
+  & :is(.sv-command-label, .sv-command-sub) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .sv-command-sub { font-size: 17px; opacity: 0.75; }
+  & .sv-command-empty { padding: 16px 0; }
+
+  & .sv-qghost {
+    position: fixed; left: 50%; z-index: 1300; transform: translateX(-50%); display: flex; gap: 12px; align-items: center; padding: 6px 12px;
+    background: var(--sv-scr); border: 2px solid var(--sv-ph); pointer-events: none;
+  }
+
+  /* The shared alarm editor, on the screen. */
+  & .alarm-form { color: var(--sv-ph); font-family: var(--sv-screen-font); font-size: 21px; }
+  & .alarm-form input:is([type='radio'], [type='checkbox'], [type='range']) { accent-color: rgb(var(--sv-ph-rgb)); }
+  & .alarm-form .alarm-btn { background: transparent; border: 2px solid var(--sv-ph); color: var(--sv-ph); font: inherit; font-size: 19px; padding: 1px 10px; cursor: pointer; text-transform: uppercase; }
+  & .alarm-form .alarm-btn:hover { background: var(--sv-ph-wash-strong); }
+
+  /* --- narrower ----------------------------------------------------------------------------- */
+  & .sv-size-mid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'head' 'screen' 'deck';
+    padding: 8px 16px 14px;
+    & .sv-head { min-height: 44px; }
+    & .sv-deck { padding-inline: 16px; }
+    & .sv-deck-main { gap: 22px; }
+    & .sv-fkey { --k-w: 78px; height: 56px; }
+    & .sv-key-play { --k-w: 160px; }
+    & .sv-deck .sv-roomkeys .sv-cluster-keys { flex-wrap: nowrap; }
+    /* The volume and the room keys share a row of their own, the room keys on the right. */
+    & .sv-deck-pair { flex-basis: 100%; display: flex; align-items: center; justify-content: center; gap: 22px; }
+  }
+  /* Short of the wings, the deck's volume is the fader with Mute and Mix beside it (the wheel and
+     the keyboard's arrows step it), and the cursor keys and trackball give way to the screen. */
+  & :is(.sv-size-mid, .sv-size-compact) {
+    & .sv-deck .sv-volume { min-width: 0; grid-template-columns: minmax(150px, 1fr) auto; column-gap: 10px; }
+    & .sv-deck .sv-volume .sv-cluster-label { grid-column: 1 / -1; }
+    & .sv-deck .sv-volume .sv-cluster-keys { display: contents; }
+    & .sv-deck .sv-volume-keys .sv-key:nth-child(-n + 2) { display: none; }
+    & .sv-deck .sv-fader { max-width: none; }
+    & .sv-cursor, & .sv-trackwell { display: none; }
+  }
+  & .sv-size-compact {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'head' 'screen' 'deck';
+    gap: 8px;
+    /* No env(safe-area-inset-bottom) under the keyboard: the page never asks for viewport-fit=cover,
+       so the browser already keeps it above the system bars, and Android browsers report the inset
+       anyway. Adding it counted the system bar twice and left a strip of table under the case. */
+    padding: max(4px, env(safe-area-inset-top)) 8px 10px;
+    --sv-key-h: 48px;
+    & .sv-key { --k-wall: 8px; }
+    & .sv-head { min-height: 26px; gap: 8px; }
+    & .sv-head-end { gap: 6px; }
+    /* The name stays in the middle, the two sides always even; the rule beside the switch takes
+       what room is left on its side, and on the narrowest phones none. */
+    & .sv-head { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+    & .sv-head-end .sv-brand-rule { min-width: 0; }
+    & .sv-head-end { justify-content: flex-end; }
+    & .sv-brand-name { font-size: 16px; }
+    /* The model line no wider than the name, so the name can sit in the middle with the switch
+       beside it. */
+    & .sv-brand-model { font-size: 5.1px; letter-spacing: 0.02em; }
+    & .sv-power { min-width: 0; }
+    & .sv-power .sv-print { display: none; }
+    & .sv-systemswitch .sv-print { display: none; }
+    & .sv-brand-rule { height: 5px; }
+    & .sv-bezel { padding: 6px; border-radius: 18px; }
+    & .sv-crt { margin: 8px; border-radius: 16px / 18px; box-shadow: 0 0 0 8px var(--sv-face), 0 0 0 9px rgba(0, 0, 0, 0.35), inset 0 0 14px 4px rgba(0, 0, 0, 0.65); font-size: 19px; }
+    & .sv-crt-head { margin: 10px 12px 0; gap: 8px; grid-template-columns: minmax(0, 1fr) auto; padding-bottom: 6px; }
+    & .sv-crt-room { font-size: 20px; padding: 0 6px; }
+    & .sv-crt-program, & .sv-crt-mark { display: none; }
+    & .sv-crt-complete { font-size: 20px; }
+    & .sv-ticker { left: 12px; right: 12px; }
+    & .sv-program { padding: 10px 12px 14px; }
+    & .sv-binsbar { margin: 0 12px 10px; padding-top: 8px; gap: 8px; }
+    & .sv-binbtn { width: 112px; font-size: 16px; }
+    & .sv-deck { margin: 6px 6px 0; padding: 8px 8px 10px; gap: 10px; border-radius: 14px; box-shadow: 0 0 0 6px var(--sv-deck-frame), 0 0 0 7px rgba(0, 0, 0, 0.18), inset 0 2px 3px rgba(0, 0, 0, 0.35); }
+    & .sv-fnrow { display: block; width: 100%; }
+    & .sv-programs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; width: 100%; }
+    & .sv-fkey { --k-w: 100%; --k-wall: 5px; height: 40px; }
+    & .sv-key-top { padding-inline: 1px; }
+    & .sv-volume-keys .sv-key-m { --k-wall: 6px; }
+    & .sv-fkey .sv-key-legend { font-size: 6.5px; letter-spacing: 0; }
+    & .sv-fkey .sv-key-led { top: 4px; left: 4px; width: 5px; height: 5px; }
+    & .sv-fkey .sv-key-lamp { left: 12px; }
+    & .sv-deck-main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    & .sv-transport { width: 100%; }
+    & .sv-transport .sv-key { --k-w: 64px; }
+    /* Play takes what the row has left, but never less than a thumb's width: the keys beside it
+       give a little first. */
+    & .sv-key-play { --k-w: auto; flex: 1; min-width: 88px; }
+    & .sv-transport .sv-key:not(.sv-key-play) { flex: 0 1 auto; min-width: 48px; }
+    /* The glyph alone: the word beside it crowded the row. */
+    & .sv-key-play .sv-key-legend { display: none; }
+    & .sv-deck .sv-volume { width: 100%; }
+    & .sv-volume-keys { gap: 3px; }
+    & .sv-volume-keys .sv-key { --k-w: 58px; }
+
+    & .sv-crt .sv-title { font-size: 28px; }
+    /* Under a shelf's name there is no room for whose it is; the line under the prompt says. */
+    & .sv-crt .sv-rule-head small { display: none; }
+    & .sv-crt .sv-rule-head { white-space: nowrap; min-width: 0; }
+    & .sv-crt .sv-player { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'art' 'text' 'seek' 'buttons' 'panels'; grid-template-rows: none; }
+    /* The art stands at the left with the title beside it, and the rest of the song's details
+       under both at full width. The player is laid out in flow around the floated art. */
+    & .sv-crt .sv-player { display: block; }
+    & .sv-crt .sv-player-art:not([data-lyrics]) { float: left; width: 48%; margin: 0 12px 8px 0; }
+    & .sv-crt .sv-player-text { display: block; }
+    & .sv-crt .sv-player-text > * { margin-bottom: 8px; }
+    & .sv-crt .sv-player-text .sv-leaders { display: block; clear: both; padding-top: 4px; }
+    & .sv-crt .sv-player-text .sv-leaders > div { margin-bottom: 4px; }
+    /* A value too long for its line drops to the next one, under its caption, and wraps there
+       between words. */
+    & .sv-crt .sv-player-text .sv-leaders > div { flex-wrap: wrap; row-gap: 0; }
+    & .sv-crt .sv-player-text .sv-leaders dd { margin-left: auto; white-space: normal; overflow-wrap: break-word; text-align: right; }
+    & .sv-crt :is(.sv-player-seek, .sv-player-buttons, .sv-player-panels) { clear: both; margin-top: 12px; }
+    & .sv-crt .sv-player-art[data-lyrics] { width: 100%; height: 300px; }
+    & .sv-crt .sv-player-title { font-size: 34px; }
+    & .sv-crt .sv-setup { grid-template-columns: minmax(0, 1fr); }
+    & .sv-crt .sv-bins { grid-template-columns: minmax(0, 1fr); }
+    /* On a phone the rooms page lists each group's rooms without their volumes, so more groups
+       fit on the screen; the player and the keyboard's mixer still set them. */
+    & .sv-crt .sv-member { grid-template-columns: minmax(0, 1fr) auto; min-height: 40px; }
+    & .sv-crt .sv-member-group, & .sv-crt .sv-member > :is(:nth-child(2), :nth-child(3)) { display: none; }
+    /* Each card names its rooms first, with its number and its play and group buttons beside
+       them, and what they play under them. The head's pieces join the card's own grid. */
+    & .sv-crt .sv-bin {
+      display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: 'n rooms tools' 'art text text';
+      column-gap: 12px; padding: 0 10px;
+    }
+    /* The rule under the upper row is its last 2px; the buttons' margins allow for it, so they sit midway between the card's top and the rule. */
+    & .sv-crt .sv-bin::before { content: ''; grid-row: 1; grid-column: 1 / -1; margin: 0 -10px; border-bottom: 2px solid var(--sv-ph-line); pointer-events: none; }
+    & .sv-crt .sv-bin[data-active]::before { border-color: var(--sv-ph); }
+    & .sv-crt .sv-bin-head { display: contents; }
+    & .sv-crt .sv-bin-n { grid-area: n; align-self: start; margin-top: 16px; }
+    & .sv-crt .sv-bin-rooms { grid-area: rooms; padding: 8px 0; grid-template-columns: minmax(0, 1fr); }
+    & .sv-crt .sv-bin-tools { grid-area: tools; align-self: center; margin-block: 7px 9px; flex-direction: row-reverse; }
+    & .sv-crt .sv-bin-art { grid-area: art; margin: 8px 0; }
+    & .sv-crt .sv-bin-text { grid-area: text; align-self: center; cursor: pointer; }
+    & .sv-crt .sv-alarm { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: 'time days tools' 'room music music'; gap: 2px 12px; padding: 6px 4px; }
+    & .sv-crt .sv-alarm-time { grid-area: time; font-size: 28px; }
+    & .sv-crt .sv-alarm-days { grid-area: days; }
+    & .sv-crt .sv-alarm-tools { grid-area: tools; }
+    & .sv-crt .sv-alarm-room { grid-area: room; }
+    & .sv-crt .sv-alarm-music { grid-area: music; }
+    & .sv-crt .sv-day { width: 18px; }
+    & .sv-crt .sv-collection { grid-template-columns: minmax(0, 1fr); }
+    & .sv-crt .sv-collection-art { width: 160px; height: 160px; }
+    & .sv-crt .sv-qrow { grid-template-columns: 10px 3ch 22px 28px minmax(0, 1fr) auto; }
+    & .sv-crt .sv-qrow-dur { display: none; }
+    & .sv-crt .sv-scope { max-width: 46%; }
+    & .sv-crt .sv-prompt input { font-size: 22px; }
+  }
+  /* On a phone every window takes the whole screen. */
+  @media (max-width: 759px) {
+    & .sv-layer { padding: 0; }
+    & .sv-window, & .sv-window-panel, & .sv-window-full { width: 100%; height: 100%; max-height: none; box-shadow: none; border: 0; }
+    & .sv-layer-dialog { padding: 0 10px; }
+    & .sv-layer-dialog .sv-window { height: auto; max-height: 92%; border: 2px solid var(--sv-ph); }
+    & .sv-layer-command { padding: 0; place-items: stretch; }
+    & .sv-command { width: 100%; max-height: none; height: 100%; box-shadow: none; border: 0; }
+    & .sv-tone { grid-template-columns: auto minmax(0, 1fr) auto; }
+    & .sv-tone-label { grid-column: 1 / -1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    & *, & *::before, & *::after { animation: none !important; transition: none !important; }
+    & .sv-crt-glass::after { display: none; }
+  }
+}
+
+@keyframes sv-blink { 50% { opacity: 0; } }
+@keyframes sv-reaction-in { from { opacity: 0; } }
+@keyframes sv-reaction-out { to { opacity: 0; } }
+@keyframes sv-refresh-roll { from { transform: translateY(840%); } to { transform: translateY(-100%); } }
+@keyframes sv-marquee { from { transform: translateX(0); } to { transform: translateX(calc(-100% - 3em)); } }
+@keyframes sv-program-in { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes sv-type { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes sv-busy { 0%, 100% { background: var(--sv-ph-faint); } 50% { background: var(--sv-ph); box-shadow: var(--sv-glow); } }
+@keyframes sv-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sv-tube-on {
+  0% { transform: scale(1, 0.01); filter: brightness(3); }
+  60% { transform: scale(1, 1.02); filter: brightness(1.4); }
+  100% { transform: scale(1, 1); filter: none; }
+}
+@keyframes sv-tube-off {
+  0% { transform: scale(1, 1); filter: none; opacity: 1; }
+  70% { transform: scale(1, 0.01); filter: brightness(3); opacity: 1; }
+  100% { transform: scale(0, 0.01); opacity: 0; }
+}
+@keyframes sv-disk-out { from { translate: 0 -27px; } 65% { translate: 0 1.5px; } to { translate: 0 0; } }
+@keyframes sv-disk-in { from { translate: 0 0; } to { translate: 0 -27px; } }
+@keyframes sv-crash-flash { 0% { background: rgb(var(--sv-ph-rgb) / 0.55); } 8% { background: none; } 40% { background: rgb(var(--sv-ph-rgb) / 0.2); } 46% { background: none; } }
+@keyframes sv-crash-tear { 0% { translate: 0 0; clip-path: none; } 33% { translate: -6px 2px; } 66% { translate: 4px -3px; } }
+@keyframes sv-crash-line { to { opacity: 1; } }

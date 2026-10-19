@@ -13,6 +13,7 @@ import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, now
 import { useSeekDrag } from '../../frontend/src/lib/useSeekDrag.js'
 import { isConnectSession } from '../../frontend/src/lib/transport.js'
 import { useDisplayLyrics, LyricsReading, LyricsCredit } from './Lyrics.jsx'
+import { rectOf, zoom } from './scale.js'
 
 // The control amplifier: the unit at the top of the rack that everything
 // else hangs off. A turntable whose record label is the cover of what plays,
@@ -117,10 +118,11 @@ function PositionBar({ zone }) {
   useEffect(() => {
     if (!row) return undefined
     const fit = () => {
-      const ratio = window.devicePixelRatio || 1
+      // Device pixels per pixel of the rack, which its zoom (scale.js) is part of.
+      const ratio = (window.devicePixelRatio || 1) * zoom()
       const seg = Math.max(1, Math.round(SEGMENT * ratio)) / ratio
       const gap = Math.max(1, Math.round(SEGMENT_GAP * ratio)) / ratio
-      const box = row.parentElement.getBoundingClientRect()
+      const box = rectOf(row.parentElement)
       const shift = (Math.ceil(box.left * ratio - 0.001) - box.left * ratio) / ratio
       setFitted({ count: Math.max(8, Math.floor((box.width - shift + gap) / (seg + gap))),
                   style: { '--hf-seg': `${seg}px`, gap: `${gap}px`, left: `${shift}px` } })

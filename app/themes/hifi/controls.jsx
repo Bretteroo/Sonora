@@ -3,6 +3,7 @@ import { useHeld } from '../../frontend/src/lib/useHeld.js'
 import { createPortal } from 'react-dom'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import * as G from './glyphs.jsx'
+import { rectOf, viewW, viewH } from './scale.js'
 
 // The hardware: every control the rack is built from. Each one is a real
 // form control underneath -- a knob is a slider with a value, a lever is a
@@ -398,17 +399,17 @@ export function Menu({ x, y, anchor = null, align = 'left', onClose, children, t
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
-    const rect = el.getBoundingClientRect()
+    const rect = rectOf(el)
     let left = x ?? 0
     let top = y ?? 0
     if (anchor) {
-      const a = anchor.getBoundingClientRect()
+      const a = rectOf(anchor)
       left = align === 'right' ? a.right - rect.width : a.left
       top = a.bottom + 6
-      if (top + rect.height > window.innerHeight - 8) top = Math.max(8, a.top - rect.height - 6)
+      if (top + rect.height > viewH() - 8) top = Math.max(8, a.top - rect.height - 6)
     }
-    left = Math.max(8, Math.min(left, window.innerWidth - rect.width - 8))
-    top = Math.max(8, Math.min(top, window.innerHeight - rect.height - 8))
+    left = Math.max(8, Math.min(left, viewW() - rect.width - 8))
+    top = Math.max(8, Math.min(top, viewH() - rect.height - 8))
     setPos({ left, top })
   }, [x, y, anchor, align])
   useEffect(() => {
@@ -476,7 +477,7 @@ export function Select({ value, onChange, disabled = false, children, className 
         <span className="hf-select-cell" aria-hidden="true"><G.ChevronDown className="hf-select-chev" /></span>
       </button>
       {open && (
-        <Menu anchor={open} width={Math.max(180, open.getBoundingClientRect().width)} onClose={() => setOpen(null)} className="hf-menu-amber">
+        <Menu anchor={open} width={Math.max(180, rectOf(open).width)} onClose={() => setOpen(null)} className="hf-menu-amber">
           {options.map((o) => (
             <MenuItem key={o.value} checked={o.value === current?.value} disabled={o.disabled} onSelect={() => pick(o.value)}>{o.label}</MenuItem>
           ))}

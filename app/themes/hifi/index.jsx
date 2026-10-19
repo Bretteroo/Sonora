@@ -23,6 +23,7 @@ import './hifi.css'
 import thumbnail from './thumbnail.webp'
 import lightThumbnail from './thumbnail-light.webp'
 import strings from './strings.js'
+import { applyZoom, shortScreenZoom, pt } from './scale.js'
 import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
 
 // Hi-Fi: the house as a rack of audio components.
@@ -53,17 +54,19 @@ function desktopModeZoom() {
   const wide = window.innerWidth > 760
   return touch && small && wide && window.innerWidth < DESKTOP_WIDTH ? window.innerWidth / DESKTOP_WIDTH : 0
 }
+// The same zoom serves a short laptop screen (scale.js), without the desktop-site mark.
 function useDesktopMode(remote) {
   useEffect(() => {
     const root = document.documentElement
     const apply = () => {
-      const zoom = remote ? 0 : desktopModeZoom()
-      if (zoom) { root.dataset.desktopMode = ''; root.style.zoom = String(zoom) }
-      else { delete root.dataset.desktopMode; root.style.zoom = '' }
+      const site = remote ? 0 : desktopModeZoom()
+      if (site) root.dataset.desktopMode = ''
+      else delete root.dataset.desktopMode
+      applyZoom(site || (remote ? 0 : shortScreenZoom()))
     }
     apply()
     window.addEventListener('resize', apply)
-    return () => { window.removeEventListener('resize', apply); delete root.dataset.desktopMode; root.style.zoom = '' }
+    return () => { window.removeEventListener('resize', apply); delete root.dataset.desktopMode; applyZoom(0) }
   }, [remote])
 }
 
@@ -237,7 +240,7 @@ export function Shell() {
                favoritesEpoch={favoritesEpoch} onFavoritesChanged={() => setFavoritesEpoch((v) => v + 1)} servicesVersion={servicesVersion + servicesEpoch}
                queueEdited={queueEdited} onQueueReplaced={() => setQueueEdited(false)}
                favorites={favorites} recent={recent} onPlayItem={playItem}
-               onItemMenu={(item, sourceId, event) => setQuickMenu({ item, sourceId, x: event.clientX, y: event.clientY })} />
+               onItemMenu={(item, sourceId, event) => setQuickMenu({ item, sourceId, x: pt(event.clientX), y: pt(event.clientY) })} />
   ) : fn === 'tape' ? (
     <TapeUnit zone={activeZone} name={groupLabel} queue={queue} onMessage={toast} onEdited={() => setQueueEdited(true)}
               onInfo={(item) => openInfoForItem(item, { hzone: activeZone?.uuid })} />

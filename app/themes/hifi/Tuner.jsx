@@ -16,6 +16,7 @@ import { readLibraryPrefs, libraryRows } from '../../frontend/src/lib/libraryPre
 import { useBrowsePage, useSources, searchScopesOf, playItems, isQueueable, genericArt, describeFavorite, serviceLabelFor,
          TUNEIN_ICONS, readStored, writeStored, VIEW_KEY, householdOf, useSpeakerUpdates, favoriteTarget, favoriteKey } from './house.js'
 import { updateBody } from '../../frontend/src/lib/version.js'
+import { pt, viewW, viewH } from './scale.js'
 
 // The source tuner: every source of music the systems hold, as a bank of lit
 // selector keys down the left, and what the chosen one holds on the screen
@@ -221,7 +222,7 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
       event?.stopPropagation?.()
       const anchor = event && event.type !== 'contextmenu' ? event.currentTarget : null
       setMenu({ item: { ...item, root: true }, anchor,
-                x: event?.clientX ?? window.innerWidth / 2, y: event?.clientY ?? window.innerHeight / 2 })
+                x: pt(event?.clientX) ?? viewW() / 2, y: pt(event?.clientY) ?? viewH() / 2 })
       return
     }
     if (item.id === 'linein') { push({ id: 'linein', virtual: 'lineIn', title: item.title, glyph: 'linein', hzone: item.hzone, hh: item.hh }); return }
@@ -300,7 +301,7 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
     const row = target?.closest?.('[data-item]') || null
     const onKey = Boolean(target?.matches?.('button') && target !== row) && event?.type !== 'contextmenu'
     const pointed = Boolean(event?.clientX || event?.clientY)
-    setMenu({ item: { ...item, ...extra }, x: event?.clientX, y: event?.clientY,
+    setMenu({ item: { ...item, ...extra }, x: pt(event?.clientX), y: pt(event?.clientY),
               anchor: onKey ? target : pointed ? null : row, align: onKey ? 'right' : 'left' })
   }
   const serviceOf = (item) => item.service ?? node.service ?? scope?.id ?? null
@@ -548,7 +549,7 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
                   <div key={`${section.household.id}-${row.id}`} className="hf-source" data-current={current || undefined} aria-disabled={row.disabled || undefined}
                        onContextMenu={row.disabled ? undefined
                          : row.playable ? (event) => openRoot(row, false, event)
-                         : row.accounts ? (event) => { event.preventDefault(); setAccountMenu({ row, anchor: null, x: event.clientX, y: event.clientY }) }
+                         : row.accounts ? (event) => { event.preventDefault(); setAccountMenu({ row, anchor: null, x: pt(event.clientX), y: pt(event.clientY) }) }
                          : undefined}>
                     <button type="button" className="hf-source-main" disabled={row.disabled} onClick={(event) => openRoot(row, false, event)}
                             aria-current={current || undefined} title={row.disabled ? t('hifi.otherSystem', { gen: row.gen }) : row.title}>
@@ -635,7 +636,7 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
             <RootOverview sections={sections} onOpen={(row, event) => openRoot(row, false, event)} t={t}
                           recent={activeZone ? recent?.items || [] : []} onPlayItem={onPlayItem} onItemMenu={onItemMenu}
                           folded={(id) => !openOther.has(id)} onFold={toggleOther}
-                          onAccounts={(row, event) => { event.preventDefault(); setAccountMenu({ row, anchor: null, x: event.clientX, y: event.clientY }) }} />
+                          onAccounts={(row, event) => { event.preventDefault(); setAccountMenu({ row, anchor: null, x: pt(event.clientX), y: pt(event.clientY) }) }} />
           ) : node.virtual === 'lineIn' ? (
             <LineInPage node={node} zones={zones} households={households} t={t}
                         onPlay={(zone) => actions.setSource(zone.uuid, { uri: `x-rincon-stream:${zone.uuid}`, metadata: '' })} />

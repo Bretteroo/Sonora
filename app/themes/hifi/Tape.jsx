@@ -7,6 +7,7 @@ import * as G from './glyphs.jsx'
 import { Unit, Display, Key, IconKey, Menu, MenuItem, MenuSep, Confirm, Empty, Loading } from './controls.jsx'
 import markerFont from './permanent-marker.woff2?url'
 import { isConnectSession } from '../../frontend/src/lib/transport.js'
+import { rectOf, pt } from './scale.js'
 
 // The queue deck: the room's queue as a cassette. The window shows the two
 // reels, which turn while the room plays the queue; the counter says which
@@ -118,7 +119,7 @@ export function QueueList({ zone, queue, onInfo, onEdited, jumpTo = 0 }) {
   const targetFor = (clientY) => {
     const el = listRef.current
     if (!el) return null
-    const rect = el.getBoundingClientRect()
+    const rect = rectOf(el)
     const y = clientY - rect.top + el.scrollTop
     return Math.max(0, Math.min(items.length, Math.round(y / ROW)))
   }
@@ -134,7 +135,7 @@ export function QueueList({ zone, queue, onInfo, onEdited, jumpTo = 0 }) {
       d.active = true
       listRef.current?.setPointerCapture?.(event.pointerId)
     }
-    setDrag({ n: d.n, y: event.clientY, target: targetFor(event.clientY) })
+    setDrag({ n: d.n, y: pt(event.clientY), target: targetFor(pt(event.clientY)) })
   }
   const onUp = async () => {
     const d = dragRef.current
@@ -169,7 +170,7 @@ export function QueueList({ zone, queue, onInfo, onEdited, jumpTo = 0 }) {
                    if (event.key === 'Enter') play(n)
                    else if (event.key === 'Delete' || event.key === 'Backspace') { event.preventDefault(); remove(n) }
                  }}
-                 onContextMenu={(event) => { event.preventDefault(); setMenu({ n, item, x: event.clientX, y: event.clientY }) }}>
+                 onContextMenu={(event) => { event.preventDefault(); setMenu({ n, item, x: pt(event.clientX), y: pt(event.clientY) }) }}>
               <span className="hf-qrow-num" aria-hidden="true">
                 {isCurrent ? <span className="hf-playing-mark" data-on={tr.state === 'PLAYING' || undefined}><G.Play /></span> : String(n).padStart(2, '0')}
               </span>
@@ -181,7 +182,7 @@ export function QueueList({ zone, queue, onInfo, onEdited, jumpTo = 0 }) {
               {item.duration && <span className="hf-qrow-dur">{trimDuration(item.duration)}</span>}
               <span className="hf-qrow-tools">
                 <IconKey label={t('common.play')} onClick={() => play(n)}><G.Play /></IconKey>
-                <IconKey label={t('desk.browse.actions')} onClick={(event) => setMenu({ n, item, x: event.clientX, y: event.clientY })}><G.Ellipsis /></IconKey>
+                <IconKey label={t('desk.browse.actions')} onClick={(event) => setMenu({ n, item, x: pt(event.clientX), y: pt(event.clientY) })}><G.Ellipsis /></IconKey>
                 <label className="hf-tick" title={t('desk.browse.select')}>
                   <input type="checkbox" checked={checked.has(n)} onChange={() => toggle(n)} aria-label={t('desk.browse.select')} />
                   <span aria-hidden="true"><G.Check /></span>

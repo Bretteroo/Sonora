@@ -11,6 +11,7 @@ import { Unit, Display, Key, IconKey, Knob, Fader, Lever, Led, Panel, PanelHead,
 import { nowSummary, hasMusic, nextTransport, togglePlay, isLoaded, householdOf, pauseEverything, canSkip, canNext } from './house.js'
 import Battery, { batteryShown } from '../../frontend/src/components/Battery.jsx'
 import { versionLabel } from '../../frontend/src/lib/version.js'
+import { pt } from './scale.js'
 
 // The zone amplifier: one module per group, side by side in the rack. Each
 // module has a small display naming the rooms and what they play, a knob for
@@ -37,7 +38,7 @@ function ZoneModule({ group, lead, members, active, showSystem, onSelect, onLink
              onDragOver={(event) => { if (dragging && dragging !== group.coordinator) { event.preventDefault(); setOver(true) } }}
              onDragLeave={() => setOver(false)}
              onDrop={(event) => { event.preventDefault(); setOver(false); onDropOn(group.coordinator) }}
-             onContextMenu={(event) => { event.preventDefault(); setMenu({ x: event.clientX, y: event.clientY }) }}>
+             onContextMenu={(event) => { event.preventDefault(); setMenu({ x: pt(event.clientX), y: pt(event.clientY) }) }}>
       <header className="hf-zone-plate" draggable={movable}
               onDragStart={movable ? (event) => { event.dataTransfer.setData('text/plain', group.coordinator); event.dataTransfer.effectAllowed = 'move'; onDragStart(group.coordinator) } : undefined}
               onDragEnd={onDragEnd} title={movable ? t('hifi.dragToLink') : undefined}>
@@ -46,7 +47,7 @@ function ZoneModule({ group, lead, members, active, showSystem, onSelect, onLink
         {/* A portable room's battery, engraved on its plate beside the name. */}
         {!grouped && batteryShown(lead) && <Battery battery={lead.battery} className="hf-zone-battery" />}
         {showSystem && lead.generation && <span className="hf-tag">{lead.generation}</span>}
-        <IconKey label={t('desk.browse.actions')} onClick={(event) => setMenu({ x: event.clientX, y: event.clientY })}><G.Ellipsis /></IconKey>
+        <IconKey label={t('desk.browse.actions')} onClick={(event) => setMenu({ x: pt(event.clientX), y: pt(event.clientY) })}><G.Ellipsis /></IconKey>
       </header>
       <div className="hf-zone-face">
         <button type="button" className="hf-zone-window" onClick={() => onSelect(group.coordinator)} title={t('hifi.selectZone')}>

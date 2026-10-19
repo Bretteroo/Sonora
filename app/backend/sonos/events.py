@@ -147,6 +147,7 @@ class EventListener:
         self.bound_port: int | None = None
         self._callback_ip: str | None = None
         self._callback_lock = asyncio.Lock()
+        self._watch: asyncio.Task | None = None
         #: Answered at /whoami by this listener alone; see _find_own_address.
         self._token = secrets.token_hex(16)
 
@@ -180,8 +181,12 @@ class EventListener:
         sockets = list(site._server.sockets or [])  # type: ignore[attr-defined]
         self.bound_port = sockets[0].getsockname()[1] if sockets else self._port
         log.info("event listener on port %s", self.bound_port)
+        self._watch = asyncio.create_task(self._watch_callback(), name="callback-watch")
 
     async def stop(self) -> None:
+        if self._watch is not None:
+            self._watch.cancel()
+            self._watch = None
         await asyncio.gather(
             *(self.unsubscribe(host, name) for host, name in list(self._subs)),
             return_exceptions=True,
@@ -276,6 +281,93 @@ class EventListener:
             for task in tasks:
                 task.cancel()
         return None
+
+    # -- keeping the callback address true ----------------------------------
+
+    #: How often the address given to the speakers is checked, and how long
+    #: it is given to answer.
+    CALLBACK_CHECK_S = 60.0
+    CALLBACK_ANSWER_S = 2.0
+
+    async def _reaches_us(self, ip: str) -> bool:
+        """Whether ``ip`` on the event port still answers as this listener."""
+        try:
+            async with self._session.get(
+                f"http://{ip}:{self.bound_port}/whoami",
+                timeout=aiohttp.ClientTimeout(total=self.CALLBACK_ANSWER_S),
+            ) as resp:
+                return resp.status == 200 and await resp.text() == self._token
+        except Exception:
+            return False
+
+    async def _check_callback(self, host: str) -> bool:
+        """Whether the address the speakers were given still reaches this
+        listener; if it does not, find the one that does and move every
+        subscription to it. True when they were moved.
+
+        The address is found once, from the first speaker subscribed to. A
+        machine's own address can change while Sonora runs (a laptop's lease
+        renewed, a wake from sleep, another Wi-Fi network), and then every
+        speaker went on sending its changes to the old one, which nothing
+        answered: they dropped the subscriptions, the renewals were refused,
+        each was taken out again with the same dead address, and Sonora showed
+        what was playing when it started, for days. A new address is used only
+        once it answers too, so a check that fails for a moment moves nothing.
+        """
+        async with self._callback_lock:
+            old = self._callback_ip
+            if old is None or await self._reaches_us(old):
+                return False
+            new = await self._callback_address(host)
+            if new == old or not await self._reaches_us(new):
+                log.info("the address the speakers send changes to (%s) no longer reaches "
+                         "Sonora, and no other address does yet", old)
+                return False
+            self._callback_ip = new
+            log.warning("this machine's address changed: speakers sent their changes to %s, "
+                        "which no longer reaches Sonora; moving every subscription to %s", old, new)
+            # Under the lock, so a renewal refused meanwhile waits for the move
+            # and finds its subscription already taken out again.
+            await self._move_all()
+        return True
+
+    async def _move_all(self) -> None:
+        """Take every subscription out again, so it names the address now in
+        use; a renewal keeps the address a subscription was taken out with."""
+        subs = list(self._subs.values())
+        for sub in subs:
+            if sub.task is not None:
+                sub.task.cancel()
+        limit = asyncio.Semaphore(16)
+
+        async def move(sub: _Subscription) -> None:
+            async with limit:
+                url = f"http://{sub.host}:{SONOS_PORT}{sub.service.event}"
+                try:
+                    async with self._session.request(
+                        "UNSUBSCRIBE", url, headers={"SID": sub.sid},
+                        timeout=aiohttp.ClientTimeout(total=5),
+                    ):
+                        pass
+                except Exception:
+                    pass  # the speaker lets it lapse anyway
+                await self.subscribe(sub.host, sub.service)
+
+        await asyncio.gather(*(move(sub) for sub in subs), return_exceptions=True)
+
+    async def _watch_callback(self) -> None:
+        """Check the address now and then, so a change is caught before the
+        speakers give up on it."""
+        while True:
+            try:
+                await asyncio.sleep(self.CALLBACK_CHECK_S)
+                host = next((sub.host for sub in self._subs.values()), None)
+                if host is not None:
+                    await self._check_callback(host)
+            except asyncio.CancelledError:
+                return
+            except Exception as exc:
+                log.info("callback address check failed: %s", _why(exc))
 
     async def subscribe(self, host: str, service: Service, *, why: list | None = None) -> bool:
         """Subscribe to one service on one player, and keep it renewed.
@@ -419,10 +511,18 @@ class EventListener:
             except Exception as exc:
                 log.info("renewal for %s %s failed (%s), resubscribing",
                          sub.host, sub.service.name, _why(exc))
-            # A rejected renewal means the speaker forgot us, usually after a
-            # reboot. Start a fresh subscription and retire this loop.
-            asyncio.create_task(self.subscribe(sub.host, sub.service))
+            # A rejected renewal means the speaker forgot us: after a reboot,
+            # or because the changes it sent could not reach the address it was
+            # given. That address is checked first; if it has moved, every
+            # subscription moves with it, this one included.
+            asyncio.create_task(self._resubscribe(sub))
             return
+
+    async def _resubscribe(self, sub: _Subscription) -> None:
+        await self._check_callback(sub.host)
+        if self._subs.get((sub.host, sub.service.name), sub) is not sub:
+            return  # already taken out again, by a move to a new address
+        await self.subscribe(sub.host, sub.service)
 
     # -- inbound NOTIFY ------------------------------------------------------
 

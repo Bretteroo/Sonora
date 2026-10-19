@@ -223,3 +223,98 @@ async def test_the_sweep_finds_the_address_that_reaches_this_listener():
         finally:
             await listener.stop()
     assert found is not None and found.startswith("127.0.0.")
+
+
+# -- an address that stops reaching Sonora ------------------------------------
+
+DEAD = "192.0.2.1"  # TEST-NET-1: never answers
+
+
+async def listener_with_subscriptions(monkeypatch, callback, found):
+    """A started listener whose speakers were given ``callback``, with three
+    subscriptions on two speakers, and whose search for its address finds
+    ``found``. Subscribing records what was asked instead of reaching out."""
+    import aiohttp
+    from backend.sonos import events
+    from backend.sonos.const import AV_TRANSPORT, RENDERING_CONTROL
+    session = aiohttp.ClientSession()
+    listener = events.EventListener(session, port=0)
+    await listener.start()
+    listener.CALLBACK_ANSWER_S = 0.3
+    listener._callback_ip = callback
+    for host, service in (("127.0.0.3", AV_TRANSPORT), ("127.0.0.3", RENDERING_CONTROL), ("127.0.0.4", AV_TRANSPORT)):
+        listener._subs[(host, service.name)] = events._Subscription(host=host, service=service, sid="uuid:old", timeout=600)
+    asked = []
+
+    async def subscribe(host, service, *, why=None):
+        asked.append((host, service.name, listener._callback_ip))
+        listener._subs[(host, service.name)] = events._Subscription(host=host, service=service, sid="uuid:new", timeout=600)
+        return True
+
+    async def search(host):
+        return found
+
+    monkeypatch.setattr(listener, "subscribe", subscribe)
+    monkeypatch.setattr(listener, "_callback_address", search)
+    return listener, session, asked
+
+
+async def test_a_changed_address_moves_every_subscription(monkeypatch):
+    # The speakers were given an address that no longer answers; the one that
+    # does now is found and every subscription is taken out again naming it.
+    listener, session, asked = await listener_with_subscriptions(monkeypatch, DEAD, "127.0.0.1")
+    try:
+        assert await listener._check_callback("127.0.0.3") is True
+    finally:
+        await listener.stop()
+        await session.close()
+    assert listener._callback_ip == "127.0.0.1"
+    assert sorted(asked) == [("127.0.0.3", "AVTransport", "127.0.0.1"), ("127.0.0.3", "RenderingControl", "127.0.0.1"),
+                             ("127.0.0.4", "AVTransport", "127.0.0.1")]
+
+
+async def test_an_address_that_still_answers_moves_nothing(monkeypatch):
+    listener, session, asked = await listener_with_subscriptions(monkeypatch, "127.0.0.1", "127.0.0.2")
+    try:
+        assert await listener._check_callback("127.0.0.3") is False
+    finally:
+        await listener.stop()
+        await session.close()
+    assert listener._callback_ip == "127.0.0.1" and asked == []
+
+
+async def test_no_move_to_an_address_that_does_not_answer_either(monkeypatch):
+    listener, session, asked = await listener_with_subscriptions(monkeypatch, DEAD, "192.0.2.2")
+    try:
+        assert await listener._check_callback("127.0.0.3") is False
+    finally:
+        await listener.stop()
+        await session.close()
+    assert listener._callback_ip == DEAD and asked == []
+
+
+async def test_a_refused_renewal_after_the_address_moved_subscribes_once(monkeypatch):
+    # Every speaker refuses its renewals at about the same time; the first
+    # refusal moves them all, and the rest find theirs already taken out again.
+    listener, session, asked = await listener_with_subscriptions(monkeypatch, DEAD, "127.0.0.1")
+    refused = list(listener._subs.values())
+    try:
+        import asyncio
+        await asyncio.gather(*(listener._resubscribe(sub) for sub in refused))
+    finally:
+        await listener.stop()
+        await session.close()
+    assert len(asked) == 3 and {ip for *_, ip in asked} == {"127.0.0.1"}
+
+
+async def test_a_refused_renewal_with_a_good_address_subscribes_again(monkeypatch):
+    # A speaker that rebooted forgot us; the address is fine, so only that
+    # subscription is taken out again.
+    listener, session, asked = await listener_with_subscriptions(monkeypatch, "127.0.0.1", "127.0.0.2")
+    sub = listener._subs[("127.0.0.4", "AVTransport")]
+    try:
+        await listener._resubscribe(sub)
+    finally:
+        await listener.stop()
+        await session.close()
+    assert asked == [("127.0.0.4", "AVTransport", "127.0.0.1")]

@@ -95,6 +95,10 @@
 :root[data-theme='severed'][data-sv-phosphor='teal'] { --sv-ph-rgb: 150 240 214; --sv-scr-rgb: 8 38 36; --sv-scr-edge: #021210; }
 :root[data-theme='severed'][data-sv-phosphor='green'] { --sv-ph-rgb: 112 255 150; --sv-scr-rgb: 6 30 14; --sv-scr-edge: #010c04; }
 :root[data-theme='severed'][data-sv-phosphor='amber'] { --sv-ph-rgb: 255 190 96; --sv-scr-rgb: 36 20 6; --sv-scr-edge: #0d0602; }
+/* Sonora's start-up and no-speakers screens are drawn on the screen's color, but their title
+   would take the console's ink, dark or pale beige by the look, and sink into it: the card is
+   written in phosphor. */
+:root[data-theme='severed'] .splash-card { color: var(--sv-ph); }
 
 /* --- the console, dark: graphite plastic, a darker deck ------------------------------- */
 :root[data-theme='severed'][data-variant='dark'] {

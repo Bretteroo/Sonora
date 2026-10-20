@@ -9,8 +9,9 @@ import wordmark from '../assets/wordmark-readme.png'
 // The start-up and failure screens. While speakers are still being looked
 // for there is nothing to act on, so that screen is the logo, a title and a
 // line of explanation and no controls at all; the
-// empty and error screens keep "Search again" and the pickers. The crash
-// screen, shown when a theme throws, offers a reload and the pickers, so a
+// empty and error screens keep "Search again" and the language picker, and the
+// empty one links to the project's site, under the wordmark, for help with setting up. The crash
+// screen, shown when a theme throws, offers a reload and both pickers, so a
 // broken theme can be left without clearing the browser's storage.
 // It is drawn in the theme's background and text colors; a theme whose text
 // is meant for its windows rather than its background restyles .splash-card.
@@ -20,12 +21,18 @@ export default function Splash({ kind, detail }) {
   const which = ['loading', 'empty', 'error', 'crash'].includes(kind) ? kind : 'error'
   const quiet = which === 'loading'
   const crashed = which === 'crash'
+  const empty = which === 'empty'
 
   return (
     <div className="splash" style={styles.wrap}>
       <div className="splash-card" style={styles.card}>
         <img src={logo} alt="" width={96} height={96} style={styles.logo} draggable="false" />
-        <img src={wordmark} alt="Sonora" width={230} height={77} style={styles.wordmark} draggable="false" />
+        <img src={wordmark} alt="Sonora" width={230} height={77} style={empty ? styles.wordmarkOver : styles.wordmark} draggable="false" />
+        {empty && (
+          <p style={styles.site}>
+            <a href="https://sonoracontroller.com/" target="_blank" rel="noopener noreferrer" style={styles.link}>www.sonoracontroller.com</a>
+          </p>
+        )}
         <h1 style={styles.title}>
           {t(`splash.${which}.title`)}
           {quiet && (
@@ -47,7 +54,7 @@ export default function Splash({ kind, detail }) {
         )}
         {!quiet && (
           <div style={styles.pickers}>
-            <ThemePicker />
+            {crashed && <ThemePicker />}
             <LanguagePicker />
           </div>
         )}
@@ -68,6 +75,7 @@ const styles = {
   card: { maxWidth: 460, textAlign: 'center' },
   logo: { display: 'block', margin: '0 auto 10px', borderRadius: '50%' },
   wordmark: { display: 'block', margin: '0 auto 26px', width: 230, height: 'auto' },
+  wordmarkOver: { display: 'block', margin: '0 auto 8px', width: 230, height: 'auto' },
   title: { margin: '0 0 12px', fontSize: 22, fontWeight: 600 },
   detail: {
     margin: '0 0 20px',
@@ -86,4 +94,8 @@ const styles = {
     display: 'flex', gap: 14, justifyContent: 'center', marginTop: 22,
     flexWrap: 'wrap',
   },
+  site: { margin: '0 0 26px', fontSize: 13 },
+  // The card's own text color, which every theme keeps readable on its background; an accent
+  // is not always.
+  link: { color: 'inherit', textDecoration: 'underline' },
 }

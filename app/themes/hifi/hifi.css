@@ -1816,6 +1816,13 @@
   border-radius: 4px; border: 3px solid var(--hf-bezel); background: var(--hf-display-bg); color: var(--hf-vfd); text-shadow: var(--hf-vfd-glow);
   font-size: 13px; box-shadow: var(--t-shadow); animation: hf-pop 160ms ease-out;
 }
+/* One alert at a time: the one a newer alert replaces dims out like a display segment
+   going dark, then the new one lights where it was. */
+:root[data-theme='hifi'] .hf-toasts { isolation: isolate; }
+:root[data-theme='hifi'] .hf-toast[data-leaving] { position: absolute; top: 0; right: 0; z-index: 1; pointer-events: none; animation: hf-toast-out 200ms ease-in forwards; }
+:root[data-theme='hifi'] .hf-toast:has(+ .hf-toast[data-leaving]) { animation-delay: 200ms; animation-fill-mode: backwards; }
+:root[data-theme='hifi']:not([data-desktop-mode]) .hf-toast[data-leaving] { left: 0; }
+@keyframes hf-toast-out { to { opacity: 0; transform: translateY(-10px); filter: blur(1px); } }
 :root[data-theme='hifi'] .hf-toast > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 :root[data-theme='hifi'] .hf-toast-warn { color: #ff8b6b; }
 :root[data-theme='hifi'] .hf-toast .hf-ikey { color: var(--hf-key-fg); text-shadow: none; }

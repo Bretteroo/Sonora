@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom'
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds, systemChoiceMatters, isLiveStream, parseDuration, positionNow } from '../../frontend/src/lib/format.js'
 import { useSleepTimer } from '../../frontend/src/lib/useSleepTimer.js'
@@ -157,6 +158,12 @@ export function Shell() {
   const [mixer, setMixer] = useState(null)
   const [libraryRequest, setLibraryRequest] = useState(null)
   const [messages, setMessages] = useState([])
+  // One line on the ticker at a time, whether Sonora's notice or the desk's own word.
+  const alerts = useOneAlert([
+    ...notices.map((notice) => ({ id: `n-${notice.id}`, noticeId: notice.id, dismissible: true, title: t(notice.titleKey),
+                                  text: notice.detail || (notice.detailKey ? t(notice.detailKey, notice.detailParams) : '') })),
+    ...messages.map((message) => ({ ...message, dismissible: true })),
+  ])
   // Bumped when this theme saves or removes a favorite; savedEpoch and playlistsEpoch are the
   // store's, bumped when the speakers announce a change made anywhere (another app included).
   const [favoritesEpoch, setFavoritesEpoch] = useState(0)
@@ -257,11 +264,10 @@ export function Shell() {
   const progress = useProgress(activeZone)
   useEffect(() => { setQueueEdited(false) }, [activeZone?.uuid])
 
-  // A line already on the screen is not said again under itself.
   const say = useCallback((text) => {
     if (!text) return
     const id = Date.now() + Math.random()
-    setMessages((prev) => (prev.some((x) => x.text === text) ? prev : [...prev.slice(-1), { id, text }]))
+    setMessages((prev) => [...prev.slice(-1), { id, text }])
     setTimeout(() => setMessages((prev) => prev.filter((x) => x.id !== id)), 4500)
   }, [])
 
@@ -784,9 +790,7 @@ export function Shell() {
             </header>
             <Ticker onDismiss={(item) => (item.noticeId ? dismiss(item.noticeId) : setMessages((prev) => prev.filter((x) => x.id !== item.id)))} items={[
               ...(!connected ? [{ id: 'offline', kind: 'warn', text: t('common.reconnecting') }] : []),
-              ...notices.map((notice) => ({ id: `n-${notice.id}`, noticeId: notice.id, dismissible: true, title: t(notice.titleKey),
-                                            text: notice.detail || (notice.detailKey ? t(notice.detailKey, notice.detailParams) : '') })),
-              ...messages.map((message) => ({ ...message, dismissible: true })),
+              ...alerts,
             ]} />
             <div className="sv-crt-scroll" ref={screenRef}>
               <main className="sv-program" key={program}>{page}</main>

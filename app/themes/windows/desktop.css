@@ -1167,6 +1167,21 @@
   color: var(--t-info);
 }
 
+/* One notice at a time: the one a newer notice replaces slides out to the right, then the new
+   one comes in where it was. */
+:where(:root[data-theme='windows']) .dk-notices { isolation: isolate; }
+:where(:root[data-theme='windows']) .dk-notice { animation: dk-notice-in--windows 220ms ease-out; }
+:where(:root[data-theme='windows']) .dk-notice[data-leaving] { position: absolute; top: 0; left: 0; right: 0; z-index: 1; pointer-events: none; animation: dk-notice-out--windows 220ms ease-in forwards; }
+:where(:root[data-theme='windows']) .dk-notice:has(+ .dk-notice[data-leaving]) { animation-delay: 220ms; animation-fill-mode: backwards; }
+@keyframes dk-notice-in--windows { from { opacity: 0; transform: translateX(24px); } }
+@keyframes dk-notice-out--windows { 60% { opacity: 1; } to { opacity: 0; transform: translateX(calc(100% + 24px)); } }
+@media (prefers-reduced-motion: reduce) {
+  :where(:root[data-theme='windows']) .dk-notice { animation-name: dk-notice-fade-in--windows; }
+  :where(:root[data-theme='windows']) .dk-notice[data-leaving] { animation-name: dk-notice-fade-out--windows; }
+}
+@keyframes dk-notice-fade-in--windows { from { opacity: 0; } }
+@keyframes dk-notice-fade-out--windows { to { opacity: 0; } }
+
 /* Add Music Services: a Mac list of the catalog, then the code to enter. */
 
 /* A service the provider will not sign in from Sonora: shown, but grayed and

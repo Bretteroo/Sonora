@@ -350,6 +350,12 @@
 /* --- toasts --------------------------------------------------------------------------------- */
 :where(:root[data-theme='liquidglass']) .sf-toasts { position: fixed; right: 20px; bottom: calc(var(--sf-bar) + 16px); z-index: 95; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; pointer-events: none; }
 :where(:root[data-theme='liquidglass']) .sf-toast { display: flex; align-items: center; gap: 10px; max-width: min(420px, calc(100vw - 40px)); padding: 10px 14px; border: 1px solid var(--t-border-strong); border-radius: 12px; background: rgba(22, 28, 41, 0.92); backdrop-filter: blur(12px); box-shadow: var(--t-shadow); font-size: 13px; pointer-events: auto; animation: sf-pop--liquidglass 180ms var(--sf-ease); }
+/* One alert at a time: the one a newer alert replaces lifts away, then the new one
+   comes in where it was. */
+:where(:root[data-theme='liquidglass']) .sf-toasts { isolation: isolate; }
+:where(:root[data-theme='liquidglass']) .sf-toast[data-leaving] { position: absolute; top: 0; right: 0; z-index: 1; pointer-events: none; animation: sf-toast-out--liquidglass 200ms var(--sf-ease) forwards; }
+:where(:root[data-theme='liquidglass']) .sf-toast:has(+ .sf-toast[data-leaving]) { animation-delay: 200ms; animation-fill-mode: backwards; }
+@keyframes sf-toast-out--liquidglass { to { opacity: 0; transform: translateY(-14px) scale(0.96); } }
 :where(:root[data-theme='liquidglass']) .sf-toast-warn { border-color: var(--t-fair); color: var(--t-fair); }
 /* A notice is a message to be read, not a surface to look through: the
    glass fill let the room cards behind it show through its own text.

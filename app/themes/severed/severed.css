@@ -837,6 +837,11 @@
   & .sv-ticker-text strong { font-weight: 400; text-transform: uppercase; }
   & .sv-ticker .sv-ibtn { color: var(--sv-scr); border-color: var(--sv-scr); }
   & .sv-ticker-line[data-dismissible] { cursor: pointer; }
+  /* One line at a time: the line a newer one replaces is erased from its right end, then the
+     new line types in where it was. */
+  & .sv-ticker { isolation: isolate; }
+  & .sv-ticker-line[data-leaving] { position: absolute; top: 0; left: 0; right: 0; z-index: 1; pointer-events: none; animation: sv-erase 180ms steps(6, end) forwards; }
+  & .sv-ticker-line:has(+ .sv-ticker-line[data-leaving]) { animation-delay: 180ms; animation-fill-mode: backwards; }
 
   /* The bins along the foot of the screen, one for each room. */
   & .sv-binsbar {
@@ -1971,6 +1976,7 @@
 @keyframes sv-marquee { from { transform: translateX(0); } to { transform: translateX(calc(-100% - 3em)); } }
 @keyframes sv-program-in { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes sv-type { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes sv-erase { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 100% 0 0); } }
 @keyframes sv-busy { 0%, 100% { background: var(--sv-ph-faint); } 50% { background: var(--sv-ph); box-shadow: var(--sv-glow); } }
 @keyframes sv-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes sv-tube-on {

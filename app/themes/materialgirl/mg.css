@@ -867,6 +867,11 @@
 
   /* --- snackbars and keys ------------------------------------------------------------------ */
   & .mg-snacks { position: fixed; left: 50%; bottom: calc(var(--mg-nav-h, 0px) + 100px); z-index: 99; display: flex; flex-direction: column; gap: 8px; align-items: center; transform: translateX(-50%); pointer-events: none; width: min(600px, calc(100vw - 32px)); }
+  /* One snackbar at a time: the one a newer snackbar replaces fades out, then the new one
+     comes in where it was. */
+  & .mg-snacks { isolation: isolate; }
+  & .mg-snack[data-leaving] { position: absolute; top: 0; left: 0; right: 0; z-index: 1; pointer-events: none; animation: mg-snack-out 200ms var(--mg-emph-accel, ease-in) forwards; }
+  & .mg-snack:has(+ .mg-snack[data-leaving]) { animation-delay: 200ms; }
   & body:has(.mg-size-compact) .mg-snacks { bottom: 152px; }
   & .mg-tooltip { position: fixed; z-index: 120; min-width: 40px; min-height: 24px; max-width: 200px; padding: 4px 8px; border-radius: 4px; box-sizing: border-box;
     background: var(--mg-inverse-surface); color: var(--mg-inverse-on-surface); font-family: var(--mg-font); font-size: 12px; line-height: 16px; letter-spacing: 0.4px;
@@ -1582,7 +1587,7 @@
     & *, & *::before, & *::after { transition-property: opacity, color, background-color, box-shadow !important; transition-duration: 150ms !important; }
     & :is(.mg-main, [data-motion], .mg-player-panel, .mg-sheet, .mg-menu[data-ready], .mg-snack, .mg-fabmenu-list li, .mg-dest-indicator, .mg-chip-icon, .mg-player, .mg-player > *) {
       animation: mg-fade 150ms var(--mg-effects-fast) both !important; }
-    & .mg-layer[data-exiting] .mg-sheet, & .mg-menu[data-exiting], & .mg-player[data-transform='out'] { animation: mg-fade-out 150ms var(--mg-effects-fast) both !important; }
+    & .mg-layer[data-exiting] .mg-sheet, & .mg-menu[data-exiting], & .mg-player[data-transform='out'], & .mg-snack[data-leaving] { animation: mg-fade-out 150ms var(--mg-effects-fast) both !important; }
     & :is(.mg-player-cover, .mg-player-cover img, .mg-shape-spin, .mg-shape-spin img, .mg-sleep-badge, .mg-sleep-badge svg, .mg-skel-row, .mg-skel-card, .mg-wavy-phase) { animation: none !important; }
   }
 }
@@ -1606,6 +1611,7 @@
 @keyframes mg-dialog-in { from { opacity: 0; transform: scaleY(0.85); } 35% { opacity: 1; } to { opacity: 1; transform: none; } }
 @keyframes mg-snack-in { from { opacity: 0; transform: scaleY(0.6); } 40% { opacity: 1; } to { opacity: 1; transform: none; } }
 @keyframes mg-fade-out { to { opacity: 0; } }
+@keyframes mg-snack-out { to { opacity: 0; transform: scale(0.96); } }
 @keyframes mg-scrim-out { to { background-color: transparent; } }
 @keyframes mg-ct-in { from { clip-path: inset(var(--ct-t) var(--ct-r) var(--ct-b) var(--ct-l) round 28px); } to { clip-path: inset(0 0 0 0 round 0px); } }
 @keyframes mg-ct-out { from { clip-path: inset(0 0 0 0 round 0px); } to { clip-path: inset(var(--ct-t) var(--ct-r) var(--ct-b) var(--ct-l) round 28px); } }

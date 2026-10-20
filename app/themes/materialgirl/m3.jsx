@@ -728,7 +728,8 @@ export function Snackbars({ items, onDismiss }) {
   return (
     <div className="mg-snacks" aria-live="polite">
       {items.map((item) => (
-        <div key={item.id} className="mg-snack" data-kind={item.kind || undefined} role="status">
+        <div key={item.id} className="mg-snack" data-kind={item.kind || undefined} role="status"
+             data-leaving={item.leaving || undefined} aria-hidden={item.leaving || undefined}>
           <div className="mg-snack-text">
             {item.title && <strong>{item.title}</strong>}
             <span>{item.text}</span>

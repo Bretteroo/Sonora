@@ -2,6 +2,7 @@ import { winTransportIcons, winBrowseIcons } from '../../frontend/src/components
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { controllerTitle, isLiveStream } from '../../frontend/src/lib/format.js'
 import { isBrowserRoom } from '../../frontend/src/lib/browserRoom.js'
@@ -65,6 +66,7 @@ function WinIcon() {
 // Sedona uses all four.
 export function Shell({ rootClass = '', frame = null, extraHelpItems = null, extraDialogs = null }) {
   const { zones, groups, households, connected, actions, notices, dismiss, servicesEpoch } = useSystem()
+  const alerts = useOneAlert(notices)
   const { t } = useI18n()
   // Choosing a room on a narrow window moves on to Now Playing, as the phone
   // apps do. That is a layout decision, so it stays in the layout.
@@ -480,11 +482,11 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
       )}
       {extraDialogs ? extraDialogs(dialog, () => setDialog(null), { systemFilter }) : null}
 
-      {(notices.length > 0 || !connected) && (
+      {(alerts.length > 0 || !connected) && (
         <div className="dk-notices" aria-live="polite">
           {!connected && <div className="dk-notice"><strong>{t('common.reconnecting')}</strong></div>}
-          {notices.map((notice) => (
-            <div key={notice.id} className="dk-notice">
+          {alerts.map((notice) => (
+            <div key={notice.id} className="dk-notice" data-leaving={notice.leaving || undefined} aria-hidden={notice.leaving || undefined}>
               <strong>{t(notice.titleKey)}</strong>
               <span>{notice.detail || (notice.detailKey ? t(notice.detailKey, notice.detailParams) : '')}</span>
               <div>

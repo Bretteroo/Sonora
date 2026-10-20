@@ -1030,6 +1030,7 @@ export function Ticker({ items, onDismiss }) {
     <div className="sv-ticker" aria-live="polite">
       {items.map((item) => (
         <div key={item.id} className="sv-ticker-line" data-kind={item.kind || undefined} role="status" data-dismissible={item.dismissible || undefined}
+             data-leaving={item.leaving || undefined} aria-hidden={item.leaving || undefined}
              title={item.dismissible ? t('common.dismiss') : undefined} onClick={item.dismissible ? () => onDismiss(item) : undefined}>
           <span className="sv-ticker-sign" aria-hidden="true">*</span>
           <span className="sv-ticker-text">

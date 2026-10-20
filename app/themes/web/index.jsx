@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
 import { roomRows } from '../../frontend/src/lib/rooms.js'
 import { orderedHouseholds, systemChoiceMatters } from '../../frontend/src/lib/format.js'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
@@ -63,6 +64,7 @@ function readStoredSystem() {
 function Shell() {
   const { zones, groups, households, connected, actions, notices,
           dismiss, servicesEpoch } = useSystem()
+  const alerts = useOneAlert(notices)
   const { t } = useI18n()
   const [activeUuid, setActiveUuid] = useState(readStoredRoom)
   const [query, setQuery] = useState('')
@@ -375,8 +377,8 @@ function Shell() {
       )}
 
       <div className="wb-toasts">
-        {notices.map((notice) => (
-          <div className="wb-toast" key={notice.id}>
+        {alerts.map((notice) => (
+          <div className="wb-toast" key={notice.id} data-leaving={notice.leaving || undefined} aria-hidden={notice.leaving || undefined}>
             <h4>{t(notice.titleKey)}</h4>
             <p>{notice.detail || t(notice.detailKey, notice.detailParams)}</p>
             <div className="wb-toast-row">

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { macTransportIcons } from './icons.jsx'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds, controllerTitle, isLiveStream, systemChoiceMatters } from '../../frontend/src/lib/format.js'
 import MenuBar from './MenuBar.jsx'
@@ -58,6 +59,7 @@ function readStoredSystem() {
 
 function Shell() {
   const { zones, groups, households, connected, actions, notices, dismiss, servicesEpoch } = useSystem()
+  const alerts = useOneAlert(notices)
   const { t } = useI18n()
   const [activeId, setActiveId] = useState(readStoredGroup)
   const [pane, setPane] = useState('now')
@@ -451,11 +453,11 @@ function Shell() {
                  onConfirm={dialog.onConfirm} onClose={() => setDialog(null)} />
       )}
 
-      {(notices.length > 0 || !connected) && (
+      {(alerts.length > 0 || !connected) && (
         <div className="dk-notices" aria-live="polite">
           {!connected && <div className="dk-notice"><strong>{t('common.reconnecting')}</strong></div>}
-          {notices.map((notice) => (
-            <div key={notice.id} className="dk-notice">
+          {alerts.map((notice) => (
+            <div key={notice.id} className="dk-notice" data-leaving={notice.leaving || undefined} aria-hidden={notice.leaving || undefined}>
               <strong>{t(notice.titleKey)}</strong>
               <span>{notice.detail || (notice.detailKey ? t(notice.detailKey, notice.detailParams) : '')}</span>
               <div>

@@ -169,13 +169,8 @@ function reducer(state, action) {
       }
 
     case 'notice':
-      return {
-        ...state,
-        notices: [
-          { id: action.id, ...action.notice },
-          ...state.notices,
-        ].slice(0, 6),
-      }
+      // One at a time: the newest replaces the one before, the same words again included.
+      return { ...state, notices: [{ id: action.id, ...action.notice }] }
 
     case 'dismiss':
       return {

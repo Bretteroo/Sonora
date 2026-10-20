@@ -1211,6 +1211,20 @@ button.wb-tile span.wb-tile-sub {
   width: min(360px, calc(100vw - 40px));
 }
 
+/* One alert at a time: the one a newer alert replaces fades away, then the new one rises
+   in where it was. */
+.wb-toasts { isolation: isolate; }
+.wb-toast { animation: wb-toast-in 220ms ease-out; }
+.wb-toast[data-leaving] { position: absolute; top: 0; left: 0; right: 0; z-index: 1; pointer-events: none; animation: wb-toast-out 200ms ease-in forwards; }
+.wb-toast:has(+ .wb-toast[data-leaving]) { animation-delay: 200ms; animation-fill-mode: backwards; }
+@keyframes wb-toast-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes wb-toast-out { to { opacity: 0; transform: translateY(-8px); } }
+@media (prefers-reduced-motion: reduce) {
+  .wb-toast { animation: none; }
+  .wb-toast[data-leaving] { animation: wb-toast-fade 200ms ease-in forwards; }
+}
+@keyframes wb-toast-fade { to { opacity: 0; } }
+
 .wb-toast {
   padding: 13px 15px;
   border-radius: 12px;

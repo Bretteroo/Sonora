@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds, systemChoiceMatters } from '../../frontend/src/lib/format.js'
 import { useSleepTimer } from '../../frontend/src/lib/useSleepTimer.js'
@@ -96,6 +97,9 @@ export function Shell() {
   const [quickMenu, setQuickMenu] = useState(null)
   const [tunerRequest, setTunerRequest] = useState(null)
   const [toasts, setToasts] = useState([])
+  // One alert at a time, whether Sonora's or the shell's own word.
+  const alerts = useOneAlert([...notices.map((notice) => ({ ...notice, id: `n-${notice.id}`, noticeId: notice.id })),
+                              ...toasts.map((x) => ({ ...x, id: `t-${x.id}`, toast: true }))])
   // Bumped when this theme saves or removes a favorite; savedEpoch and playlistsEpoch are the
   // store's, bumped when the speakers announce a change made anywhere (another app included).
   const [favoritesEpoch, setFavoritesEpoch] = useState(0)
@@ -336,13 +340,14 @@ export function Shell() {
 
       <div className="hf-toasts" aria-live="polite">
         {!connected && <div className="hf-toast hf-toast-warn"><G.Signal />{t('common.reconnecting')}</div>}
-        {notices.map((notice) => (
-          <div key={notice.id} className="hf-toast hf-toast-notice">
-            <div><strong>{t(notice.titleKey)}</strong><span>{notice.detail || (notice.detailKey ? t(notice.detailKey, notice.detailParams) : '')}</span></div>
-            <IconKey label={t('common.dismiss')} onClick={() => dismiss(notice.id)}><G.Close /></IconKey>
-          </div>
-        ))}
-        {toasts.map((x) => <div key={x.id} className="hf-toast" role="status">{x.text}</div>)}
+        {alerts.map((notice) => (notice.toast
+          ? <div key={notice.id} className="hf-toast" role="status" data-leaving={notice.leaving || undefined} aria-hidden={notice.leaving || undefined}>{notice.text}</div>
+          : (
+            <div key={notice.id} className="hf-toast hf-toast-notice" data-leaving={notice.leaving || undefined} aria-hidden={notice.leaving || undefined}>
+              <div><strong>{t(notice.titleKey)}</strong><span>{notice.detail || (notice.detailKey ? t(notice.detailKey, notice.detailParams) : '')}</span></div>
+              <IconKey label={t('common.dismiss')} onClick={() => dismiss(notice.noticeId)}><G.Close /></IconKey>
+            </div>
+          )))}
       </div>
     </div>
   )

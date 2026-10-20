@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds, systemChoiceMatters } from '../../frontend/src/lib/format.js'
 import { useSleepTimer } from '../../frontend/src/lib/useSleepTimer.js'
@@ -111,6 +112,12 @@ export function Shell() {
   const [quickMenu, setQuickMenu] = useState(null)
   const [libraryRequest, setLibraryRequest] = useState(null)
   const [snacks, setSnacks] = useState([])
+  // One snackbar at a time, whether Sonora's notice or the shell's own word.
+  const alerts = useOneAlert([
+    ...notices.map((notice) => ({ id: `n-${notice.id}`, noticeId: notice.id, dismissible: true, title: t(notice.titleKey),
+                                  text: notice.detail || (notice.detailKey ? t(notice.detailKey, notice.detailParams) : '') })),
+    ...snacks,
+  ])
   // Bumped when this theme saves or removes a favorite; savedEpoch and playlistsEpoch are the
   // store's, bumped when the speakers announce a change made anywhere (another app included).
   const [favoritesEpoch, setFavoritesEpoch] = useState(0)
@@ -476,9 +483,7 @@ export function Shell() {
       <TooltipLayer />
       <Snackbars onDismiss={(item) => dismiss(item.noticeId)} items={[
         ...(!connected ? [{ id: 'offline', kind: 'warn', text: t('common.reconnecting') }] : []),
-        ...notices.map((notice) => ({ id: `n-${notice.id}`, noticeId: notice.id, dismissible: true, title: t(notice.titleKey),
-                                      text: notice.detail || (notice.detailKey ? t(notice.detailKey, notice.detailParams) : '') })),
-        ...snacks,
+        ...alerts,
       ]} />
     </div>
   )

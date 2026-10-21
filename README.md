@@ -16,6 +16,10 @@
 <a href="https://ko-fi.com/bretteroo"><img src="https://img.shields.io/badge/-Support%20Sonora-13C3FF?style=flat-square&labelColor=555555&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTEyIDIxcy03LjQtNC41LTkuNC05LjFDMS4xIDguMyAzLjMgNC42IDcgNC42YzIgMCAzLjYgMS4xIDUgMi45IDEuNC0xLjggMy0yLjkgNS0yLjkgMy43IDAgNS45IDMuNyA0LjQgNy4zQzE5LjQgMTYuNSAxMiAyMSAxMiAyMXoiLz48L3N2Zz4=" alt="Support Sonora"></a>
 </p>
 
+<p>
+<a href="https://www.producthunt.com/products/sonora-5?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-sonora-f49fe434-3ca0-40ee-afac-589c74d241eb" target="_blank" rel="noopener noreferrer"><img alt="Sonora - The open source Sonos™ web controller you've always wanted. | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1286847&amp;theme=light&amp;t=1792623903704"></a>
+</p>
+
 ---
 
 _Sonora gives you more ways to play._

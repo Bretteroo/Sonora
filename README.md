@@ -17,7 +17,7 @@
 </p>
 
 <p>
-<a href="https://www.producthunt.com/products/sonora-5?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-sonora-f49fe434-3ca0-40ee-afac-589c74d241eb" target="_blank" rel="noopener noreferrer"><img alt="Sonora - The open source Sonos™ web controller you've always wanted. | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1286847&amp;theme=light&amp;t=1792623903704"></a>
+<a href="https://www.producthunt.com/products/sonora-5?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-sonora-f49fe434-3ca0-40ee-afac-589c74d241eb" target="_blank" rel="noopener noreferrer"><img alt="Sonora - The open source Sonos™ web controller you've always wanted. | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1286847&amp;theme=neutral&amp;t=1792625507433"></a>
 </p>
 
 ---

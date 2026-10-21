@@ -1153,7 +1153,8 @@ export default {
     'une enceinte filaire porte le réseau, et l’application a remplacé le '
     + 'contrôleur',
   's2.total': 'Total pour faire passer ce système à S2',
-  's2.amazonDisclosure': 'En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises.',
+  's2.affiliateLabel': 'Divulgation d’affiliation :',
+  's2.amazonDisclosure': 'Les boutons « {buy} » de cette page sont des liens d’affiliation Amazon. En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises.',
   's2.pricesNote': 'Prix catalogue aux États-Unis, vérifiés au T{quarter} {year}. Les prix peuvent changer : vérifie avant d’acheter.',
   's2.timelineTitle': 'Trois générations de matériel',
   's2.era.s1': 'S1 uniquement',

@@ -1152,7 +1152,8 @@ export default {
   's2.noReplacementWhy':
     'sieć zapewnia głośnik podłączony kablem, a pilota zastąpiła aplikacja',
   's2.total': 'Łącznie, aby przenieść ten system na S2',
-  's2.amazonDisclosure': 'Jako partner Amazon zarabiam na kwalifikujących się zakupach.',
+  's2.affiliateLabel': 'Informacja o linkach partnerskich:',
+  's2.amazonDisclosure': 'Przyciski „{buy}” na tej stronie to linki partnerskie Amazon. Jako partner Amazon zarabiam na kwalifikujących się zakupach.',
   's2.pricesNote': 'Ceny katalogowe w USA, sprawdzone w {quarter}. kwartale {year}. Ceny mogą się zmienić, więc sprawdź je przed zakupem.',
   's2.timelineTitle': 'Trzy generacje sprzętu',
   's2.era.s1': 'Tylko S1',

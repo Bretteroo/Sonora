@@ -1141,7 +1141,8 @@ export default {
   's2.noReplacementWhy':
     'uno speaker cablato porta la rete, e l’app ha sostituito il controller',
   's2.total': 'Totale per portare questo sistema a S2',
-  's2.amazonDisclosure': 'In qualità di Affiliato Amazon io ricevo un guadagno dagli acquisti idonei.',
+  's2.affiliateLabel': 'Informativa sui link di affiliazione:',
+  's2.amazonDisclosure': 'I pulsanti «{buy}» in questa pagina sono link di affiliazione Amazon. In qualità di Affiliato Amazon io ricevo un guadagno dagli acquisti idonei.',
   's2.pricesNote': 'Prezzi di listino negli USA, verificati nel {quarter}° trimestre {year}. I prezzi possono cambiare: verifica prima di acquistare.',
   's2.timelineTitle': 'Tre generazioni di hardware',
   's2.era.s1': 'Solo S1',

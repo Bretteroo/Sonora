@@ -1122,7 +1122,8 @@ export default {
     'en kablet højttaler bærer netværket, og appen har erstattet '
     + 'controlleren',
   's2.total': 'I alt for at flytte dette system til S2',
-  's2.amazonDisclosure': 'Som Amazon-partner tjener jeg penge på kvalificerede køb.',
+  's2.affiliateLabel': 'Oplysning om affiliatelinks:',
+  's2.amazonDisclosure': 'Knapperne “{buy}” på denne side er affiliatelinks til Amazon. Som Amazon-partner tjener jeg penge på kvalificerede køb.',
   's2.pricesNote': 'Amerikanske listepriser, kontrolleret i {quarter}. kvartal {year}. Priserne kan ændre sig, så tjek dem, før du køber.',
   's2.timelineTitle': 'Tre generationer af hardware',
   's2.era.s1': 'Kun S1',

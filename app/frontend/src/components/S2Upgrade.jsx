@@ -202,7 +202,11 @@ export default function S2Upgrade({ onClose = null }) {
     <section className="s2-section">
       <h3>{title}</h3>
       <p className={done ? 's2-allready' : 's2-blurb'}>{done || blurb}</p>
-      {hasBuyLink(key, status) && <p className="s2-disclosure">{t('s2.amazonDisclosure')}</p>}
+      {hasBuyLink(key, status) && (
+        <p className="s2-disclosure">
+          <strong>{t('s2.affiliateLabel')}</strong> {t('s2.amazonDisclosure', { buy: t('s2.buyNow') })}
+        </p>
+      )}
       <div className="s2-tablewrap">
         <table className="s2-table s2-table-bill">
           <thead>

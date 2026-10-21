@@ -1136,7 +1136,8 @@ export default {
     'uma caixa de som com fio sustenta a rede, e o aplicativo substituiu o '
     + 'controlador',
   's2.total': 'Total para levar este sistema ao S2',
-  's2.amazonDisclosure': 'Como associado da Amazon, ganho com compras qualificadas.',
+  's2.affiliateLabel': 'Divulgação de afiliados:',
+  's2.amazonDisclosure': 'Os botões “{buy}” desta página são links de afiliado da Amazon. Como associado da Amazon, ganho com compras qualificadas.',
   's2.pricesNote': 'Preços de tabela nos EUA, verificados no {quarter}º trimestre de {year}. Os preços podem mudar, então confirme antes de comprar.',
   's2.timelineTitle': 'Três gerações de hardware',
   's2.era.s1': 'Só S1',

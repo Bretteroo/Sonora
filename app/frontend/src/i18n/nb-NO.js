@@ -1127,7 +1127,8 @@ export default {
   's2.noReplacementWhy':
     'en kablet høyttaler bærer nettverket, og appen erstattet kontrolleren',
   's2.total': 'Totalt for å flytte dette systemet til S2',
-  's2.amazonDisclosure': 'Som Amazon-partner tjener jeg penger på kvalifiserte kjøp.',
+  's2.affiliateLabel': 'Opplysning om tilknyttede lenker:',
+  's2.amazonDisclosure': '«{buy}»-knappene på denne siden er tilknyttede lenker til Amazon. Som Amazon-partner tjener jeg penger på kvalifiserte kjøp.',
   's2.pricesNote': 'Listepriser i USA, sjekket i {quarter}. kvartal {year}. Prisene kan endre seg, så sjekk før du kjøper.',
   's2.timelineTitle': 'Tre generasjoner maskinvare',
   's2.era.s1': 'Bare S1',

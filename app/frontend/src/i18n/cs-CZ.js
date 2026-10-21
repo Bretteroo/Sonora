@@ -1135,7 +1135,8 @@ export default {
     'síť zajišťuje reproduktor připojený kabelem a ovladač nahradila '
     + 'aplikace',
   's2.total': 'Celkem za přechod tohoto systému na S2',
-  's2.amazonDisclosure': 'Jako partner Amazonu získávám příjem z kvalifikovaných nákupů.',
+  's2.affiliateLabel': 'Informace o partnerských odkazech:',
+  's2.amazonDisclosure': 'Tlačítka „{buy}“ na této stránce jsou partnerské odkazy Amazonu. Jako partner Amazonu získávám příjem z kvalifikovaných nákupů.',
   's2.pricesNote': 'Ceníkové ceny v USA, ověřeno v {quarter}. čtvrtletí {year}. Ceny se mohou změnit, proto je před nákupem ověřte.',
   's2.timelineTitle': 'Tři generace hardwaru',
   's2.era.s1': 'Jen S1',

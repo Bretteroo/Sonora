@@ -1146,7 +1146,8 @@ export default {
     'ein kabelgebundener Lautsprecher trägt das Netzwerk, und die App hat '
     + 'den Controller ersetzt',
   's2.total': 'Gesamtkosten, dieses System auf S2 zu bringen',
-  's2.amazonDisclosure': 'Als Amazon-Partner verdiene ich an qualifizierten Verkäufen.',
+  's2.affiliateLabel': 'Hinweis zu Affiliate-Links:',
+  's2.amazonDisclosure': 'Die Schaltflächen „{buy}“ auf dieser Seite sind Amazon-Affiliate-Links. Als Amazon-Partner verdiene ich an qualifizierten Verkäufen.',
   's2.pricesNote': 'US-Listenpreise, geprüft im {quarter}. Quartal {year}. Preise können sich ändern: Prüfe vor dem Kauf nach.',
   's2.timelineTitle': 'Drei Hardware-Generationen',
   's2.era.s1': 'Nur S1',

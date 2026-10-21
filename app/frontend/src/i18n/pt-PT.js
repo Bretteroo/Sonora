@@ -1173,7 +1173,8 @@ export default {
     'um altifalante com fios assegura a rede, e a aplicação substituiu o '
     + 'controlador',
   's2.total': 'Total para passar este sistema para o S2',
-  's2.amazonDisclosure': 'Como associado da Amazon, ganho com compras qualificadas.',
+  's2.affiliateLabel': 'Divulgação de afiliados:',
+  's2.amazonDisclosure': 'Os botões «{buy}» desta página são ligações de afiliado da Amazon. Como associado da Amazon, ganho com compras qualificadas.',
   's2.pricesNote': 'Preços de tabela nos EUA, verificados no {quarter}.º trimestre de {year}. Os preços podem mudar, por isso confirme antes de comprar.',
   's2.timelineTitle': 'Três gerações de hardware',
   's2.era.s1': 'Só S1',

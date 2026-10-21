@@ -1127,7 +1127,8 @@ export default {
     'een bedrade speaker draagt het netwerk, en de app heeft de controller '
     + 'vervangen',
   's2.total': 'Totaal om dit systeem naar S2 te brengen',
-  's2.amazonDisclosure': 'Als Amazon-partner verdien ik aan in aanmerking komende aankopen.',
+  's2.affiliateLabel': 'Melding over affiliatelinks:',
+  's2.amazonDisclosure': 'De knoppen ‘{buy}’ op deze pagina zijn affiliatelinks van Amazon. Als Amazon-partner verdien ik aan in aanmerking komende aankopen.',
   's2.pricesNote': 'Adviesprijzen in de VS, gecontroleerd in Q{quarter} {year}. Prijzen kunnen veranderen, dus controleer ze voor je koopt.',
   's2.timelineTitle': 'Drie generaties hardware',
   's2.era.s1': 'Alleen S1',

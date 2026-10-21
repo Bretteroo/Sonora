@@ -1138,7 +1138,8 @@ export default {
   's2.noReplacementWhy':
     'langallinen kaiutin hoitaa verkon, ja sovellus korvasi ohjaimen',
   's2.total': 'Yhteensä tämän järjestelmän siirtoon S2:een',
-  's2.amazonDisclosure': 'Amazon-kumppanina ansaitsen kelpoisista ostoksista.',
+  's2.affiliateLabel': 'Kumppanilinkkejä koskeva ilmoitus:',
+  's2.amazonDisclosure': 'Tämän sivun ”{buy}”-painikkeet ovat Amazonin kumppanilinkkejä. Amazon-kumppanina ansaitsen kelpoisista ostoksista.',
   's2.pricesNote': 'Yhdysvaltain listahinnat, tarkistettu vuoden {year} {quarter}. neljänneksellä. Hinnat voivat muuttua, joten tarkista ennen ostoa.',
   's2.timelineTitle': 'Kolme laitesukupolvea',
   's2.era.s1': 'Vain S1',

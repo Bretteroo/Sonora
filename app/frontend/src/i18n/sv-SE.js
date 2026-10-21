@@ -1128,7 +1128,8 @@ export default {
   's2.noReplacementWhy':
     'en trådbunden högtalare bär nätverket, och appen ersatte kontrollern',
   's2.total': 'Totalt för att flytta systemet till S2',
-  's2.amazonDisclosure': 'Som Amazon-partner tjänar jag pengar på kvalificerade köp.',
+  's2.affiliateLabel': 'Information om affiliatelänkar:',
+  's2.amazonDisclosure': 'Knapparna ”{buy}” på den här sidan är affiliatelänkar till Amazon. Som Amazon-partner tjänar jag pengar på kvalificerade köp.',
   's2.pricesNote': 'Listpriser i USA, kontrollerade kvartal {quarter} {year}. Priserna kan ändras, så kontrollera innan du köper.',
   's2.timelineTitle': 'Tre generationer maskinvara',
   's2.era.s1': 'Bara S1',

@@ -504,7 +504,6 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
 export default {
   id: 'windows',
   name: 'Sonos Windows Desktop',
-  version: '1.0.0',
   thumbnail,
   description: 'Replicates the Sonos S1 desktop controller as shipped for Windows: a light title bar and menu bar over the same transport strip and Rooms, Now Playing, Queue and Music panes as the Mac build.',
   colorScheme: 'dark',

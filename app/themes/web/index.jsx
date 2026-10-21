@@ -397,7 +397,6 @@ function Shell() {
 export default {
   id: 'web',
   name: 'Sonos Web',
-  version: '1.0.0',
   thumbnail,
   description:
     'Replicates the official web controller at play.sonos.com, extended to '

@@ -30,7 +30,6 @@ function Shell() {
 export default {
   id: 'solarized',
   name: 'Solarized',
-  version: '1.0.0',
   thumbnail,
   description:
     'The desktop controller in Ethan Schoonover\u2019s Solarized palette, light '

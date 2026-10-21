@@ -475,7 +475,6 @@ function Shell() {
 export default {
   id: 'macos',
   name: 'Sonos macOS Desktop',
-  version: '1.0.0',
   thumbnail,
   description: 'Replicates the Sonos S1 desktop controller as shipped for the Mac: its menus, the transport strip, and Rooms, Now Playing, Queue and Music panes side by side.',
   colorScheme: 'dark',

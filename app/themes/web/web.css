@@ -1931,6 +1931,9 @@ button.wb-tile span.wb-tile-sub {
 
 .wb-settings-group {
   display: grid;
+  /* the group's width, not its widest row's: an auto column grew to the
+     preview and the selects on a phone and the rounded edge cut them off */
+  grid-template-columns: minmax(0, 1fr);
   gap: 1px;
   margin-top: 16px;
   border-radius: 16px;
@@ -1994,6 +1997,14 @@ button.wb-settings-row:hover:not(:disabled) {
   font-size: 13px;
   color: var(--t-fg);
   background: var(--t-surface-active);
+}
+
+/* On a phone a select is as wide as its longest option, which ran past the
+   row's rounded edge; the control may narrow, and the select with it, and
+   leaves its label room. */
+@media (max-width: 640px) {
+  .wb-settings-row-control { flex: 0 1 auto; min-width: 0; max-width: 60%; }
+  .wb-settings-select { min-width: 0; max-width: 100%; }
 }
 
 .wb-settings-form {

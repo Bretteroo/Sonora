@@ -492,7 +492,6 @@ export function Shell() {
 export default {
   id: 'materialgirl',
   name: 'Material Girl',
-  version: '1.0.0',
   thumbnail,
   description: 'The controller rebuilt on Material 3 Expressive: adaptive navigation from phone to desktop, a floating player whose colors come '
     + 'from the cover, shape-shifting artwork, button groups and split buttons. Light or dark.',

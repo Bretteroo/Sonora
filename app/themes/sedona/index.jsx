@@ -67,7 +67,6 @@ function Shell() {
 export default {
   id: 'sedona',
   name: 'Sedona',
-  version: '1.0.0',
   thumbnail,
   description:
     'The desktop controller as a desert section: sky overhead, a mesa horizon, '

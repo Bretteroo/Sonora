@@ -47,7 +47,6 @@ function Shell() {
 export default {
   id: 'coromar',
   name: 'Coromar',
-  version: '1.0.0',
   thumbnail,
   description:
     'The default: the Sonos headquarters at 301 Coromar Drive. Sunlit tilt-up '

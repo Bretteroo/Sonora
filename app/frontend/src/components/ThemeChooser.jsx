@@ -81,7 +81,8 @@ export default function ThemeChooser({ classes = {}, title = null, Field = null,
     const chrome = text === box
       ? (parseFloat(boxStyle.paddingLeft) || 0) + (parseFloat(boxStyle.paddingRight) || 0) + 28
       : box.getBoundingClientRect().width - text.getBoundingClientRect().width
-    box.style.minWidth = `${Math.ceil(widest + chrome + 2)}px`
+    // never past its row, though: on a phone the longest name may not fit
+    box.style.minWidth = `min(${Math.ceil(widest + chrome + 2)}px, 100%)`
   }, [themes, language, fitId])
 
   const install = async (picked) => {

@@ -23,7 +23,6 @@ function Shell() {
 export default {
   id: 'liquidglass',
   name: 'Liquid Glass',
-  version: '1.0.0',
   thumbnail,
   description:
     "Apple's Liquid Glass material over the reimagined shell: floating panels of frosted, "

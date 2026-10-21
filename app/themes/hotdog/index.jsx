@@ -24,7 +24,6 @@ function Shell() {
 export default {
   id: 'hotdog',
   name: 'Hot Dog Stand',
-  version: '1.0.0',
   thumbnail,
   description:
     'The desktop controller in the Windows 3.1 color scheme of the same name: '

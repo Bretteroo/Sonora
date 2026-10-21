@@ -356,7 +356,6 @@ export function Shell() {
 export default {
   id: 'hifi',
   name: 'Hi-Fi',
-  version: '1.0.0',
   thumbnail,
   description: 'Your house as a rack of high-fidelity components: a control amplifier with a turning record, a glowing display, '
     + 'and a volume knob, over a zone amplifier, a source tuner with a preset dial, a cassette deck for the queue, a program timer, '

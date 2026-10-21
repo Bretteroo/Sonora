@@ -3,6 +3,7 @@ import React, {
 } from 'react'
 import { THEMES, DEFAULT_THEME } from '../../../themes/index.js'
 import { api } from './api.js'
+import { APP } from './meta.js'
 
 // The theming engine.
 //
@@ -24,6 +25,11 @@ const APPEARANCE_KEY = 'sonora.appearance'
 //: Set when a theme is chosen from the theme chooser, cleared by the theme it
 //: names once it has opened its own theme page (useThemeLanding below).
 const LANDING_KEY = 'sonora.themeLanding'
+
+// The themes that come with Sonora are as new as the Sonora serving them, so each
+// shows its version; a theme installed from a file keeps the version it carries.
+const BUILT_IN = Object.fromEntries(Object.entries(THEMES).map(([id, entry]) => [id, { ...entry, version: APP.version }]))
+
 export const APPEARANCES = ['light', 'dark', 'system']
 
 function readStoredAppearance() {
@@ -147,8 +153,8 @@ export function ThemeProvider({ children }) {
     return () => { canceled = true }
   }, [])
 
-  const all = useMemo(() => ({ ...THEMES, ...packages }), [packages])
-  const theme = all[themeId] ?? all[DEFAULT_THEME] ?? THEMES[DEFAULT_THEME]
+  const all = useMemo(() => ({ ...BUILT_IN, ...packages }), [packages])
+  const theme = all[themeId] ?? all[DEFAULT_THEME] ?? BUILT_IN[DEFAULT_THEME]
 
   const [appearance, setAppearanceState] = useState(readStoredAppearance)
   const [systemDark, setSystemDark] = useState(systemPrefersDark)
@@ -209,7 +215,7 @@ export function ThemeProvider({ children }) {
   const value = useMemo(() => ({
     theme,
     themeId: theme.id,
-    themes: [...Object.values(THEMES), ...Object.values(packages)],
+    themes: [...Object.values(BUILT_IN), ...Object.values(packages)],
     reloadThemes: () => api.themes().then((r) => {
       const map = {}
       for (const pkg of r?.items || []) map[pkg.id] = fromPackage(pkg)

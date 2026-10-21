@@ -1641,7 +1641,6 @@ function Trackball({ target, t, off = false }) {
 export default {
   id: 'severed',
   name: 'Severed',
-  version: '1.0.0',
   thumbnail,
   description: 'A desk terminal for doing mysterious and important work. Soothing scanlines and a phosphor glow pour over your music library. '
     + 'Uniquely suited for macrodata refinement.',

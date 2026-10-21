@@ -66,7 +66,6 @@ function Shell() {
 export default {
   id: 'outrun',
   name: 'Outrun',
-  version: '1.0.0',
   thumbnail,
   description:
     'The desktop controller in the Outrun aesthetic: a synthwave sunset and grid '

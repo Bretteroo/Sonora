@@ -423,7 +423,6 @@ export function Shell() {
 export default {
   id: 'sonofuture',
   name: 'Sonofuture',
-  version: '1.0.0',
   thumbnail,
   description: 'The controller thought out again: a home view of every room with drag-to-group, a stage for what is playing, '
     + 'a library with search and a command palette, and settings arranged by task. Every capability of the desktop themes, on shorter paths, on any screen, '

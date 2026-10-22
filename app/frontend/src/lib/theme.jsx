@@ -1,6 +1,7 @@
 import React, {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react'
+import { flushSync } from 'react-dom'
 import { THEMES, DEFAULT_THEME } from '../../../themes/index.js'
 import { api } from './api.js'
 import { APP } from './meta.js'
@@ -29,6 +30,33 @@ const LANDING_KEY = 'sonora.themeLanding'
 // The themes that come with Sonora are as new as the Sonora serving them, so each
 // shows its version; a theme installed from a file keeps the version it carries.
 const BUILT_IN = Object.fromEntries(Object.entries(THEMES).map(([id, entry]) => [id, { ...entry, version: APP.version }]))
+
+// Puts a theme on as a cross-fade: the page as it was fades into the page in
+// the new theme. The browser photographs both (a view transition), so the
+// swap itself still happens in one render. Elements a theme names for its own
+// transitions (the lyrics art) are unnamed while it runs, or they would fly
+// from where one theme draws them to where the other does. Without view
+// transitions, or with reduced motion asked for, the change is immediate.
+export function fadeThemeChange(change) {
+  const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  if (!document.startViewTransition || still || document.visibilityState !== 'visible') { change(); return }
+  const root = document.documentElement
+  root.classList.add('theme-fading')
+  const done = () => root.classList.remove('theme-fading')
+  try {
+    const fade = document.startViewTransition(async () => {
+      flushSync(change)
+      // the new theme's fonts, before the browser takes the second picture;
+      // not for long, though: a font still on its way after a quarter of a
+      // second (one took ten in Firefox) loads in place after the fade
+      await Promise.race([document.fonts?.ready, new Promise((done) => setTimeout(done, 250))])
+    })
+    fade.finished.then(done, done)
+  } catch {
+    done()
+    change()
+  }
+}
 
 export const APPEARANCES = ['light', 'dark', 'system']
 

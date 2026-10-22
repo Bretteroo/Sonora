@@ -1055,3 +1055,13 @@
 /* The settings dropdown belongs to the narrow layout alone. */
 
 /* A person who asks for less motion gets the cut back. */
+
+/* Apply's cross-fade (fadeThemeChange in lib/theme.jsx): only the whole page
+   fades. Named elements are unnamed for the moment, so a theme's lyrics art
+   does not fly between where two themes draw it. */
+:root.theme-fading * { view-transition-name: none !important; }
+:root.theme-fading::view-transition-old(root),
+:root.theme-fading::view-transition-new(root) {
+  animation-duration: 340ms;
+  animation-timing-function: ease;
+}

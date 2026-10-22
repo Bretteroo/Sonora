@@ -1,7 +1,7 @@
 import './shared.css'
 import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { useI18n, LANGUAGES } from '../i18n/index.jsx'
-import { useTheme, APPEARANCES, appearancesOf, thumbnailFor } from '../lib/theme.jsx'
+import { useTheme, APPEARANCES, appearancesOf, thumbnailFor, fadeThemeChange } from '../lib/theme.jsx'
 import { api } from '../lib/api.js'
 import { DEFAULT_THEME } from '../../../themes/index.js'
 
@@ -168,10 +168,10 @@ export default function ThemeChooser({ classes = {}, title = null, Field = null,
               setting for whatever is worn next. */}
           <button type="button" className={`${c.primary} theme-apply`} data-default="true"
                   disabled={pending === themeId && (!hasBoth || pendingAppearance === appearance)}
-                  onClick={() => {
+                  onClick={() => fadeThemeChange(() => {
                     if (hasBoth && pendingAppearance !== appearance) setAppearance(pendingAppearance)
                     if (pending !== themeId) selectTheme(pending, { land: true })
-                  }}>{t('common.apply')}</button>
+                  })}>{t('common.apply')}</button>
         </div>
       </div>
       <div className={c.manage}>

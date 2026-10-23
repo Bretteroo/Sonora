@@ -464,6 +464,8 @@ def zones_from_players(players: Iterable[Player]) -> dict[str, Zone]:
     # not the name, decides where such a player belongs, and it is hidden.
     claimed_by: dict[str, Player] = {}
     for player in players:
+        if player.invisible:
+            continue  # a hidden unit's copy of the map must not claim its owner back
         for entry in (player.channel_map or "").split(";"):
             other = entry.split(":", 1)[0].strip()
             if other and other != player.uuid:

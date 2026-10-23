@@ -17,6 +17,19 @@ def test_settled_pair_is_one_room():
     assert [p.uuid for p in zones["RINCON_A1"].players] == ["RINCON_A1", "RINCON_B2"]
 
 
+def test_pair_whose_visible_unit_is_the_right_channel_keeps_it_visible():
+    # Both units carry the full channel map. The hidden one must not claim
+    # the visible one back, or both end up hidden and the left channel wins
+    # the tie, putting the room's commands on a unit that refuses them.
+    left = _player("RINCON_A1", "Office", invisible=True,
+                   channel_map="RINCON_B2:RF,RF;RINCON_A1:LF,LF")
+    right = _player("RINCON_B2", "Office",
+                    channel_map="RINCON_B2:RF,RF;RINCON_A1:LF,LF")
+    zones = zones_from_players([left, right])
+    assert list(zones) == ["RINCON_B2"]
+    assert zones["RINCON_B2"].primary.uuid == "RINCON_B2"
+
+
 def test_forming_pair_hides_the_claimed_unit_at_once():
     # Right after "Create stereo pair": the coordinator already names both
     # units in its channel map, the other still has its old room name and is

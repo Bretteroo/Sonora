@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.0.5
+
+### What’s new
+
+* More polish to theme switching.  Themes fade into each other and their preview screenshots do, too.
+* The built-in themes' version numbers now match the version of Sonora they came with.
+* Opening Music Library from the list of sources makes the search box switch to Music Library, just as opening a service already did.
+* Rating buttons for services like Pandora and AccuRadio now appear in the "This browser" room.
+* The upgrade advisor’s affiliate disclosure now says even more explicitly that its “Buy now” buttons are Amazon affiliate links.
+* Toasts don't pile up any more - a new one replaces the old.  Errors and warnings are still kept in the Log.
+
+### Fixes
+
+* Home Assistant: opening Sonora from the sidebar no longer fails with “Sonora does not answer to the name…” when Home Assistant is reached via domain name (#14).
+* Clicking a Music Library search result opens it, instead of returning to the list of sources (#16). Thanks to @prasta1 for reporting it and tracking down the cause.
+* Sonos Web on a phone: the Language and Theme lists in Settings fit inside their rows.
+* Sonofuture and Liquid Glass draw service rating icons at their proper shape.
+* General cleanups to the Severed theme.
+
 ## 1.0.4
 
 The big changes for 1.0.4:

@@ -116,11 +116,18 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
     const match = scopes.find((s) => s.id === playingSid && s.hh === activeHousehold) || scopes.find((s) => s.id === playingSid)
     if (match) setScope(match)
   }, [playingSid, activeZone?.uuid]) // eslint-disable-line react-hooks/exhaustive-deps
+  // The Music Library is entered the same way, though it is no service.
+  const atLibrary = !node.service && node.id === 'A:'
   useEffect(() => {
+    if (atLibrary) {
+      const match = scopes.find((s) => s.library && s.hh === node.hh)
+      if (match) setScope(match)
+      return
+    }
     if (!node.service) return
     const match = scopes.find((s) => s.id === node.service && String(s.account) === String(node.account ?? '') && s.hh === node.hh) || scopes.find((s) => s.id === node.service)
     if (match) setScope(match)
-  }, [node.service, node.account]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [node.service, node.account, atLibrary]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { onScopeChange?.(scope, scopes) }, [scope, scopes]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { setPickedCategory('') }, [scope?.key])
   useEffect(() => {
@@ -501,8 +508,13 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
                            onOpen={(item, from = scope) => {
                              if (isPlayableLeaf(item) || !item.is_container) return
                              setTerm('')
-                             setStack([ROOT, { id: `svc:${from.id}`, title: from.name, service: from.id, item: 'root', hzone: from.hzone, hh: from.hh, account: from.account, icon: from.icon, serviceName: from.name, gen: from.gen },
-                                       { id: item.id, title: item.title, service: from.id, item: item.id, hzone: from.hzone, hh: from.hh, account: from.account, gen: from.gen, icon: from.icon,
+                             // The library is no service (its scope carries 0): its result opens
+                             // under the library's own page, and neither claims a service id, or
+                             // the pane took them for a removed service and went back to the root.
+                             setStack([ROOT, from.library
+                               ? { id: 'A:', title: from.name, item: 'root', hzone: from.hzone, hh: from.hh, gen: from.gen, glyph: 'library', serviceName: from.name }
+                               : { id: `svc:${from.id}`, title: from.name, service: from.id, item: 'root', hzone: from.hzone, hh: from.hh, account: from.account, icon: from.icon, serviceName: from.name, gen: from.gen },
+                                       { id: item.id, title: item.title, service: from.library ? undefined : from.id, item: item.id, hzone: from.hzone, hh: from.hh, account: from.account, gen: from.gen, icon: from.icon,
                                          kind: item.item_type, displayType: item.display_type || '', uri: item.uri, metadata: item.metadata, art: item.art, artist: item.artist, serviceName: from.name }])
                            }}
                            onPlay={(item, from = scope) => act({ ...item, hzone: from.hzone, service: from.id, hh: from.hh }, 'now')}

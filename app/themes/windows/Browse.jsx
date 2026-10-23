@@ -503,7 +503,14 @@ export default function Browse({
   // Entering a service also makes it the scope, as the app's pill switches
   // when you click into a source. Whichever changed last, the source being
   // browsed or the service playing, is what the box searches.
+  // The Music Library is entered the same way, though it is no service.
+  const atLibrary = !node.service && node.id === 'A:'
   useEffect(() => {
+    if (atLibrary && onScope) {
+      const household = (households || []).find((h) => h.id === node.hh)
+      if (household && libraryByHh[household.id] !== false) onScope(libraryScope(household, node.hzone, t))
+      return
+    }
     if (!node.service || !onScope) return
     const match = (servicesByHh[node.hh] || []).find((svc) => svc.id === node.service
       && String(svc.account_id ?? '') === String(node.account ?? ''))
@@ -512,7 +519,7 @@ export default function Browse({
     onScope({ key: `${node.hh}:${node.service}:${node.account ?? ''}`, id: node.service, name: match.name,
               nickname: match.nickname || '', icon: match.icon, account: node.account ?? '',
               hh: node.hh, hzone: node.hzone, gen: node.gen })
-  }, [node.service, node.account])  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [node.service, node.account, atLibrary])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // A search: the term goes to the scoped service, category by category, a
   // moment after typing stops.
@@ -785,7 +792,9 @@ export default function Browse({
   const openResult = (item) => {
     if (!scope?.hzone || isPlayableLeaf(item) || !item.is_container) return
     onDone?.()
-    navigate([...stack, { id: item.id, title: item.title, service: scope.id, item: item.id,
+    // The library has no service id (its scope carries 0): a page that claimed
+    // one was taken for a removed service and sent back to the root.
+    navigate([...stack, { id: item.id, title: item.title, service: scope.library ? undefined : scope.id, item: item.id,
                           hzone: scope.hzone, hh: scope.hh, account: scope.account, gen: scope.gen,
                           icon: scope.icon, kind: item.item_type, displayType: item.display_type || '', canPlay: item.can_play,
                           uri: item.uri, metadata: item.metadata,

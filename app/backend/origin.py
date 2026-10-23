@@ -44,6 +44,11 @@ controls, which is a public one, and none of those are.
 
 Inside Home Assistant (backend/ingress.py) the page is Home Assistant's, so
 its ``Origin`` is compared with the host Home Assistant says the browser used.
+And the name is not checked there: Home Assistant passes on whatever name the
+browser reached it by, often a public one of the household's own (a reverse
+proxy, Home Assistant Cloud), and a rebinding page cannot come in that way,
+since ingress wants a signed-in Home Assistant session. Sonora's own port keeps
+the check.
 """
 from __future__ import annotations
 
@@ -168,10 +173,10 @@ async def guard(request: Request, call_next):
     """Refuse a request sent to a name that is not Sonora's, and a write that
     some other website asked the browser to make."""
     host = request.headers.get("host", "")
-    if not is_allowed_host(host):
+    client = ingress.client_host(request)
+    if not ingress.prefix(request.headers, client) and not is_allowed_host(host):
         return _refuse_host(host)
     origin = request.headers.get("origin", "")
-    client = ingress.client_host(request)
     if request.method not in READS and not is_same_origin(
             origin, ingress.browser_host(request.headers, client)):
         log.warning("refused a %s to %s from origin %s",
@@ -200,6 +205,6 @@ def websocket_allowed(websocket) -> bool:
     """
     host = websocket.headers.get("host", "")
     client = ingress.client_host(websocket)
-    return is_allowed_host(host) and is_same_origin(
+    return (bool(ingress.prefix(websocket.headers, client)) or is_allowed_host(host)) and is_same_origin(
         websocket.headers.get("origin", ""),
         ingress.browser_host(websocket.headers, client))

@@ -80,3 +80,34 @@ async def test_a_forwarded_host_from_anyone_else_proves_nothing(addon):
     assert await _post("192.168.1.50", {
         "host": "192.168.1.20:50205", "origin": "https://evil.example",
         "x-ingress-path": PATH, "x-forwarded-host": "evil.example"}) == 403
+
+
+#: Home Assistant reached by a public name of the household's own, which its
+#: proxy passes on as the Host (issue 14).
+PUBLIC = {"x-ingress-path": PATH, "x-forwarded-host": "ha.example.net", "host": "ha.example.net"}
+
+
+async def test_home_assistant_by_a_public_name_opens_the_page(addon):
+    assert await _post(SUPERVISOR, {**PUBLIC, "origin": "https://ha.example.net"}) == 200
+
+
+async def test_a_public_name_from_anyone_else_is_still_refused(addon):
+    """Sonora's own port keeps the name check: that is where a rebinding page
+    would come in."""
+    assert await _post("192.168.1.50", {**PUBLIC, "origin": "https://ha.example.net"}) == 403
+
+
+async def test_a_public_name_needs_the_addon(monkeypatch):
+    monkeypatch.delenv("SONORA_HA_INGRESS", raising=False)
+    assert await _post(SUPERVISOR, {**PUBLIC, "origin": "https://ha.example.net"}) == 403
+
+
+class _Socket:
+    def __init__(self, client, headers):
+        self.client = type("Client", (), {"host": client})()
+        self.headers = headers
+
+
+def test_the_websocket_opens_through_ingress_by_a_public_name(addon):
+    assert origin.websocket_allowed(_Socket(SUPERVISOR, {**PUBLIC, "origin": "https://ha.example.net"}))
+    assert not origin.websocket_allowed(_Socket("192.168.1.50", {**PUBLIC, "origin": "https://ha.example.net"}))

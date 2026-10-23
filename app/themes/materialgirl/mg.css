@@ -208,7 +208,9 @@
   /* Pages keep to the rail's side: centred, a page on a window wider than
      1440px floated with a wide empty band between it and the rail;
      the spare width now falls on the far side. */
-  & .mg-page { max-width: 1440px; margin: 0 auto 0 0; }
+  /* the full width up to the cap: Settings sits in a grid, where the auto margin alone shrank it
+     to whichever page it showed */
+  & .mg-page { width: 100%; max-width: 1440px; margin: 0 auto 0 0; }
   /* On a phone the system selector is the header row's trailing element: it stands at the far
      right of the page's title row, and the title stops short of it. The picker
      is 40 tall and centred on the 36px title line; inside a service, on the 64px crumb row. */

@@ -1282,7 +1282,8 @@
     & .sv-select:hover:not(:disabled) { background: var(--sv-ph-wash-strong); }
     & .sv-select:focus-visible, & .sv-select[data-open] { outline: 2px dashed var(--sv-ph); outline-offset: 3px; }
     & .sv-select:disabled { opacity: 0.4; border-style: dashed; cursor: default; }
-    & .sv-select-value { display: grid; min-width: 0; }
+    /* the value takes the room a wider box has, so the arrow stays at its end */
+    & .sv-select-value { display: grid; min-width: 0; flex: 1; }
     & .sv-select-value > * { grid-area: 1 / 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     & .sv-select-sizer { visibility: hidden; height: 0; }
 

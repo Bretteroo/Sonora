@@ -61,28 +61,39 @@ export default function ThemeChooser({ classes = {}, title = null, Field = null,
   // spacing and case, and the list's padding and arrow are added to it.
   const fitId = useId()
   useLayoutEffect(() => {
-    const box = document.querySelector(`[data-fit-list="${CSS.escape(fitId)}"]`)
-    if (!box) return
-    box.style.minWidth = ''
-    const text = box.querySelector('[class*="select-label"], [class*="select-value"]') || box
-    const style = window.getComputedStyle(text)
-    const canvas = document.createElement('canvas').getContext('2d')
-    if (!canvas) return
-    canvas.font = style.font || `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
-    const spacing = parseFloat(style.letterSpacing) || 0
-    const upper = style.textTransform === 'uppercase'
-    const widest = Math.max(0, ...themes.map((entry) => {
-      const name = upper ? String(entry.name || '').toUpperCase() : String(entry.name || '')
-      return canvas.measureText(name).width + spacing * name.length
-    }))
-    // What the list has beside its text: a custom list's padding and arrow
-    // around its label, or a native select's padding and its own arrow.
-    const boxStyle = window.getComputedStyle(box)
-    const chrome = text === box
-      ? (parseFloat(boxStyle.paddingLeft) || 0) + (parseFloat(boxStyle.paddingRight) || 0) + 28
-      : box.getBoundingClientRect().width - text.getBoundingClientRect().width
-    // never past its row, though: on a phone the longest name may not fit
-    box.style.minWidth = `min(${Math.ceil(widest + chrome + 2)}px, 100%)`
+    // Measured again once the theme's fonts have arrived: just after a theme
+    // is put on, its font may still be loading, and a name measured in the
+    // stand-in came out wider than the theme draws it.
+    let gone = false
+    const fit = () => {
+      if (gone) return
+      const box = document.querySelector(`[data-fit-list="${CSS.escape(fitId)}"]`)
+      if (!box) return
+      box.style.minWidth = ''
+      const text = box.querySelector('[class*="select-label"], [class*="select-value"]') || box
+      const style = window.getComputedStyle(text)
+      const canvas = document.createElement('canvas').getContext('2d')
+      if (!canvas) return
+      canvas.font = style.font || `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+      const spacing = parseFloat(style.letterSpacing) || 0
+      const upper = style.textTransform === 'uppercase'
+      const widest = Math.max(0, ...themes.map((entry) => {
+        const name = upper ? String(entry.name || '').toUpperCase() : String(entry.name || '')
+        return canvas.measureText(name).width + spacing * name.length
+      }))
+      // What the list has beside its text: a custom list's padding and arrow
+      // around its label, or a native select's padding and its own arrow.
+      const boxStyle = window.getComputedStyle(box)
+      const chrome = text === box
+        ? (parseFloat(boxStyle.paddingLeft) || 0) + (parseFloat(boxStyle.paddingRight) || 0) + 28
+        : box.getBoundingClientRect().width - text.getBoundingClientRect().width
+      // never past its row, though: on a phone the longest name may not fit
+      box.style.minWidth = `min(${Math.ceil(widest + chrome + 2)}px, 100%)`
+    }
+    fit()
+    document.fonts?.ready.then(fit)
+    document.fonts?.addEventListener?.('loadingdone', fit)
+    return () => { gone = true; document.fonts?.removeEventListener?.('loadingdone', fit) }
   }, [themes, language, fitId])
 
   const install = async (picked) => {

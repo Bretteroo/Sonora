@@ -1763,7 +1763,9 @@
   & .sv-theme-preview .theme-about p { margin: 0; }
   & .sv-theme-version { color: var(--sv-ph-dim); }
   & .sv-theme-version em { font-style: normal; }
-  & .sv-theme-manage { display: flex; gap: 10px; flex-wrap: wrap; }
+  /* the heading over its buttons, both at the left edge */
+  & .sv-theme-manage { display: grid; gap: 10px; justify-items: start; }
+  & .sv-theme-manage h4 { margin: 0; }
   /* The appearance choice the chooser brings, drawn as the console's own segmented control. */
   & .sv-setup-page .theme-pill {
     display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 0; border: 2px solid var(--sv-ph); border-radius: 0;

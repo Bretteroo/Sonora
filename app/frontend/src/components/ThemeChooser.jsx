@@ -56,6 +56,49 @@ export default function ThemeChooser({ classes = {}, title = null, Field = null,
   const variants = appearancesOf(chosen || theme)
   const hasBoth = variants.includes('light') && variants.includes('dark')
 
+  // A new still fades in over the old one rather than cutting to it. The old
+  // picture is copied in beside the new one, in the same place and wearing
+  // the same styles (it is the same kind of element in the same parent), and
+  // fades away once the new one has loaded. Out of the layout, so no theme's
+  // arrangement of the preview has to know.
+  const shotRef = useRef(null)
+  const lastShot = useRef(shot)
+  useLayoutEffect(() => {
+    const before = lastShot.current
+    lastShot.current = shot
+    const img = shotRef.current
+    const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    if (!img || !before || !shot || before === shot || still || !img.offsetParent) return undefined
+    const ghost = img.cloneNode()
+    ghost.removeAttribute('alt')
+    ghost.setAttribute('aria-hidden', 'true')
+    ghost.src = before
+    Object.assign(ghost.style, {
+      position: 'absolute', margin: '0', pointerEvents: 'none',
+      left: `${img.offsetLeft}px`, top: `${img.offsetTop}px`,
+      width: `${img.offsetWidth}px`, height: `${img.offsetHeight}px`,
+    })
+    img.after(ghost)
+    // offsets come in whole pixels; the still may sit between two
+    const r = img.getBoundingClientRect(), g = ghost.getBoundingClientRect()
+    ghost.style.left = `${img.offsetLeft + r.left - g.left}px`
+    ghost.style.top = `${img.offsetTop + r.top - g.top}px`
+    let gone = false
+    const fade = () => {
+      if (gone) return
+      gone = true
+      const run = ghost.animate?.([{ opacity: 1 }, { opacity: 0 }], { duration: 280, easing: 'ease' })
+      if (run) run.finished.then(() => ghost.remove(), () => ghost.remove())
+      else ghost.remove()
+    }
+    if (img.complete && img.naturalWidth) fade()
+    else {
+      img.addEventListener('load', fade, { once: true })
+      img.addEventListener('error', fade, { once: true })
+    }
+    return () => { gone = true; ghost.remove() }
+  }, [shot])
+
   // The theme list is as wide as its longest name, in every theme: each one
   // draws its own list, so the name is measured in the list's own font,
   // spacing and case, and the list's padding and arrow are added to it.
@@ -164,7 +207,7 @@ export default function ThemeChooser({ classes = {}, title = null, Field = null,
       )}
       <div className={c.preview}>
         {shot
-          ? <img src={shot} alt={t('desk.prefs.themeShot', { theme: chosen?.name || pending })} width={320} height={200} />
+          ? <img ref={shotRef} src={shot} alt={t('desk.prefs.themeShot', { theme: chosen?.name || pending })} width={320} height={200} />
           : <span className={c.noshot}>{t('desk.prefs.themeNoShot')}</span>}
         <div className="theme-about">
           <p className={c.version}>

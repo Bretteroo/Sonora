@@ -1521,3 +1521,24 @@
 :where(:root[data-theme='macos']) .dk-prefs-jump { display: none; }
 
 /* A person who asks for less motion gets the cut back. */
+
+/* --- opening and closing ---------------------------------------------------- */
+
+/* A window fades in as it opens, as Windows and the Mac draw a new one. */
+:where(:root[data-theme='macos']) .dk-modal-backdrop { animation: dk-window-in--macos 200ms ease-out; }
+@keyframes dk-window-in--macos { from { opacity: 0; } }
+
+/* The sleep timer and group volume popovers grow in from 70% as they fade in,
+   over 150ms (sleeptimerpopover.xaml, groupvolumepopover.xaml): the sleep
+   timer from its foot, where its beak points at the button, and group volume
+   from its head. */
+:where(:root[data-theme='macos']) .dk-sleep-window { animation: dk-popover-in--macos 150ms linear; transform-origin: 50% 100%; }
+:where(:root[data-theme='macos']) .dk-group-volume { animation: dk-popover-in--macos 150ms linear; transform-origin: 50% 0; }
+@keyframes dk-popover-in--macos { from { opacity: 0; scale: 0.7; } }
+
+/* A window that has closed fades out over 200ms, as the app's popovers do
+   (BounceOut); what fades is a lifeless copy of it (Window in Dialogs.jsx),
+   drawn as it was, so nothing in it plays its opening again. */
+:where(:root[data-theme='macos']) .dk-modal-backdrop.dk-modal-ghost { animation: dk-window-out--macos 200ms linear forwards; pointer-events: none; }
+:where(:root[data-theme='macos']) .dk-modal-ghost * { animation: none; }
+@keyframes dk-window-out--macos { to { opacity: 0; } }

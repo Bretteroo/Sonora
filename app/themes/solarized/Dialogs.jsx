@@ -3,7 +3,7 @@ import { useLibrarySettings } from '../../frontend/src/lib/useLibrarySettings.js
 import { readLibraryPrefs, writeLibraryPrefs, FOLDER_SORTS } from '../../frontend/src/lib/libraryPrefs.js'
 import ThemeChooser from '../../frontend/src/components/ThemeChooser.jsx'
 import SonosAccount from '../../frontend/src/components/SonosAccount.jsx'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useHeld } from '../../frontend/src/lib/useHeld.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useTheme } from '../../frontend/src/lib/theme.jsx'
@@ -82,10 +82,32 @@ function useTitleDrag() {
   return { onPointerDown }
 }
 
+// A window fades out as it closes, as Windows and the Mac draw it, however it
+// is closed: its own buttons, Escape, a click outside, or the view behind it
+// going away. As it is removed a lifeless copy is left in its place to fade
+// (dialogs.css), so nothing that closes one has to wait for it.
+function fadeOutCopy(node) {
+  if (!node?.parentNode) return
+  const copy = node.cloneNode(true)
+  copy.classList.add('dk-modal-ghost')
+  copy.setAttribute('aria-hidden', 'true')
+  copy.inert = true
+  node.parentNode.insertBefore(copy, node.nextSibling)
+  const from = node.querySelectorAll('*')
+  copy.querySelectorAll('*').forEach((el, i) => {
+    if (from[i].scrollTop || from[i].scrollLeft) { el.scrollTop = from[i].scrollTop; el.scrollLeft = from[i].scrollLeft }
+  })
+  const gone = () => copy.remove()
+  copy.addEventListener('animationend', gone)
+  setTimeout(gone, 400)
+}
+
 export function Window({ title, onClose, className, style, children }) {
   // The app icon in the title bar is a Windows convention; the Mac chrome
   // hides it (desktop.css) and the Windows theme shows it.
   const drag = useTitleDrag()
+  const backdrop = useRef(null)
+  useLayoutEffect(() => () => fadeOutCopy(backdrop.current), [])
   useEffect(() => {
     const key = (event) => { if (event.key === 'Escape') onClose() }
     document.addEventListener('keydown', key)
@@ -93,7 +115,7 @@ export function Window({ title, onClose, className, style, children }) {
   }, [onClose])
   const { t } = useI18n()
   return (
-    <div className="dk-modal-backdrop" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
+    <div className="dk-modal-backdrop" ref={backdrop} onPointerDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className={`dk-window ${className || ''}`} role="dialog" aria-label={title} style={style}>
         <div className="dk-window-title" onPointerDown={drag.onPointerDown}>
           <img className="dk-window-icon" src={appIcon} alt="" />

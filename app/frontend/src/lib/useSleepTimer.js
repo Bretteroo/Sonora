@@ -20,6 +20,37 @@ function announce(zoneUuid, minutes) {
   pressed.dispatchEvent(Object.assign(new Event('press'), { zoneUuid, minutes }))
 }
 
+// The last reading of each room's timer, shared by every hook on the page.
+// Each hook reads the speaker on its own schedule, so with a reading each the
+// popover's title and the button under it could stand a minute apart. Between
+// readings the time left is counted down from the last one, as the apps do.
+const readings = new Map()
+const readingChanged = new EventTarget()
+function record(zoneUuid, remaining) {
+  readings.set(zoneUuid, { seconds: durationSeconds(remaining), at: Date.now() })
+  readingChanged.dispatchEvent(Object.assign(new Event('reading'), { zoneUuid }))
+}
+function secondsLeft(zoneUuid) {
+  const reading = readings.get(zoneUuid)
+  if (!reading?.seconds) return 0
+  return Math.max(0, reading.seconds - Math.floor((Date.now() - reading.at) / 1000))
+}
+function asDuration(seconds) {
+  if (!seconds) return ''
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${Math.floor(seconds / 3600)}:${pad(Math.floor((seconds % 3600) / 60))}:${pad(seconds % 60)}`
+}
+
+// What is left on a timer as the desktop apps print it, in the popover's
+// title and on the Sleep Timer button: hours and minutes ("0:28"), no
+// seconds. The apps round the minutes up, so a running timer never reads 0:00
+// (SleepTimerViewModel).
+export function sleepClock(remaining) {
+  const seconds = durationSeconds(remaining)
+  const minutes = Math.max(seconds > 0 ? 1 : 0, Math.ceil(seconds / 60))
+  return `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`
+}
+
 export function minutesToDuration(minutes) {
   return `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}:00`
 }
@@ -33,18 +64,33 @@ export function minutesToDuration(minutes) {
 // sibling below, reading the same broadcast, was current.
 export function useSleepTimer(zoneUuid) {
   const { actions, sleepEpoch } = useSystem()
-  const [remaining, setRemaining] = useState('')
+  const [, setVersion] = useState(0)
+  const redraw = useCallback(() => setVersion((v) => v + 1), [])
+  const left = secondsLeft(zoneUuid)
+  const remaining = asDuration(left)
+  const setRemaining = useCallback((value) => { if (zoneUuid) record(zoneUuid, value) }, [zoneUuid])
+  useEffect(() => {
+    const hear = (e) => { if (e.zoneUuid === zoneUuid) redraw() }
+    readingChanged.addEventListener('reading', hear)
+    return () => readingChanged.removeEventListener('reading', hear)
+  }, [zoneUuid, redraw])
+  // Drawn again as each minute runs out, when the rounded-up minutes change.
+  useEffect(() => {
+    if (!left) return undefined
+    const id = setTimeout(redraw, ((left % 60) || 60) * 1000 + 50)
+    return () => clearTimeout(id)
+  }, [left, redraw])
   const load = useCallback(() => {
     if (!zoneUuid) return
     api.sleepTimer(zoneUuid).then((r) => setRemaining(r.remaining || '')).catch(() => {})
-  }, [zoneUuid])
-  useEffect(() => { setRemaining(''); load() }, [load])
+  }, [zoneUuid, setRemaining])
+  useEffect(() => { load() }, [load])
   useEffect(() => { load() }, [sleepEpoch]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const hear = (e) => { if (e.zoneUuid === zoneUuid) setRemaining(e.minutes ? minutesToDuration(e.minutes) : '') }
     pressed.addEventListener('press', hear)
     return () => pressed.removeEventListener('press', hear)
-  }, [zoneUuid])
+  }, [zoneUuid, setRemaining])
   useEffect(() => {
     if (!remaining) return undefined
     const id = setInterval(load, 30000)
@@ -59,7 +105,7 @@ export function useSleepTimer(zoneUuid) {
     const r = await actions.setSleepTimer(zoneUuid, minutes ? minutesToDuration(minutes) : null)
     if (r) setRemaining(r.remaining || '')
     else load()
-  }, [zoneUuid, actions, load])
+  }, [zoneUuid, actions, load, setRemaining])
   return { remaining, set, refresh: load }
 }
 

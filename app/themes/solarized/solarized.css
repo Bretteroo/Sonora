@@ -166,8 +166,11 @@
 .sz-root.win-root .dk-sleep-window::after { border-top-color: var(--sz-ground); }
 .sz-root.win-root .dk-sleep-window .dk-sleep, .sz-root.win-root .dk-sleep-window .dk-sleep-title, .sz-root.win-root .dk-sleep-window .dk-sleep-choose { color: var(--sz-strong); }
 .sz-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn { background: var(--sz-btn); color: var(--sz-btn-fg); border-color: var(--sz-rule); }
-.sz-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover { background: var(--sz-btn-hover); color: #268bd2; }
-.sz-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: #268bd2; color: #fdf6e3; border-color: #268bd2; }
+/* The rows do not answer hover (the theme's own button look), and the lit
+   row is the keyboard's, so no focus ring either. */
+.sz-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover { background: var(--sz-btn); color: var(--sz-btn-fg); border-color: var(--sz-rule); }
+.sz-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:focus-visible { outline: none; }
+.sz-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[data-current] { background: #268bd2; color: #fdf6e3; border-color: #268bd2; }
 .sz-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn::before { background: #268bd2; }
 
 /* The Windows skin names its own ink on headings, labels and prose with longer selectors; these

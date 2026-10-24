@@ -12,7 +12,7 @@ import { api, ApiError } from '../../frontend/src/lib/api.js'
 import { useRemoveChoice } from '../../frontend/src/lib/useRemoveChoice.js'
 import { serviceLinkedMessage, LinkedMessage } from '../../frontend/src/lib/serviceLinkedMessage.js'
 import { zoneLabel } from '../../frontend/src/lib/timezones.js'
-import { useSleepTimer, SLEEP_CHOICES, sleepLabel } from '../../frontend/src/lib/useSleepTimer.js'
+import { useSleepTimer, SLEEP_CHOICES, sleepLabel, sleepClock } from '../../frontend/src/lib/useSleepTimer.js'
 import { useAlarms, recurrenceKey, recurrenceDays } from '../../frontend/src/lib/useAlarms.js'
 import AlarmEditorPanel from '../../frontend/src/components/AlarmEditorPanel.jsx'
 import TimeField from '../../frontend/src/components/TimeField.jsx'
@@ -1885,9 +1885,31 @@ function centeredOver(anchor, width = 250, margin = 6) {
            '--caret-x': `${Math.round(middle - left)}px` }
 }
 
+// The popover over the Sleep Timer button (sleeptimerpopover.xaml). Its list
+// has no hover state: one row is lit, the one with the keyboard, and that is
+// Off when it opens, whether or not a timer is running. The arrow keys move
+// it. It grows in from 70% as it fades in, and a choice closes it.
+
 export function SleepTimer({ zone, onClose, anchor = null, groupLabel = '', placement = 'center', chooseKey = 'win.sleep.choose' }) {
   const { t } = useI18n()
   const { remaining, set } = useSleepTimer(zone?.uuid)
+  const [current, setCurrent] = useState(0)
+  const rows = useRef([])
+  useEffect(() => {
+    if (anchor) rows.current[0]?.focus({ preventScroll: true })
+  }, [anchor])
+  // The centered dialog keeps its Done button; only the popover closes on a choice.
+  const choose = (minutes) => { set(minutes); if (anchor) onClose() }
+  const choices = [null, ...SLEEP_CHOICES]
+  const onKeyDown = (event) => {
+    const step = { ArrowDown: 1, ArrowUp: -1 }[event.key]
+    const to = event.key === 'Home' ? 0 : event.key === 'End' ? choices.length - 1
+      : step ? Math.max(0, Math.min(choices.length - 1, current + step)) : null
+    if (to === null) return
+    event.preventDefault()
+    setCurrent(to)
+    rows.current[to]?.focus({ preventScroll: true })
+  }
   const at = anchor && (placement === 'left'
     ? { position: 'fixed', left: Math.round(anchor.x), bottom: Math.round(window.innerHeight - anchor.y) }
     : centeredOver(anchor))
@@ -1897,7 +1919,7 @@ export function SleepTimer({ zone, onClose, anchor = null, groupLabel = '', plac
       <div className="dk-sleep">
         {anchor && (
           <>
-            <h4 className="dk-sleep-title">{t('win.sleep.title', { state: remaining ? remaining.replace(/^0:/, '') : t('desk.sleep.off') })}</h4>
+            <h4 className="dk-sleep-title">{t('win.sleep.title', { state: remaining ? sleepClock(remaining) : t('desk.sleep.off') })}</h4>
             {/* The app names the whole group here ("<room> + 1"),
                 not just the room the timer is set through. */}
             <p className="dk-sleep-choose">{t(chooseKey, { room: groupLabel || zone?.name || '' })}</p>
@@ -1906,12 +1928,15 @@ export function SleepTimer({ zone, onClose, anchor = null, groupLabel = '', plac
         
         <p>{remaining ? t('desk.sleep.remaining', { time: remaining.replace(/^0:/, '') })
                       : t('desk.sleep.none')}</p>
-        <div className="dk-sleep-choices">
-          <button type="button" className="dk-win-btn" aria-pressed={!remaining}
-                  onClick={() => set(null)}>{t('desk.sleep.off')}</button>
-          {SLEEP_CHOICES.map((m) => (
-            <button key={m} type="button" className="dk-win-btn" onClick={() => set(m)}>
-              {sleepLabel(t, m)}
+        <div className="dk-sleep-choices" onKeyDown={anchor ? onKeyDown : undefined}>
+          {choices.map((m, i) => (
+            <button key={m ?? 'off'} type="button" className="dk-win-btn"
+                    ref={(el) => { rows.current[i] = el }}
+                    aria-pressed={anchor ? undefined : (m === null ? !remaining : undefined)}
+                    data-current={anchor && i === current ? true : undefined}
+                    onFocus={anchor ? () => setCurrent(i) : undefined}
+                    onClick={() => choose(m)}>
+              {m === null ? t('desk.sleep.off') : sleepLabel(t, m)}
             </button>
           ))}
         </div>

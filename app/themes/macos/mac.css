@@ -600,8 +600,11 @@
   display: block; width: 100%; height: 32px; min-width: 0; padding: 0 21px; border: 0; border-top: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0; background: transparent; box-shadow: none; color: #ffffff; font-size: 13px; font-weight: 700; line-height: 32px; text-align: left;
 }
-.mac-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); }
-.mac-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: transparent; }
+/* No hover: the lit row is the keyboard's, Off when the popover opens. */
+.mac-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover:not(:disabled) { background: transparent; }
+.mac-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[data-current],
+.mac-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[data-current]:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); }
+.mac-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:focus { outline: none; }
 
 /* About My Sonos System: the app's 450px window. */
 .mac-root .dk-about-window .dk-window-body { display: block; }

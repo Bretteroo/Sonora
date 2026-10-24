@@ -321,8 +321,11 @@
 .co-root .dk-sleep-window { background: var(--co-glass); color: #e9f3f6; border: 1px solid var(--t-reveal-deep); box-shadow: var(--t-shadow); }
 .co-root .dk-sleep-window::after { border-top-color: #082e3f; }
 .co-root .dk-sleep-window .dk-sleep-choices .dk-win-btn::before { background: rgba(201, 209, 210, 0.22); }
-.co-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover,
-.co-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: rgba(255, 255, 255, 0.12); }
+/* The rows do not answer hover (the theme's own button look); the lit row
+   is the keyboard's, Off when the popover opens. */
+.co-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover:not(:disabled) { background: transparent; border-color: transparent; }
+.co-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[data-current],
+.co-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[data-current]:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); }
 .co-root .win-mini-panel { background: var(--co-glass); border-color: var(--t-reveal-deep); }
 .co-root.win-mini-root { background: var(--t-glass-deep); }
 

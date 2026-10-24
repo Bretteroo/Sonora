@@ -244,8 +244,10 @@
 .hd-root.win-root .win-settings .dk-tabs button[aria-selected='true'] { background: #000000; color: #ffffff; }
 .hd-root.win-root :is(.win-lib-table, .win-shortcuts-table, .win-alarms-table) { border-color: #000000; }
 .hd-root.win-root :is(.win-lib-table, .win-shortcuts-table, .win-alarms-table) :is(th, td, [class*='head'] span) { border-color: #808080; }
-.hd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover { background: #cc0000; }
-.hd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: #000000; color: #ffffff; }
+/* The rows answer neither hover nor press (the theme's own button looks). */
+.hd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover,
+.hd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:active { background: transparent; border-color: transparent; box-shadow: none; }
+.hd-root.win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[data-current] { background: #000000; color: #ffffff; }
 .hd-root.win-root .win-message, .hd-root.win-root .win-message .dk-window-body,
 .hd-root.win-root .win-message-body, .hd-root.win-root .win-message-foot { background: #ff0000; color: #ffffff; }
 .hd-root.win-root .win-message :is(.win-message-heading, .win-message-line, .win-message-choices .dk-check) { color: #ffffff; }

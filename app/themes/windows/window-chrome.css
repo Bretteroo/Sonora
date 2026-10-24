@@ -845,8 +845,9 @@
 }
 /* The lines run between the choices only; none sits above the first. */
 :where(:root[data-theme='windows']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:first-child::before { content: none; }
-:where(:root[data-theme='windows']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover { background: #333333; }
-:where(:root[data-theme='windows']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: #333333; }
+/* No hover: the lit row is the keyboard's, Off when the popover opens. */
+:where(:root[data-theme='windows']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[data-current] { background: #333333; }
+:where(:root[data-theme='windows']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:focus { outline: none; }
 :where(:root[data-theme='windows']) .win-root .dk-sleep-window .dk-add-actions { display: none; }
 
 /* Inside a service the header carries its logo before the name. */

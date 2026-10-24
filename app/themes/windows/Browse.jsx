@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { SONOS_RADIO } from '../../frontend/src/lib/sonosServices.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
+import { useSleepTimer, sleepClock } from '../../frontend/src/lib/useSleepTimer.js'
 import { useMyRadioStations } from '../../frontend/src/lib/myRadio.js'
 import { api } from '../../frontend/src/lib/api.js'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
@@ -45,6 +46,9 @@ export default function Browse({
   // A theme may hand over its own drawings of the shared glyphs.
   const G = icons ? { ...Icon, ...icons } : Icon
   const { t } = useI18n()
+  // A running sleep timer counts down on its button, as in the apps.
+  const { remaining: sleepLeft } = useSleepTimer(activeZone?.uuid)
+  const sleepTitle = sleepLeft ? t('win.sleep.title', { state: sleepClock(sleepLeft) }) : t('desk.browse.sleepTimer')
   const [stack, setStack] = useState([ROOT])
   // The app keeps the row you browsed into painted like a hovered row once you
   // come back to the list (its keyboard selection); so does Sonora.
@@ -1497,7 +1501,7 @@ export default function Browse({
                  onConfirm={() => { const ask = replaceAsk; setReplaceAsk(null); playAlbum(ask.shuffle, true) }} />
       )}
       <div className="dk-footer">
-        <button type="button" disabled={!activeZone} onClick={(event) => onSleepTimer?.(event.currentTarget.getBoundingClientRect())}>{t('desk.browse.sleepTimer')}</button>
+        <button type="button" disabled={!activeZone} onClick={(event) => onSleepTimer?.(event.currentTarget.getBoundingClientRect())}>{sleepTitle}</button>
         <button type="button" disabled={!activeZone} onClick={() => onAlarms?.()}>{t('desk.browse.alarms')}</button>
       </div>
 

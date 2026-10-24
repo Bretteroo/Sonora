@@ -1079,3 +1079,9 @@
 /* The words a search matched, in the grid's cyan: the Windows build's pale blue and
    white are made for its dark panes. */
 .or-root.win-root .dk-browse-title em, .or-root.win-root .dk-search-results .dk-browse-sub em { color: var(--t-cyan); }
+
+/* The sleep timer's rows do not answer hover (the theme's own button glow);
+   the lit row is the keyboard's. */
+.or-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover:not(:disabled) { background: transparent; box-shadow: none; }
+.or-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[data-current],
+.or-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[data-current]:hover:not(:disabled) { background: #333333; }

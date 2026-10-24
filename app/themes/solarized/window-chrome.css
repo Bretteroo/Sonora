@@ -843,6 +843,8 @@
 :where(:root[data-theme='solarized']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn::before {
   content: ''; position: absolute; left: 9px; right: 9px; top: 0; height: 1px; background: #1a1a1a;
 }
+/* The lines run between the choices only; none sits above the first. */
+:where(:root[data-theme='solarized']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:first-child::before { content: none; }
 :where(:root[data-theme='solarized']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover { background: #333333; }
 :where(:root[data-theme='solarized']) .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[aria-pressed='true'] { background: #333333; }
 :where(:root[data-theme='solarized']) .win-root .dk-sleep-window .dk-add-actions { display: none; }

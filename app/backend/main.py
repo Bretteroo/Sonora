@@ -86,6 +86,7 @@ async def lifespan(app: FastAPI):
         outward=outward,
     )
 
+    controller.podcast_show = _podcast_show
     controller.dropouts.log.path = settings.data_dir / "dropouts.json"
     controller.dropouts.log.load()
     state["session"] = session
@@ -943,6 +944,13 @@ async def playing_item_metadata(uuid: str) -> dict:
     account = smapi_account_serial(transport.track_uri or "")
     reported = ctl.zones[uuid].transport.rating if uuid in ctl.zones else 0
     return await _provider_item(ctl, household, service, sid, item_id, account, reported, uuid)
+
+
+async def _podcast_show(uuid: str) -> str:
+    """The show of the podcast episode a room plays, from the service, for the
+    compact lines that name it (SonosController.podcast_show)."""
+    item = await playing_item_metadata(uuid)
+    return item.get("podcast") or item.get("artist") or ""
 
 
 async def _provider_item(ctl, household, service, sid: int, item_id: str, account: str,

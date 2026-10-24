@@ -57,6 +57,19 @@ from .soap import _PLAYER_TLS, SoapClient, SoapFault
 
 log = logging.getLogger(__name__)
 
+#: Who a service's track is by, where the speaker does not say: a podcast
+#: episode's show, by the track that plays it. The speaker reports a Pocket
+#: Casts episode with an empty dc:creator, and while it plays even its class is
+#: plain object.item, while the apps' compact lines name the show under it: the
+#: Windows app's mini player reads "How surveillance crept up on us" over
+#: "Planet Money". Only the service knows, so it is asked once per track
+#: (SonosController.podcast_show) and the answer kept here, where every reading
+#: of the track's metadata takes it as the artist.
+PODCAST_SHOWS: dict[str, str] = {}
+_PODCAST_SHOWS_KEPT = 500
+#: Where a room plays a service's own track from.
+_SERVICE_TRACK_SOURCES = ("queue", "service_track", "service_container")
+
 #: How long a service that faulted on a station's art is left alone.
 ART_FAULT_QUIET_S = 6 * 3600.0
 
@@ -439,6 +452,10 @@ class SonosController:
         #: Speakers emit overlapping events from several services at once, so
         #: a naive fan-out sends identical state three times per volume nudge.
         self._last_sent: dict[str, dict] = {}
+        #: Asks the service for the show of the podcast episode a room plays
+        #: (set by the app, which has the service lookup); see PODCAST_SHOWS.
+        self.podcast_show: Callable[[str], Awaitable[str]] | None = None
+        self._podcast_asked: set[str] = set()
         self._topology_lock = asyncio.Lock()
         self._retopology: asyncio.Task | None = None
         #: Set when topology events arrive during a refresh; see
@@ -1197,6 +1214,8 @@ class SonosController:
         transport.rating = {"THUMBSUP": 1, "THUMBSDOWN": 2}.get(item.rating.upper(), 0)
         transport.item_id = item.tiid
         transport.track_kind = item.kind
+        if not transport.artist:
+            transport.artist = PODCAST_SHOWS.get(transport.track_uri, "")
         transport.narrator = item.narrator
         transport.book = item.book
 
@@ -2238,6 +2257,39 @@ class SonosController:
         state.ht_input, state.ht_signal = status.input, status.signal
         await self._publish_zone(state)
 
+    def _want_podcast_show(self, state: ZoneState) -> None:
+        """Ask the service, once per track, for the show of a service track
+        the speaker reports with no artist (a podcast episode, which it does not
+        always even class as one); the answer lands in PODCAST_SHOWS and the
+        room is published again with it."""
+        tr = state.transport
+        uri = tr.track_uri or ""
+        service_track = tr.track_kind == "podcast" or (tr.service_id and tr.source in _SERVICE_TRACK_SOURCES)
+        if (getattr(self, "podcast_show", None) is None or not service_track or tr.artist or not uri
+                or uri in PODCAST_SHOWS or uri in self._podcast_asked):
+            return
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return  # no loop to ask on; the next update asks
+        self._podcast_asked.add(uri)
+
+        async def ask() -> None:
+            try:
+                show = await self.podcast_show(state.uuid)
+            except Exception as exc:  # noqa: BLE001 -- the show is a nicety
+                log.info("no podcast show for %s: %s", uri[:80], exc)
+                show = ""
+            if len(PODCAST_SHOWS) >= _PODCAST_SHOWS_KEPT:
+                PODCAST_SHOWS.pop(next(iter(PODCAST_SHOWS)))
+            PODCAST_SHOWS[uri] = show
+            self._podcast_asked.discard(uri)
+            if show and state.transport.track_uri == uri and not state.transport.artist:
+                state.transport.artist = show
+                await self._publish_zone(state)
+
+        loop.create_task(ask())
+
     async def _publish_zone(self, state: ZoneState) -> None:
         """Send a zone update only when it differs from what clients hold."""
         payload = self._zone_payload(state)
@@ -2395,6 +2447,9 @@ class SonosController:
         phone pressed Crossfade on a room grouped under one playing a Sonos
         Radio station, and the coordinator refused it. Its flags are the
         coordinator's."""
+        # whatever shows the room, a published update or a snapshot, asks for
+        # a show the speaker does not name
+        self._want_podcast_show(state)
         payload = state.as_dict(self._service_names)
         if not state.is_coordinator:
             lead = self.coordinator_of(state.uuid)

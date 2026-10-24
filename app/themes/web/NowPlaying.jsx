@@ -7,12 +7,13 @@ import * as Icon from '../../frontend/src/components/Icons.jsx'
 import Art, { nowPlayingArt } from './Art.jsx'
 import { useTint } from './tint.js'
 import Slider from './Slider.jsx'
-import { broadcastLines, heldStation, heldStationLines, isStation, restingSecondary, useTransport } from './useTransport.js'
+import { broadcastLines, heldStation, heldStationLines, isBroadcast, isStation, restingSecondary, useTransport } from './useTransport.js'
 import { anchorAbove } from './menus.js'
 import PlayerMenu, { hasPlayerMenu } from './PlayerMenu.jsx'
 import { LyricsGlyph, NpPause, NpPlay, NpRepeat, NpRepeatOne, NpShuffle, NpStop, NpVolume, NpVolumeMute, SpeakerOutline, StationGlyph } from './icons.jsx'
 import Lyrics from './Lyrics.jsx'
 import { lyricsSong, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
+import { useProviderItem } from '../../frontend/src/lib/useProviderItem.js'
 
 // Now Playing, as the product opens it from the artwork in the bottom-left:
 // a card that takes the browse column's place while "Your System" stays put
@@ -24,6 +25,15 @@ import { lyricsSong, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
 // a step in the browse history. Measured on play.sonos.com at 1440x900 on
 // 2026-09-14: card at 16,76 with 24px corners and padding, art 342px a further
 // 24 in and 40 down, discs 64 (play 80) 52 apart, pill 56 tall.
+// A podcast's release date as the reader writes dates: the service sends
+// 2026-10-23T21:00:00.000Z, and the day it names is the one to print.
+function releaseDate(value) {
+  const parts = /^(\d{4})-(\d{2})-(\d{2})/.exec(value || '')
+  if (!parts || parts[1] === '0001') return ''
+  const when = new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]))
+  return Number.isNaN(when.getTime()) ? '' : when.toLocaleDateString(undefined, { dateStyle: 'medium' })
+}
+
 export default function NowPlaying({ zone, label = '', grouping = false, onClose, onQueue, onRooms, onSearch, onRoomSound }) {
   const { actions } = useSystem()
   const { t } = useI18n()
@@ -39,6 +49,10 @@ export default function NowPlaying({ zone, label = '', grouping = false, onClose
   const more = useRef(null)
   // The lyrics take the art's place while they are open (Lyrics.jsx).
   const [lyricsOpen, toggleLyrics] = useLyricsOpen()
+  // What the service says the item is: a podcast episode's show and release
+  // date, an audiobook's author, narrator and book, which the speaker does not
+  // report and the official apps print.
+  const { provider } = useProviderItem(zone, transport)
   // The controls a service declares for the playing item are not drawn here:
   // the product keeps them in the bar along the bottom, and this card's foot
   // holds the queue, the room and the options disc alone (2026-09-15).
@@ -68,9 +82,22 @@ export default function NowPlaying({ zone, label = '', grouping = false, onClose
   const lines = broadcastLines(transport, t) || (held ? { title: held, sub: '' } : null)
   // An empty room says so under its title, as the product's big player does:
   // "No Music Selected" over "Queue is empty" (2026-09-24).
-  const sub = lines ? lines.sub
+  const episode = Boolean(provider && /^episode\./.test(provider.semantic_type || ''))
+  const audiobook = !episode && transport.source !== 'queue' && Boolean(provider?.author || provider?.narrator
+    || transport.narrator || transport.track_kind === 'audiobook')
+  const sub = episode ? (provider.podcast || provider.artist || '')
+    : audiobook ? (provider?.author || transport.artist || '')
+    : lines ? lines.sub
     : transport.artist || restingSecondary(transport, now)
       || (loaded ? '' : t('common.queueIsEmpty'))
+  // The rest of what the official apps print for the source, under the two
+  // lines this card shares with the product: a podcast's release date, an
+  // audiobook's narrator and book, the show a broadcast has on.
+  const details = (episode ? [[t('desk.now.releaseDate'), releaseDate(provider.release_date)]]
+    : audiobook ? [[t('desk.now.narrator'), provider?.narrator || transport.narrator || ''],
+                   [t('desk.now.book'), provider?.book || transport.book || transport.container_title || '']]
+    : isBroadcast(transport) ? [[t('desk.now.onNow'), transport.stream_show || '']]
+    : []).filter(([, value]) => value)
   // The options disc is there whatever the room holds, a stopped station with
   // no track and an empty room included: the product's foot under a stopped
   // Chill, a stopped 1010 WINS and an empty room carries it, the last
@@ -133,6 +160,13 @@ export default function NowPlaying({ zone, label = '', grouping = false, onClose
               )}
             </h1>
             {sub && <h2 className="wb-np-sub"><MarqueeText>{sub}</MarqueeText></h2>}
+            {details.length > 0 && (
+              <dl className="wb-np-details">
+                {details.map(([caption, value]) => (
+                  <div key={caption}><dt>{caption}</dt><dd><MarqueeText>{value}</MarqueeText></dd></div>
+                ))}
+              </dl>
+            )}
             {/* The service's wordmark under the artist, in its own type,
                 which is what the product prints there ("pandora" beneath
                 Paul Desmond). A service that publishes none shows its name

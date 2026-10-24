@@ -10,7 +10,7 @@ import { ratingGlyph } from '../../frontend/src/lib/ratingGlyph.js'
 import { useOptimisticRatings } from '../../frontend/src/lib/optimisticRatings.js'
 import * as G from './glyphs.jsx'
 import { Unit, Display, Key, IconKey, Knob, Fader, Menu, MenuItem, Led, Select, SlideSwitch } from './controls.jsx'
-import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, nowSummary, groupTitle, useProviderMetadata } from './house.js'
+import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, nowSummary, nowLines, groupTitle, useProviderMetadata } from './house.js'
 import { useSeekDrag } from '../../frontend/src/lib/useSeekDrag.js'
 import { isConnectSession } from '../../frontend/src/lib/transport.js'
 import { useDisplayLyrics, LyricsReading, LyricsCredit } from './Lyrics.jsx'
@@ -246,6 +246,9 @@ export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaini
   const tr = zone?.transport || {}
   const summary = nowSummary(tr, t)
   const loaded = isLoaded(tr)
+  // What the service says the item is: a podcast's show and release date, an
+  // audiobook's narrator, which the speaker does not report.
+  const { provider } = useProviderMetadata(zone)
   const [zoneMenu, setZoneMenu] = useState(null)
   const index = groups.findIndex((g) => g.coordinator === group?.coordinator)
   const step = (by) => {
@@ -268,6 +271,13 @@ export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaini
     // mix, not a station, and neither Sonos app names it (2026-10-04).
     : (zone && STATIONS.includes(tr.source) && !book && !isConnectSession(tr) && tr.container_title && tr.container_title !== summary.title ? tr.container_title : '')
   const title = zone ? (summary.title || (loaded ? '' : t('common.noMusicSelected'))) : t('hifi.noZone')
+  // The rest of what the official apps print for the source, under the lines
+  // above it: the captioned lines nowLines gives (Podcast and Release Date,
+  // Narrator, a broadcast's Information) less any the title, the line under it
+  // and the station line already say.
+  const shown = [title, summary.sub, station].filter(Boolean)
+  const details = zone && loaded ? nowLines(tr, provider, t)
+    .filter(([, value]) => value && !shown.some((line) => line === value || line.split(' · ').includes(value))) : []
   // The source names what is loaded; an idle room names none.
   const source = zone && (loaded || tr.service_name) ? (tr.service_name || (tr.source && tr.source !== 'idle' ? t(`source.${tr.source}`) : '')) : ''
   // The cover, printed on the display's left as the screen's own picture,
@@ -309,6 +319,12 @@ export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaini
           <span className="hf-vfd-next-text"><MarqueeText>{station}</MarqueeText></span>
         </p>
       )}
+      {!compact && !lyrics?.open && details.map(([caption, value]) => (
+        <p className="hf-vfd-next" key={caption} title={value}>
+          <span className="hf-vfd-caption">{caption}</span>
+          <span className="hf-vfd-next-text"><MarqueeText>{value}</MarqueeText></span>
+        </p>
+      ))}
       {/* What the speaker reports as up next, dim, in the display's own
           lettering; nothing for a station, which has no next. */}
       {!compact && !lyrics?.open && tr.next_title && (

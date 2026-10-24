@@ -5261,3 +5261,11 @@ button.wb-settings-row:disabled {
 /* Now-playing lines too long for the player, the bar, and a room card scroll (lib/marquee.jsx);
    in a subtitle, a row of badge then text, the scrolling line has to be allowed to narrow. */
 :is(.wb-transport-sub, .wb-room-sub) .dk-marquee { min-width: 0; }
+
+/* The fields the official apps print beyond the card's two lines (NowPlaying.jsx): a podcast's
+   release date, an audiobook's narrator and book, a broadcast's show. Small and in the sub
+   line's color, each captioned, under the second line. */
+.wb-np-details { display: grid; gap: 2px; margin: 10px 0 0; font-size: 13px; line-height: 17px; color: var(--t-tint-fg2, #c4c6ca); }
+.wb-np-details > div { display: flex; gap: 6px; min-width: 0; }
+.wb-np-details dt { flex: none; opacity: 0.7; }
+.wb-np-details dd { min-width: 0; margin: 0; overflow: hidden; white-space: nowrap; }

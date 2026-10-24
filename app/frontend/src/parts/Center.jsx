@@ -62,6 +62,12 @@ export function NowPlaying({ zone, onInfo, onMessage, groupLabel = '', onArt, ne
   // under the art, because the Station line already names the station
   // (measured 2026-09-06 on 80s80s Sould Ballads).
   const broadcast = /^x-sonosapi-stream:/.test(transport.media_uri || '')
+  // An HLS station whose track names nothing of its own, only the station
+  // (CBC Radio One from CBC Radio & Music), has one line in the Windows app:
+  // On Now, over the station, and no Song or Artist (2026-10-24). One that
+  // names its song, from keyed stream text, keeps Song and Artist.
+  const hlsStation = !broadcast && /^x-sonosapi-hls:/.test(transport.media_uri || '')
+    && !transport.artist && (!transport.title || transport.title === transport.container_title)
   // The built-in TuneIn, sid 254. S2's "TuneIn (New)" is a different service
   // (333) and the app's own badge is bound to the old one.
   const tuneIn = transport.service_id === 254
@@ -138,6 +144,10 @@ export function NowPlaying({ zone, onInfo, onMessage, groupLabel = '', onArt, ne
         [t('desk.now.episode'), provider.title || transport.title || '', true],
         [t('desk.now.podcast'), provider.podcast || provider.artist || '', true],
         [t('desk.now.releaseDate'), releaseDate(provider.release_date), true],
+      ]
+    : hlsStation
+    ? [
+        [t('desk.now.onNow'), transport.title || transport.container_title || '', true],
       ]
     : broadcast
     ? [

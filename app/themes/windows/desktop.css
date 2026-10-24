@@ -1585,7 +1585,9 @@
 :where(:root[data-theme='windows']) .dk-root .dk-lyrics .dk-lyrics-agree { height: 28px; padding: 0 16px; border: 0; border-radius: 2px; font-size: 12px; font-weight: 600; background: var(--t-accent); color: var(--t-accent-fg); }
 :where(:root[data-theme='windows']) .dk-root .dk-lyrics .dk-lyrics-agree:hover { filter: brightness(1.12); }
 :where(:root[data-theme='windows']) .dk-root .dk-lyrics-note { margin: auto; padding: 20px; font-size: 13px; text-align: center; color: var(--t-fg-muted); }
-/* The queue and the lyrics trade places as a view transition (lib/lyrics.js). */
-:where(:root[data-theme='windows']) .dk-root .dk-queue-pane { view-transition-name: windows-queue-pane; }
+/* The queue and the lyrics trade places as a view transition (lib/lyrics.js);
+   the pane is named only while they do, so a dialog inside it is not kept
+   below the panes beside it. */
+:where(:root[data-theme='windows'][data-view-swap]) .dk-root .dk-queue-pane { view-transition-name: windows-queue-pane; }
 :root[data-theme='windows']::view-transition-group(*) { animation-duration: 260ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
 @media (prefers-reduced-motion: reduce) { :where(:root[data-theme='windows']) .dk-root .dk-lyrics-timed p { transition: none; } }

@@ -216,8 +216,15 @@ export function useLyricsOpen({ transition = true } = {}) {
 // stylesheet (`view-transition-name`) moves and resizes between the two.
 // The theme sets the timing on its ::view-transition-group. Without view
 // transitions, or with reduced motion asked for, the swap is immediate.
+// The page carries data-view-swap only while a swap runs, and themes name
+// their element under it alone: a named element is a stacking context of its
+// own, so a dialog opened inside it (Clear Queue in the queue pane) could
+// never cover the panes beside it.
 function swapAnimated(change) {
   const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   if (!document.startViewTransition || still || document.visibilityState !== 'visible') { change(); return }
-  document.startViewTransition(() => { flushSync(change) })
+  const root = document.documentElement
+  root.setAttribute('data-view-swap', '')
+  const swap = document.startViewTransition(() => { flushSync(change) })
+  swap.finished.finally(() => root.removeAttribute('data-view-swap'))
 }

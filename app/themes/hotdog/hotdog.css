@@ -335,7 +335,7 @@
 .hd-root .dk-lyrics .dk-lyrics-agree:hover { filter: brightness(1.12); }
 .hd-root .dk-lyrics-note { margin: auto; padding: 20px; font-size: 13px; text-align: center; color: var(--t-fg-muted); }
 /* The queue and the lyrics trade places as a view transition (lib/lyrics.js). */
-.hd-root .dk-queue-pane { view-transition-name: hotdog-queue-pane; }
+:root[data-view-swap] .hd-root .dk-queue-pane { view-transition-name: hotdog-queue-pane; }
 :root[data-theme='hotdog']::view-transition-group(*) { animation-duration: 260ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
 @media (prefers-reduced-motion: reduce) { .hd-root .dk-lyrics-timed p { transition: none; } }
 

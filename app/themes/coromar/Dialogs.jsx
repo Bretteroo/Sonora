@@ -37,9 +37,55 @@ import { versionLabel } from '../../frontend/src/lib/version.js'
 // at the size the application gives it (Preferences 798x528 with a 178px
 // table of contents; Group Rooms 480x372).
 
+// A window moves when its title bar is dragged, as on the desktop. It may go
+// past the screen's edges, but never above the top, and the point being held
+// stays on screen so the title bar can always be reached; one that fills the viewport (a phone)
+// stays put. The element is moved directly, once a frame, on a layer of its
+// own while it moves, so a drag neither re-renders the window nor repaints it.
+function useTitleDrag() {
+  const offset = useRef({ x: 0, y: 0 })
+  const onPointerDown = (event) => {
+    if (event.button !== 0 || event.target.closest('button')) return
+    const win = event.currentTarget.closest('.dk-window')
+    if (!win) return
+    const rect = win.getBoundingClientRect()
+    if (rect.width >= window.innerWidth && rect.height >= window.innerHeight) return
+    const start = { x: event.clientX, y: event.clientY, ox: offset.current.x, oy: offset.current.y }
+    const bar = event.currentTarget
+    bar.setPointerCapture(event.pointerId)
+    win.style.willChange = 'translate'
+    let frame = 0
+    let last = null
+    const apply = () => {
+      frame = 0
+      const x = Math.min(window.innerWidth - 1, Math.max(0, last.clientX))
+      const y = Math.min(window.innerHeight - 1, Math.max(0, last.clientY))
+      offset.current = { x: start.ox + x - start.x, y: Math.max(start.oy - rect.top, start.oy + y - start.y) }
+      win.style.translate = `${offset.current.x}px ${offset.current.y}px`
+    }
+    const move = (e) => {
+      last = e
+      if (!frame) frame = requestAnimationFrame(apply)
+    }
+    const end = () => {
+      if (frame) { cancelAnimationFrame(frame); apply() }
+      win.style.willChange = ''
+      bar.removeEventListener('pointermove', move)
+      bar.removeEventListener('pointerup', end)
+      bar.removeEventListener('pointercancel', end)
+    }
+    bar.addEventListener('pointermove', move)
+    bar.addEventListener('pointerup', end)
+    bar.addEventListener('pointercancel', end)
+    event.preventDefault()
+  }
+  return { onPointerDown }
+}
+
 export function Window({ title, onClose, className, style, children }) {
   // The app icon in the title bar is a Windows convention; the Mac chrome
   // hides it (desktop.css) and the Windows theme shows it.
+  const drag = useTitleDrag()
   useEffect(() => {
     const key = (event) => { if (event.key === 'Escape') onClose() }
     document.addEventListener('keydown', key)
@@ -49,7 +95,7 @@ export function Window({ title, onClose, className, style, children }) {
   return (
     <div className="dk-modal-backdrop" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className={`dk-window ${className || ''}`} role="dialog" aria-label={title} style={style}>
-        <div className="dk-window-title">
+        <div className="dk-window-title" onPointerDown={drag.onPointerDown}>
           <img className="dk-window-icon" src={appIcon} alt="" />
           <div className="dk-lights">
             <button type="button" className="dk-light-close" title={t('common.close')} onClick={onClose} />

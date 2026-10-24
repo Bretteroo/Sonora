@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { MINI_QUERY, isMiniWindow, openMiniWindow as openWindow,
          openMiniPip as openPip } from '../../frontend/src/lib/miniWindow.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
@@ -112,8 +113,10 @@ export default function Mini({ zone, mode = 'panel', win = window, onClose, onOp
         <button type="button" className="sf-mini-btn" title={t('common.close')} onClick={close}><I.Close /></button>
       </div>
       <div className="sf-mini-foot">
-        <p className="sf-mini-title" title={title}>{title}</p>
-        {summary.sub && <p className="sf-mini-sub" title={summary.sub}>{summary.sub}</p>}
+        <MarqueeProvider enabled style="sonora">
+          <p className="sf-mini-title" title={title}><MarqueeText>{title}</MarqueeText></p>
+          {summary.sub && <p className="sf-mini-sub" title={summary.sub}><MarqueeText>{summary.sub}</MarqueeText></p>}
+        </MarqueeProvider>
         <div className="sf-mini-row">
           <button type="button" className="sf-mini-btn" disabled={!zone} title={zone?.group_muted ? t('common.unmute') : t('common.mute')} onClick={() => actions.setMute(zone.uuid, !zone.group_muted, true)}>
             {zone?.group_muted ? <I.Muted /> : <I.Volume />}

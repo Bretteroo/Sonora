@@ -1,5 +1,6 @@
 import React from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { describeNowPlaying, sourceKey } from '../../frontend/src/lib/format.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
@@ -121,8 +122,10 @@ export default function RoomCard({ zone, members, active, onSelect, onGroup }) {
               ? <StationGlyph className="wb-room-station" />
               : <Art src={art} size={16} />}
         </span>
+        {/* What the room plays scrolls when it is too long for the card (lib/marquee.jsx) */}
+        <MarqueeProvider enabled style="sonora">
         <span className="wb-room-text">
-          <p className="wb-room-title">{title}</p>
+          <p className="wb-room-title"><MarqueeText>{title}</MarqueeText></p>
           <p className="wb-room-sub">
             {/* Only a service that publishes an attribution badge gets a
                 mark here; the rest answer 404 and the image removes itself,
@@ -132,9 +135,10 @@ export default function RoomCard({ zone, members, active, onSelect, onGroup }) {
                    alt="" aria-hidden="true"
                    onError={(event) => { event.currentTarget.style.display = 'none' }} />
             ) : null}
-            {sub}
+            <MarqueeText>{sub}</MarqueeText>
           </p>
         </span>
+        </MarqueeProvider>
         <span className="wb-room-actions">
           {/* The browser room cannot be grouped, so it is not offered. */}
           {!zone.local && (

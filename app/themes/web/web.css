@@ -5257,3 +5257,7 @@ button.wb-settings-row:disabled {
   animation-duration: 320ms;
   animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
+
+/* Now-playing lines too long for the player, the bar, and a room card scroll (lib/marquee.jsx);
+   in a subtitle, a row of badge then text, the scrolling line has to be allowed to narrow. */
+:is(.wb-transport-sub, .wb-room-sub) .dk-marquee { min-width: 0; }

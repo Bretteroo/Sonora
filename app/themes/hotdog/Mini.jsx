@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { isLoaded } from '../../frontend/src/lib/transport.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { MINI_QUERY, MINI_CHANNEL, isMiniWindow, openMiniWindow as openWindow,
          openMiniPip as openPip } from '../../frontend/src/lib/miniWindow.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
@@ -198,8 +199,11 @@ export default function Mini({ zone, mode = 'panel', win = window, onClose, onIn
                      onError={() => setBadArt((prev) => new Set(prev).add(art))} />}
         <div className="win-mini-shade" />
         <div className="win-mini-bottom">
-          <p className="win-mini-track" title={title}>{title}</p>
-          {artist && <p className="win-mini-artist" title={artist}>{artist}</p>}
+          {/* a line too long for the mini scrolls, as the Now Playing pane's do (lib/marquee.jsx) */}
+          <MarqueeProvider enabled style="windows">
+            <p className="win-mini-track" title={title}><MarqueeText>{title}</MarqueeText></p>
+            {artist && <p className="win-mini-artist" title={artist}><MarqueeText>{artist}</MarqueeText></p>}
+          </MarqueeProvider>
           <div className="win-mini-row">
             <div className="win-mini-volume">
               <button type="button" className="win-mini-btn win-mini-mute" disabled={!zone}

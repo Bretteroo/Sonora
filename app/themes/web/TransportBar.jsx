@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { describeNowPlaying, formatDuration } from '../../frontend/src/lib/format.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
@@ -124,6 +125,7 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
   const art = nowPlayingArt(zone.host, transport)
 
   return (
+    <MarqueeProvider enabled style="sonora">
     <section className="wb-transport">
       <div className="wb-transport-left">
       <div className="wb-transport-now">
@@ -147,7 +149,7 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
               the switch is easy to miss. */}
           <p className="wb-transport-room" key={zone.uuid}>{label || zone.name}</p>
           <p className="wb-transport-title">
-            {lines ? lines.title : (now.primary || heldStation(transport) || t('common.noMusicSelected'))}
+            <MarqueeText>{lines ? lines.title : (now.primary || heldStation(transport) || t('common.noMusicSelected'))}</MarqueeText>
           </p>
           <p className="wb-transport-sub">
             {/* The service's mark before the line, as on a room card and the
@@ -163,11 +165,11 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
                 Sonora wrote "Wes Montgomery -- Full House [Keepnews
                 Collection] (Remas..." (both bars on the same track,
                 2026-09-21). */}
-            {lines ? lines.sub
+            <MarqueeText>{lines ? lines.sub
               : transport.artist
               || restingSecondary(transport, now)
               || transport.service_name
-              || (loaded ? '' : t('common.queueIsEmpty'))}
+              || (loaded ? '' : t('common.queueIsEmpty'))}</MarqueeText>
           </p>
         </button>
       </div>
@@ -374,6 +376,7 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
         </div>
       </div>
     </section>
+    </MarqueeProvider>
   )
 }
 

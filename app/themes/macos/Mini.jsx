@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { isLoaded } from '../../frontend/src/lib/transport.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { isMiniWindow, openMiniWindow as openWindow, openMiniPip as openPip } from '../../frontend/src/lib/miniWindow.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { metadataLines } from '../../frontend/src/lib/format.js'
@@ -126,8 +127,11 @@ export default function Mini({ zone, mode = 'panel', win = window, onClose, onIn
                    onError={() => setBadArt((prev) => new Set(prev).add(art))} />}
       <div className="mac-mini-gradient" />
       <div className="mac-mini-meta">
-        <p className="mac-mini-track" title={title}>{title}</p>
-        <p className="mac-mini-artist" title={artist || undefined}>{artist}</p>
+        {/* a line too long for the mini scrolls, as the Now Playing pane's do (lib/marquee.jsx) */}
+        <MarqueeProvider enabled style="mac">
+          <p className="mac-mini-track" title={title}><MarqueeText>{title}</MarqueeText></p>
+          <p className="mac-mini-artist" title={artist || undefined}><MarqueeText>{artist}</MarqueeText></p>
+        </MarqueeProvider>
       </div>
       <div className="mac-mini-hud">
         <div className="mac-mini-volume">

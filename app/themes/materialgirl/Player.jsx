@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { formatDuration } from '../../frontend/src/lib/format.js'
 import { useElapsed } from '../../frontend/src/lib/useElapsed.js'
@@ -319,10 +320,13 @@ export function NowToolbar({ zone, group, zones, compact, onOpen, onQueue, queue
             share a silhouette. Each keeps the motion its size can carry: a slow turn here, where
             the big player's breath would move a pixel, and a breath there, where a turn is busy. */}
         <ShapeArt src={art} shape={playing ? SHAPES.cookie12 : SHAPES.squircle} size={compact ? 44 : 48} fallback="note" className="mg-toolbar-art" spin={playing} />
-        <span className="mg-toolbar-text">
-          <span className="mg-toolbar-title">{title}</span>
-          <span className="mg-toolbar-sub">{zone ? [groupTitle(group, zones, t), summary.sub].filter(Boolean).join(' · ') : ''}</span>
-        </span>
+        {/* a line too long for the bar scrolls, one at a time (lib/marquee.jsx) */}
+        <MarqueeProvider enabled style="sonora">
+          <span className="mg-toolbar-text">
+            <span className="mg-toolbar-title"><MarqueeText>{title}</MarqueeText></span>
+            <span className="mg-toolbar-sub"><MarqueeText>{zone ? [groupTitle(group, zones, t), summary.sub].filter(Boolean).join(' · ') : ''}</MarqueeText></span>
+          </span>
+        </MarqueeProvider>
       </button>
       {compact ? (
         <div className="mg-toolbar-actions">

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { formatDuration } from '../../frontend/src/lib/format.js'
 import Art, { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
@@ -182,12 +183,15 @@ export default function NowBar({ zone, group, zones, onStage, onQueue, queueOpen
           {tr.source === 'tv' ? <I.Tv /> : <Art src={art} size={56} fallback="note" />}
           <span className="sf-now-art-expand" aria-hidden="true"><I.Expand /></span>
         </button>
-        <div className="sf-now-text">
-          <p className="sf-now-title" title={title}>{title}</p>
-          <p className="sf-now-sub" title={summary.sub}>
-            {summary.sub || (tr.service_name ? tr.service_name : '')}
-          </p>
-        </div>
+        {/* a line too long for the bar scrolls, one at a time (lib/marquee.jsx) */}
+        <MarqueeProvider enabled style="sonora">
+          <div className="sf-now-text">
+            <p className="sf-now-title" title={title}><MarqueeText>{title}</MarqueeText></p>
+            <p className="sf-now-sub" title={summary.sub}>
+              <MarqueeText>{summary.sub || (tr.service_name ? tr.service_name : '')}</MarqueeText>
+            </p>
+          </div>
+        </MarqueeProvider>
         {showInfo && (
           <IconButton size="sm" label={t('desk.now.infoOptions')} onClick={onInfo} className="sf-now-info"><I.Info /></IconButton>
         )}

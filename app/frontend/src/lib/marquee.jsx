@@ -21,9 +21,13 @@ import React, { createContext, forwardRef, useContext, useEffect, useImperativeH
 // minimized or closed (NSWindowWillMiniaturize / WillClose) -- and a click
 // on a line scrolls it at once.
 
+// Sonora's own themes copy no app's marquee, so they take the Mac's smooth single pass, which
+// also goes on while the window is in the background: a line that sat still whenever another
+// window had focus read as broken.
 const STYLES = {
   windows: { speed: 50, first: 2000, pause: 2000, endGap: 25, restGap: 5, background: false, click: false },
   mac: { speed: 40, first: 3000, pause: 3000, endGap: 0, restGap: 0, background: true, click: true, prepare: 300, gap: 0.4 },
+  sonora: { speed: 40, first: 3000, pause: 3000, endGap: 0, restGap: 0, background: true, click: true, prepare: 300, gap: 0.4 },
 }
 
 const MarqueeContext = createContext(null)

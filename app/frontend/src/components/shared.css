@@ -398,8 +398,8 @@
 }
 /* The Mac app's labels: the cut one fills the line, the whole one has
    nothing after it (SAMarqueeView). */
-.dk-marquee[data-marquee='mac'] .dk-marquee-rest { margin-right: 0; }
-.dk-marquee[data-marquee='mac'] .dk-marquee-full { padding-right: 0; }
+.dk-marquee:is([data-marquee='mac'], [data-marquee='sonora']) .dk-marquee-rest { margin-right: 0; }
+.dk-marquee:is([data-marquee='mac'], [data-marquee='sonora']) .dk-marquee-full { padding-right: 0; }
 
 /* The search box's clear button, which the Windows and Mac shells draw
    (window-chrome.css, mac.css); any other shell leaves it out. */

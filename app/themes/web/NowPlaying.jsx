@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { describeNowPlaying, formatDuration } from '../../frontend/src/lib/format.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
@@ -96,6 +97,7 @@ export default function NowPlaying({ zone, label = '', grouping = false, onClose
   const showLyrics = lyricsOpen && hasLyrics
 
   return (
+    <MarqueeProvider enabled style="sonora">
     <section className="wb-np" aria-label={t('web.nowPlaying')}
              style={tint ? { background: tint.color, '--t-tint-fg2': tint.text,
                              '--t-tint-raise': tint.raise, '--t-tint-color': tint.color } : undefined}>
@@ -130,7 +132,7 @@ export default function NowPlaying({ zone, label = '', grouping = false, onClose
                                aria-label={t('common.explicit')} />
               )}
             </h1>
-            {sub && <h2 className="wb-np-sub">{sub}</h2>}
+            {sub && <h2 className="wb-np-sub"><MarqueeText>{sub}</MarqueeText></h2>}
             {/* The service's wordmark under the artist, in its own type,
                 which is what the product prints there ("pandora" beneath
                 Paul Desmond). A service that publishes none shows its name
@@ -244,5 +246,6 @@ export default function NowPlaying({ zone, label = '', grouping = false, onClose
         </div>
       </div>
     </section>
+    </MarqueeProvider>
   )
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { formatDuration } from '../../frontend/src/lib/format.js'
 import { useElapsed } from '../../frontend/src/lib/useElapsed.js'
@@ -261,14 +262,17 @@ export function PlayerProgram({ zone, group, zones, queue, compact, lyrics, keys
           {title[1]}
           {loaded && tr.explicit === true && <G.Explicit size={24} className="sv-explicit" role="img" aria-label={t('common.explicit')} />}
         </h1>
-        <dl className="sv-leaders">
-          {rest.map(([caption, value]) => (
-            <div key={caption}><dt>{caption}</dt><dd>{value}</dd></div>
-          ))}
-          {nextTrack && <div><dt>{t('desk.now.next')}</dt><dd>{[nextTrack.title, nextTrack.artist].filter(Boolean).join(' · ')}</dd></div>}
-          {source && <div><dt>{t('sv.source')}</dt><dd>{source}</dd></div>}
-          <div><dt>{t('sv.room')}</dt><dd>{groupTitle(group, zones, t)}</dd></div>
-        </dl>
+        {/* a line too long for its leader scrolls, one at a time (lib/marquee.jsx) */}
+        <MarqueeProvider enabled style="sonora">
+          <dl className="sv-leaders">
+            {rest.map(([caption, value]) => (
+              <div key={caption}><dt>{caption}</dt><dd><MarqueeText>{value}</MarqueeText></dd></div>
+            ))}
+            {nextTrack && <div><dt>{t('desk.now.next')}</dt><dd><MarqueeText>{[nextTrack.title, nextTrack.artist].filter(Boolean).join(' · ')}</MarqueeText></dd></div>}
+            {source && <div><dt>{t('sv.source')}</dt><dd>{source}</dd></div>}
+            <div><dt>{t('sv.room')}</dt><dd>{groupTitle(group, zones, t)}</dd></div>
+          </dl>
+        </MarqueeProvider>
         {loaded && serviceRatings.length > 0 && (
           <div className="sv-player-ratings">
             {shownRatings.map((button) => (

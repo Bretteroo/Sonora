@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { formatDuration } from '../../frontend/src/lib/format.js'
 import { useElapsed } from '../../frontend/src/lib/useElapsed.js'
@@ -275,12 +276,13 @@ export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaini
   // The title and what follows it: the display's usual reading.
   const reading = (
     <div className="hf-vfd-lines" data-back={lyrics?.open === false || undefined}>
-      <p className="hf-vfd-title" title={title}>{title}</p>
-      <p className="hf-vfd-sub" title={summary.sub}>{zone ? (summary.sub || '') : t('desk.browse.selectRoom')}</p>
+      <p className="hf-vfd-title" title={title}><MarqueeText>{title}</MarqueeText></p>
+      <p className="hf-vfd-sub" title={summary.sub}><MarqueeText>{zone ? (summary.sub || '') : t('desk.browse.selectRoom')}</MarqueeText></p>
     </div>
   )
+  // A line too long for the display scrolls, one at a time (lib/marquee.jsx).
   const body = (
-    <>
+    <MarqueeProvider enabled style="sonora">
       <div className="hf-display-top">
         <IconKey label={t('desk.shortcuts.prevZone')} onClick={() => step(-1)} disabled={groups.length < 2} className="hf-zone-step"><G.ChevronDown style={{ transform: 'rotate(90deg)' }} /></IconKey>
         <button type="button" className="hf-zone-name" aria-haspopup="menu" aria-expanded={Boolean(zoneMenu)}
@@ -304,7 +306,7 @@ export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaini
       {!compact && !lyrics?.open && station && (
         <p className="hf-vfd-next hf-vfd-station" title={station}>
           <span className="hf-vfd-caption">{t('desk.info.station')}</span>
-          <span className="hf-vfd-next-text">{station}</span>
+          <span className="hf-vfd-next-text"><MarqueeText>{station}</MarqueeText></span>
         </p>
       )}
       {/* What the speaker reports as up next, dim, in the display's own
@@ -312,11 +314,11 @@ export function MainDisplay({ zone, group, zones, groups, onSelect, sleepRemaini
       {!compact && !lyrics?.open && tr.next_title && (
         <p className="hf-vfd-next" title={[tr.next_title, tr.next_artist].filter(Boolean).join(' · ')}>
           <span className="hf-vfd-caption">{t('common.next')}</span>
-          <span className="hf-vfd-next-text">{[tr.next_title, tr.next_artist].filter(Boolean).join(' · ')}</span>
+          <span className="hf-vfd-next-text"><MarqueeText>{[tr.next_title, tr.next_artist].filter(Boolean).join(' · ')}</MarqueeText></span>
         </p>
       )}
       <PositionBar zone={zone} />
-    </>
+    </MarqueeProvider>
   )
   return (
     <Display className={`hf-main-display${compact ? ' hf-main-display-compact' : ''}`}
@@ -622,7 +624,9 @@ function RemoteMini({ zone, group, zones, onExpand }) {
     <div className="hf-remote-mini">
       <button type="button" className="hf-remote-mini-text" onClick={onExpand} title={t('hifi.showControls')}>
         <span className="hf-vfd-caption">{zone ? groupTitle(group, zones, t) : t('hifi.noZone')}</span>
-        <span className="hf-remote-mini-title">{summary.title || (loaded ? '' : t('common.noMusicSelected'))}</span>
+        <MarqueeProvider enabled style="sonora">
+          <span className="hf-remote-mini-title"><MarqueeText>{summary.title || (loaded ? '' : t('common.noMusicSelected'))}</MarqueeText></span>
+        </MarqueeProvider>
       </button>
       <Key label={playLabel} icon={what === 'play' ? <G.Play /> : what === 'stop' ? <G.Stop /> : <G.Pause />}
            disabled={!zone || !loaded} onClick={() => togglePlay(actions, zone)} size="sm" tone="play"

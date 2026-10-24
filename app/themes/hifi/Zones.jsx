@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { api } from '../../frontend/src/lib/api.js'
 import { orderedHouseholds, twoLineMetadata } from '../../frontend/src/lib/format.js'
@@ -53,10 +54,13 @@ function ZoneModule({ group, lead, members, active, showSystem, onSelect, onLink
         <button type="button" className="hf-zone-window" onClick={() => onSelect(group.coordinator)} title={t('hifi.selectZone')}>
           <Display className="hf-zone-display">
             <span className="hf-zone-art">{tr.source === 'tv' ? <G.Tv /> : <Art src={nowPlayingArt(lead.host, tr)} size={44} fallback="note" />}</span>
-            <span className="hf-zone-lines">
-              <span className="hf-zone-title">{summary.title || t('common.noMusicSelected')}</span>
-              <span className="hf-zone-sub">{summary.sub || tr.service_name || ''}</span>
-            </span>
+            {/* What the zone plays scrolls when it is too long for the module's window (lib/marquee.jsx) */}
+            <MarqueeProvider enabled style="sonora">
+              <span className="hf-zone-lines">
+                <span className="hf-zone-title"><MarqueeText>{summary.title || t('common.noMusicSelected')}</MarqueeText></span>
+                <span className="hf-zone-sub"><MarqueeText>{summary.sub || tr.service_name || ''}</MarqueeText></span>
+              </span>
+            </MarqueeProvider>
           </Display>
         </button>
         <div className="hf-zone-controls">

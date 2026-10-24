@@ -349,18 +349,35 @@ def _parse_node(node) -> DidlItem:
 _SHOW_ID = re.compile(r"^[A-Za-z]{0,3}\d+$")
 
 
+def _split_show(value: str) -> tuple[str, str, str]:
+    """``r:radioShowMd`` split at its last unescaped comma, as rpartition would.
+
+    A comma inside the show's name comes escaped: NTS's The Tube publishes
+    "Oddball post-punk\\, industrial provocation\\, and minimal wave.", and
+    those are part of the name, not the comma before its id.
+    """
+    for i in range(len(value) - 1, -1, -1):
+        if value[i] == "," and (i == 0 or value[i - 1] != "\\"):
+            return value[:i], ",", value[i + 1:]
+    return "", "", value
+
+
+def _unescape_show(name: str) -> str:
+    return name.replace("\\,", ",").strip()
+
+
 def _show_name(value: str) -> str:
-    name, sep, tail = value.rpartition(",")
+    name, sep, tail = _split_show(value)
     # The id can be missing and the comma still there: Community Radio Plus
     # publishes "Your family-friendly radio station," and the app prints the
     # show without the trailing comma.
     if sep and (not tail.strip() or _SHOW_ID.match(tail.strip())):
-        return name.strip()
-    return value.strip()
+        return _unescape_show(name)
+    return _unescape_show(value)
 
 
 def _show_id(value: str) -> str:
-    name, sep, tail = value.rpartition(",")
+    name, sep, tail = _split_show(value)
     return tail.strip() if sep and name and _SHOW_ID.match(tail.strip()) else ""
 
 

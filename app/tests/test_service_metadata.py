@@ -174,3 +174,17 @@ def test_the_provider_id_survives_the_round_trip_through_a_track_uri():
     # A raw stream names no provider id, so nothing is sent to the service.
     assert _smapi_item_id("hls-radio://https://example.test/live") == ""
     assert _smapi_item_id("x-sonosapi-stream:s24939?sid=254") == ""
+
+
+def test_an_escaped_comma_stays_in_the_show_name():
+    """NTS's The Tube escapes the commas in its show description, and the
+    app prints them as plain commas; the id comes after the last bare one."""
+    from backend.sonos.didl import _show_id, _show_name
+    tube = "Oddball post-punk\\, industrial provocation\\, and minimal wave."
+    assert _show_name(tube) == "Oddball post-punk, industrial provocation, and minimal wave."
+    assert _show_id(tube) == ""
+    assert _show_name("Rock\\, Paper,p42") == "Rock, Paper"
+    assert _show_id("Rock\\, Paper,p42") == "p42"
+    # the shapes the reader already handled
+    assert (_show_name("Marci Wiser,p1151215"), _show_id("Marci Wiser,p1151215")) == ("Marci Wiser", "p1151215")
+    assert _show_name("Your family-friendly radio station,") == "Your family-friendly radio station"

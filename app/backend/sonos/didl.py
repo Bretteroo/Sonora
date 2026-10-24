@@ -232,6 +232,38 @@ def clean_title(title: str) -> str:
     return candidate
 
 
+_SONG_KEYS = frozenset({"TYPE", "TITLE", "ARTIST", "ALBUM"})
+
+
+def keyed_song(text: str) -> tuple[str, str, str] | None:
+    """The song in a station's keyed stream text, as (title, artist, album).
+
+    Some stations announce what is on air as fields rather than a sentence:
+    ``TYPE=SNG|TITLE Midnight Sun|ARTIST Zara Larsson|ALBUM `` (TuneIn's BBC
+    Radio 1, and private SMAPI stations reported in issue 19). The S2 app
+    shows that as the song and its artist; the S1 Windows app shows nothing
+    of it. Sonora shows the song. Only ``TYPE=SNG`` is a song: any other type
+    (an advert, the station naming itself) gives None, as does a song with no
+    title.
+    """
+    raw = (text or "").strip()
+    if not raw.startswith("TYPE=") or "|" not in raw:
+        return None
+    fields: dict[str, str] = {}
+    last = ""
+    for part in raw.split("|"):
+        key, _, value = part.partition("=" if part.startswith("TYPE=") else " ")
+        if key.strip().upper() in _SONG_KEYS:
+            last = key.strip().upper()
+            fields[last] = value.strip()
+        elif last:
+            # a "|" inside a title or a name, not a new field
+            fields[last] = f"{fields[last]}|{part}".strip()
+    if fields.get("TYPE", "").upper() != "SNG" or not fields.get("TITLE"):
+        return None
+    return fields["TITLE"], fields.get("ARTIST", ""), fields.get("ALBUM", "")
+
+
 def _looks_like_identifier(value: str) -> bool:
     """Whether a string is a machine identifier rather than a name."""
     if value.startswith("RINCON_"):

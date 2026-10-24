@@ -32,7 +32,7 @@ from . import accounts, const
 from .battery import lowest, parse_battery
 from .content import ContentBrowser
 from .credentials import seal
-from .didl import DidlItem, clean_title, escape, parse_didl, saved_queue_didl
+from .didl import DidlItem, clean_title, escape, keyed_song, parse_didl, saved_queue_didl
 from .discovery import HouseholdRegistry
 from .events import Event, EventListener
 from .topology import parse_zone_group_state, remap_groups
@@ -1185,6 +1185,13 @@ class SonosController:
         transport.album_art_uri = item.art_uri
         if item.stream_content or item.description:
             transport.stream_content = item.stream_content or item.description
+        # A station that announces its song as keyed fields gets that song as
+        # its track, as the S2 app shows it, where the track DIDL names none
+        # of its own.
+        song = keyed_song(item.stream_content) if not item.display_artist else None
+        if song:
+            transport.title, transport.artist, transport.album = song
+            transport.stream_content = ""
         transport.stream_show = item.stream_show
         transport.stream_show_id = item.stream_show_id
         transport.rating = {"THUMBSUP": 1, "THUMBSDOWN": 2}.get(item.rating.upper(), 0)

@@ -131,6 +131,12 @@ export function pauseEverything(actions, groups, zones) {
   }
 }
 
+// The song a station names, where it names one: a title of its own beside an
+// artist, rather than the station's name standing in for a title.
+function stationSong(tr) {
+  return tr.artist && tr.title && tr.title !== tr.container_title ? tr.title : ''
+}
+
 // The lines under a piece of music, captioned the way the source calls
 // for: a queue track is Song / Artist / Album, a broadcast Station / On Now
 // / Information, a chapter Chapter / Author / Narrator, a podcast Episode /
@@ -159,7 +165,10 @@ export function nowLines(transport, provider, t) {
   if (broadcast) {
     const raw = tr.stream_content || ''
     const info = /^ZPSTR_/.test(raw.trim()) ? '' : streamText(raw, t)
-    return [[t('desk.now.station'), tr.container_title || tr.title || ''], [t('desk.now.onNow'), tr.stream_show || ''], [t('desk.now.information'), info]].filter(([, v]) => v)
+    // A station that names its song (keyed stream text, read by the backend) shows it too.
+    const song = stationSong(tr)
+    return [[t('desk.now.station'), tr.container_title || tr.title || ''], [t('desk.now.onNow'), tr.stream_show || ''],
+      [t('desk.now.songLabel'), song], [t('desk.now.artist'), song ? tr.artist : ''], [t('desk.now.information'), info]].filter(([, v]) => v)
   }
   const title = tr.title || streamFileName(tr.track_uri) || ''
   return [[t('desk.now.songLabel'), title], [t('desk.now.artist'), tr.artist || ''], [t('desk.now.album'), tr.album || '']].filter(([, v]) => v)
@@ -183,7 +192,8 @@ export function nowSummary(transport, t) {
     // print it on a card or in the bar, and an S2 speaker can go on
     // reporting it long after the station plays (2026-09-28).
     const info = /^ZPSTR_/.test(raw.trim()) ? '' : streamText(raw, t)
-    return { title: tr.container_title || tr.title || '', sub: tr.stream_show || info || '' }
+    const song = stationSong(tr)
+    return { title: tr.container_title || tr.title || '', sub: tr.stream_show || (song ? [song, tr.artist].join(' · ') : '') || info || '' }
   }
   const title = tr.title || streamFileName(tr.track_uri) || (tr.stream_content ? streamText(tr.stream_content, t) : '')
   const sub = [tr.artist, tr.album].filter(Boolean).join(' · ')

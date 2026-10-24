@@ -62,14 +62,12 @@ export function sourceKey(source) {
 }
 
 // Some stations announce themselves in a keyed form rather than as a
-// sentence: TuneIn sends "TYPE=SNG|TITLE Midnight Sun|ARTIST Zara Larsson|
-// ALBUM " for BBC Radio 1. The apps print none of it. Measured 2026-09-12
-// against the Windows app with that station on one room and the speaker
-// reporting that string: the Now Playing pane showed "Station / BBC Radio 1"
-// over an empty "On Now" and no Information line at all, and the room tile
-// read "Radio - BBC Radio 1"; the same held through a track change and on a
-// second station. Sonora had been printing the song in the Information line,
-// which no app view shows.
+// sentence: TuneIn sent "TYPE=SNG|TITLE Midnight Sun|ARTIST Zara Larsson|
+// ALBUM " for BBC Radio 1. A song in that form reaches here already read into
+// the room's title and artist (keyed_song in backend/sonos/didl.py), as the
+// S2 app shows it. Anything else in the form, an advert or the station naming
+// itself, is never printed raw: the Windows app showed no Information line
+// for it (measured 2026-09-12).
 function isKeyedStream(value) {
   const raw = (value || '').trim()
   return /^TYPE=/.test(raw) && raw.includes('|')

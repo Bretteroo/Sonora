@@ -475,7 +475,7 @@ This is experimental; many services will only permit streaming to a Sonos device
 
 ## 💙 Contributions
 
-Issue reports are welcome. If you find a bug, <a href="../../issues/new">open an issue</a> and say which theme you were using, which system (S1 or S2), which music service, what you did, and what you saw.  Screenshots help!
+Issue reports are welcome. If you find a bug, <a href="https://github.com/Bretteroo/Sonora/issues/new?template=bug_report.yml">open an issue</a> and say which theme you were using, which system (S1 or S2), which music service, what you did, and what you saw.  Screenshots help!
 
 My goal for Sonora is for it to feel every bit as polished as an official Sonos product.
 

@@ -47,6 +47,17 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
   // room gets neither.
   const grouped = members.length > 1
   const [volOpen, setVolOpen] = useState(false)
+  // The rooms' sliders open above the group's, and the pointer that heads for
+  // them crosses the gap between, or cuts a corner, on the way. The panel
+  // closes a moment after it is left, unless the pointer is back by then,
+  // and a drag that wanders out closes it only once the button is let go.
+  const volBox = useRef(null)
+  const volClose = useRef(0)
+  const closeVolSoon = () => {
+    clearTimeout(volClose.current)
+    volClose.current = setTimeout(() => { if (!volBox.current?.matches(':hover')) setVolOpen(false) }, 250)
+  }
+  useEffect(() => () => clearTimeout(volClose.current), [])
   // The bar's own "..." opens the same four lines the big player's does, in
   // the same place relative to its button (play.sonos.com, 2026-09-21).
   const [moreAt, setMoreAt] = useState(null)
@@ -342,8 +353,12 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
         )}
         <div className="wb-transport-vol" data-compact={!fixedSource}
              data-muted={zone.muted || undefined}
-             onPointerEnter={() => grouped && setVolOpen(true)}
-             onPointerLeave={() => setVolOpen(false)}>
+             ref={volBox}
+             onPointerEnter={() => { clearTimeout(volClose.current); if (grouped) setVolOpen(true) }}
+             onPointerLeave={(event) => {
+               if (event.buttons) window.addEventListener('pointerup', closeVolSoon, { once: true })
+               else closeVolSoon()
+             }}>
           <Slider
             value={grouped ? (zone.group_volume ?? zone.volume) : zone.volume}
             label={grouped ? t('desk.transport.groupVolume') : t('web.roomVolume', { room: zone.name })}

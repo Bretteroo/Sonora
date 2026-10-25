@@ -3256,6 +3256,16 @@ button.wb-settings-row:disabled {
   background: var(--t-surface-input);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 }
+/* The gap down to the group's slider still counts as the panel, so the
+   pointer crossing it never leaves. */
+.wb-gvol::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 10px;
+}
 
 /* 16 above the name, 9 under the slider: a 71px row. */
 .wb-gvol li { padding: 16px 16px 9px; }

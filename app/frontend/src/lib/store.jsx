@@ -22,6 +22,10 @@ import { useTheme } from './theme.jsx'
 
 const SystemContext = createContext(null)
 
+// How long a group volume this controller set is shown over the speakers'
+// differing reports before theirs is believed.
+const GROUP_VOLUME_HOLD_MS = 3000
+
 const initialState = {
   connected: false,
   loading: true,
@@ -49,6 +53,7 @@ const initialState = {
   zoneOrder: [],
   // uuid -> { level, at } while a local change is outstanding
   pendingVolume: {},
+  pendingGroupVolume: {},
   notices: [],
   // A rescan has no percentage to report: discovery is a fixed multicast
   // listen followed by enrichment. What can be shown is that one is running,
@@ -96,6 +101,7 @@ function reducer(state, action) {
         groups: groups ?? [],
         // A fresh snapshot is authoritative, so outstanding local guesses go.
         pendingVolume: {},
+        pendingGroupVolume: {},
       }
     }
 
@@ -104,12 +110,23 @@ function reducer(state, action) {
       const pending = state.pendingVolume[incoming.uuid]
       // Ignore a stale volume from the speaker while our own change is in
       // flight, otherwise a dragged slider jumps backwards.
-      const zone = pending && pending.level !== incoming.volume
+      let zone = pending && pending.level !== incoming.volume
         ? { ...incoming, volume: pending.level }
         : incoming
       const pendingVolume = { ...state.pendingVolume }
       if (pending && pending.level === incoming.volume) {
         delete pendingVolume[incoming.uuid]
+      }
+      // The same for a group's volume, which the speakers report on the
+      // coordinator. A group can settle a step or two from the level asked
+      // for, so the guess also gives way once it is a few seconds old.
+      const groupPending = state.pendingGroupVolume[incoming.uuid]
+      const pendingGroupVolume = { ...state.pendingGroupVolume }
+      if (groupPending) {
+        const settled = groupPending.level === incoming.group_volume
+          || Date.now() - groupPending.at > GROUP_VOLUME_HOLD_MS
+        if (settled) delete pendingGroupVolume[incoming.uuid]
+        else zone = { ...zone, group_volume: groupPending.level }
       }
       const known = incoming.uuid in state.zones
       return {
@@ -117,6 +134,7 @@ function reducer(state, action) {
         zones: { ...state.zones, [incoming.uuid]: zone },
         zoneOrder: known ? state.zoneOrder : [...state.zoneOrder, incoming.uuid],
         pendingVolume,
+        pendingGroupVolume,
       }
     }
 
@@ -164,6 +182,21 @@ function reducer(state, action) {
           : state.zones,
         pendingVolume: {
           ...state.pendingVolume,
+          [action.uuid]: { level: action.level, at: Date.now() },
+        },
+      }
+
+    case 'localGroupVolume':
+      return {
+        ...state,
+        zones: state.zones[action.uuid]
+          ? {
+              ...state.zones,
+              [action.uuid]: { ...state.zones[action.uuid], group_volume: action.level },
+            }
+          : state.zones,
+        pendingGroupVolume: {
+          ...state.pendingGroupVolume,
           [action.uuid]: { level: action.level, at: Date.now() },
         },
       }
@@ -426,8 +459,10 @@ export function SystemProvider({ children }) {
       dispatch({ type: 'localVolume', uuid, level })
       return run(() => api.volume(uuid, level), { describe: 'notice.conflict.title', uuid })
     },
-    setGroupVolume: (uuid, level) =>
-      run(() => api.volume(uuid, level, true), { describe: 'notice.conflict.title', uuid }),
+    setGroupVolume: (uuid, level) => {
+      dispatch({ type: 'localGroupVolume', uuid, level })
+      return run(() => api.volume(uuid, level, true), { describe: 'notice.conflict.title', uuid })
+    },
     nudgeVolume: (uuid, delta) => run(() => api.nudgeVolume(uuid, delta), { uuid }),
     setMute: (uuid, muted, group = false) =>
       run(() => api.mute(uuid, muted, group), { describe: 'notice.conflict.title', uuid }),

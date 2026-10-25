@@ -3308,6 +3308,11 @@ class Commands:
         #: Households whose speakers were told to clear their time server and
         #: kept it anyway; see time_server_fixed.
         self._fixed_time_server: set[str] = set()
+        #: Per group coordinator: the level a slider last asked for and not yet
+        #: sent, one set at a time, and when a level was last sent.
+        self._group_volume_wanted: dict[str, int] = {}
+        self._group_volume_locks: dict[str, asyncio.Lock] = {}
+        self._group_volume_sent: dict[str, float] = {}
 
     @property
     def soap(self) -> SoapClient:
@@ -3485,15 +3490,41 @@ class Commands:
         a power cycle) unless told to take a fresh one. Measured 2026-09-05:
         without a snapshot a one-point raise moved one room 13 -> 18 and the
         other 5 -> 2; with one, both moved with the group. The official
-        controllers snapshot before adjusting, so this does too.
+        controllers snapshot before adjusting, so this does too: once, when an
+        adjustment begins, not again for every step of a drag, which doubled
+        the calls and could catch the members partway through the step before.
+
+        A dragged slider sends a step every 90ms or so. One set goes to a
+        group at a time, and a step that arrives while one is under way waits
+        in a single place, replaced by any newer one, so the speakers never
+        work through a queue of levels the slider has already passed.
         """
         target = self._c.coordinator_of(zone_uuid)
+        key = target.uuid
+        self._group_volume_wanted[key] = max(0, min(100, int(level)))
+        lock = self._group_volume_locks.setdefault(key, asyncio.Lock())
+        async with lock:
+            wanted = self._group_volume_wanted.pop(key, None)
+            if wanted is None:
+                return  # a later step was sent in this one's place
+            fresh = monotonic() - self._group_volume_sent.get(key, 0.0) > self.GROUP_VOLUME_GESTURE_S
+            try:
+                await self._send_group_volume(target, wanted, snapshot=fresh)
+            finally:
+                self._group_volume_sent[key] = monotonic()
+
+    #: How long after a group volume set the next one still counts as the same
+    #: adjustment, sharing its snapshot.
+    GROUP_VOLUME_GESTURE_S = 1.5
+
+    async def _send_group_volume(self, target, level: int, *, snapshot: bool) -> None:
         try:
-            await self.soap.call(target.host, const.GROUP_RENDERING_CONTROL,
-                                 "SnapshotGroupVolume", {"InstanceID": 0})
+            if snapshot:
+                await self.soap.call(target.host, const.GROUP_RENDERING_CONTROL,
+                                     "SnapshotGroupVolume", {"InstanceID": 0})
             await self.soap.call(
                 target.host, const.GROUP_RENDERING_CONTROL, "SetGroupVolume",
-                {"InstanceID": 0, "DesiredVolume": max(0, min(100, int(level)))},
+                {"InstanceID": 0, "DesiredVolume": level},
                 quiet_codes=self.GROUP_PARTIAL)
         except SoapFault as exc:
             if exc.code not in self.GROUP_PARTIAL:

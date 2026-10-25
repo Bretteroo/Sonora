@@ -48,3 +48,6 @@ upload, in the app's data folder. Home Assistant backups include it.
 ## Support
 
 Please report any issues you find with Sonora on [GitHub](https://github.com/Bretteroo/Sonora/issues).
+
+Sonora is free. If it's useful to you, you can
+[support the project on Ko-fi](https://ko-fi.com/bretteroo).

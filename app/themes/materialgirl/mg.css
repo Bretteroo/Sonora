@@ -377,7 +377,9 @@
   & .mg-icon-btn-standard[aria-pressed='true'] { color: var(--mg-primary); }
   & .mg-icon-btn:disabled { cursor: default; color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
   & .mg-icon-btn-filled:disabled, & .mg-icon-btn-tonal:disabled, & .mg-icon-btn-toggle:disabled { background: color-mix(in oklab, var(--mg-on-surface) 10%, transparent); }
-  & .mg-badge { position: absolute; top: 2px; right: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--mg-error); color: var(--mg-on-error); font-size: 11px; line-height: 16px; font-weight: 500; text-align: center; }
+  & .mg-badge { position: absolute; top: 2px; right: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--mg-primary); color: var(--mg-on-primary); font-size: 11px; line-height: 16px; font-weight: 500; text-align: center; }
+  /* M3 colors a badge with error, which reads as a warning. These only count
+     the rooms in a group and the tracks in a queue, so they take primary. */
   & .mg-step { position: relative; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
   & .mg-step-back { transform: scaleX(-1); }
 

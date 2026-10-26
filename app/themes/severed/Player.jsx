@@ -81,7 +81,7 @@ export function Seek({ zone, remaining = false, compact = false }) {
   const tr = zone?.transport || {}
   const { elapsed, duration, live } = useElapsed(tr)
   const seekable = Boolean(duration) && !live && tr.can_seek !== false && tr.state !== 'STOPPED'
-  const { drag, inputProps } = useSeekDrag(zone?.uuid, (at) => actions.seek(zone.uuid, hms(at)))
+  const { drag, inputProps } = useSeekDrag(zone?.uuid, (at) => actions.seek(zone.uuid, hms(at)), elapsed)
   const shown = drag ?? elapsed
   const pct = duration ? Math.max(0, Math.min(100, (shown / duration) * 100)) : (live && tr.state === 'PLAYING' ? 100 : 0)
   return (

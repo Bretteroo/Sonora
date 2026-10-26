@@ -105,7 +105,7 @@ function PositionBar({ zone }) {
   const tr = zone?.transport || {}
   const { elapsed, duration, live } = useElapsed(tr)
   const seekable = Boolean(duration) && !live && tr.can_seek !== false && tr.state !== 'STOPPED'
-  const { drag, inputProps } = useSeekDrag(zone?.uuid, (at) => actions.seek(zone.uuid, hms(at)))
+  const { drag, inputProps } = useSeekDrag(zone?.uuid, (at) => actions.seek(zone.uuid, hms(at)), elapsed)
   const shown = drag ?? elapsed
   const frac = duration ? Math.max(0, Math.min(1, shown / duration)) : 0
   // As many whole segments as the bar has room for, each the same width:

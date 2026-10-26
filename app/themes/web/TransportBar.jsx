@@ -16,6 +16,7 @@ import { cachedArt } from './Art.jsx'
 import { anchorAbove } from './menus.js'
 import PlayerMenu, { hasPlayerMenu } from './PlayerMenu.jsx'
 import { useOptimisticRatings } from '../../frontend/src/lib/optimisticRatings.js'
+import { badgeSrc } from './serviceMarks.js'
 
 // The bar along the bottom, driving whichever room is active. The transport
 // state and the local elapsed clock live in useTransport, shared with the Now
@@ -167,7 +168,7 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
                 product's own bar ("Take Ten" over a Pandora flag and Paul
                 Desmond). A service with no badge answers 404 and it goes. */}
             {transport.service_id ? (
-              <img className="wb-room-badge" src={`/api/services/badge/${transport.service_id}?size=40`}
+              <img className="wb-room-badge" src={badgeSrc(transport.service_id, zone.uuid)}
                    alt="" aria-hidden="true"
                    onError={(event) => { event.currentTarget.style.display = 'none' }} />
             ) : null}

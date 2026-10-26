@@ -5,6 +5,7 @@ import Art from './Art.jsx'
 import { anchorOf, menuAt, useDismiss } from './menus.js'
 import { useOnAir } from './onAir.js'
 import { kindLabel } from './kinds.js'
+import { badgeSrc } from './serviceMarks.js'
 
 // One playable thing, on a page of its own.
 //
@@ -85,7 +86,7 @@ export default function ServiceItemPage({
               name and nothing before AccuRadio's, which publishes no badge
               (Lovers Rock Reggae, 2026-09-28). A 404 removes the picture. */}
           {sid ? (
-            <img className="wb-room-badge" src={`/api/services/badge/${sid}?size=40`}
+            <img className="wb-room-badge" src={badgeSrc(sid, zone)}
                  alt="" aria-hidden="true"
                  onError={(event) => {
                    event.currentTarget.style.display = 'none'

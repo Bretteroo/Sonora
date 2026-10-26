@@ -7,6 +7,7 @@ import { Bin, Handle } from './icons.jsx'
 import { useTint } from './tint.js'
 import { useQueue } from '../../frontend/src/lib/useQueue.js'
 import { useTransport } from './useTransport.js'
+import { wordmarkSrc } from './serviceMarks.js'
 
 // The queue, where the product keeps it: in the column "Your System" was in.
 //
@@ -123,7 +124,7 @@ export default function QueuePanel({ zone, onClose }) {
             <div className="wb-np-mark">
               {transport.service_id ? (
                 <img className="wb-np-wordmark" alt={transport.service_name || ''}
-                     src={`/api/services/wordmark/${transport.service_id}`}
+                     src={wordmarkSrc(transport.service_id, zone.uuid)}
                      onError={(event) => { event.currentTarget.replaceWith(document.createTextNode(transport.service_name || '')) }} />
               ) : (transport.service_name || '')}
             </div>

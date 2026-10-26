@@ -11,6 +11,7 @@ import TileRow from './TileRow.jsx'
 import { PlayRow } from './icons.jsx'
 import { anchorOf, menuAt } from './menus.js'
 import { kindLabel } from './kinds.js'
+import { badgeSrc } from './serviceMarks.js'
 
 // A music service's own page.
 //
@@ -226,7 +227,7 @@ export default function ServicePage({ sid, name, summary = '', zone, item, accou
                 "Consider This from NPR" and nothing over Mixcloud's pages,
                 since Mixcloud publishes no badge (measured 2026-09-20). */}
             {sid ? (
-              <img className="wb-room-badge" src={`/api/services/badge/${sid}?size=40`}
+              <img className="wb-room-badge" src={badgeSrc(sid, zone)}
                    alt="" aria-hidden="true"
                    onError={(event) => { event.currentTarget.style.display = 'none' }} />
             ) : null}
@@ -258,7 +259,7 @@ export default function ServicePage({ sid, name, summary = '', zone, item, accou
             </div>
             <p className="wb-item-meta">
               {sid ? (
-                <img className="wb-room-badge" src={`/api/services/badge/${sid}?size=40`}
+                <img className="wb-room-badge" src={badgeSrc(sid, zone)}
                      alt="" aria-hidden="true"
                      onError={(event) => { event.currentTarget.style.display = 'none' }} />
               ) : null}

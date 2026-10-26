@@ -13,6 +13,7 @@ import { nextTransport } from '../../frontend/src/lib/transport.js'
 import { useTint } from './tint.js'
 // Shared with Sonofuture, which used to build this string by hand.
 import { groupLabelFor as groupLabel } from '../../frontend/src/lib/groups.js'
+import { badgeSrc } from './serviceMarks.js'
 
 // A room in the "Your System" sidebar.
 //
@@ -131,7 +132,7 @@ export default function RoomCard({ zone, members, active, onSelect, onGroup }) {
                 mark here; the rest answer 404 and the image removes itself,
                 which is what the product draws for them. */}
             {sid ? (
-              <img className="wb-room-badge" src={`/api/services/badge/${sid}?size=40`}
+              <img className="wb-room-badge" src={badgeSrc(sid, zone.uuid)}
                    alt="" aria-hidden="true"
                    onError={(event) => { event.currentTarget.style.display = 'none' }} />
             ) : null}

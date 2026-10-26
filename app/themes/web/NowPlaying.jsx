@@ -14,6 +14,7 @@ import { LyricsGlyph, NpPause, NpPlay, NpRepeat, NpRepeatOne, NpShuffle, NpStop,
 import Lyrics from './Lyrics.jsx'
 import { lyricsSong, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
 import { useProviderItem } from '../../frontend/src/lib/useProviderItem.js'
+import { wordmarkSrc } from './serviceMarks.js'
 
 // Now Playing, as the product opens it from the artwork in the bottom-left:
 // a card that takes the browse column's place while "Your System" stays put
@@ -178,7 +179,7 @@ export default function NowPlaying({ zone, label = '', grouping = false, onClose
             <div className="wb-np-mark">
               {transport.service_id ? (
                 <img className="wb-np-wordmark" alt={transport.service_name || ''}
-                     src={`/api/services/wordmark/${transport.service_id}`}
+                     src={wordmarkSrc(transport.service_id, zone.uuid)}
                      onError={(event) => { event.currentTarget.style.display = 'none' }} />
               ) : null}
             </div>

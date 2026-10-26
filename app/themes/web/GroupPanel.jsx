@@ -7,6 +7,7 @@ import Slider from './Slider.jsx'
 import { VolumeCone, VolumeConeOff } from './icons.jsx'
 import { useTint } from './tint.js'
 import { heldStation } from './useTransport.js'
+import { badgeSrc } from './serviceMarks.js'
 
 // Grouping, where the product puts it: in place of the room list.
 //
@@ -72,7 +73,7 @@ export default function GroupPanel({ zone, onClose }) {
               {/* The service's mark before the words, as the room's card and
                   the player's meta line carry it (2026-09-21). */}
               {transport.service_id ? (
-                <img className="wb-room-badge" src={`/api/services/badge/${transport.service_id}?size=40`}
+                <img className="wb-room-badge" src={badgeSrc(transport.service_id, zone.uuid)}
                      alt="" aria-hidden="true"
                      onError={(event) => { event.currentTarget.style.display = 'none' }} />
               ) : null}

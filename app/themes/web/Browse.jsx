@@ -22,6 +22,7 @@ import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
 import useEdgeFade from './useEdgeFade.js'
 import { orderServices } from './serviceOrder.js'
+import { badgeSrc } from './serviceMarks.js'
 
 // The browse column.
 //
@@ -699,7 +700,7 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
             ) : expanded ? (
               <div className="wb-tiles">
                 {shown.map((item) => (
-                  <Tile key={item.id} item={item} onPlay={() => openTile(item)} />
+                  <Tile key={item.id} item={item} zone={browseUuid} onPlay={() => openTile(item)} />
                 ))}
               </div>
             ) : (
@@ -707,7 +708,7 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
                  and the product fills it. */
               <TileRow items={items}
                        render={(item) => (
-                         <Tile key={item.id} item={item} onPlay={() => openTile(item)} />
+                         <Tile key={item.id} item={item} zone={browseUuid} onPlay={() => openTile(item)} />
                        )} />
             )}
           </section>
@@ -940,7 +941,7 @@ function Sources({ active, onPlay, library = false, onLibrary }) {
   )
 }
 
-function Tile({ item, onPlay }) {
+function Tile({ item, zone, onPlay }) {
   const { t } = useI18n()
   // The service's own attribution mark, before the content type under the
   // tile. Not on the artwork: the pale 'a' at the corner of Audacy's
@@ -951,7 +952,7 @@ function Tile({ item, onPlay }) {
   // itself, which is why Mixcloud's and Plex's rows carry none.
   const sid = item.service_id
   const badge = (className, size) => (sid ? (
-    <img className={className} src={`/api/services/badge/${sid}?size=${size}`}
+    <img className={className} src={badgeSrc(sid, zone, size)}
          alt="" aria-hidden="true"
          onError={(event) => { event.currentTarget.style.display = 'none' }} />
   ) : null)
@@ -1042,7 +1043,7 @@ function PinnedRows({ zone, nav, onPlay, refresh }) {
           <TileRow
             items={rows}
             render={(item) => (
-              <Tile key={item.id} item={item}
+              <Tile key={item.id} item={item} zone={zone}
                     onPlay={() => (item.is_container && !isPlayableLeaf(item)
                       ? nav.push({ kind: 'service-item', sid: pin.sid, name: item.title, item: item.id, zone, account_id: pin.account_id || '' })
                       : onPlay(item))} />

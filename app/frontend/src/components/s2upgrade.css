@@ -317,26 +317,40 @@
   padding: 18px 22px 24px;
 }
 
-/* The chosen plan slides in, so a switch reads as one panel replacing
-   another rather than the page jumping. The wrapper is keyed on the choice in
-   the component, which remounts it and replays this. */
+/* The answer to the question folds shut, swaps, and folds open, so a switch
+   reads as one panel giving way to another and the page's length follows it
+   rather than jumping. The component sets the phase and swaps the content
+   between the two folds. A fraction row animates its height without anyone
+   measuring it. */
 .s2-switch {
   display: grid;
   /* The same bounded track as .s2-body. Left implicit, the column took the
      bill table's width and carried the heading, blurb and notes off the right
      of a phone with it; only the table should scroll. */
   grid-template-columns: minmax(0, 1fr);
-  gap: 22px;
-  animation: s2-slide-in 260ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 240ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity 180ms ease;
 }
 
-@keyframes s2-slide-in {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: none; }
+.s2-switch[data-phase='closing'] {
+  grid-template-rows: 0fr;
+  opacity: 0;
 }
+
+.s2-switch-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* At rest nothing is clipped: a table's shadow and a focused link's ring
+   reach past the body's box. */
+.s2-switch[data-phase='open'] > .s2-switch-body { overflow: visible; }
 
 @media (prefers-reduced-motion: reduce) {
-  .s2-switch { animation: none; }
+  .s2-switch { transition: none; }
 }
 
 /* Centered columns: the verdict and the tier are badges, and a price is money,

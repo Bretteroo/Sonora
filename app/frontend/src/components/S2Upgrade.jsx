@@ -117,6 +117,7 @@ export default function S2Upgrade({ onClose = null }) {
   const [choice, setChoice] = useState(null)
   const chosen = options.find((option) => option.value === choice) || options[0]
   const current = chosen.value
+  const fold = useFoldSwap(current)
 
   useEffect(() => {
     if (!onClose) return undefined
@@ -273,6 +274,21 @@ export default function S2Upgrade({ onClose = null }) {
     fine: plan.tierUnknown > 0 && <p className="s2-fine">{t.plural('s2.tierUnknownNote', plan.tierUnknown)}</p>,
   })
 
+  const answerFor = (value) => {
+    const picked = options.find((option) => option.value === value) || chosen
+    if (value === 'stay' || (value === 's2' && !plan.hasS1)) {
+      // Nothing to buy, so the answer is the option's own words rather
+      // than an empty bill.
+      return (
+        <section className="s2-section">
+          <h3>{picked.label}</h3>
+          <p className="s2-blurb">{picked.note}</p>
+        </section>
+      )
+    }
+    return value === 's2' ? s2Bill : s21Bill
+  }
+
   // The question and its answer. A house already wholly on S2.1 is asked
   // nothing and sees the line below instead.
   const chooser = (
@@ -294,20 +310,10 @@ export default function S2Upgrade({ onClose = null }) {
         ))}
       </fieldset>
 
-      {/* Keyed on the choice so switching remounts this and the slide runs. */}
-      <div className="s2-switch" key={current}>
-        {current === 'stay' || (current === 's2' && !plan.hasS1) ? (
-          // Nothing to buy, so the answer is the option's own words rather
-          // than an empty bill.
-          <section className="s2-section">
-            <h3>{chosen.label}</h3>
-            <p className="s2-blurb">{chosen.note}</p>
-          </section>
-        ) : (
-          <>
-            {current === 's2' ? s2Bill : s21Bill}
-          </>
-        )}
+      {/* The fold shows the old answer while it shuts and the new one as it
+          opens, so the markup is for the fold's choice, not the radio's. */}
+      <div className="s2-switch" data-phase={fold.phase} onTransitionEnd={fold.onEnd}>
+        <div className="s2-switch-body">{answerFor(fold.shown)}</div>
       </div>
     </>
   )
@@ -342,4 +348,33 @@ export default function S2Upgrade({ onClose = null }) {
       </div>
     </div>
   )
+}
+
+// The answer's fold: it shuts on the old choice, swaps, and opens on the new
+// one, and the markup follows the phase. Each phase ends when the fold's
+// transition does, with a timer behind that for when no transition runs
+// (reduced motion, or a theme that turned it off).
+const FOLD_MS = 240
+function useFoldSwap(key) {
+  const [fold, setFold] = useState({ shown: key, phase: 'open' })
+  useEffect(() => {
+    setFold((f) => {
+      if (key === f.shown) return f.phase === 'closing' ? { ...f, phase: 'opening' } : f
+      if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return { shown: key, phase: 'open' }
+      return f.phase === 'closing' ? f : { ...f, phase: 'closing' }
+    })
+  }, [key])
+  const advance = (f) => (
+    f.phase === 'closing' ? { shown: key, phase: 'opening' }
+      : f.phase === 'opening' ? { ...f, phase: 'open' }
+        : f)
+  useEffect(() => {
+    if (fold.phase === 'open') return undefined
+    const timer = setTimeout(() => setFold(advance), FOLD_MS + 80)
+    return () => clearTimeout(timer)
+  }, [fold.phase, fold.shown, key])
+  const onEnd = (event) => {
+    if (event.target === event.currentTarget && event.propertyName === 'grid-template-rows') setFold(advance)
+  }
+  return { shown: fold.shown, phase: fold.phase, onEnd }
 }

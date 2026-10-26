@@ -820,13 +820,23 @@
 :where(:root[data-theme='sonofuture']) .sf-settings-tab[aria-current] { background: rgba(79, 227, 193, 0.12); color: var(--t-fg); }
 :where(:root[data-theme='sonofuture']) .sf-settings-tab[aria-current] svg { color: var(--t-accent); }
 :where(:root[data-theme='sonofuture']) .sf-settings-nav-foot { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--t-border); display: flex; flex-direction: column; gap: 2px; }
-:where(:root[data-theme='sonofuture']) .sf-settings-page { min-width: 0; max-width: 820px; }
+:where(:root[data-theme='sonofuture']) .sf-settings-page { min-width: 0; max-width: 884px; /* 820px of content plus the gutters below */ }
 /* Beside its list, a settings page scrolls on its own and the list holds still, each in its own
    column; in a narrow window the list becomes a strip over the page and they scroll as one. */
 @media (min-width: 901px) {
   :where(:root[data-theme='sonofuture']) .sf-main:has(> .sf-settings) { overflow: hidden; display: grid; padding-top: 0; padding-bottom: 0; }
   :where(:root[data-theme='sonofuture']) .sf-main > .sf-settings { min-height: 0; }
-  :where(:root[data-theme='sonofuture']) .sf-main > .sf-settings > :is(.sf-settings-nav, .sf-settings-page) { min-height: 0; overflow: auto; overscroll-behavior: contain; padding-top: 22px; padding-bottom: 28px; }
+  /* A scroll container clips at its padding edge, so each column carries a gutter as padding and
+     gives it back as margin. Without one, a focused select at the page's full width kept its ring
+     along the top and bottom only, and a card's shadow ended in a straight line at its sides.
+     The list needs only its tabs' ring. The page takes 32px each side, the reach of a 32px blur:
+     into the pane's own padding on the right, and across the column gap and 12px under the list
+     on the left. The list is stacked above it, so clicks and wheel over its tabs stay its own,
+     and nothing but the tail of a shadow is ever drawn in that strip. The bottom padding is the
+     one shadow's full reach. */
+  :where(:root[data-theme='sonofuture']) .sf-main > .sf-settings > :is(.sf-settings-nav, .sf-settings-page) { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 22px 4px 28px; margin-inline: -4px; }
+  :where(:root[data-theme='sonofuture']) .sf-main > .sf-settings > .sf-settings-nav { position: relative; z-index: 1; }
+  :where(:root[data-theme='sonofuture']) .sf-main > .sf-settings > .sf-settings-page { padding: 22px 32px 44px; margin-inline: -32px; }
 }
 /* The upgrade advisor's tables take the whole width there is. */
 :where(:root[data-theme='sonofuture']) .sf-settings-page[data-page='s2'] { max-width: none; }

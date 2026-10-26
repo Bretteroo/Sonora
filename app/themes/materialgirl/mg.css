@@ -1455,6 +1455,10 @@
   & .mg-root:not(.mg-size-compact) .mg-main > .mg-settings:not(.mg-settings-single) > :is(.mg-settings-list, .mg-settings-detail) {
     position: static; min-height: 0; overflow: auto; overscroll-behavior: contain;
     padding-top: 32px; padding-bottom: calc(120px + var(--mg-nav-h));
+    /* A scroll container clips at its padding edge: without this gutter, given back as margin, the
+       theme preview's elevation ended in a line down its left side. 8px holds a card's shadow
+       and a focus ring. */
+    padding-inline: 8px; margin-inline: -8px;
   }
   & .mg-root:not(.mg-size-compact) .mg-main > .mg-settings:not(.mg-settings-single) > .mg-settings-list { justify-content: flex-start; }
   & .mg-clockface { display: flex; flex-direction: column; gap: 4px; padding: 24px; border-radius: 28px; }

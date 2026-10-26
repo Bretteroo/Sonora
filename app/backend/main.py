@@ -2633,6 +2633,21 @@ async def service_badge(sid: int, zone: str | None = None,
 
     The product prints one before the content type under a tile, before a
     room card's second line and before the bar's -- a Pandora flag, an Audacy
+async def _catalog_entry(ctl, sid: int, zone: str | None) -> dict | None:
+    """A service's catalog entry, from the zone's household, or with no zone
+    from whichever household offers it. Looking only in the first household
+    left every S2-only service without a badge or wordmark wherever a caller
+    named no room (TuneIn (New) in the Sonos Web bar)."""
+    households = ([ctl.household_of(zone)] if zone else list(ctl.ordered_households()))
+    for household in households:
+        if household is None:
+            continue
+        info = (await ctl.cloud.service_catalog(household.cloud_id)).get(sid)
+        if info is not None:
+            return info
+    return None
+
+
     triangle -- and nothing at all for a service that publishes none. Which is
     which comes from the catalog's brand assets, so the 404 here means
     "draw nothing" rather than "something went wrong".
@@ -2646,13 +2661,10 @@ async def service_badge(sid: int, zone: str | None = None,
     twice the size the product gives them.
     """
     ctl = controller()
-    household = (ctl.household_of(zone) if zone
-                 else next(iter(ctl.ordered_households()), None))
-    if household is None or not ctl.cloud.signed_in:
+    if not ctl.cloud.signed_in:
         raise HTTPException(404, "no badge for that service")
     try:
-        catalog = await ctl.cloud.service_catalog(household.cloud_id)
-        info = catalog.get(sid)
+        info = await _catalog_entry(ctl, sid, zone)
         if info is None:
             raise HTTPException(404, "no badge for that service")
         body, content_type = await ctl.cloud.badge(
@@ -2672,13 +2684,10 @@ async def service_wordmark(sid: int, zone: str | None = None) -> Response:
     it does not.
     """
     ctl = controller()
-    household = (ctl.household_of(zone) if zone
-                 else next(iter(ctl.ordered_households()), None))
-    if household is None or not ctl.cloud.signed_in:
+    if not ctl.cloud.signed_in:
         raise HTTPException(404, "no wordmark for that service")
     try:
-        catalog = await ctl.cloud.service_catalog(household.cloud_id)
-        info = catalog.get(sid)
+        info = await _catalog_entry(ctl, sid, zone)
         if info is None:
             raise HTTPException(404, "no wordmark for that service")
         body, content_type = await ctl.cloud.brand_image(

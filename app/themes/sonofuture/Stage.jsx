@@ -14,8 +14,8 @@ import Lyrics from './Lyrics.jsx'
 
 // The stage: the room in view filling the window. The artwork, blurred,
 // lights the whole surface; the lines are captioned the way the source calls
-// for; the service's own rating buttons sit under them; every room of the
-// group has its own volume; the queue runs down the side, shown or hidden
+// for; the service's own rating buttons sit under them; a group has one
+// volume, the group's, and a room alone its own; the queue runs down the side, shown or hidden
 // with the same Queue button as the bar's drawer. When the queue is empty or
 // is not what plays (a station, a TV, a Connect session) the column starts
 // hidden, and the button opens it for this visit only.
@@ -129,19 +129,20 @@ export default function Stage({ zone, group, zones, queue, queueOpen, onQueue, o
             </div>
           </div>
           <div className="sf-stage-volumes">
-            {members.length > 1 && (
+            {/* One slider, drawn large: a group's, with each room's own volume
+                left to the group sheet, or a lone room's. */}
+            {members.length > 1 ? (
               <div className="sf-vol-row sf-vol-group">
-                <span className="sf-vol-name">{t('desk.transport.groupVolume')}</span>
-                <IconButton size="sm" label={zone.group_muted ? t('common.unmute') : t('common.mute')} onClick={() => actions.setMute(zone.uuid, !zone.group_muted, true)}>
+                <span className="sf-vol-name sf-caption">{t('desk.transport.groupVolume')}</span>
+                <IconButton size="md" label={zone.group_muted ? t('common.unmute') : t('common.mute')} onClick={() => actions.setMute(zone.uuid, !zone.group_muted, true)}>
                   {zone.group_muted ? <I.Muted /> : <I.Volume />}
                 </IconButton>
                 <Slider value={zone.group_volume ?? 0} label={t('desk.transport.groupVolume')} onCommit={(level) => actions.setGroupVolume(zone.uuid, level)} />
               </div>
-            )}
-            {(members.length ? members : [zone]).filter(Boolean).map((m) => (
+            ) : [members[0] || zone].filter(Boolean).map((m) => (
               <div key={m.uuid} className="sf-vol-row">
-                <span className="sf-vol-name">{m.name}</span>
-                <IconButton size="sm" label={m.muted ? t('common.unmute') : t('common.mute')} onClick={() => actions.setMute(m.uuid, !m.muted)}>
+                <span className="sf-vol-name sf-caption">{m.name}</span>
+                <IconButton size="md" label={m.muted ? t('common.unmute') : t('common.mute')} onClick={() => actions.setMute(m.uuid, !m.muted)}>
                   {m.muted ? <I.Muted /> : <I.Volume />}
                 </IconButton>
                 <Slider value={m.volume ?? 0} label={m.name} onCommit={(level) => actions.setVolume(m.uuid, level)} />

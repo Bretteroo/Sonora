@@ -767,13 +767,20 @@
 :where(:root[data-theme='sonofuture']) .sf-stage-controls { grid-area: controls; display: flex; flex-direction: column; gap: 10px; }
 :where(:root[data-theme='sonofuture']) .sf-stage-transport { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
 :where(:root[data-theme='sonofuture']) .sf-stage-transport .sf-modes { justify-self: end; margin-right: 20px; }
-/* The volumes keep the width the player has with the queue open, whether
-   it is open or shut: sized to the sliding column, they would rewrap
-   mid-slide and jump.
-   Centered, they glide with the transport above them instead. */
+/* The one volume row runs the width of the column, like the seek bar above it, and follows it as
+   the queue slides. (Several rows used to keep the width the player has with the queue open,
+   whether open or shut, so that they would not rewrap mid-slide; one row has nothing to rewrap.) */
 :where(:root[data-theme='sonofuture']) .sf-stage-body { container-type: inline-size; --sf-stage-gap: 24px; }
-:where(:root[data-theme='sonofuture']) .sf-stage-volumes { grid-area: volumes; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 24px; width: calc(100cqw - var(--sf-stage-queue) - var(--sf-stage-gap)); justify-self: center; }
-:where(:root[data-theme='sonofuture']) .sf-vol-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "name name" "mute slider"; align-items: center; column-gap: 4px; padding: 8px 10px; border-radius: 12px; background: rgba(148, 163, 184, 0.06); }
+:where(:root[data-theme='sonofuture']) .sf-stage-volumes { grid-area: volumes; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 24px; }
+/* The mute button takes its own width and the slider the rest: the other way round, the button's
+   column swallowed the row and left the slider short and far from the speaker glyph. */
+:where(:root[data-theme='sonofuture']) .sf-vol-row { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "name name" "mute slider"; align-items: center; column-gap: 0; padding: 8px 10px; border-radius: 12px; background: rgba(148, 163, 184, 0.06); }
+/* The stage's one slider, a group's or a lone room's, across the whole block and drawn large, as
+   a bare line with a caption, not a boxed row: like the seek bar above it, nothing else on the
+   stage sits in a box, and a boxed row read as the one thing selected. */
+:where(:root[data-theme='sonofuture']) .sf-stage-volumes > .sf-vol-row { grid-column: 1 / -1; padding: 0; background: none; }
+:where(:root[data-theme='sonofuture']) .sf-stage-volumes > .sf-vol-row .sf-vol-name { padding: 0 0 6px; }
+:where(:root[data-theme='sonofuture']) .sf-stage-volumes .sf-slider { height: 36px; }
 :where(:root[data-theme='sonofuture']) .sf-vol-row .sf-vol-name { grid-area: name; font-size: 12px; color: var(--t-fg-muted); padding: 0 4px 2px; }
 :where(:root[data-theme='sonofuture']) .sf-vol-row .sf-icon-btn { grid-area: mute; }
 :where(:root[data-theme='sonofuture']) .sf-vol-row .sf-slider { grid-area: slider; }
@@ -980,16 +987,30 @@
   :where(:root[data-theme='sonofuture']) .sf-stage-body { grid-template-columns: minmax(0, 1fr); padding: 0 16px 20px; }
   :where(:root[data-theme='sonofuture']) .sf-stage-volumes { width: auto; justify-self: stretch; }
   :where(:root[data-theme='sonofuture']) .sf-stage-main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "art" "lines" "controls" "volumes"; gap: 16px; }
-  :where(:root[data-theme='sonofuture']) .sf-stage-art { max-width: min(420px, 70vw); margin: 0 auto; }
-  /* Under the player here, so it opens downward instead: its one row grows
-     from nothing to its full height. Its row is as tall as the queue, which
-     the player above already fills the screen without; left to share the
-     leftover room, it had none and the queue never showed. */
-  :where(:root[data-theme='sonofuture']) .sf-stage-body { grid-template-rows: auto max-content; transition: row-gap 240ms var(--sf-ease); }
-  :where(:root[data-theme='sonofuture']) .sf-stage-body:not([data-queue]) { grid-template-columns: minmax(0, 1fr); row-gap: 0; }
-  :where(:root[data-theme='sonofuture']) .sf-stage-body:not([data-queue]) .sf-stage-queue { grid-template-rows: 0fr; }
-  :where(:root[data-theme='sonofuture']) .sf-stage-queue { border-left: 0; }
-  :where(:root[data-theme='sonofuture']) .sf-stage-queue-inner { min-width: 0; padding-left: 0; }
+  /* The whole player on one screen, nothing to scroll to. The column is given
+     the body's height (a size container, so that height is known) and the
+     artwork takes whatever the lines, the controls and the volume row leave,
+     growing on a tall screen and giving way on a short one; only under 96px
+     of art does the column scroll instead. The lines are kept to a height:
+     two for the title, one each for the artist and what is next. */
+  :where(:root[data-theme='sonofuture']) .sf-stage-body { container-type: size; }
+  :where(:root[data-theme='sonofuture']) .sf-stage-main { align-self: start; height: 100cqh; grid-template-rows: minmax(96px, 1fr) auto auto auto; gap: 12px; }
+  :where(:root[data-theme='sonofuture']) .sf-stage-art { width: auto; height: 100%; max-width: 100%; max-height: 100%; justify-self: center; }
+  :where(:root[data-theme='sonofuture']) .sf-stage-lines { gap: 8px; }
+  :where(:root[data-theme='sonofuture']) .sf-stage-title .sf-value { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  :where(:root[data-theme='sonofuture']) .sf-stage-line .sf-value { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Here the queue is a panel that slides in from the right over the player,
+     which stays as it is behind it and never grows to scroll: only the list
+     scrolls. Shut, it waits off the right edge, hidden and inert. (It used
+     to open downward under the player, which made the whole player a
+     scrolling column again.) */
+  :where(:root[data-theme='sonofuture']) .sf-stage-body { overflow-x: hidden; }
+  :where(:root[data-theme='sonofuture']) .sf-stage-body:not([data-queue]) { grid-template-columns: minmax(0, 1fr); }
+  :where(:root[data-theme='sonofuture']) .sf-stage-queue { position: absolute; inset: 0; z-index: 2; grid-template-rows: minmax(0, 1fr); }
+  :where(:root[data-theme='sonofuture']) .sf-stage-body:not([data-queue]) .sf-stage-queue { visibility: hidden; transform: translateX(100%); transition: transform 280ms var(--sf-ease), visibility 0s linear 280ms; }
+  :where(:root[data-theme='sonofuture']) .sf-stage-body[data-queue] .sf-stage-queue { visibility: visible; transform: none; transition: transform 280ms var(--sf-ease), visibility 0s; }
+  :where(:root[data-theme='sonofuture']) .sf-stage-queue-inner { min-width: 0; padding: 16px 16px 0; }
+  :where(:root[data-theme='sonofuture']) .sf-stage-queue .sf-queue-list { padding-bottom: 20px; }
   :where(:root[data-theme='sonofuture']) .sf-sheet-side { width: 100%; }
   :where(:root[data-theme='sonofuture']) .sf-layer-palette { padding: 8vh 10px 10px; }
   :where(:root[data-theme='sonofuture']) .sf-toasts { bottom: calc(var(--sf-bar) + 74px); right: 12px; }
@@ -1065,16 +1086,8 @@
   :where(:root[data-theme='sonofuture']) .sf-stage-transport .sf-modes { order: 2; justify-self: center; margin-right: 0; }
   :where(:root[data-theme='sonofuture']) .sf-stage-spacer { display: none; }
 
-  /* The artwork gives way so the volume row is on screen rather than clipped
-     off the bottom of it. The room's volume is the control a phone most
-     wants here and it was the one thing that did not fit. */
-  :where(:root[data-theme='sonofuture']) .sf-stage-art { max-width: min(100%, 30vh); justify-self: center; }
-
-  /* And when it still does not fit -- a short screen, a group with a row per
-     room -- the column scrolls instead of being cut off. Centering it in a
-     box too small for it clipped both ends and offered no way to reach
-     them. */
-  :where(:root[data-theme='sonofuture']) .sf-stage-main { align-self: start; }
+  :where(:root[data-theme='sonofuture']) .sf-stage-controls { gap: 6px; }
+  :where(:root[data-theme='sonofuture']) .sf-stage-transport { row-gap: 4px; }
   :where(:root[data-theme='sonofuture']) .sf-sources { inset: 0 15% calc(var(--sf-bar) + 62px) 0; }
   :where(:root[data-theme='sonofuture']) .sf-page-head { align-items: flex-start; flex-direction: column; }
   :where(:root[data-theme='sonofuture']) .sf-qrow-tools { opacity: 1; }

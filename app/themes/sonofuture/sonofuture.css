@@ -61,3 +61,15 @@
 /* A service draws its rating icons as white line art; by daylight they are inked dark, or they
    vanish into the light chip. */
 :root[data-theme='sonofuture'][data-variant='light'] .sf-rating img { filter: brightness(0.25); }
+
+/* The stage's volume: a thicker track and a bigger thumb than the shell's sliders. */
+:root[data-theme='sonofuture'] .sf-stage-volumes .sf-slider::before,
+:root[data-theme='sonofuture'] .sf-stage-volumes .sf-slider::after { height: 8px; }
+:root[data-theme='sonofuture'] .sf-stage-volumes .sf-slider input::-webkit-slider-thumb { width: 22px; height: 22px; margin-top: -7px; }
+:root[data-theme='sonofuture'] .sf-stage-volumes .sf-slider input::-moz-range-thumb { width: 22px; height: 22px; }
+
+/* On a phone the queue slides in over the player (rail-shell.css), so it is a
+   raised sheet with the sheets' own shadow off its leading edge. */
+@media (max-width: 900px) {
+  :root[data-theme='sonofuture'] .sf-stage-queue { background: var(--t-bg-raised); box-shadow: var(--t-shadow); will-change: transform; }
+}

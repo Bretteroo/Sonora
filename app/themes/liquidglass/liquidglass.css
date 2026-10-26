@@ -504,6 +504,12 @@
 :root[data-theme='liquidglass'] .sf-tag { border-radius: 999px; background: var(--lg-neutral); }
 :root[data-theme='liquidglass'] .sf-vol-row { border-radius: 16px; background: var(--lg-neutral-soft); }
 :root[data-theme='liquidglass'] .sf-vol-group { background: var(--lg-tint-soft); }
+/* On the stage the volume is drawn the way the seek bar above it is: a bare
+   line on the lit artwork, its caption in the lines' own small capitals, no
+   box. Nothing else on the stage sits in one, and a boxed row, lit or
+   tinted, read as the one thing selected. */
+:root[data-theme='liquidglass'] .sf-stage-volumes { position: relative; z-index: 1; }
+:root[data-theme='liquidglass'] .sf-stage-volumes > .sf-vol-row { background: none; box-shadow: none; }
 /* A service draws its own rating icons and they are white line art, so the
    chip under them stays dark in both schemes; a light one made the star and
    the ban glyph disappear (light mode). */
@@ -527,6 +533,11 @@
   width: 18px; height: 18px; background: #fff;
   box-shadow: 0 1px 4px rgba(16, 24, 40, 0.34), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
 }
+/* The stage's volume: a wider capsule and a bigger bead. */
+:root[data-theme='liquidglass'] .sf-stage-volumes .sf-slider::before,
+:root[data-theme='liquidglass'] .sf-stage-volumes .sf-slider::after { height: 10px; }
+:root[data-theme='liquidglass'] .sf-stage-volumes .sf-slider input::-webkit-slider-thumb { width: 24px; height: 24px; margin-top: -7px; }
+:root[data-theme='liquidglass'] .sf-stage-volumes .sf-slider input::-moz-range-thumb { width: 24px; height: 24px; }
 :root[data-theme='liquidglass'] .sf-seek-track::before { height: 5px; border-radius: 999px; }
 :root[data-theme='liquidglass'] .sf-seek-track::after { height: 5px; border-radius: 999px; background: var(--t-fg-muted); }
 :root[data-theme='liquidglass'] .sf-seek[data-seekable] .sf-seek-track::after { background: var(--sf-accent-grad); }
@@ -540,6 +551,18 @@
 
 :root[data-theme='liquidglass'] .sf-stage-art { border-radius: 26px; box-shadow: 0 40px 90px rgba(16, 24, 40, 0.42); }
 :root[data-theme='liquidglass'] .sf-stage-queue { border-left: 1px solid var(--lg-hairline); }
+/* On a phone the queue slides in over the player (rail-shell.css), so it is a
+   sheet of glass: the strong fill and the blur over the player behind it, and
+   a cast off its leading edge. */
+@media (max-width: 900px) {
+  :root[data-theme='liquidglass'] .sf-stage-queue {
+    background: var(--lg-fill-strong);
+    /* The thin blur: the full one is re-run under the panel on every frame of the slide. */
+    -webkit-backdrop-filter: var(--lg-blur-thin); backdrop-filter: var(--lg-blur-thin);
+    box-shadow: -8px 0 32px rgba(16, 24, 40, 0.22);
+    will-change: transform;
+  }
+}
 :root[data-theme='liquidglass'] .sf-stage-controls,
 :root[data-theme='liquidglass'] .sf-stage-lines { position: relative; z-index: 1; }
 

@@ -5267,6 +5267,18 @@ button.wb-settings-row:disabled {
   .wb-sr-all-title { font-size: 28px; line-height: 34px; }
 }
 
+/* The bar's queue button rests white, not the muted gray of the other icon
+   buttons, and goes to white at 0.9 under the pointer: 255 and then 230 on
+   black (play.sonos.com, 2026-10-26). */
+.wb-transport-right > .wb-icon-btn.wb-transport-queue {
+  color: var(--t-fg);
+}
+
+.wb-transport-right > .wb-icon-btn.wb-transport-queue:hover:not(:disabled) {
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 1;
+}
+
 /* The bar's queue button while the queue is open: a 40px white disc with the
    glyph in black, and a second press closes the panel (play.sonos.com,
    2026-09-22). */

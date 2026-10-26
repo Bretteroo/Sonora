@@ -2184,8 +2184,11 @@ button.wb-settings-row:disabled {
    rail at (1192,41) with a 12px thumb, and the readout at x=1376. A source
    with no queue disables every control at opacity 0.2 and shows Stop. */
 
+/* Three equal thirds 16px apart, the middle one never narrower than the five
+   controls (play.sonos.com at 1600 wide: 515px each, 2026-10-26). */
 .wb-transport {
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(328px, 1fr) minmax(0, 1fr);
+  column-gap: 16px;
   padding: 0 12px;
   align-items: start;
 }
@@ -2222,7 +2225,7 @@ button.wb-settings-row:disabled {
 
 .wb-transport-center {
   margin-top: 12px;
-  gap: 11px;
+  gap: 4px;
 }
 
 .wb-transport-buttons {
@@ -2272,18 +2275,19 @@ button.wb-settings-row:disabled {
   background: var(--t-surface-input);
 }
 
-/* Elapsed, rail, and remaining: 28px readouts 8px either side of a 446px
-   rail, the three centered under the play disc; the digits are 12px and
-   white, not the buttons' gray (play.sonos.com at 1600x900, 2026-09-28). */
+/* Elapsed, rail, and remaining, across the whole center column: the bar is
+   three equal thirds with 16px between them, so the rail is what a third
+   leaves after the two readouts and 8px either side of it -- 446px at 1600
+   wide, less in a narrower window. The digits are 12px white, sized to their
+   text. A live broadcast has neither readout and the rail takes the width
+   (play.sonos.com, 2026-10-26). The row is the rail's 16px, centered 32px
+   under the play disc. */
 .wb-progress-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 518px;
-  max-width: 40vw;
-  /* As tall as the rail, so the rail stays 32px under the play disc's center
-     and the digits hang either side of it. */
-  height: 2px;
+  width: 100%;
+  height: 16px;
   font-size: 12px;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -2292,7 +2296,6 @@ button.wb-settings-row:disabled {
 
 .wb-bar-time {
   flex: none;
-  min-width: 28px;
   text-align: right;
 }
 
@@ -2300,28 +2303,131 @@ button.wb-settings-row:disabled {
   text-align: left;
 }
 
+/* The rail: a 2px line in a 16px row that takes the pointer 10px further
+   above and below. */
 .wb-progress {
   position: relative;
   flex: 1 1 auto;
+  /* The first pass above gave the rail a fixed width, which a row cannot
+     shrink below; here it is whatever the row leaves. */
   width: auto;
+  max-width: none;
   min-width: 0;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  touch-action: none;
+  user-select: none;
+  cursor: not-allowed;
+}
+
+.wb-progress::before {
+  content: '';
+  position: absolute;
+  inset: -10px 0;
+}
+
+.wb-progress[data-seekable='true'] { cursor: pointer; }
+
+.wb-progress-track {
+  position: relative;
+  width: 100%;
   height: 2px;
-  border-radius: 2px;
+  overflow: hidden;
+  border-radius: 9999px;
   background: rgba(255, 255, 255, 0.1);
 }
 
 .wb-progress-fill {
   position: absolute;
   inset: 0 auto 0 0;
-  border-radius: 2px;
+  border-radius: 9999px;
   background: var(--t-fg);
 }
 
-/* A station's fill dims further than its rail: rgb(71,71,71) over the
-   rail's rgb(13,13,13) on AccuRadio, where Sonora had drawn it at half
-   white (2026-09-28). */
-.wb-progress[data-seekable='false'] .wb-progress-fill {
+/* With nothing to seek, the rail and its fill each go to half, so the fill
+   reads a quarter white: rgb(71,71,71) over the rail's rgb(13,13,13) on an
+   AccuRadio station (2026-09-28), as the product's nested opacities give. */
+.wb-progress:not([data-seekable='true']) .wb-progress-track,
+.wb-progress:not([data-seekable='true']) .wb-progress-fill {
   opacity: 0.5;
+}
+
+/* Not the whole rail as well, which the first pass above did: that halved it
+   twice, to rgb(35,35,35) over rgb(6,6,6). */
+.wb-progress:not([data-seekable='true']) {
+  opacity: 1;
+}
+
+/* The knob: 12px of white at the end of the fill, there only while the
+   pointer is over the rail. A press focuses it and it stays, ringed in pale
+   blue and a gray rim, until the focus moves on, as the product's does. */
+.wb-progress-knob {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 9999px;
+  background: var(--t-fg);
+  opacity: 0;
+  outline: none;
+}
+
+.wb-progress:hover .wb-progress-knob,
+.wb-progress-knob:focus-visible {
+  opacity: 1;
+}
+
+/* A rail that cannot seek still shows its knob under the pointer, at 90%:
+   rgb(236,236,236) on an AccuRadio station (2026-10-26). */
+.wb-progress:not([data-seekable='true']):hover .wb-progress-knob {
+  opacity: 0.9;
+}
+
+.wb-progress-knob:focus-visible {
+  box-shadow: 0 0 0 2px #a1c7fc, 0 0 0 3px #9ca0a5;
+}
+
+/* The ring around the play disc (TransportBar.jsx): a 2px track at a fifth
+   and the elapsed arc in white with round ends, from twelve o'clock, moving
+   in 120ms steps. It lies over the disc but beside the button, so the
+   button's hover dimming leaves it alone. */
+.wb-play-wrap {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  color: var(--t-fg);
+}
+
+.wb-play-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+  overflow: visible;
+}
+
+.wb-play-ring circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.wb-play-ring-track {
+  opacity: 0.2;
+}
+
+.wb-play-ring-arc {
+  stroke-linecap: round;
+  transition: stroke-dashoffset 120ms linear;
+}
+
+/* Pressed, the disc goes to 60% (hover is 80%, above). */
+.wb-play:active:not(:disabled) {
+  opacity: 0.6;
 }
 
 /* Queue, rail and readout share one 40px row centered on y=858; the readout's

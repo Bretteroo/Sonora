@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { nextTransport, isConnectSession } from '../../frontend/src/lib/transport.js'
 import { useElapsed } from '../../frontend/src/lib/useElapsed.js'
@@ -100,7 +101,23 @@ export function useTransport(zone) {
     || holdsStation(transport)
   // The position and the length, counted locally between the speaker's
   // reports; a live broadcast has neither (lib/useElapsed.js).
-  const { elapsed, duration, live } = useElapsed(transport)
+  const { elapsed: clock, duration, live } = useElapsed(transport)
+  const uuid = zone?.uuid
+  // Where a rail is being dragged, and where a seek was sent. The product's
+  // rail stays where it was let go (play.sonos.com, 2026-10-26); dropping the
+  // seek at once showed the clock's old place until the speaker answered, so
+  // the fill and the ring flashed back and then jumped. A sent seek holds
+  // until the clock is within two seconds of it, or for three seconds.
+  const [drag, setDrag] = useState(null)
+  const [held, setHeld] = useState(null)
+  useEffect(() => {
+    if (!held) return undefined
+    if (held.room !== uuid || Math.abs(clock - held.at) <= 2) { setHeld(null); return undefined }
+    const timer = setTimeout(() => setHeld(null), Math.max(0, held.until - Date.now()))
+    return () => clearTimeout(timer)
+  }, [held, clock, uuid])
+  const elapsed = drag && drag.room === uuid ? drag.at
+    : held && held.room === uuid ? held.at : clock
 
   // Television and line-in have no queue: the product disables the whole
   // cluster at opacity 0.2 and shows Stop in the center instead of Pause. An
@@ -139,8 +156,6 @@ export function useTransport(zone) {
   const repeat = mode.includes('REPEAT_ONE') ? 'one'
     : mode.includes('REPEAT_ALL') || mode === 'SHUFFLE' ? 'all' : 'off'
   const seekable = Boolean(duration) && transport.can_seek !== false
-
-  const uuid = zone?.uuid
   // What a press of the play disc does, which is also what it shows: a
   // stream the speaker cannot pause wears a stop square while it plays, in
   // the product's big player, bar and room cards alike (80s80s Reggae,
@@ -163,19 +178,29 @@ export function useTransport(zone) {
     else if (what === 'stop') actions.stop(uuid)
     else actions.pause(uuid)
   }
+  // Send a seek and hold the rail there (above); `previewSeek` moves the
+  // rail without sending, while it is dragged, and null lets it go.
+  const seekTo = (seconds) => {
+    if (!seekable) return
+    const at = Math.max(0, Math.min(duration, seconds))
+    setDrag(null)
+    setHeld({ room: uuid, at, until: Date.now() + 3000 })
+    actions.seek(uuid, formatSeek(at))
+  }
+  const previewSeek = (seconds) => setDrag(seconds == null ? null
+    : { room: uuid, at: Math.max(0, Math.min(duration, seconds)) })
   // A click on the rail: the ratio along it becomes a position.
   const seekAt = (event) => {
     if (!seekable) return
     const rect = event.currentTarget.getBoundingClientRect()
-    const ratio = (event.clientX - rect.left) / rect.width
-    actions.seek(uuid, formatSeek(Math.max(0, Math.min(duration, ratio * duration))))
+    seekTo(((event.clientX - rect.left) / rect.width) * duration)
   }
 
   return {
     transport, playing, next, external, loaded, live, fixedSource, skippable,
     canNext, canPrevious, orderable, barOrderable, connect,
     shuffled, repeat, elapsed, duration, seekable,
-    cycleRepeat, toggleShuffle, togglePlay, seekAt,
+    cycleRepeat, toggleShuffle, togglePlay, seekAt, seekTo, previewSeek,
   }
 }
 

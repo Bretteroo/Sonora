@@ -37,7 +37,7 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
   const { t } = useI18n()
   const {
     transport, playing, next, loaded, fixedSource, canNext, canPrevious, barOrderable, connect, shuffled, repeat,
-    elapsed, duration, seekable, cycleRepeat, toggleShuffle, togglePlay, seekAt,
+    elapsed, duration, seekable, cycleRepeat, toggleShuffle, togglePlay, seekTo, previewSeek,
   } = useTransport(zone)
   const now = describeNowPlaying(transport, t)
   const lines = broadcastLines(transport, t) || heldStationLines(transport)
@@ -253,6 +253,7 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
           >
             <Icon.Prev width={24} height={24} />
           </button>
+          <span className="wb-play-wrap">
           <button
             type="button"
             className="wb-play"
@@ -266,6 +267,8 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
               : next === 'pause' ? <Icon.Pause width={20} height={20} />
               : <Icon.Play width={20} height={20} />}
           </button>
+          {duration > 0 && <ProgressRing progress={elapsed / duration} />}
+          </span>
           <button
             type="button"
             className="wb-icon-btn"
@@ -292,26 +295,15 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
         {/* The times either side of the rail, elapsed and what is left, on
             a queue and a station alike: 0:52 and -2:49 on AccuRadio, 3:00
             and -6:21 on a Spotify track (play.sonos.com, 2026-09-28). With
-            no length to count down they stay empty, so the rail keeps its
-            place. */}
+            no length to count down there are none, and the rail takes the
+            whole width (a live broadcast, 2026-10-26). */}
         <div className="wb-progress-row">
-          <span className="wb-bar-time">{duration > 0 ? formatDuration(elapsed) : ''}</span>
-          <div
-            className="wb-progress"
-            data-seekable={seekable}
-            role={seekable ? 'slider' : undefined}
-            aria-label={t('common.seek')}
-            aria-valuenow={duration ? elapsed : undefined}
-            onClick={seekAt}
-          >
-            <div
-              className="wb-progress-fill"
-              style={{ width: duration ? `${Math.min(100, (elapsed / duration) * 100)}%` : '0%' }}
-            />
-          </div>
-          <span className="wb-bar-time wb-bar-time-right">
-            {duration > 0 ? `-${formatDuration(Math.max(0, duration - elapsed))}` : ''}
-          </span>
+          {duration > 0 && <span className="wb-bar-time">{formatDuration(elapsed)}</span>}
+          <ProgressRail label={t('common.seek')} position={elapsed} duration={duration} seekable={seekable}
+                        onPreview={previewSeek} onSeek={seekTo} />
+          {duration > 0 && (
+            <span className="wb-bar-time wb-bar-time-right">-{formatDuration(Math.max(0, duration - elapsed))}</span>
+          )}
         </div>
       </div>
 
@@ -396,3 +388,76 @@ export default function TransportBar({ zone, label = '', members = [], queueOpen
 }
 
 export { MODE_ORDER }
+
+// The ring around the play disc: how far the track has played, from twelve
+// o'clock round, over a faint track the size of the disc. The product draws it
+// whenever the item has a length -- a queue, or a station's own tracks -- and
+// not at all on a live broadcast; it sits beside the button rather than in it,
+// so the disc can dim under the pointer while the ring does not
+// (play.sonos.com, 2026-10-26).
+const RING_R = 19
+const RING_C = 2 * Math.PI * RING_R
+function ProgressRing({ progress }) {
+  const p = Math.max(0, Math.min(1, progress || 0))
+  return (
+    <svg className="wb-play-ring" viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r={RING_R} className="wb-play-ring-track" />
+      <circle cx="20" cy="20" r={RING_R} className="wb-play-ring-arc"
+              strokeDasharray={RING_C} strokeDashoffset={RING_C * (1 - p)} />
+    </svg>
+  )
+}
+
+// The position rail. A 2px line in a 16px row that takes the pointer 10px
+// further above and below; a knob rides the end of the fill while the pointer
+// is over it, and a press anywhere jumps there and can be dragged on. The seek
+// goes when the button is let go, and the rail holds that place until the
+// speaker catches up (useTransport). Keys move it five seconds at a time.
+// The knob keeps the focus after a press, with its ring, as the product's does.
+function ProgressRail({ label, position, duration, seekable, onPreview, onSeek }) {
+  const rail = useRef(null)
+  const knob = useRef(null)
+  const dragging = useRef(false)
+  const pct = duration ? Math.max(0, Math.min(100, (position / duration) * 100)) : 0
+  const at = (event) => {
+    const rect = rail.current.getBoundingClientRect()
+    return Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) * duration
+  }
+  const down = (event) => {
+    if (!seekable || event.button !== 0) return
+    event.preventDefault()
+    dragging.current = true
+    event.currentTarget.setPointerCapture(event.pointerId)
+    onPreview(at(event))
+    knob.current?.focus()
+  }
+  const move = (event) => { if (dragging.current) onPreview(at(event)) }
+  const up = (event) => {
+    if (!dragging.current) return
+    dragging.current = false
+    onSeek(at(event))
+  }
+  const cancel = () => { if (dragging.current) { dragging.current = false; onPreview(null) } }
+  const key = (event) => {
+    if (!seekable) return
+    const step = event.key === 'ArrowRight' || event.key === 'ArrowUp' ? 5
+      : event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -5 : 0
+    if (!step) return
+    event.preventDefault()
+    onSeek(position + step)
+  }
+  return (
+    <div className="wb-progress" ref={rail} data-seekable={seekable} aria-disabled={!seekable || undefined}
+         onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={cancel}
+         onLostPointerCapture={cancel}>
+      <span className="wb-progress-track">
+        <span className="wb-progress-fill" style={{ width: `${pct}%` }} />
+      </span>
+      {duration > 0 && (
+        <span className="wb-progress-knob" ref={knob} style={{ left: `${pct}%` }}
+              role="slider" tabIndex={seekable ? 0 : -1} aria-disabled={!seekable || undefined} aria-label={label}
+              aria-valuemin={0} aria-valuemax={Math.round(duration)} aria-valuenow={Math.round(position)} onKeyDown={key} />
+      )}
+    </div>
+  )
+}

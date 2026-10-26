@@ -1669,7 +1669,10 @@
   /* --- windows, menus, tooltips: drawn over everything, in the screen's own type ---------------- */
   & .sv-menu {
     position: fixed; z-index: 1100; display: grid; min-width: 220px; max-width: min(420px, calc(calc(100 * var(--sv-vw, 1vw)) - 16px)); max-height: calc(calc(100 * var(--sv-vh, 1vh)) - 16px);
-    padding: 4px 0; overflow: auto; background: var(--sv-scr); border: 2px solid var(--sv-ph);
+    padding: 4px 0; overflow: auto; border: 2px solid var(--sv-ph);
+    /* Scanned like a window: the menu is drawn over the glass, so the tube's own lines stop at its edge.
+       The lines are fixed to the viewport, so a lit item, which paints its own, falls into the same phase. */
+    background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px) fixed, var(--sv-scr);
     box-shadow: 0 0 0 1px #000, 0 0 16px rgb(var(--sv-ph-rgb) / 0.25), 0 14px 34px rgba(0, 0, 0, 0.6);
     opacity: 0;
   }
@@ -1679,10 +1682,10 @@
     display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; min-height: 34px; padding: 2px 12px;
     background: none; border: 0; color: var(--sv-ph); font: inherit; font-size: 21px; text-shadow: inherit; text-align: left; cursor: pointer;
   }
-  & .sv-menu-item:hover:not(:disabled), & .sv-menu-item:focus-visible { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; outline: none; }
+  & .sv-menu-item:hover:not(:disabled), & .sv-menu-item:focus-visible { background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px) fixed, var(--sv-ph); color: var(--sv-scr); text-shadow: none; outline: none; }
   & .sv-menu-item:disabled { opacity: 0.4; cursor: default; }
   & .sv-menu-item[data-danger] { color: var(--sv-critical); }
-  & .sv-menu-item[data-danger]:hover, & .sv-menu-item[data-danger]:focus-visible { background: var(--sv-critical); color: #1a0505; }
+  & .sv-menu-item[data-danger]:hover, & .sv-menu-item[data-danger]:focus-visible { background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px) fixed, var(--sv-critical); color: #1a0505; }
   & .sv-menu-mark { display: grid; line-height: 0; }
   & .sv-menu-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   & .sv-menu-img { width: 16px; height: 16px; object-fit: contain; }
@@ -1781,7 +1784,8 @@
 
   & .sv-tooltip {
     position: fixed; z-index: 1200; pointer-events: none; padding: 1px 8px; max-width: 320px;
-    background: var(--sv-scr); border: 2px solid var(--sv-ph); font-size: 19px;
+    background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px), var(--sv-scr);
+    border: 2px solid var(--sv-ph); font-size: 19px;
   }
 
   /* The command line, over the screen. */

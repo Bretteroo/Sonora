@@ -107,7 +107,13 @@
      compositor layer keeps the drift from repainting what sits on it. */
   will-change: transform;
   backface-visibility: hidden;
-  animation: lg-drift 44s ease-in-out infinite alternate;
+  /* In steps, not a glide: every glass panel above is a backdrop-filter, and
+     a backdrop that moves is re-blurred under all of them on every frame.
+     Gliding, the whole page ran at about 18 frames a second while nothing
+     else happened, and a 260ms animation elsewhere showed three frames of
+     itself. One step a second is a 2px move the soft gradients hide, and the
+     page is back to 60. */
+  animation: lg-drift 44s steps(44, jump-both) infinite alternate;
   pointer-events: none;
 }
 /* It slides and never scales. A scale in the drift had Firefox raster the

@@ -169,8 +169,11 @@ h2 { margin: 10px 0 0; font: 700 clamp(30px, 4vw, 46px)/1.12 var(--display); let
 .looks button { font: 500 13px var(--body); color: var(--ink-soft); background: none; border: 0; padding: 7px 14px; border-radius: 999px; cursor: pointer; }
 .looks button[aria-pressed="true"] { background: rgba(248, 236, 226, 0.14); color: var(--ink); }
 .theme-shots { display: grid; grid-template-columns: 2.6fr 1fr; gap: 28px; align-items: center; margin-top: 26px; }
-.theme-shots img { width: 100%; height: auto; filter: drop-shadow(var(--shadow)); transition: opacity 0.28s ease; }
+.theme-shots .shot { position: relative; }
+.theme-shots img { display: block; width: 100%; height: auto; filter: drop-shadow(var(--shadow)); transition: opacity 0.28s ease; }
 .theme-shots img.fading { opacity: 0; }
+.theme-shots img.over { position: absolute; inset: 0; height: 100%; opacity: 0; }
+.theme-shots img.over.shown { opacity: 1; }
 @media (max-width: 880px) { .theme-shots { grid-template-columns: 1fr; } .theme-shots .phone { width: 70%; margin: 0 auto; } }
 .diy { margin-top: 30px; color: var(--ink-dim); font-size: 15px; }
 
@@ -480,8 +483,8 @@ footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
           </div>
         </div>
         <div class="theme-shots">
-          <img id="theme-desk" alt="" width="1940" height="805">
-          <img id="theme-phone" class="phone" alt="" width="1120" height="905">
+          <div class="shot"><img id="theme-desk" alt="" width="1940" height="805"></div>
+          <div class="shot phone"><img id="theme-phone" alt="" width="1120" height="905"></div>
         </div>
       </div>
       <p class="diy">Want something else? You can build your own themes (or have your robot do it) and upload them to Sonora.</p>
@@ -674,6 +677,7 @@ let current = THEMES[0]
 let look = 'light'
 
 function show(theme, nextLook) {
+  const cross = theme === current
   current = theme
   look = theme.dark ? nextLook : 'light'
   document.getElementById('theme-name').textContent = theme.name
@@ -682,19 +686,23 @@ function show(theme, nextLook) {
   document.querySelector('.looks').hidden = !theme.dark
   for (const b of lookButtons) b.setAttribute('aria-pressed', String(b.dataset.look === look))
   swap(desk, `img/${theme.id}/spread${look === 'dark' ? '-dark' : ''}.webp`,
-       `${theme.name} theme${look === 'dark' ? ' in dark' : ''}: home, Now Playing and a music library`)
-  swap(phone, `img/${theme.id}/spread-mobile.webp`, `${theme.name} theme on a phone`)
+       `${theme.name} theme${look === 'dark' ? ' in dark' : ''}: home, Now Playing and a music library`, cross)
+  swap(phone, `img/${theme.id}/spread-mobile${theme.dark ? `-${look}` : ''}.webp`,
+       `${theme.name} theme on a phone${look === 'dark' ? ', in dark' : ''}: home and the full-screen player`, cross)
 }
 
-// A preview fades out, the next picture loads meanwhile, and it fades in once
-// both are done. The first picture appears without a fade, and a quick run of
-// clicks shows only the last one.
+// A new theme's preview fades out, the next picture loads meanwhile, and it
+// fades in once both are done. Light and Dark of one theme cross-fade instead:
+// the other look loads on top of the shown one and fades in over it. The first
+// picture appears without a fade, and a quick run of clicks shows only the
+// last one.
 const FADE_MS = 280
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
-function swap(img, src, alt) {
+function swap(img, src, alt, cross) {
   if (img.dataset.src === src) return
   img.dataset.src = src
   if (!img.getAttribute('src') || reduced) { img.src = src; img.alt = alt; return }
+  if (cross) return crossfade(img, src, alt)
   const next = new Image()
   next.src = src
   img.classList.add('fading')
@@ -703,6 +711,28 @@ function swap(img, src, alt) {
     img.src = src
     img.alt = alt
     requestAnimationFrame(() => img.classList.remove('fading'))
+  })
+}
+
+function crossfade(img, src, alt) {
+  const over = new Image()
+  over.className = 'over'
+  over.alt = ''
+  over.setAttribute('aria-hidden', 'true')
+  over.src = src
+  img.after(over)
+  over.decode().catch(() => {}).then(() => {
+    if (img.dataset.src !== src) { over.remove(); return }
+    requestAnimationFrame(() => over.classList.add('shown'))
+    // A later click's picture lands on top of this one and clears it away.
+    setTimeout(() => {
+      if (img.dataset.src !== src) return
+      img.src = src
+      img.alt = alt
+      img.decode().catch(() => {}).then(() => {
+        if (img.dataset.src === src) for (const o of img.parentNode.querySelectorAll('.over')) o.remove()
+      })
+    }, FADE_MS)
   })
 }
 

@@ -33,6 +33,9 @@ export default {
   'common.next': 'Successivo',
   'common.previous': 'Precedente',
   'common.shuffle': 'Riproduzione casuale',
+  'common.jumpToLetter': 'Vai a una lettera',
+  'common.show': 'Mostra',
+  'common.hide': 'Nascondi',
   'common.repeat': 'Ripeti',
   'common.mute': 'Disattiva audio',
   'common.unmute': 'Riattiva audio',
@@ -648,11 +651,7 @@ export default {
   'desk.library.add': 'Aggiungi',
   'desk.library.remove': 'Rimuovi',
   'desk.library.pathHint': '//nas/Musica',
-  'desk.library.pathNote':
-    'Sonora aggiunge le cartelle tramite il loro percorso di rete (per '
-    + 'esempio //nas/Musica). La cartella deve essere già condivisa sulla tua '
-    + 'rete. I lettori S1 supportano solo condivisioni SMBv1; quelli S2 '
-    + 'parlano anche SMBv2 e SMBv3.',
+  'desk.library.pathNote': 'Sonora aggiunge le cartelle tramite il loro percorso di rete (per esempio //nas/Musica). La cartella deve essere già condivisa sulla tua rete. I lettori S1 supportano solo condivisioni SMBv1, quelli S2 solo SMBv2 e SMBv3.',
   'desk.shareWizard.windowTitle': 'Configurazione di Sonora',
   'desk.shareWizard.whereTitle': 'Aggiungi cartella musicale',
   'desk.shareWizard.wherePrompt': 'Dove si trova la musica che vuoi riprodurre su Sonos?',

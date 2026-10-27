@@ -1,14 +1,20 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { api } from '../../frontend/src/lib/api.js'
+import { api, browsePages, browseServicePages, followPages } from '../../frontend/src/lib/api.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
 import Art from './Art.jsx'
+import MoreRows from '../../frontend/src/components/MoreRows.jsx'
 import { PlayRow } from './icons.jsx'
 import { anchorOf, menuAt, useDismiss } from './menus.js'
 import { kindLabel } from './kinds.js'
 import { useOnAir } from './onAir.js'
 import { badgeSrc } from './serviceMarks.js'
+
+// A list comes a hundred rows at a time, and the next hundred when the
+// reader scrolls to the end: the product asks offset=100&count=100, then 200
+// and 300, down a 1,000-song Spotify playlist (measured 2026-10-26).
+const PAGE = 100
 
 // A list you can play: what a service's playable container opens as.
 //
@@ -93,9 +99,10 @@ export default function ServiceListPage({
   }, [summary])
 
   // Services hand a list over a page at a time -- Mixcloud gives twenty --
-  // and the product keeps asking as the reader scrolls. This asks until it
-  // has the list or has asked five times, so a long one arrives whole and a
-  // very long one still stops.
+  // and the product keeps asking as the reader scrolls. So does this: the
+  // first page at once, the next when the table is scrolled to its end.
+  const following = useRef(null)
+  const more = React.useCallback(() => following.current?.more(), [])
   useEffect(() => {
     let canceled = false
     // A station is one thing, not a list: the product's page for AccuRadio's
@@ -103,26 +110,16 @@ export default function ServiceListPage({
     // discs, with no table and no running time (2026-09-28).
     if (station) { setState({ items: [], loading: false, error: null }); return undefined }
     setState({ items: [], loading: true, error: null })
-    if (library) {
-      api.browse(item, { zone, count: 500 })
-        .then((data) => !canceled && setState({ items: data.items ?? [], loading: false, error: null }))
-        .catch((exc) => !canceled && setState({ items: [], loading: false, error: exc.message }))
-      return () => { canceled = true }
-    }
-    const gather = async () => {
-      const got = []
-      for (let page = 0; page < 5; page += 1) {
-        const data = await api.browseService(
-          sid, { zone, item, account: accountId, count: 100, index: got.length, art: 290 })
-        const rows = data.items ?? []
-        got.push(...rows)
-        if (canceled) return
-        setState({ items: [...got], loading: false, error: null })
-        if (!rows.length || got.length >= (data.total ?? got.length)) return
-      }
-    }
-    gather().catch((exc) => !canceled && setState({ items: [], loading: false, error: exc.message }))
-    return () => { canceled = true }
+    const pager = library
+      ? browsePages(item, { zone, pageSize: PAGE })
+      : browseServicePages(sid, { zone, item, account: accountId, art: 290, pageSize: PAGE })
+    const follow = followPages(pager, (data, first) => {
+      if (canceled) return
+      if (first) setState({ items: data.items ?? [], loading: false, error: null })
+      else setState((prev) => ({ ...prev, items: [...prev.items, ...(data.items ?? [])] }))
+    }, (exc, first) => { if (!canceled && first) setState({ items: [], loading: false, error: exc.message }) })
+    following.current = follow
+    return () => { canceled = true; follow.stop() }
   }, [sid, zone, item, accountId, station, library])
 
   // What the service says of the item itself, for a station whose row came
@@ -415,6 +412,7 @@ export default function ServiceListPage({
           </tbody>
         </table>
       )}
+      {!station && <MoreRows onMore={more} count={state.items.length} />}
     </div>
   )
 }

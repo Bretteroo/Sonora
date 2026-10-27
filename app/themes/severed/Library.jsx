@@ -9,6 +9,8 @@ import { groupName } from '../../frontend/src/lib/format.js'
 import { playTarget } from '../../frontend/src/lib/browserRoom.js'
 import { readLibraryPrefs, libraryRows } from '../../frontend/src/lib/libraryPrefs.js'
 import Art from '../../frontend/src/components/Art.jsx'
+import MoreRows from '../../frontend/src/components/MoreRows.jsx'
+import { useLetterIndex, useLetterDrag, useKeepPlace, useRailHeight, fitLetters } from '../../frontend/src/lib/letterIndex.js'
 import { CautionBadge } from '../../frontend/src/components/CautionBadge.jsx'
 import * as G from './glyphs.jsx'
 import { holdDisk } from './disk.js'
@@ -399,6 +401,20 @@ export default function Library({ households, zones, roomGroups, onSelectRoom, s
   // View All at its end, in the automatic view.
   const shelves = view === 'auto' && !isCollection ? items.filter((item) => (item.children || []).length > 0) : []
   const loose = shelves.length ? items.filter((item) => !(item.children || []).length) : items
+  // The alphabet beside a long list in letter order (letterIndex.js): Plex
+  // says where its letters start, the library the same, and any other
+  // service's list has its letters read off its rows when they are in order.
+  const rowsHolder = useRef(null)
+  const listBody = useRef(null)
+  const lettered = !node.root && !isCollection && !shelves.length && !node.virtual
+  const letterSource = !lettered ? null
+    : node.service ? { sid: node.service, item: node.item ?? 'root', account: liveAccount, zone: node.hzone }
+      : /^A:./.test(node.id || '') ? { library: node.id, zone: node.hzone } : null
+  const rowsOf = React.useCallback(() => rowsHolder.current?.querySelectorAll(':scope > [data-item]'), [])
+  const scrollToRow = React.useCallback((i) => { rowsOf()?.[i]?.scrollIntoView({ block: 'start' }) }, [rowsOf])
+  const letterIndex = useLetterIndex({ rows: lettered ? loose : [], offset: page.offset, total: page.total, more: page.more,
+                                       done: page.done, jumpTo: page.jumpTo, source: letterSource, scrollTo: scrollToRow, rowsOf })
+  useKeepPlace(listBody, page.offset)
   const addHouseholdId = (() => {
     const visible = sections.map((sec) => sec.household.id)
     if (activeHousehold && visible.includes(activeHousehold)) return activeHousehold
@@ -497,7 +513,9 @@ export default function Library({ households, zones, roomGroups, onSelectRoom, s
         </nav>
       )}
 
-      <div className="sv-library-body" key={`${stack.length}:${node.id}`}>
+      <div className="sv-library-body" key={`${stack.length}:${node.id}`} ref={listBody}
+           data-letters={(letterIndex.show && !searching) || undefined}>
+        {letterIndex.show && !searching && <LetterColumn index={letterIndex} label={t('common.jumpToLetter')} loading={t('desk.browse.loading')} />}
         {searching ? (
           <SearchResults allLabel={allLabel} search={search} scope={scope} pickedCategory={pickedCategory} onCategory={setPickedCategory}
                          onOpen={(item, from = scope) => {
@@ -576,10 +594,13 @@ export default function Library({ households, zones, roomGroups, onSelectRoom, s
                 </div>
               </section>
             ))}
+            {/* A jump started the list part way down: the rows above it
+                come as the reader scrolls back up. */}
+            {page.offset > 0 && <MoreRows onMore={page.earlier} count={page.items.length} />}
             {shelves.length > 0 && loose.length === 0 ? null : grid ? (
               <>
                 <div className="sv-listing"><UpRow onBack={back} t={t} /></div>
-                <div className="sv-grid">
+                <div className="sv-grid" ref={rowsHolder}>
                   {loose.map((item, index) => (
                     <ItemCard key={`${item.id}-${index}`} item={item} node={node} t={t} displayTypes={page.displayTypes}
                               onDelete={removal ? () => act({ ...item, ...rowExtras(item, index) }, removal) : undefined}
@@ -589,7 +610,7 @@ export default function Library({ households, zones, roomGroups, onSelectRoom, s
                 </div>
               </>
             ) : (
-              <div className="sv-listing">
+              <div className="sv-listing" ref={rowsHolder}>
                 <UpRow onBack={back} t={t} />
                 {loose.map((item, index) => (
                   <ItemRow key={`${item.id}-${index}`} item={item} node={node} t={t} displayTypes={page.displayTypes}
@@ -603,6 +624,7 @@ export default function Library({ households, zones, roomGroups, onSelectRoom, s
                 ))}
               </div>
             )}
+            <MoreRows onMore={page.more} count={page.items.length} />
             {node.id === 'R:0/0' && !page.loading && <div className="sv-pagefoot"><Btn icon={<G.Plus size={12} />} onClick={onAddRadio}>{t('desk.radio.addNew')}</Btn></div>}
             {node.id === 'SQ:' && !page.loading && <div className="sv-pagefoot"><Btn icon={<G.Plus size={12} />} onClick={() => setNaming({ kind: 'newPlaylist' })}>{t('desk.playlists.new')}</Btn></div>}
             {node.localRadio && !page.loading && (
@@ -962,6 +984,33 @@ function subtitleOf(item, node, t, displayTypes = {}) {
   const container = item.is_container && !isPlayableLeaf(item)
   return ((!container || ['album', 'playlist'].includes(item.item_type || item.kind)) && [item.artist || item.author, item.album].filter(Boolean).join(' · '))
     || (item.child_count ? t.plural('common.items', item.child_count) : '')
+}
+
+// The letters down the right of a long list, as a terminal would print an
+// index: one column of phosphor characters behind a rule, held in view as
+// the screen scrolls. A press jumps to the letter, a drag runs down the
+// column, and the letter jumped to prints in reverse video; a letter the list
+// is known not to hold prints faint.
+function LetterColumn({ index, label, loading }) {
+  const drag = useLetterDrag(index.jump)
+  const rail = useRef(null)
+  const height = useRailHeight(rail, { reserve: 28 })
+  return (
+    <div className="sv-letters-rail" ref={rail}>
+      <nav className="sv-letters" aria-label={label} aria-busy={index.pending || undefined} style={height ? { height } : undefined} {...drag}>
+        {/* Under 15px a character is too small to aim at: a short screen
+            gets every other one, with a colon between. */}
+        {fitLetters(index.letters, Math.floor(height / 15)).map(({ letter, present, dot }) => (
+          <button key={dot ? `dot-${letter}` : letter} type="button" data-letter={letter} data-loading={(!dot && index.pending && index.active === letter) || undefined} data-dim={!present || undefined}
+                  data-dot={dot || undefined} aria-label={dot ? letter : undefined}
+                  aria-current={(!dot && index.active === letter) || undefined} onClick={(event) => { if (!event.detail) index.jump(letter) }}>{dot ? ':' : letter}</button>
+        ))}
+        {/* The letter asked for, large, while its rows are read: the press was
+            taken, and the list is on its way there. */}
+        {index.pending && <span className="sv-letter-hud" role="status" aria-label={`${index.active}, ${loading}`}>{index.active}</span>}
+      </nav>
+    </div>
+  )
 }
 
 function ItemRow({ item, node, t, displayTypes = {}, place = false, onDelete, number = 0, checked, onCheck, selected, onOpen, onPlay, onMenu, reorder = null }) {

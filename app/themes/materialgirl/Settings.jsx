@@ -25,6 +25,7 @@ import { readDynamic, writeDynamic } from './color.js'
 import { ServiceGrid } from './Browse.jsx'
 import { versionLabel, updateBody } from '../../frontend/src/lib/version.js'
 import { useSpeakerUpdates } from './data.js'
+import { TimeField, DateField } from './Pickers.jsx'
 
 // Settings, in M3's list-detail layout: the pages as a list with a line of
 // what each is for, and the page beside it on a wide window. On a compact
@@ -338,8 +339,8 @@ function LibraryPage({ households }) {
           <h3 className="mg-title-m">{t('desk.library.indexTitle')}</h3>
           <div className="mg-inline">
             <Switch checked={lib.scheduled} disabled={lib.busy} label={t('desk.library.schedule')} onChange={(on) => lib.apply({ daily_refresh: on ? `${lib.scheduleTime}:00` : '' })} />
-            <input className="mg-time-input" type="time" value={lib.scheduleTime} disabled={!lib.scheduled || lib.busy} aria-label={t('desk.library.schedule')}
-                   onChange={(e) => e.target.value && lib.apply({ daily_refresh: `${e.target.value}:00` })} />
+            <TimeField value={lib.scheduleTime} disabled={!lib.scheduled || lib.busy} label={t('desk.library.schedule')}
+                       onChange={(time) => lib.apply({ daily_refresh: `${time}:00` })} />
           </div>
           <div className="mg-inline">
             <Button variant="outlined" size="s" icon={<I.Refresh />} disabled={data.indexing || lib.busy} onClick={() => lib.apply({ refresh: true })}>{t('desk.library.updateNow')}</Button>
@@ -437,8 +438,8 @@ function TimePage({ households }) {
           {!fixed && <Switch checked={internet} label={t('desk.time.internet')} onChange={(on) => apply({ internet_time: on }, { internet: on })} />}
           {!internet && (
             <div className="mg-inline">
-              <input className="mg-time-input" type="date" value={manual.date} aria-label={t('desk.time.setNow')} onChange={(e) => setManual({ ...manual, date: e.target.value })} />
-              <input className="mg-time-input" type="time" value={manual.time} aria-label={t('desk.time.setNow')} onChange={(e) => setManual({ ...manual, time: e.target.value })} />
+              <DateField value={manual.date} label={t('desk.time.setNow')} onChange={(date) => setManual({ ...manual, date })} />
+              <TimeField value={manual.time} label={t('desk.time.setNow')} onChange={(time) => setManual({ ...manual, time })} />
               <Button variant="filled" size="s" disabled={busy || !manual.date || !manual.time}
                       onClick={() => apply({ desired_time: `${manual.date} ${manual.time.length === 5 ? `${manual.time}:00` : manual.time}` })}>{t('desk.time.setNow')}</Button>
             </div>

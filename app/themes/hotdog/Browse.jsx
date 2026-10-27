@@ -4,9 +4,11 @@ import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { useSleepTimer, sleepClock } from '../../frontend/src/lib/useSleepTimer.js'
 import { useMyRadioStations } from '../../frontend/src/lib/myRadio.js'
-import { api } from '../../frontend/src/lib/api.js'
+import { api, browsePages, browseServicePages, followPages } from '../../frontend/src/lib/api.js'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
+import MoreRows from '../../frontend/src/components/MoreRows.jsx'
+import { useLetterIndex, useLetterDrag, useKeepPlace, useRailHeight, fitLetters } from '../../frontend/src/lib/letterIndex.js'
 import { playTarget } from '../../frontend/src/lib/browserRoom.js'
 import { CautionBadge, serviceCaution } from '../../frontend/src/components/CautionBadge.jsx'
 import { readLibraryPrefs, libraryRows } from '../../frontend/src/lib/libraryPrefs.js'
@@ -66,6 +68,13 @@ export default function Browse({
   // it here. Distinct from `error`, which stays a plain message.
   const [needsLink, setNeedsLink] = useState(false)
   const lastNode = useRef(null)
+  const following = useRef(null)
+  const more = React.useCallback(() => following.current?.more(), [])
+  const earlier = React.useCallback(() => following.current?.earlier(), [])
+  const jumpTo = React.useCallback((at) => following.current?.jumpTo(at), [])
+  // Where the rows in hand sit in the whole list (a jump starts it part way
+  // down), how long the list is, and whether its end has been read.
+  const [listAt, setListAt] = useState({ offset: 0, total: 0, done: true })
   const [menu, setMenu] = useState(null)
   const [refresh, setRefresh] = useState(0)
   // Rows ticked through the hover checkbox; the menu's queue actions take
@@ -270,12 +279,12 @@ export default function Browse({
     const fresh = lastNode.current !== node
     lastNode.current = node
     if (fresh) { setItems([]); setLoading(true); setError(''); setNeedsLink(false) }
-    const fetcher = node.service
-      ? api.browseService(node.service, { zone: node.hzone, item: node.item ?? 'root', count: 200,
-                                          account: liveAccount })
-      : api.browse(node.id, { zone: node.hzone, count: 200 })
-    fetcher.then((result) => {
-      if (canceled) return
+    // The first page shows at once; each next one is asked for when the list
+    // is scrolled to its end (the MoreRows under the rows calls `more`).
+    const pager = node.service
+      ? browseServicePages(node.service, { zone: node.hzone, item: node.item ?? 'root', account: liveAccount })
+      : browsePages(node.id, { zone: node.hzone })
+    const first = (result) => {
       setItems(result.items || [])
       setDisplayTypes(result.display_types || {})
       setError(''); setNeedsLink(false); setFailed(false)
@@ -294,12 +303,27 @@ export default function Browse({
       }
       setLoading(false)
       if (scroller.current) scroller.current.scrollTop = 0
-    }).catch((exc) => {
+    }
+    const follow = followPages(pager, (result, isFirst, where) => {
       if (canceled) return
+      if (where === 'before') {
+        setItems((prev) => [...(result.items || []), ...prev])
+        setListAt((prev) => ({ ...prev, offset: pager.top }))
+      } else if (isFirst) {
+        first(result)
+        setListAt({ offset: result.offset || 0, total: result.total || 0, done: pager.done })
+      } else {
+        setItems((prev) => [...prev, ...(result.items || [])])
+        setListAt((prev) => ({ ...prev, done: pager.done }))
+      }
+    }, (exc, isFirst) => {
+      // A later page that fails leaves the rows already shown.
+      if (canceled || !isFirst) return
       setItems([]); setLoading(false)
       setError(exc?.message || t('notice.error.title')); setFailed(true)
     })
-    return () => { canceled = true }
+    following.current = follow
+    return () => { canceled = true; follow.stop() }
   }, [node, servicesVersion, liveAccount, refresh, t])
 
   // Naming the page after the system it will add to, so "Add Music Services"
@@ -1018,6 +1042,18 @@ export default function Browse({
   const bareLibrary = Boolean(onLibrarySettings) && node.id === 'A:' && !q && libraryByHh[node.hh] === false
   const shownItems = bareLibrary ? [] : libraryRows(node.id, deepItems, libraryPrefs, t)
     .filter((item) => !(node.pickCity && peek[item.id] === 'empty'))
+  // The alphabet beside a long list in letter order (letterIndex.js): Plex
+  // says where its letters start, the library the same, and any other
+  // service's list has its letters read off its rows when they are in order.
+  const lettered = !node.id?.startsWith('__') && node.kind !== 'album' && node.kind !== 'playlist' && !q && !bareLibrary
+  const letterSource = !lettered ? null
+    : node.service ? { sid: node.service, item: node.item ?? 'root', account: liveAccount, zone: node.hzone }
+      : /^A:./.test(node.id || '') ? { library: node.id, zone: node.hzone } : null
+  const rowsOf = React.useCallback(() => scroller.current?.querySelectorAll('.dk-browse-row[data-item]'), [])
+  const scrollToRow = React.useCallback((i) => { rowsOf()?.[i]?.scrollIntoView({ block: 'start' }) }, [rowsOf])
+  const letterIndex = useLetterIndex({ rows: lettered ? shownItems : [], offset: listAt.offset, total: listAt.total, more,
+                                       done: listAt.done, jumpTo, source: letterSource, scrollTo: scrollToRow, rowsOf })
+  useKeepPlace(scroller, listAt.offset)
   const initialOf = (item) => {
     const first = (item?.title || '').trim().charAt(0).toLocaleUpperCase()
     return /\p{L}/u.test(first) ? first : '#'
@@ -1079,7 +1115,9 @@ export default function Browse({
         <div key={slide.key} className={`dk-scroll dk-slide-out dk-slide-out-${slide.dir}`} aria-hidden="true"
              dangerouslySetInnerHTML={{ __html: slide.html }} />
       )}
-      <div className={`dk-scroll${slide ? ` dk-slide-in-${slide.dir}` : ''}`} ref={scroller}>
+      <div className={`dk-scroll${slide ? ` dk-slide-in-${slide.dir}` : ''}`} ref={scroller}
+           data-letters={letterIndex.show || undefined}>
+        {letterIndex.show && <LetterBar index={letterIndex} label={t('common.jumpToLetter')} loading={t('desk.browse.loading')} />}
         {!anyRoom && <p className="dk-browse-note">{t('desk.browse.selectRoom')}</p>}
         {scope && q ? (
           <div className="dk-search-results">
@@ -1389,6 +1427,9 @@ export default function Browse({
                 </div>
               </>
             )}
+            {/* A jump started the list part way down: the rows above it
+                come as the reader scrolls back up. */}
+            {listAt.offset > 0 && <MoreRows onMore={earlier} count={items.length} />}
             {shownItems.map((item, index) => (
               <React.Fragment key={`${item.id}-${index}`}>
               {/* The Songs list is indexed by initial, as the app's is (A, C...
@@ -1420,6 +1461,7 @@ export default function Browse({
                    }} />
               </React.Fragment>
             ))}
+            <MoreRows onMore={more} count={items.length} />
           </>
         )}
       </div>
@@ -1542,6 +1584,31 @@ export default function Browse({
                         }} />
       )}
     </section>
+  )
+}
+
+// The letters down the right of a long list, held in view as it scrolls. A
+// press jumps to a letter and a drag runs through them; letters the list is
+// known not to hold are dimmed.
+function LetterBar({ index, label, loading }) {
+  const drag = useLetterDrag(index.jump)
+  const rail = useRef(null)
+  const height = useRailHeight(rail, { reserve: 12 })
+  return (
+    <div className="dk-letters-rail" ref={rail}>
+      <nav className="dk-letters" aria-label={label} aria-busy={index.pending || undefined} style={height ? { height } : undefined} {...drag}>
+        {/* Under 14px a letter is too small to aim at: a short pane gets
+            every other one, with a dot between. */}
+        {fitLetters(index.letters, Math.floor(height / 14)).map(({ letter, present, dot }) => (
+          <button key={dot ? `dot-${letter}` : letter} type="button" data-letter={letter} data-loading={(!dot && index.pending && index.active === letter) || undefined} data-dim={!present || undefined}
+                  data-dot={dot || undefined} aria-label={dot ? letter : undefined}
+                  aria-current={(!dot && index.active === letter) || undefined} onClick={(event) => { if (!event.detail) index.jump(letter) }}>{dot ? '•' : letter}</button>
+        ))}
+        {/* The letter asked for, large, while its rows are read: the press was
+            taken, and the list is on its way there. */}
+        {index.pending && <span className="dk-letter-hud" role="status" aria-label={`${index.active}, ${loading}`}>{index.active}</span>}
+      </nav>
+    </div>
   )
 }
 
@@ -1676,6 +1743,7 @@ function Row({ item, root, displayTypes = {}, library = '', songArt = false, und
     <div
       data-library={library || undefined}
       className={`dk-browse-row${unavailable ? ' dk-browse-unavailable' : ''}${restricted ? ' dk-browse-restricted' : ''}${number ? ' dk-browse-numbered' : ''}`}
+      data-item
       aria-checked={onCheck && !root ? checked : undefined}
       role="button"
       aria-selected={selected || undefined}

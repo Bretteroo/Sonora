@@ -214,6 +214,9 @@
 
 /* --- panels that hold lists -------------------------------------------- */
 :root[data-theme='liquidglass'] .sf-queue {
+  /* The panel fills its column less its margin: at the column's own width the
+     12px on the right pushed it past the column, flush against the window. */
+  width: auto;
   margin: 12px 12px 12px 0;
   border-radius: 28px;
   border-left: 0;
@@ -289,6 +292,19 @@
      along the search field's lower edge and a resting tile's shadow is not */
   margin-top: -20px;
   padding-top: 20px;
+}
+/* With an alphabet bar the scroller keeps its bleed and gives the bar its own
+   column inside it: 22px of letters, held off the tiles by 10px, with the
+   bleed still to their right, so no letter sits over a cover. */
+:root[data-theme='liquidglass'] .sf-content-scroll[data-letters] { padding-right: calc(var(--lg-bleed) + 32px); }
+:root[data-theme='liquidglass'] .sf-letters { margin-right: var(--lg-bleed); }
+/* Rows and tiles fade as they pass up under the search field, as content
+   does under Liquid Glass's bars, rather than being cut along a hard line
+   across a card. The fade falls in the scroller's own 20px of top padding,
+   so nothing at rest is dimmed. */
+:root[data-theme='liquidglass'] .sf-content-scroll {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
 }
 :root[data-theme='liquidglass'] .sf-content-head { position: relative; z-index: 1; padding-bottom: 20px; }
 :root[data-theme='liquidglass'] .sf-fold:not([data-collapsed]) > div { overflow: visible; transition: overflow 0s 260ms allow-discrete; }
@@ -523,10 +539,14 @@
 :root[data-theme='liquidglass'] .sf-rating:hover { background-color: rgba(20, 22, 30, 0.82); }
 
 /* --- sliders: a capsule of liquid with a glass bead -------------------- */
+/* Chrome and Safari hang a slider's bead from the top of its track (4px
+   here, 3px on the seek bar; rail-shell.css), so each bead is lifted by half
+   the difference to sit on the track's centre line. Firefox centres it
+   itself. */
 :root[data-theme='liquidglass'] .sf-slider::before { height: 6px; border-radius: 999px; background: var(--t-slider-track); }
 :root[data-theme='liquidglass'] .sf-slider::after { height: 6px; border-radius: 999px; background: var(--sf-accent-grad); box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3); }
 :root[data-theme='liquidglass'] .sf-slider input::-webkit-slider-thumb {
-  width: 18px; height: 18px; margin-top: -6px; background: #fff;
+  width: 18px; height: 18px; margin-top: calc((4px - 18px) / 2); background: #fff;
   box-shadow: 0 1px 4px rgba(16, 24, 40, 0.34), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
 }
 :root[data-theme='liquidglass'] .sf-slider input::-moz-range-thumb {
@@ -536,14 +556,24 @@
 /* The stage's volume: a wider capsule and a bigger bead. */
 :root[data-theme='liquidglass'] .sf-stage-volumes .sf-slider::before,
 :root[data-theme='liquidglass'] .sf-stage-volumes .sf-slider::after { height: 10px; }
-:root[data-theme='liquidglass'] .sf-stage-volumes .sf-slider input::-webkit-slider-thumb { width: 24px; height: 24px; margin-top: -7px; }
+:root[data-theme='liquidglass'] .sf-stage-volumes .sf-slider input::-webkit-slider-thumb { width: 24px; height: 24px; margin-top: calc((4px - 24px) / 2); }
 :root[data-theme='liquidglass'] .sf-stage-volumes .sf-slider input::-moz-range-thumb { width: 24px; height: 24px; }
 :root[data-theme='liquidglass'] .sf-seek-track::before { height: 5px; border-radius: 999px; }
 :root[data-theme='liquidglass'] .sf-seek-track::after { height: 5px; border-radius: 999px; background: var(--t-fg-muted); }
 :root[data-theme='liquidglass'] .sf-seek[data-seekable] .sf-seek-track::after { background: var(--sf-accent-grad); }
-:root[data-theme='liquidglass'] .sf-seek-track input::-webkit-slider-thumb { width: 15px; height: 15px; margin-top: -5px; box-shadow: 0 1px 4px rgba(16, 24, 40, 0.34); }
+:root[data-theme='liquidglass'] .sf-seek-track input::-webkit-slider-thumb { width: 15px; height: 15px; margin-top: calc((3px - 15px) / 2); box-shadow: 0 1px 4px rgba(16, 24, 40, 0.34); }
 
 /* --- the stage: glass over the artwork, which is the whole point ------- */
+/* The stage's body scrolls, and clips at its top edge, where the art sits on
+   a short window: the art's shadow, which reaches 50px above it, was cut
+   along that edge in a hard line. The body starts 16px higher (over the
+   head's own bottom padding, which holds no control), with the art where it
+   was, and that band fades out, so the shadow thins away instead. */
+:root[data-theme='liquidglass'] .sf-stage-body {
+  margin-top: -16px; padding-top: 16px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 16px);
+}
 :root[data-theme='liquidglass'] .sf-stage-bg { filter: blur(72px) saturate(1.7) brightness(1.02); opacity: 0.9; }
 :root[data-theme='liquidglass'] .sf-stage-bg::after { background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.55)); }
 :root[data-theme='liquidglass'][data-variant='dark'] .sf-stage-bg { filter: blur(72px) saturate(1.6) brightness(0.6); }
@@ -580,6 +610,30 @@
 :root[data-theme='liquidglass'] .sf-mini-btn { background: rgba(255, 255, 255, 0.16); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 :root[data-theme='liquidglass'] .sf-mini-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.3); }
 :root[data-theme='liquidglass'] .sf-mini-play { background: #fff; color: #12141a; }
+
+/* --- a short window: the rail tightens rather than run off its foot ---
+   The rail holds about 640px of logo, sections, search and the system
+   picker; on a shorter window the picker ran out of the rail's bottom and
+   was cut off. Below 780px the logo loses its wordmark and the rows close
+   up; below 640px the sections are icons alone, their names in their
+   tooltips as before; and should even that not fit, the rail scrolls. */
+@media (min-width: 901px) {
+  :root[data-theme='liquidglass'] .sf-rail { overflow-y: auto; scrollbar-width: none; }
+}
+@media (min-width: 901px) and (max-height: 780px) {
+  :root[data-theme='liquidglass'] .sf-rail { gap: 4px; padding-top: 8px; padding-bottom: 8px; }
+  :root[data-theme='liquidglass'] .sf-brand { padding: 4px 4px 6px; }
+  :root[data-theme='liquidglass'] .sf-brand img { width: 36px; height: 36px; }
+  :root[data-theme='liquidglass'] .sf-brand span { display: none; }
+  :root[data-theme='liquidglass'] .sf-rail-items { gap: 2px; }
+  :root[data-theme='liquidglass'] .sf-rail-item { gap: 3px; padding: 7px 6px; }
+  :root[data-theme='liquidglass'] .sf-rail-foot { gap: 6px; }
+  :root[data-theme='liquidglass'] .sf-rail-systems button { padding: 3px 6px; }
+}
+@media (min-width: 901px) and (max-height: 640px) {
+  :root[data-theme='liquidglass'] .sf-rail-item { padding: 9px 6px; }
+  :root[data-theme='liquidglass'] .sf-rail-item > span { display: none; }
+}
 
 /* --- text weights: SF sits lighter than a web sans -------------------- */
 :root[data-theme='liquidglass'] .sf-page-head h1,
@@ -684,3 +738,38 @@
 
 /* A rating the service gives no way to undo: lit, and not pressable. */
 :root[data-theme='liquidglass'] .sf-rating[aria-disabled='true'] { cursor: default; }
+
+
+/* --- the library runs on under the bottom bar --------------------------
+   Its scroller reaches the window's foot, behind the bar, which is drawn
+   over it, and its end is padded so the last row scrolls clear (the
+   distances are measured by Library.jsx). The glass bar shows the rows passing behind it. */
+:root[data-theme='liquidglass'] .sf-main:has(> .sf-library) { overflow: visible; padding-bottom: 0; }
+:root[data-theme='liquidglass'] .sf-main:has(> .sf-library) .sf-content-scroll {
+  margin-bottom: calc(-1 * var(--sf-reach, 0px));
+  padding-bottom: calc(var(--sf-under, 0px) + 24px);
+}
+:root[data-theme='liquidglass'] .sf-nowbar { position: relative; z-index: 3; }
+
+
+/* --- a system's header that folds its services away ---------------------
+   As a macOS sidebar's section header (Finder, macOS 26, measured): the name
+   plain at rest, open or shut, and on hover a chevron at the row's end in
+   the secondary ink, pointing down while the services show and right while
+   they are hidden; the row itself does not light. Keyboard focus shows the
+   chevron too, and a touch screen, with no hover, always shows it. */
+:root[data-theme='liquidglass'] .sf-root-fold > .sf-root-fold-mark {
+  width: 14px; height: 14px; margin-left: auto; color: var(--t-fg-muted);
+  opacity: 0; transform: rotate(0deg); transition: opacity 120ms var(--sf-ease), transform 160ms var(--sf-ease);
+}
+:root[data-theme='liquidglass'] .sf-root-fold[aria-expanded='true'] > .sf-root-fold-mark { transform: rotate(90deg); }
+:root[data-theme='liquidglass'] .sf-root-fold:hover > .sf-root-fold-mark,
+:root[data-theme='liquidglass'] .sf-root-fold:focus-visible > .sf-root-fold-mark { opacity: 1; }
+@media (hover: none) { :root[data-theme='liquidglass'] .sf-root-fold > .sf-root-fold-mark { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { :root[data-theme='liquidglass'] .sf-root-fold > .sf-root-fold-mark { transition: none; } }
+
+/* A tile's picture is clipped to its corners (or to a circle, an artist's),
+   and its Play and More buttons are not: they sit over the picture's edge
+   and were cut off where they crossed it, worst on a round one. */
+:root[data-theme='liquidglass'] .sf-tile-art { overflow: visible; }
+:root[data-theme='liquidglass'] .sf-tile-art > img { border-radius: inherit; }

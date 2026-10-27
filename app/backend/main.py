@@ -48,7 +48,7 @@ from .sonos import fetchguard, localplay
 from .sonos.network import room_health
 from .sonos import icy
 from .sonos import hhsettings
-from .sonos.cloud import CloudError, NotSignedIn
+from .sonos.cloud import CloudError, NotSignedIn, service_categories
 from .sonos.smapi import SmapiError
 from .sonos.smapi import smapi_item_id as _smapi_item_id
 from .sonos.smapi import (smapi_account_serial, smapi_container_ref,
@@ -720,6 +720,85 @@ async def browse(
         for raw in payload.get("items", []):
             _favorite_facts(raw, in_use, names, labels)
     return payload
+
+
+# Letter indices, kept a few minutes: a list is reopened often while it is
+# being looked through, and its letters only move when the library does.
+_LETTERS_TTL = 300.0
+_letters_cache: dict[tuple, tuple[float, list[dict]]] = {}
+
+
+def _letters_cached(key: tuple) -> list[dict] | None:
+    hit = _letters_cache.get(key)
+    if hit and time.monotonic() - hit[0] < _LETTERS_TTL:
+        return hit[1]
+    return None
+
+
+def _letters_keep(key: tuple, letters: list[tuple[str, int]]) -> list[dict]:
+    out = [{"letter": letter, "index": at} for letter, at in letters]
+    if len(_letters_cache) > 200:
+        _letters_cache.clear()
+    _letters_cache[key] = (time.monotonic(), out)
+    return out
+
+
+@app.get("/api/browse/letters")
+async def library_letters(object_id: str, zone: str | None = None) -> dict:
+    """Where each letter starts in one of the speakers' own lists (the music
+    library's artists, albums, songs), for a theme's alphabet bar. A list the
+    speakers keep no index for answers with none."""
+    host = _host_for(zone)
+    key = ("library", host, object_id)
+    cached = _letters_cached(key)
+    if cached is not None:
+        return {"letters": cached}
+    try:
+        letters = await controller().content.prefix_locations(host, object_id)
+    except SoapFault:
+        letters = []
+    return {"letters": _letters_keep(key, letters)}
+
+
+@app.get("/api/services/{sid}/letters")
+async def service_letters(sid: int, item: str, zone: str | None = None,
+                          account: str = "") -> dict:
+    """Where each letter starts in a service's container, as the service
+    itself counts its rows (SMAPI getScrollIndices), for a theme's alphabet
+    bar. Plex answers for its artists and albums; most services answer with
+    a fault, and then there are none and the theme works the letters out
+    from the rows, if they are in order."""
+    ctl = controller()
+    household = (ctl.household_of(zone) if zone
+                 else next(iter(ctl.ordered_households()), None))
+    if household is None:
+        raise HTTPException(503, "no household available")
+    key = ("service", household.id, sid, account, item)
+    cached = _letters_cached(key)
+    if cached is not None:
+        return {"letters": cached}
+    service = (await ctl.service_directory(household)).by_id(sid)
+    if service is None:
+        raise HTTPException(404, f"service {sid} not in this household")
+    same = []
+    if ctl.cloud.signed_in:
+        try:
+            same = [r for r in await ctl.cloud.registrations(household.cloud_id)
+                    if r.service_id == sid]
+        except (CloudError, NotSignedIn):
+            same = []
+    creds = ctl.credentials_for(household.id, sid, account,
+                                single_account=len(same) == 1) or {}
+    if service.auth != "Anonymous" and not creds.get("token"):
+        return {"letters": []}
+    try:
+        letters = await ctl.smapi.get_scroll_indices(
+            endpoint=service.endpoint, service_name=service.name, item_id=item,
+            household_id=household.id, token=creds.get("token", ""),
+            key=creds.get("key", ""), device_id=await ctl.device_serial(household))
+    except SmapiError:
+        letters = []
+    return {"letters": _letters_keep(key, letters)}
 
 
 @app.get("/api/queue/{uuid}")
@@ -2626,13 +2705,6 @@ async def cloud_icon(integration_id: str, config_id: str,
                     headers={"Cache-Control": "public, max-age=86400"})
 
 
-@app.get("/api/services/badge/{sid}")
-async def service_badge(sid: int, zone: str | None = None,
-                        size: int = Query(default=40, ge=14, le=160)) -> Response:
-    """A service's attribution badge, by browse sid.
-
-    The product prints one before the content type under a tile, before a
-    room card's second line and before the bar's -- a Pandora flag, an Audacy
 async def _catalog_entry(ctl, sid: int, zone: str | None) -> dict | None:
     """A service's catalog entry, from the zone's household, or with no zone
     from whichever household offers it. Looking only in the first household
@@ -2648,6 +2720,13 @@ async def _catalog_entry(ctl, sid: int, zone: str | None) -> dict | None:
     return None
 
 
+@app.get("/api/services/badge/{sid}")
+async def service_badge(sid: int, zone: str | None = None,
+                        size: int = Query(default=40, ge=14, le=160)) -> Response:
+    """A service's attribution badge, by browse sid.
+
+    The product prints one before the content type under a tile, before a
+    room card's second line and before the bar's -- a Pandora flag, an Audacy
     triangle -- and nothing at all for a service that publishes none. Which is
     which comes from the catalog's brand assets, so the 404 here means
     "draw nothing" rather than "something went wrong".
@@ -3074,6 +3153,18 @@ async def services(zone: str | None = None) -> dict:
             info = catalog.get(sid) if sid is not None else None
             return (info or {}).get("site", "")
 
+        def catalog_about(sid: int | None) -> dict:
+            """What the service says about itself, in the reader's language
+            (or the nearest the catalog has), and its kinds of content."""
+            info = catalog.get(sid) if sid is not None else None
+            if not info:
+                return {}
+            about = info.get("about") or {}
+            text = next((about[tag] for tag in locales.chain(locales.current()) if tag in about), None) \
+                or about.get("en-US") or {}
+            return {"description": text.get("description", ""), "summary": text.get("summary", ""),
+                    "categories": service_categories(info)}
+
         def catalog_icon(sid: int | None) -> str:
             if sid is not None and logos is not None:
                 service_type = logos.type_for_sid(sid)
@@ -3133,6 +3224,7 @@ async def services(zone: str | None = None) -> dict:
             held = ctl.credentials_for(household.id, sid, account,
                                        single_account=account_counts.get(sid, 0) == 1)
             entry["site"] = catalog_site(sid)
+            entry.update(catalog_about(sid))
             entry["sonora_token"] = entry.get("auth") == "Anonymous" or held is not None
             # A service whose home comes from a browse endpoint may need no
             # credentials at all: Sonos Radio answers anonymously, so marking
@@ -3187,6 +3279,7 @@ async def services(zone: str | None = None) -> dict:
             entry = service.as_dict()
             entry["icon"] = catalog_icon(service.id)
             entry["site"] = catalog_site(service.id)
+            entry.update(catalog_about(service.id))
             entry["pairable"] = service.id not in unpairable
             available.append(entry)
 
@@ -4363,7 +4456,8 @@ async def _station_pictures(ctl, household, items: list[dict], host: str) -> Non
     speaker answering 404 for the station's URI as well. The service knows
     the station's picture, so it is asked, once per station, and the answer
     is kept on the list. An album, playlist or track from a service that was
-    recorded with no picture at all is looked up the same way, and so is one
+    recorded with no picture at all is looked up the same way (a Sonos
+    Favorite of it first, then the service), and so is one
     whose picture has stopped loading: Plex's picture addresses carry a token,
     and one the server no longer takes would leave the tile on the empty note.
     """
@@ -4394,27 +4488,37 @@ async def _station_pictures(ctl, household, items: list[dict], host: str) -> Non
         if stale and _STATION_ART.get(key) in ("", stale):
             _STATION_ART.pop(key, None)
         if key not in _STATION_ART:
-            opens = _opens_at(uri, entry.get("metadata", ""))
-            sid, item_id = opens.get("sid"), opens.get("item")
-            if not (sid and item_id):
-                _STATION_ART[key] = ""
-                return
-            service = await _cached_service(ctl, household, sid)
-            if service is None:
-                return
-            creds, _borrowed = _reading_creds(ctl, household, sid, str(opens.get("account") or ""))
-            if service.auth != "Anonymous" and not creds.get("token"):
-                return
-            try:
-                item = await asyncio.wait_for(ctl.smapi.get_extended_metadata_item(
-                    endpoint=service.endpoint, service_name=service.name,
-                    item_id=item_id, household_id=household.id,
-                    token=creds.get("token", ""), key=creds.get("key", ""),
-                    device_id=await ctl.device_serial(household)), timeout=5)
-            except Exception as exc:
-                log.info("no picture for %s: %s", entry.get("title"), exc)
-                return
-            _STATION_ART[key] = (item.art if item else "") or ""
+            # A Sonos Favorite of the same item carries the picture the
+            # speakers keep with it, and is read on the LAN, so it is asked
+            # first; for a service Sonora holds no login for it is the only
+            # answer (a SoundCloud playlist, which SoundCloud hands the
+            # speaker with no picture in its metadata, sat on the empty note
+            # though its favorite had one).
+            fav = await favorite_art(uri)
+            if fav and fav != stale:
+                _STATION_ART[key] = fav
+            else:
+                opens = _opens_at(uri, entry.get("metadata", ""))
+                sid, item_id = opens.get("sid"), opens.get("item")
+                if not (sid and item_id):
+                    _STATION_ART[key] = ""
+                    return
+                service = await _cached_service(ctl, household, sid)
+                if service is None:
+                    return
+                creds, _borrowed = _reading_creds(ctl, household, sid, str(opens.get("account") or ""))
+                if service.auth != "Anonymous" and not creds.get("token"):
+                    return
+                try:
+                    item = await asyncio.wait_for(ctl.smapi.get_extended_metadata_item(
+                        endpoint=service.endpoint, service_name=service.name,
+                        item_id=item_id, household_id=household.id,
+                        token=creds.get("token", ""), key=creds.get("key", ""),
+                        device_id=await ctl.device_serial(household)), timeout=5)
+                except Exception as exc:
+                    log.info("no picture for %s: %s", entry.get("title"), exc)
+                    return
+                _STATION_ART[key] = (item.art if item else "") or ""
         # The same address again is kept: the failure may have been the
         # network's, and a tile with a picture that might load beats none.
         if _STATION_ART[key] and _STATION_ART[key] != stale:

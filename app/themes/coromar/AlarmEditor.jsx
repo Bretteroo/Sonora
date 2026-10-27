@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
-import { api } from '../../frontend/src/lib/api.js'
+import { api, browsePages, browseServicePages, followPages } from '../../frontend/src/lib/api.js'
 import { Window } from './Dialogs.jsx'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
+import MoreRows from '../../frontend/src/components/MoreRows.jsx'
 import { isPlayableLeaf } from '../../frontend/src/lib/items.js'
 import { ALARM_DAYS, alarmToForm, formToDefinition } from '../../frontend/src/lib/useAlarms.js'
 
@@ -126,17 +127,24 @@ function AlarmMusicPicker({ room, households, onCancel, onPick }) {
     return () => { canceled = true }
   }, [household?.id])
   const node = stack[stack.length - 1] || null
+  const following = useRef(null)
+  const more = React.useCallback(() => following.current?.more(), [])
   useEffect(() => {
     setChosen(null)
     if (!node) { setItems([]); return undefined }
     let canceled = false
     setLoading(true)
-    const fetcher = node.service
-      ? api.browseService(node.service, { zone, item: node.item ?? 'root', count: 200, account: node.account || '' })
-      : api.browse(node.id, { zone, count: 200 })
-    fetcher.then((r) => { if (!canceled) { setItems(r.items || []); setLoading(false) } })
-      .catch(() => { if (!canceled) { setItems([]); setLoading(false) } })
-    return () => { canceled = true }
+    // The first page at once, the next when the list is scrolled to its end.
+    const pager = node.service
+      ? browseServicePages(node.service, { zone, item: node.item ?? 'root', account: node.account || '' })
+      : browsePages(node.id, { zone })
+    const follow = followPages(pager, (r, first) => {
+      if (canceled) return
+      if (first) { setItems(r.items || []); setLoading(false) }
+      else setItems((prev) => [...prev, ...(r.items || [])])
+    }, (exc, first) => { if (!canceled && first) { setItems([]); setLoading(false) } })
+    following.current = follow
+    return () => { canceled = true; follow.stop() }
   }, [node, zone])
   const roots = services === null ? [] : [
     { id: '__chime', title: t('win.alarm.chime'), leaf: true, uri: 'x-rincon-buzzer:0', metadata: '' },
@@ -173,6 +181,7 @@ function AlarmMusicPicker({ room, households, onCancel, onPick }) {
                 {!isLeaf(row) && <Icon.ChevronRight />}
               </button>
             ))}
+            {!loading && node && <MoreRows onMore={more} count={items.length} />}
           </div>
         </div>
       </div>

@@ -33,6 +33,9 @@ export default {
   'common.next': 'Далі',
   'common.previous': 'Назад',
   'common.shuffle': 'Випадковий порядок',
+  'common.jumpToLetter': 'Перейти до літери',
+  'common.show': 'Показати',
+  'common.hide': 'Сховати',
   'common.repeat': 'Повтор',
   'common.mute': 'Вимкнути звук',
   'common.unmute': 'Увімкнути звук',
@@ -634,11 +637,7 @@ export default {
   'desk.library.add': 'Додати',
   'desk.library.remove': 'Вилучити',
   'desk.library.pathHint': '//nas/Music',
-  'desk.library.pathNote':
-    'Sonora додає теки за їхнім мережевим шляхом (наприклад, //nas/Music). '
-    + 'Теку вже має бути відкрито для спільного доступу в мережі. Програвачі '
-    + 'S1 працюють лише з ресурсами SMBv1; програвачі S2 розуміють також '
-    + 'SMBv2 і SMBv3.',
+  'desk.library.pathNote': 'Sonora додає теки за їхнім мережевим шляхом (наприклад, //nas/Music). Теку вже має бути відкрито для спільного доступу в мережі. Програвачі S1 працюють лише з ресурсами SMBv1, а програвачі S2 — лише з SMBv2 і SMBv3.',
   'desk.shareWizard.windowTitle': 'Налаштування Sonora',
   'desk.shareWizard.whereTitle': 'Додати музичну теку',
   'desk.shareWizard.wherePrompt': 'Де музика, яку ти хочеш відтворювати на Sonos?',

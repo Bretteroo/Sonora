@@ -33,6 +33,9 @@ export default {
   'common.next': 'Volgende',
   'common.previous': 'Vorige',
   'common.shuffle': 'Willekeurig afspelen',
+  'common.jumpToLetter': 'Ga naar een letter',
+  'common.show': 'Tonen',
+  'common.hide': 'Verbergen',
   'common.repeat': 'Herhalen',
   'common.mute': 'Geluid uit',
   'common.unmute': 'Geluid aan',
@@ -647,10 +650,7 @@ export default {
   'desk.library.add': 'Toevoegen',
   'desk.library.remove': 'Verwijderen',
   'desk.library.pathHint': '//nas/Muziek',
-  'desk.library.pathNote':
-    'Sonora voegt mappen toe via hun netwerkpad (bijvoorbeeld '
-    + '//nas/Muziek). De map moet al gedeeld zijn op je netwerk. S1-spelers '
-    + 'werken alleen met SMBv1-shares; S2-spelers spreken ook SMBv2 en SMBv3.',
+  'desk.library.pathNote': 'Sonora voegt mappen toe via hun netwerkpad (bijvoorbeeld //nas/Muziek). De map moet al gedeeld zijn op je netwerk. S1-spelers werken alleen met SMBv1-shares, S2-spelers alleen met SMBv2 en SMBv3.',
   'desk.shareWizard.windowTitle': 'Sonora instellen',
   'desk.shareWizard.whereTitle': 'Muziekmap toevoegen',
   'desk.shareWizard.wherePrompt': 'Waar staat de muziek die je op Sonos wilt afspelen?',

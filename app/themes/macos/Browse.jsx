@@ -66,6 +66,45 @@ export default function Browse({
   // it here. Distinct from `error`, which stays a plain message.
   const [needsLink, setNeedsLink] = useState(false)
   const lastNode = useRef(null)
+  // The window a blank row belongs to, read once; a read that fails is let go,
+  // so the row asks again the next time it comes into view. A service that
+  // ignores the index and answers its first window again fills nothing.
+  const reading = useRef(null)
+  const readWindow = React.useCallback((index) => {
+    const r = reading.current
+    if (!r) return
+    const start = Math.floor(index / WINDOW) * WINDOW
+    if (r.asked.has(start)) return
+    r.asked.add(start)
+    r.read(start).then((result) => {
+      if (!r.live()) return
+      const rows = result.items || []
+      setItems((prev) => {
+        if (start && rows[0] && rows[0].id === prev[0]?.id) return prev
+        const next = prev.slice()
+        rows.forEach((row, k) => { if (next[start + k]?.blank) next[start + k] = row })
+        return next
+      })
+    }, () => { r.asked.delete(start) })
+  }, [])
+  const blankWatch = useRef(null)
+  // A blank row is as tall as the list's read rows, which depends on what
+  // they carry (rows with art are shorter than glyph rows), so it is measured
+  // off the first of them.
+  const [pitch, setPitch] = useState(0)
+  React.useLayoutEffect(() => {
+    const row = scroller.current?.querySelector('.dk-browse-row:not(.dk-browse-blank)')
+    const h = row ? row.getBoundingClientRect().height : 0
+    if (h && h !== pitch) setPitch(h)
+  })
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return undefined
+    const watch = new IntersectionObserver((entries) => {
+      for (const entry of entries) if (entry.isIntersecting) readWindow(Number(entry.target.dataset.at))
+    })
+    blankWatch.current = watch
+    return () => { watch.disconnect(); blankWatch.current = null }
+  }, [readWindow])
   const [menu, setMenu] = useState(null)
   const [refresh, setRefresh] = useState(0)
   // Rows ticked through the hover checkbox; the menu's queue actions take
@@ -270,12 +309,17 @@ export default function Browse({
     const fresh = lastNode.current !== node
     lastNode.current = node
     if (fresh) { setItems([]); setLoading(true); setError(''); setNeedsLink(false) }
-    const fetcher = node.service
-      ? api.browseService(node.service, { zone: node.hzone, item: node.item ?? 'root', count: 200,
-                                          account: liveAccount })
-      : api.browse(node.id, { zone: node.hzone, count: 200 })
-    fetcher.then((result) => {
-      if (canceled) return
+    // A long list the app's way: the first window of a hundred rows says how
+    // long the list is, and the pane is that long at once, with the rows not
+    // read yet drawn blank. Each window of a hundred is read when one of its
+    // blank rows comes into view, so a drag of the scrollbar to the middle
+    // reads the middle and nothing between. (The S1 app asks the speakers for
+    // RequestedCount 100, and reads a queue's rows 100 to 119 only when they
+    // are scrolled to; measured 2026-10-26.)
+    const read = (start) => (node.service
+      ? api.browseService(node.service, { zone: node.hzone, item: node.item ?? 'root', account: liveAccount, index: start, count: WINDOW })
+      : api.browse(node.id, { zone: node.hzone, start, count: WINDOW }))
+    const first = (result) => {
       setItems(result.items || [])
       setDisplayTypes(result.display_types || {})
       setError(''); setNeedsLink(false); setFailed(false)
@@ -294,11 +338,18 @@ export default function Browse({
       }
       setLoading(false)
       if (scroller.current) scroller.current.scrollTop = 0
+    }
+    read(0).then((result) => {
+      if (canceled) return
+      const rows = result.items || []
+      const total = result.error ? rows.length : Math.max(rows.length, result.total ?? rows.length)
+      first({ ...result, items: rows.length < total ? [...rows, ...blankRows(rows.length, total)] : rows })
     }).catch((exc) => {
       if (canceled) return
       setItems([]); setLoading(false)
       setError(exc?.message || t('notice.error.title')); setFailed(true)
     })
+    reading.current = { read, asked: new Set([0]), live: () => !canceled }
     return () => { canceled = true }
   }, [node, servicesVersion, liveAccount, refresh, t])
 
@@ -1389,7 +1440,9 @@ export default function Browse({
                 </div>
               </>
             )}
-            {shownItems.map((item, index) => (
+            {shownItems.map((item, index) => item.blank ? (
+              <BlankRow key={item.id} at={item.at} watch={blankWatch} pitch={pitch} />
+            ) : (
               <React.Fragment key={`${item.id}-${index}`}>
               {/* The Songs list is indexed by initial, as the app's is (A, C...
                   over its alphabetical run, 2026-09-14). */}
@@ -1543,6 +1596,22 @@ export default function Browse({
       )}
     </section>
   )
+}
+
+// The rows a list is read in, and a row not read yet: as tall as any other,
+// empty, and the cue to read its window when it scrolls into view.
+const WINDOW = 100
+const blankRows = (from, to) => Array.from({ length: to - from }, (_, k) => ({ id: `__blank:${from + k}`, at: from + k, blank: true, title: '' }))
+function BlankRow({ at, watch, pitch }) {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current
+    const io = watch.current
+    if (!el || !io) return undefined
+    io.observe(el)
+    return () => io.unobserve(el)
+  }, [watch])
+  return <div ref={ref} data-at={at} className="dk-browse-row dk-browse-blank" aria-hidden="true" style={{ pointerEvents: 'none', ...(pitch ? { height: pitch } : null) }} />
 }
 
 function Row({ item, root, displayTypes = {}, library = '', songArt = false, under = '', parentLines = null, place = false, onOpen, onMenu, onDelete, onAccounts, onBack, selected = false, menuOpen = false, playing = false, number = 0, checked = false, onCheck, onPlay, selectable = true, radio = false, playlist = false, match = '', reorder = null }) {

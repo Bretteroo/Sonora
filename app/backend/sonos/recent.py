@@ -11,10 +11,12 @@ came from is, which is also how the apps show it.
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import logging
 from pathlib import Path
 from time import time
+from urllib.parse import urlsplit
 
 log = logging.getLogger(__name__)
 
@@ -34,12 +36,14 @@ class RecentlyPlayed:
             pass
 
     def items(self, household_id: str) -> list[dict]:
-        return list(self._items.get(household_id, []))
+        # Announcements noted before they were kept off the list are left out
+        # of it too.
+        return [e for e in self._items.get(household_id, []) if not is_announcement(e.get("uri", ""))]
 
     def note(self, household_id: str, entry: dict) -> bool:
         """Put ``entry`` at the front of the household's list. True if it moved."""
         uri = entry.get("uri", "")
-        if not uri or not entry.get("title"):
+        if not uri or not entry.get("title") or is_announcement(uri):
             return False
         current = self._items.setdefault(household_id, [])
         if current and current[0].get("uri") == uri:
@@ -80,6 +84,31 @@ class RecentlyPlayed:
             self._path.write_text(json.dumps(self._items, ensure_ascii=False))
         except OSError as exc:
             log.warning("could not save the recently played list: %s", exc)
+
+
+def is_announcement(uri: str) -> bool:
+    """Whether ``uri`` is a sound played on a room rather than music to
+    remember: a plain audio file fetched over HTTP from a machine on the
+    household's own network -- a doorbell chime, a home-automation system's
+    spoken announcement -- or Home Assistant's text-to-speech wherever it is
+    served from (its ``/api/tts_proxy/`` path, which a Home Assistant reached
+    through an outside address serves too). Music from a service, a radio
+    station and the library all reach a speaker under schemes of their own,
+    never as a plain local URL.
+    """
+    if not uri.lower().startswith(("http://", "https://")):
+        return False
+    parts = urlsplit(uri)
+    if "/api/tts_proxy/" in parts.path:
+        return True
+    host = (parts.hostname or "").lower()
+    if host == "localhost" or host.endswith(".local"):
+        return True
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return address.is_private or address.is_loopback or address.is_link_local
 
 
 def kind_of(upnp_class: str, uri: str) -> str:

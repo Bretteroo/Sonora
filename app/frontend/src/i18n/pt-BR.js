@@ -33,6 +33,9 @@ export default {
   'common.next': 'Próxima',
   'common.previous': 'Anterior',
   'common.shuffle': 'Aleatório',
+  'common.jumpToLetter': 'Ir para uma letra',
+  'common.show': 'Mostrar',
+  'common.hide': 'Ocultar',
   'common.repeat': 'Repetir',
   'common.mute': 'Silenciar',
   'common.unmute': 'Reativar o som',
@@ -646,11 +649,7 @@ export default {
   'desk.library.add': 'Adicionar',
   'desk.library.remove': 'Remover',
   'desk.library.pathHint': '//nas/Musica',
-  'desk.library.pathNote':
-    'O Sonora adiciona pastas pelo caminho de rede (por exemplo '
-    + '//nas/Musica). A pasta já precisa estar compartilhada na sua rede. '
-    + 'Players S1 só usam compartilhamentos SMBv1; players S2 também falam '
-    + 'SMBv2 e SMBv3.',
+  'desk.library.pathNote': 'O Sonora adiciona pastas pelo caminho de rede (por exemplo //nas/Musica). A pasta já precisa estar compartilhada na sua rede. Players S1 só usam compartilhamentos SMBv1, e players S2 só SMBv2 e SMBv3.',
   'desk.shareWizard.windowTitle': 'Configuração do Sonora',
   'desk.shareWizard.whereTitle': 'Adicionar pasta de músicas',
   'desk.shareWizard.wherePrompt': 'Onde está a música que você quer tocar no Sonos?',

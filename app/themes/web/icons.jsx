@@ -207,3 +207,18 @@ export const LyricsGlyph = (p) => (
     <path d="M7.5 9h9M7.5 13h6" />
   </svg>
 )
+
+// The account page's two row glyphs (Change Name, Reauthorize Account): a
+// pencil and a padlock, 16px line drawings in the row's ink.
+export const Pencil = (p) => (
+  <svg viewBox="0 0 16 16" width={16} height={16} fill="none" stroke="currentColor" strokeWidth="1.4"
+       strokeLinejoin="round" aria-hidden="true" {...p}>
+    <path d="M10.6 2.4l3 3L5.4 13.6 2 14l.4-3.4z" /><path d="M9.2 3.8l3 3" />
+  </svg>
+)
+export const Padlock = (p) => (
+  <svg viewBox="0 0 16 16" width={16} height={16} fill="none" stroke="currentColor" strokeWidth="1.4"
+       strokeLinejoin="round" aria-hidden="true" {...p}>
+    <rect x="3" y="7" width="10" height="7.5" rx="1.5" /><path d="M5.2 7V5.2a2.8 2.8 0 0 1 5.6 0V7" />
+  </svg>
+)

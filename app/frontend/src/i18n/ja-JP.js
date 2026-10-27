@@ -33,6 +33,9 @@ export default {
   'common.next': '次へ',
   'common.previous': '前へ',
   'common.shuffle': 'シャッフル',
+  'common.jumpToLetter': '文字へ移動',
+  'common.show': '表示',
+  'common.hide': '非表示',
   'common.repeat': 'リピート',
   'common.mute': 'ミュート',
   'common.unmute': 'ミュート解除',
@@ -603,10 +606,7 @@ export default {
   'desk.library.add': '追加',
   'desk.library.remove': '削除',
   'desk.library.pathHint': '//nas/Music',
-  'desk.library.pathNote':
-    'Sonora '
-    + 'はネットワークパス（例：//nas/Music）でフォルダーを追加します。フォルダーはあらかじめネットワークで共有しておく必要があります。S1 '
-    + 'プレーヤーは SMBv1 共有のみ、S2 プレーヤーは SMBv2 と SMBv3 にも対応します。',
+  'desk.library.pathNote': 'Sonora はネットワークパス（例：//nas/Music）でフォルダーを追加します。フォルダーはあらかじめネットワークで共有しておく必要があります。S1 プレーヤーは SMBv1 共有のみ、S2 プレーヤーは SMBv2 と SMBv3 のみに対応します。',
   'desk.shareWizard.windowTitle': 'Sonora のセットアップ',
   'desk.shareWizard.whereTitle': 'ミュージックフォルダを追加',
   'desk.shareWizard.wherePrompt': 'Sonos で再生したい音楽はどこにありますか？',

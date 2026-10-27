@@ -1193,3 +1193,49 @@
 @media (prefers-reduced-motion: reduce) {
   :where(:root[data-theme='liquidglass']) .sf-stage-body, :where(:root[data-theme='liquidglass']) .sf-stage-queue { transition: none !important; }
 }
+
+/* --- alphabet bar ---------------------------------------------------------
+   Down the right of a long list in letter order, the height of the list's
+   scroller; the rows leave it room. Letters are small capitals in the muted
+   ink, the one jumped to in the accent, and those the list lacks fainter. */
+:where(:root[data-theme='liquidglass']) .sf-content-scroll[data-letters] { padding-right: 26px; }
+:where(:root[data-theme='liquidglass']) .sf-letters {
+  position: absolute; width: 22px; z-index: 2;
+  display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+  padding: 4px 0; box-sizing: border-box; touch-action: none; user-select: none;
+}
+:where(:root[data-theme='liquidglass']) .sf-letters button {
+  flex: 1 1 0; min-height: 0; width: 100%; max-height: calc(22px * var(--mag, 1));
+  display: grid; place-items: center; padding: 0; border: 0; background: none; cursor: pointer;
+  font-family: inherit; font-weight: 600; font-size: calc(10px * var(--mag, 1)); line-height: 1;
+  color: var(--t-fg-muted); border-radius: 6px;
+  /* Letters grow with the pointer (--mag, set by letterIndex.js) and the rest close up to make room. */
+  transition: flex-grow 90ms ease-out, font-size 90ms ease-out, max-height 90ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) { :where(:root[data-theme='liquidglass']) .sf-letters button { transition: none; } }
+:where(:root[data-theme='liquidglass']) .sf-letters button:hover { color: var(--t-fg); background: var(--t-surface-hover); }
+:where(:root[data-theme='liquidglass']) .sf-letters button[aria-current] { color: var(--t-accent); }
+:where(:root[data-theme='liquidglass']) .sf-letters button[data-dim] { color: var(--t-fg-dim); opacity: 0.5; }
+:where(:root[data-theme='liquidglass']) .sf-letters button:focus-visible { outline: 2px solid var(--t-accent); outline-offset: -2px; }
+
+/* While a letter's rows are read: the letter, large, in a raised tile beside
+   the bar, with a ring breathing round it, and the letter in the bar
+   pulsing, so the press shows at once and the wait reads as loading. */
+:where(:root[data-theme='liquidglass']) .sf-letter-hud {
+  position: absolute; right: calc(100% + 14px); top: 50%; transform: translateY(-50%);
+  width: 64px; height: 64px; display: grid; place-items: center; pointer-events: none;
+  font-size: 30px; font-weight: 700; color: var(--t-accent);
+  background: var(--t-bg-raised, var(--t-surface)); border: 1px solid var(--t-border); border-radius: 16px;
+  box-shadow: var(--t-shadow, 0 8px 24px rgba(0, 0, 0, 0.18));
+}
+:where(:root[data-theme='liquidglass']) .sf-letter-hud::after {
+  content: ''; position: absolute; inset: -5px; border-radius: 20px; border: 2px solid var(--t-accent);
+  animation: liquidglass-letter-wait 900ms ease-in-out infinite;
+}
+:where(:root[data-theme='liquidglass']) .sf-letters button[data-loading] { animation: liquidglass-letter-blink 900ms ease-in-out infinite; }
+@keyframes liquidglass-letter-wait { 0%, 100% { opacity: 0.15; transform: scale(0.96); } 50% { opacity: 0.9; transform: scale(1.04); } }
+@keyframes liquidglass-letter-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) {
+  :where(:root[data-theme='liquidglass']) .sf-letter-hud::after { animation: none; opacity: 0.6; }
+  :where(:root[data-theme='liquidglass']) .sf-letters button[data-loading] { animation: none; }
+}

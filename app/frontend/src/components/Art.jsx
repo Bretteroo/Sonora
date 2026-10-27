@@ -126,12 +126,15 @@ export default function Art({ src, size = 16, alt = '', className, fallback = 'n
   return (
     // No Referer: some providers' image hosts refuse hot-linked requests
     // (AccuRadio's answers 403 to any request naming a referring page,
-    // measured 2026-09-07), and the apps never send one.
+    // measured 2026-09-07), and the apps never send one. Lazy, because a
+    // listing can run to thousands of rows and only the ones scrolled to need
+    // their covers.
     <img
       ref={ref}
       className={className}
       src={withRetry(sizedArtUrl(usable, want), failed.get(usable)?.tries)}
       alt={alt}
+      loading="lazy"
       referrerPolicy="no-referrer"
       onError={() => fail(usable)}
     />

@@ -1255,6 +1255,49 @@
   & .mg-crumb { position: relative; max-width: 180px; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--mg-surface-container-high); cursor: pointer; font-size: 14px; line-height: 20px; overflow: visible; color: var(--mg-on-surface-variant); }
   & .mg-browse-context { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   & .mg-browse-body { padding-top: 8px; }
+  /* The alphabet bar: a column at the list's right, stuck below the top of
+     the pane while the list scrolls, as tall as the pane leaves room for.
+     The list gives it 40px: 24 for the letters and the rest between them
+     and the rows, whose hover bands reach 8px past the list's edge. Letters are label-small in on-surface-variant; the one jumped to
+     is primary in a secondary-container pill. */
+  & .mg-browse-body[data-letters] { position: relative; padding-right: 40px; }
+  & .mg-letters-rail { position: sticky; top: 8px; z-index: 3; height: 0; }
+  & .mg-letters {
+    position: absolute; right: -40px; top: 0; width: 24px;
+    display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+    touch-action: none; user-select: none;
+  }
+  & .mg-letters button {
+    flex: 1 1 0; min-height: 0; max-height: calc(24px * var(--mag, 1)); width: 24px; padding: 0; border: 0; border-radius: 12px;
+    display: grid; place-items: center; background: none; cursor: pointer;
+    font-family: var(--mg-font); font-weight: 500; font-size: calc(11px * var(--mag, 1)); line-height: 1; letter-spacing: 0.5px;
+    color: var(--mg-on-surface-variant);
+    /* Letters grow with the pointer (--mag, set by letterIndex.js) and the rest close up to make room. */
+    transition: flex-grow 90ms var(--mg-spring-fast, ease-out), font-size 90ms ease-out, max-height 90ms ease-out;
+  }
+  @media (prefers-reduced-motion: reduce) { & .mg-letters button { transition: none; } }
+  /* While a letter's rows are read: the letter in a large secondary-container
+     tile beside the bar with an indeterminate ring turning round it, M3's
+     circular progress, and the letter in the bar pulsing, so the press shows
+     at once and the wait reads as loading. */
+  & .mg-letter-hud {
+    position: absolute; right: calc(100% + 16px); top: 50%; transform: translateY(-50%);
+    width: 72px; height: 72px; display: grid; place-items: center; pointer-events: none; border-radius: 28px;
+    font-family: var(--mg-font); font-size: 32px; font-weight: 500; line-height: 1;
+    color: var(--mg-on-secondary-container); background: var(--mg-secondary-container);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16), 0 6px 18px rgba(0, 0, 0, 0.12);
+  }
+  & .mg-letter-hud::after {
+    content: ''; position: absolute; inset: -6px; border-radius: 50%;
+    border: 4px solid transparent; border-top-color: var(--mg-primary); border-right-color: var(--mg-primary);
+    animation: mg-letter-turn 1s linear infinite;
+  }
+  & .mg-letters button[data-loading] { animation: mg-letter-pulse 900ms ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { & .mg-letter-hud::after, & .mg-letters button[data-loading] { animation: none; } }
+  & .mg-letters button:hover { background: color-mix(in srgb, var(--mg-on-surface) 8%, transparent); }
+  & .mg-letters button[aria-current] { color: var(--mg-on-secondary-container); background: var(--mg-secondary-container); }
+  & .mg-letters button[data-dim] { opacity: 0.38; }
+  & .mg-letters button:focus-visible { outline: 2px solid var(--mg-primary); outline-offset: -2px; }
   & .mg-sourcecards-system { margin: 0 0 28px; }
   & .mg-sourcecards-system[data-dim] .mg-sourcecards-grid { opacity: 0.7; }
   & .mg-sourcecards-head { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
@@ -1653,4 +1696,97 @@
 :root[data-theme='materialgirl']::view-transition-group(*) {
   animation-duration: 500ms;
   animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes mg-letter-turn { to { transform: rotate(1turn); } }
+@keyframes mg-letter-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* --- time and date pickers (Pickers.jsx) ------------------------------------------
+   Material 3's, sized and colored by Compose's tokens: TimePickerTokens,
+   TimeInputTokens, DatePickerModalTokens. The field that opens one is the
+   outlined box the browser's own time field was drawn as. */
+:root[data-theme='materialgirl'] {
+  & .mg-picker-field { display: inline-flex; align-items: center; gap: 12px; min-width: 128px; text-align: left; cursor: pointer; }
+  & .mg-picker-field > span { flex: 1; white-space: nowrap; }
+  & .mg-picker-field svg { flex: none; width: 24px; height: 24px; color: var(--mg-on-surface-variant); }
+  & .mg-picker-field:disabled { cursor: default; }
+  & .mg-picker-field:disabled svg { opacity: 0.38; }
+
+  /* The time picker: a dialog of 24px padding on container-high, 28px corners. */
+  & .mg-sheet-dialog.mg-tp { padding: 24px 24px 20px; min-width: 0; }
+  & .mg-tp-head { margin: 0 0 20px; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-on-surface-variant); }
+  & .mg-tp-row { display: flex; align-items: center; }
+  & .mg-tp-row[data-typing] { align-items: flex-start; }
+  & .mg-tp-colon { width: 24px; text-align: center; font-size: 57px; line-height: 64px; color: var(--mg-on-surface); }
+  & .mg-tp-row[data-typing] .mg-tp-colon { font-size: 45px; line-height: 72px; }
+  /* Hour and minute: 96x80, display-large, small corners; the one being set on
+     primary-container, the other on surface-container-highest. */
+  & .mg-tp-box {
+    width: 96px; height: 80px; padding: 0; border: 0; border-radius: 8px; display: grid; place-items: center;
+    font-family: var(--mg-font); font-size: 57px; line-height: 64px; font-weight: 400; text-align: center;
+    background: var(--mg-surface-container-highest); color: var(--mg-on-surface); cursor: pointer;
+  }
+  & .mg-tp-box[data-on] { background: var(--mg-primary-container); color: var(--mg-on-primary-container); }
+  & .mg-tp-box:focus-visible { outline: 2px solid var(--mg-secondary); outline-offset: 2px; }
+  /* Typed: 96x72, display-medium, the focused box drawn with a 2px primary rim
+     and its label under it. */
+  & .mg-tp-field { display: flex; flex-direction: column; gap: 7px; }
+  & .mg-tp-field .mg-tp-box { height: 72px; font-size: 45px; line-height: 52px; cursor: text; caret-color: var(--mg-primary); }
+  & .mg-tp-field .mg-tp-box:focus { outline: none; box-shadow: inset 0 0 0 2px var(--mg-primary); background: var(--mg-primary-container); color: var(--mg-on-primary-container); }
+  & .mg-tp-field small { font-size: 12px; line-height: 16px; color: var(--mg-on-surface-variant); }
+  /* AM/PM: 52x80 (72 when typing), a 1px outline, the chosen half on
+     tertiary-container. */
+  & .mg-tp-period { margin-left: 12px; width: 52px; height: 80px; display: grid; grid-template-rows: 1fr 1fr; border: 1px solid var(--mg-outline); border-radius: 8px; overflow: hidden; }
+  & .mg-tp-row[data-typing] .mg-tp-period { height: 72px; }
+  & .mg-tp-period button { border: 0; padding: 0; background: none; font-family: var(--mg-font); font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: 0.15px; color: var(--mg-on-surface-variant); cursor: pointer; }
+  & .mg-tp-period button + button { border-top: 1px solid var(--mg-outline); }
+  & .mg-tp-period button[aria-checked='true'] { background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
+  & .mg-tp-period button:hover:not([aria-checked='true']) { background: color-mix(in oklab, var(--mg-on-surface-variant) 8%, transparent); }
+  /* The dial: 256px on surface-container-highest, body-large numbers, the
+     handle, track and centre in primary. */
+  & .mg-tp-dial { position: relative; width: 256px; height: 256px; margin: 36px auto 0; border-radius: 50%; background: var(--mg-surface-container-highest); touch-action: none; user-select: none; cursor: pointer; }
+  & .mg-tp-num { position: absolute; width: 48px; height: 48px; margin: -24px 0 0 -24px; display: grid; place-items: center; font-size: 16px; line-height: 24px; color: var(--mg-on-surface); pointer-events: none; }
+  & .mg-tp-num[data-inner] { font-size: 14px; color: var(--mg-on-surface-variant); }
+  & .mg-tp-num[data-on] { color: var(--mg-on-primary); }
+  & .mg-tp-handle { position: absolute; width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 50%; background: var(--mg-primary); display: grid; place-items: center; pointer-events: none; }
+  & .mg-tp-handle i { width: 4px; height: 4px; border-radius: 50%; background: var(--mg-on-primary); }
+  & .mg-tp-track { position: absolute; left: 128px; top: 127px; height: 2px; background: var(--mg-primary); transform-origin: 0 50%; pointer-events: none; }
+  & .mg-tp-centre { position: absolute; left: 124px; top: 124px; width: 8px; height: 8px; border-radius: 50%; background: var(--mg-primary); pointer-events: none; }
+  & .mg-tp-actions { display: flex; align-items: center; gap: 8px; margin-top: 24px; }
+  & .mg-tp-actions > .mg-icon-btn:first-child { margin-left: -8px; color: var(--mg-on-surface-variant); }
+
+  /* The date picker: 360px wide, the header's supporting line label-large and
+     its date headline-large, the days 40px circles on a 48px grid, today
+     outlined in primary and the chosen day filled with it. */
+  & .mg-sheet-dialog.mg-dp { width: 360px; max-width: 100%; padding: 0 0 12px; }
+  & .mg-dp-head { padding: 16px 12px 12px 24px; border-bottom: 1px solid var(--mg-outline-variant); }
+  & .mg-dp-head p { margin: 0; font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; color: var(--mg-on-surface-variant); }
+  & .mg-dp-head > div { display: flex; align-items: center; justify-content: space-between; margin-top: 36px; }
+  & .mg-dp-head h2 { margin: 0; font-size: 32px; line-height: 40px; font-weight: 400; color: var(--mg-on-surface-variant); }
+  & .mg-dp-head .mg-icon-btn { color: var(--mg-on-surface-variant); }
+  & .mg-dp-month { display: flex; align-items: center; justify-content: space-between; padding: 4px 12px 0 16px; min-height: 56px; }
+  & .mg-dp-month > span { display: flex; }
+  & .mg-dp-month .mg-icon-btn { color: var(--mg-on-surface-variant); }
+  & .mg-dp-prev { transform: rotate(180deg); }
+  & .mg-dp-monthname { display: inline-flex; align-items: center; gap: 4px; height: 40px; padding: 0 8px; border: 0; border-radius: 20px; background: none; font-family: var(--mg-font); font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; color: var(--mg-on-surface-variant); cursor: pointer; }
+  & .mg-dp-monthname:hover { background: color-mix(in oklab, var(--mg-on-surface-variant) 8%, transparent); }
+  & .mg-dp-caret { width: 18px; height: 18px; transition: transform 200ms var(--mg-effects-fast); }
+  & .mg-dp-caret-up { transform: rotate(180deg); }
+  & .mg-dp-grid { display: grid; grid-template-columns: repeat(7, 48px); justify-content: center; padding: 0 12px; }
+  & .mg-dp-wd { height: 48px; display: grid; place-items: center; font-size: 16px; line-height: 24px; color: var(--mg-on-surface); }
+  & .mg-dp-day { height: 48px; padding: 0; border: 0; background: none; display: grid; place-items: center; cursor: pointer; font-family: var(--mg-font); }
+  & .mg-dp-day span { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-size: 16px; line-height: 24px; color: var(--mg-on-surface); }
+  & .mg-dp-day:hover span { background: color-mix(in oklab, var(--mg-on-surface) 8%, transparent); }
+  & .mg-dp-day[data-today] span { box-shadow: inset 0 0 0 1px var(--mg-primary); color: var(--mg-primary); }
+  & .mg-dp-day[aria-selected='true'] span { background: var(--mg-primary); color: var(--mg-on-primary); box-shadow: none; }
+  & .mg-dp-day:focus-visible { outline: none; }
+  & .mg-dp-day:focus-visible span { outline: 2px solid var(--mg-secondary); outline-offset: 2px; }
+  /* The years: 72x36 full-round chips, three to a row. */
+  & .mg-dp-years { display: grid; grid-template-columns: repeat(3, 72px); justify-content: space-evenly; row-gap: 16px; height: 288px; overflow: auto; padding: 8px 12px; }
+  & .mg-dp-year { width: 72px; height: 36px; border: 0; border-radius: 18px; background: none; font-family: var(--mg-font); font-size: 16px; line-height: 24px; color: var(--mg-on-surface-variant); cursor: pointer; }
+  & .mg-dp-year:hover { background: color-mix(in oklab, var(--mg-on-surface-variant) 8%, transparent); }
+  & .mg-dp-year[data-today] { box-shadow: inset 0 0 0 1px var(--mg-primary); color: var(--mg-primary); }
+  & .mg-dp-year[aria-selected='true'] { background: var(--mg-primary); color: var(--mg-on-primary); box-shadow: none; }
+  & .mg-dp-typing { padding: 16px 24px 8px; }
+  & .mg-dp .mg-tp-actions { padding: 0 12px; margin-top: 8px; }
 }

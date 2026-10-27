@@ -729,6 +729,19 @@ class SonosCloud:
                             # come from -- it is not the SMAPI endpoint, whose
                             # host is resource.harmonyfm.de).
                             "site": ((entry.get("websites") or {}).get("home") or ""),
+                            # What the service says about itself, per
+                            # language: the long description the web app's
+                            # service page prints under "About" and its add
+                            # list under each name, and the short summary.
+                            "about": {
+                                lang: {"description": ((res or {}).get("common") or {}).get("service-description", "") or "",
+                                       "summary": ((res or {}).get("common") or {}).get("service-summary", "") or ""}
+                                for lang, res in (entry.get("string-resources") or {}).items()
+                                if isinstance(res, dict)},
+                            # The kinds of content it declares (often none);
+                            # see ``service_categories``.
+                            "resource_types": [str(t) for t in (entry.get("resource-types") or [])
+                                               if isinstance(t, (str, int))],
                             # Sonos declares here that it attaches the device
                             # certificate to this service's requests. Only such
                             # a service can reject a certificate-less controller
@@ -923,3 +936,30 @@ class SonosCloud:
                 heartbeat=30)
         except aiohttp.ClientError as exc:
             raise CloudError(f"Could not open the Sonos websocket: {exc}") from exc
+
+
+#: The content kinds the web app's add list filters by, in its order.
+SERVICE_CATEGORIES = ("MUSIC", "RADIO", "PODCASTS", "AUDIOBOOKS")
+
+
+def service_categories(info: dict) -> list[str]:
+    """Which of the add list's kinds a catalog entry belongs to.
+
+    The Sonos app's own rule (ServiceConfigurationExtensions.isCategoryMatch in
+    the S2 Android app): a service is of a kind when the content types it
+    declares include it, and when it declares none, when its name, its English
+    description or its English summary mentions the kind. AccuRadio, which
+    declares nothing and speaks of radio and music, is both; the web app's
+    service page lists the same under "Available Content".
+    """
+    declared = [t.upper() for t in info.get("resource_types") or []]
+    english = (info.get("about") or {}).get("en-US") or {}
+    words = " ".join([info.get("name", ""), english.get("description", ""), english.get("summary", "")]).upper()
+    out = []
+    for kind in SERVICE_CATEGORIES:
+        if declared:
+            if any(t and t in kind for t in declared):
+                out.append(kind)
+        elif kind in words:
+            out.append(kind)
+    return out

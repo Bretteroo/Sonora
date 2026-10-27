@@ -33,6 +33,9 @@ export default {
   'common.next': 'Další',
   'common.previous': 'Předchozí',
   'common.shuffle': 'Náhodně',
+  'common.jumpToLetter': 'Přejít na písmeno',
+  'common.show': 'Zobrazit',
+  'common.hide': 'Skrýt',
   'common.repeat': 'Opakovat',
   'common.mute': 'Ztlumit',
   'common.unmute': 'Zrušit ztlumení',
@@ -658,11 +661,7 @@ export default {
   'desk.library.add': 'Přidat',
   'desk.library.remove': 'Odebrat',
   'desk.library.pathHint': '//nas/Hudba',
-  'desk.library.pathNote':
-    'Sonora přidává složky podle jejich síťové cesty (například '
-    + '//nas/Hudba). Složka již musí být ve vaší síti sdílená. Přehrávače S1 '
-    + 'umí používat jen sdílení SMBv1; přehrávače S2 zvládají i SMBv2 a '
-    + 'SMBv3.',
+  'desk.library.pathNote': 'Sonora přidává složky podle jejich síťové cesty (například //nas/Hudba). Složka již musí být ve vaší síti sdílená. Přehrávače S1 umí používat jen sdílení SMBv1 a přehrávače S2 jen SMBv2 a SMBv3.',
   'desk.shareWizard.windowTitle': 'Nastavení Sonora',
   'desk.shareWizard.whereTitle': 'Přidat hudební složku',
   'desk.shareWizard.wherePrompt': 'Kde je hudba, kterou chcete přehrávat na Sonos?',

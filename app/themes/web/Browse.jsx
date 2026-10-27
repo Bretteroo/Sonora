@@ -13,7 +13,7 @@ import ServiceItemPage from './ServiceItemPage.jsx'
 import ServiceListPage from './ServiceListPage.jsx'
 import LibraryPage from './LibraryPage.jsx'
 import SystemDetailsPage from './SystemDetailsPage.jsx'
-import AddServicesView from './AddServicesView.jsx'
+import { ManageServices, AddServices, ServiceSettings, AccountSettings } from './ContentServices.jsx'
 import SearchResults from './SearchResults.jsx'
 import SettingsPage from './SettingsPage.jsx'
 import RoomSoundPage from './RoomSoundPage.jsx'
@@ -351,42 +351,40 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
     )
   }
 
+  // Content Services: the household's services (Manage), the catalog ("+"),
+  // a service's page and an account's (ContentServices.jsx).
+  const csHousehold = (id) => households.find((h) => h.id === id)
+    || households.find((h) => h.id === browseHousehold) || households[0]
   if (nav.view.kind === 'services-all') {
-    const group = services.find((g) => g.household.id === nav.view.household)
     return (
       <div className="wb-content wb-content-panel">
-        {/* No breadcrumb: the product's list has none, and the header's back
-            arrow is the way out. */}
-        <ServicesList
-          items={group?.items ?? []}
-          duplicates={duplicateIds(group?.items ?? [])}
-          title={multipleSystems
-            ? t('web.yourServicesFor', { generation: nav.view.generation })
-            : t('web.yourServices')}
-          onOpen={(service) => nav.push({
-            kind: 'service',
-            id: service.service_id ?? service.id,
-            name: service.name,
-            zone: group?.household.zone_uuids[0] ?? browseUuid,
-            account_id: service.account_id ?? '',
-            sonora_linked: service.sonora_linked,
-            on_system: service.on_system,
-            gen: group?.household.generation,
-            icon: service.icon, initials: service.initials, accounts: service.accounts,
-            site: service.site || '',
-          })}
-          onAdd={() => openAdd(group?.household.id)}
-          onClose={nav.home}
-        />
+        <ManageServices household={csHousehold(nav.view.household)} nav={nav} version={servicesVersion} onClose={nav.home} />
       </div>
     )
   }
 
   if (nav.view.kind === 'add-services') {
     return (
-      <div className="wb-content">
-        <Crumb nav={nav} label={t('desk.add.title')} />
-        <AddServicesView onLink={onLinkService} servicesVersion={servicesVersion} initialTab={nav.view.tab} />
+      <div className="wb-content wb-content-panel">
+        <AddServices household={csHousehold(nav.view.tab)} nav={nav} version={servicesVersion} onClose={nav.home} />
+      </div>
+    )
+  }
+
+  if (nav.view.kind === 'service-settings') {
+    return (
+      <div className="wb-content wb-content-panel">
+        <ServiceSettings household={csHousehold(nav.view.household)} sid={nav.view.sid} nav={nav} version={servicesVersion}
+                         onClose={nav.home} onLink={onLinkService} onChanged={onServicesChanged} />
+      </div>
+    )
+  }
+
+  if (nav.view.kind === 'service-account') {
+    return (
+      <div className="wb-content wb-content-panel">
+        <AccountSettings household={csHousehold(nav.view.household)} sid={nav.view.sid} accountId={nav.view.account_id}
+                         nav={nav} version={servicesVersion} onClose={nav.home} onLink={onLinkService} onChanged={onServicesChanged} />
       </div>
     )
   }
@@ -582,6 +580,7 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
           {shown.map((group) => (
             <Services key={group.household.id} group={group} multiple={households.length > 1}
                       onViewAll={() => nav.push({ kind: 'services-all', household: group.household.id, generation: group.household.generation })}
+                      onAdd={() => openAdd(group.household.id)}
                       onOpen={(service) => nav.push({
                         kind: 'service', id: service.service_id ?? service.id, name: service.name,
                         zone: group.household.zone_uuids[0], account_id: service.account_id ?? '',
@@ -625,12 +624,10 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
             icon: service.icon, initials: service.initials, accounts: service.accounts,
             site: service.site || '',
           })}
-          // The product's row ends at its last service, with no tile after
-          // it (play.sonos.com, 2026-09-24: Amazon Music, then the next
-          // section). Sonora adds services from View All's list; the tile
-          // stays only for a system with none yet, which has no row and so
-          // no View All to reach that list through.
-          onAdd={group.items.length ? undefined : () => openAdd(group.household.id)}
+          // The row ends in a "+" that opens Content Services' catalog, as
+          // the product's now does (play.sonos.com, 2026-10-27: an 80px disc
+          // after Sonos Radio, linking to /settings/services/add).
+          onAdd={() => openAdd(group.household.id)}
         />
       ))}
 
@@ -741,12 +738,15 @@ function Services({ group, multiple, onOpen, onViewAll, onAdd }) {
               : t('web.yourServices')}
           </h2>
         </div>
+        {/* "Manage", where the product's other rows say "View All": it opens
+            Content Services, the list the household's services are managed
+            from (play.sonos.com, 2026-10-27). */}
         <button
           type="button"
           className="wb-viewall"
           onClick={onViewAll}
         >
-          {t('common.viewAll')}
+          {t('web.cs.manage')}
         </button>
       </div>
       <div className="wb-services" ref={row}
@@ -803,59 +803,6 @@ function duplicateIds(items) {
     seen.set(id, (seen.get(id) ?? 0) + 1)
   }
   return new Set([...seen].filter(([, n]) => n > 1).map(([id]) => id))
-}
-
-// The list the product shows at /browse/services: a 40px title over one 72px
-// row per configured service, artwork left of a 14px label.
-function ServicesList({ items, duplicates, title, onOpen, onAdd, onClose }) {
-  const { t } = useI18n()
-  return (
-    <div className="wb-services-page">
-      {onClose && (
-        <button type="button" className="wb-service-close" title={t('common.close')}
-                onClick={onClose}>
-          <Icon.Close width={16} height={16} />
-        </button>
-      )}
-      <h1>{title}</h1>
-      <div className="wb-rows">
-        {items.map((service, index) => {
-          const id = service.service_id ?? service.id
-          const label = duplicates.has(id) && service.nickname
-            ? `${service.name} — ${service.nickname}`
-            : service.name
-          return (
-            <button
-              key={`${id}-${service.account_id ?? index}`}
-              type="button"
-              className="wb-row"
-              onClick={() => onOpen(service)}
-            >
-              <span className="wb-row-art">
-                <ServiceBadge service={service} />
-              </span>
-              <span className="wb-row-label">{label}</span>
-              {/* Every row carries one, as the product's list does. */}
-              <Icon.ChevronRight className="wb-row-chev" width={20} height={20} aria-hidden="true" />
-            </button>
-          )
-        })}
-        {/* Sonora's own, after the household's services rather than before
-            them: the product has no way to add a service at all -- it is done
-            in the Sonos app -- so this is the one row of this list that is
-            not in the product, and it reads as one of its rows. */}
-        {onAdd && (
-          <button type="button" className="wb-row" onClick={() => onAdd()}>
-            <span className="wb-row-art wb-add-art">
-              <span className="wb-service-badge" aria-hidden="true"><Icon.Plus /></span>
-            </span>
-            <span className="wb-row-label">{t('desk.browse.addServices')}</span>
-            <Icon.ChevronRight className="wb-row-chev" width={20} height={20} aria-hidden="true" />
-          </button>
-        )}
-      </div>
-    </div>
-  )
 }
 
 // The first letter of an account nickname, as the product's data names it:

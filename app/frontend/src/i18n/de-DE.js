@@ -33,6 +33,9 @@ export default {
   'common.next': 'Weiter',
   'common.previous': 'Zurück',
   'common.shuffle': 'Zufallswiedergabe',
+  'common.jumpToLetter': 'Zu einem Buchstaben springen',
+  'common.show': 'Einblenden',
+  'common.hide': 'Ausblenden',
   'common.repeat': 'Wiederholen',
   'common.mute': 'Stummschalten',
   'common.unmute': 'Stummschaltung aufheben',
@@ -650,11 +653,7 @@ export default {
   'desk.library.add': 'Hinzufügen',
   'desk.library.remove': 'Entfernen',
   'desk.library.pathHint': '//nas/Musik',
-  'desk.library.pathNote':
-    'Sonora fügt Ordner über ihren Netzwerkpfad hinzu (zum Beispiel '
-    + '//nas/Musik). Der Ordner muss in deinem Netzwerk bereits freigegeben '
-    + 'sein. S1-Player können nur SMBv1-Freigaben nutzen; S2-Player sprechen '
-    + 'auch SMBv2 und SMBv3.',
+  'desk.library.pathNote': 'Sonora fügt Ordner über ihren Netzwerkpfad hinzu (zum Beispiel //nas/Musik). Der Ordner muss in deinem Netzwerk bereits freigegeben sein. S1-Player können nur SMBv1-Freigaben nutzen, S2-Player nur SMBv2 und SMBv3.',
   'desk.shareWizard.windowTitle': 'Sonora-Einrichtung',
   'desk.shareWizard.whereTitle': 'Musikordner hinzufügen',
   'desk.shareWizard.wherePrompt': 'Wo ist die Musik, die du auf Sonos abspielen möchtest?',

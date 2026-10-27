@@ -1,6 +1,6 @@
 """The recently played list: one entry per source, newest first, kept on disk."""
 
-from backend.sonos.recent import LIMIT, RecentlyPlayed, kind_of
+from backend.sonos.recent import LIMIT, RecentlyPlayed, is_announcement, kind_of
 
 
 def test_newest_first_and_no_repeats(tmp_path):
@@ -39,3 +39,31 @@ def test_kind_words():
     assert kind_of("object.container.album.musicAlbum", "x-rincon-cpcontainer:1") == "album"
     assert kind_of("object.container.playlistContainer", "x-rincon-cpcontainer:2") == "playlist"
     assert kind_of("object.container", "x-rincon-cpcontainer:3") == "other"
+
+
+def test_announcements_and_chimes_are_not_history(tmp_path):
+    # A chime a device on the network serves, and Home Assistant's spoken
+    # announcements, on its own address or an outside one.
+    for uri in ("http://192.168.1.245:33793/chime-0.wav",
+                "http://192.168.1.17:8123/api/tts_proxy/abc123.mp3",
+                "https://example.ui.nabu.casa/api/tts_proxy/abc123.mp3",
+                "http://homeassistant.local:8123/local/doorbell.mp3"):
+        assert is_announcement(uri), uri
+    # Music reaches a speaker under schemes of its own, and a station on the
+    # internet is a station.
+    for uri in ("x-sonos-http:track%3a1.mp3?sid=212&sn=26",
+                "x-rincon-mp3radio://ice1.somafm.com/groovesalad-256-mp3",
+                "x-sonosapi-stream:s34635?sid=254",
+                "https://stream.example.com/live.mp3",
+                "x-file-cifs://nas/Music/a.flac"):
+        assert not is_announcement(uri), uri
+    store = RecentlyPlayed(tmp_path / "recent.json")
+    assert not store.note("H", {"uri": "http://192.168.1.245:33793/chime-0.wav", "title": "Sonority chime"})
+    assert store.items("H") == []
+
+
+def test_an_announcement_kept_before_the_rule_is_not_listed(tmp_path):
+    path = tmp_path / "recent.json"
+    path.write_text('{"H": [{"uri": "http://192.168.1.245:33793/chime-0.wav", "title": "chime"}, '
+                    '{"uri": "x-sonosapi-stream:s34635?sid=254", "title": "LAist"}]}')
+    assert [e["title"] for e in RecentlyPlayed(path).items("H")] == ["LAist"]

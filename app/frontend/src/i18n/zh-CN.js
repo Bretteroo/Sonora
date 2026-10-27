@@ -33,6 +33,9 @@ export default {
   'common.next': '下一首',
   'common.previous': '上一首',
   'common.shuffle': '随机播放',
+  'common.jumpToLetter': '跳转到字母',
+  'common.show': '显示',
+  'common.hide': '隐藏',
   'common.repeat': '循环',
   'common.mute': '静音',
   'common.unmute': '取消静音',
@@ -592,9 +595,7 @@ export default {
   'desk.library.add': '添加',
   'desk.library.remove': '移除',
   'desk.library.pathHint': '//nas/Music',
-  'desk.library.pathNote':
-    'Sonora 通过网络路径添加文件夹（例如 //nas/Music）。该文件夹必须已在你的网络中共享。S1 播放器只支持 SMBv1 '
-    + '共享；S2 播放器还支持 SMBv2 和 SMBv3。',
+  'desk.library.pathNote': 'Sonora 通过网络路径添加文件夹（例如 //nas/Music）。该文件夹必须已在你的网络中共享。S1 播放器只支持 SMBv1 共享，S2 播放器只支持 SMBv2 和 SMBv3。',
   'desk.shareWizard.windowTitle': 'Sonora 设置',
   'desk.shareWizard.whereTitle': '添加音乐文件夹',
   'desk.shareWizard.wherePrompt': '你想在 Sonos 上播放的音乐在哪里？',

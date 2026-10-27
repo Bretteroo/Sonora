@@ -1557,3 +1557,49 @@
 /* A rating the service gives no way to undo (AccuRadio's lit star): lit,
    and not pressable. */
 :where(:root[data-theme='outrun']) .dk-now-rating button[aria-disabled='true'] { cursor: default; }
+
+/* --- alphabet bar ---------------------------------------------------------
+   A long list's letters, down its right, held in view as it scrolls: 22px
+   of small capitals in the muted ink, 10px clear of the rows, the letter
+   jumped to in the theme's accent and those the list lacks fainter. Letters
+   grow with the pointer (--mag, set by letterIndex.js) and the rest close up
+   to make room. */
+:where(:root[data-theme='outrun']) .dk-scroll[data-letters] { padding-right: 36px; }
+:where(:root[data-theme='outrun']) .dk-letters-rail { position: sticky; top: 0; z-index: 3; height: 0; }
+:where(:root[data-theme='outrun']) .dk-letters {
+  position: absolute; top: 4px; right: -32px; width: 22px;
+  display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+  touch-action: none; user-select: none;
+}
+:where(:root[data-theme='outrun']) .dk-letters button {
+  flex: 1 1 0; min-height: 0; max-height: calc(22px * var(--mag, 1)); width: 100%;
+  display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: none; cursor: pointer;
+  font-family: inherit; font-weight: 600; font-size: calc(10px * var(--mag, 1)); line-height: 1; color: var(--t-fg-muted);
+  transition: flex-grow 90ms ease-out, font-size 90ms ease-out, max-height 90ms ease-out;
+}
+:where(:root[data-theme='outrun']) .dk-letters button:hover { color: var(--t-fg); background: var(--t-row-hover); }
+:where(:root[data-theme='outrun']) .dk-letters button[aria-current] { color: var(--t-accent, var(--t-fg)); }
+:where(:root[data-theme='outrun']) .dk-letters button[data-dim] { color: var(--t-fg-dim); opacity: 0.5; }
+@media (prefers-reduced-motion: reduce) { :where(:root[data-theme='outrun']) .dk-letters button { transition: none; } }
+
+/* While a letter's rows are read: the letter, large, in a raised tile beside
+   the bar, with a ring breathing round it, and the letter in the bar
+   pulsing, so the press shows at once and the wait reads as loading. */
+:where(:root[data-theme='outrun']) .dk-letter-hud {
+  position: absolute; right: calc(100% + 14px); top: 50%; transform: translateY(-50%);
+  width: 64px; height: 64px; display: grid; place-items: center; pointer-events: none;
+  font-size: 30px; font-weight: 700; color: var(--t-accent);
+  background: var(--t-bg-raised, var(--t-surface)); border: 1px solid var(--t-border); border-radius: 10px;
+  box-shadow: var(--t-shadow, 0 8px 24px rgba(0, 0, 0, 0.18));
+}
+:where(:root[data-theme='outrun']) .dk-letter-hud::after {
+  content: ''; position: absolute; inset: -5px; border-radius: 14px; border: 2px solid var(--t-accent);
+  animation: outrun-letter-wait 900ms ease-in-out infinite;
+}
+:where(:root[data-theme='outrun']) .dk-letters button[data-loading] { animation: outrun-letter-blink 900ms ease-in-out infinite; }
+@keyframes outrun-letter-wait { 0%, 100% { opacity: 0.15; transform: scale(0.96); } 50% { opacity: 0.9; transform: scale(1.04); } }
+@keyframes outrun-letter-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) {
+  :where(:root[data-theme='outrun']) .dk-letter-hud::after { animation: none; opacity: 0.6; }
+  :where(:root[data-theme='outrun']) .dk-letters button[data-loading] { animation: none; }
+}

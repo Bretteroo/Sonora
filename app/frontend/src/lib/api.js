@@ -271,6 +271,20 @@ export const api = {
     if (art) params.set('art', String(art))
     return request(`/api/services/${sid}/browse?${params}`)
   },
+  // Where each letter starts in a long list, for an alphabet bar: the
+  // service's own count, or the speakers' for their library. Empty when
+  // the list has no index.
+  serviceLetters: (sid, { zone, item, account = '' } = {}) => {
+    const params = new URLSearchParams({ item })
+    if (zone) params.set('zone', zone)
+    if (account) params.set('account', account)
+    return request(`/api/services/${sid}/letters?${params}`)
+  },
+  libraryLetters: (objectId, { zone } = {}) => {
+    const params = new URLSearchParams({ object_id: objectId })
+    if (zone) params.set('zone', zone)
+    return request(`/api/browse/letters?${params}`)
+  },
   searchService: (sid, { zone, term, account = '', category = '', count = 10, index = 0 } = {}) => {
     const params = new URLSearchParams({ term, count: String(count) })
     if (index) params.set('index', String(index))
@@ -305,4 +319,187 @@ export const api = {
     if (household) params.set('household', household)
     return request(`/api/diagnostics?${params}`)
   },
+}
+
+// A listing a page at a time, each asked for only when it is wanted: the
+// first at once, the next when the reader scrolls to the end of what is
+// showing, so a service is never asked for rows nobody looks at. A jump
+// (an alphabet bar's) starts it again further down, at the row asked for,
+// and then the rows above come a page at a time as the reader scrolls up.
+// A page that brings nothing new ends that direction, so a service that
+// ignores the index and answers its first page again cannot loop, and an
+// error ends it with that page. Each page carries `offset`, the place of its
+// first row in the whole list.
+const PAGE = 100
+function pages(fetchPage, size = PAGE) {
+  const key = (row) => row.id ?? row.uri
+  let seen = new Set()
+  let top = 0
+  let got = 0
+  let done = false
+  const keep = (rows) => {
+    const fresh = rows.filter((row) => key(row) == null || !seen.has(key(row)))
+    for (const row of rows) if (key(row) != null) seen.add(key(row))
+    return fresh
+  }
+  return {
+    get done() { return done },
+    get top() { return top },
+    // The next page, or null when the listing has no more.
+    async next() {
+      if (done) return null
+      const result = await fetchPage(got, size)
+      const rows = result?.items || []
+      const first = got === top && !seen.size
+      const fresh = keep(rows)
+      if (!first && !fresh.length) { done = true; return null }
+      const at = got
+      got += rows.length
+      if (result?.error || !rows.length || got >= (result.total ?? got)) done = true
+      return { ...result, items: first ? rows : fresh, offset: at }
+    },
+    // The page just above the rows in hand, or null at the top.
+    async previous() {
+      if (top <= 0) return null
+      const from = Math.max(0, top - size)
+      const result = await fetchPage(from, top - from)
+      const fresh = keep(result?.items || [])
+      top = fresh.length ? from : 0
+      return { ...result, items: fresh, offset: from }
+    },
+    // Start again at row `at`, forgetting the rows read so far.
+    restart(at) {
+      seen = new Set()
+      top = Math.max(0, at)
+      got = top
+      done = false
+    },
+    // Carry on from a run of rows read before, rows `from` to `from` +
+    // rows.length, as though they had just been read.
+    resume(from, rows, total) {
+      seen = new Set(rows.map(key).filter((k) => k != null))
+      top = from
+      got = from + rows.length
+      done = got >= total
+    },
+  }
+}
+
+// A service's container, or one of the speakers' own, a page at a time;
+// `pageSize` rows each, 100 unless the theme's reference client asks for
+// another number.
+export const browseServicePages = (sid, { pageSize, ...options } = {}) =>
+  pages((index, count) => api.browseService(sid, { ...options, index, count }), pageSize)
+export const browsePages = (objectId, { pageSize, ...options } = {}) =>
+  pages((start, count) => api.browse(objectId, { ...options, start, count }), pageSize)
+
+// Follows a listing: its first page now, the next each time `more` is called
+// (a MoreRows at the foot of the list calls it), the one above it each time
+// `earlier` is (a MoreRows at the head, once a jump has started the list part
+// way down), and a fresh start at a row with `jumpTo`. `onPage` gets each
+// page, whether it replaces the rows (the first page, and a jump's), and
+// 'before' for a page that goes above them; `onError` an error and whether
+// it was a replacing page. Nothing is delivered after `stop`, and a call in
+// either direction while a page is on its way is ignored, so a scroll that
+// fires many times asks once.
+//
+// Every run of rows read is kept, so a jump back into one is served at once
+// from what is in hand, with no request (`jumpTo` answers true then, and the
+// page has been delivered before it returns), and a run that grows into
+// another takes the other's rows on with it.
+export function followPages(pager, onPage, onError) {
+  let stopped = false
+  let busy = false
+  let fresh = true
+  let turn = 0
+  let total = 0
+  // Runs of rows read, each { from, rows }, and the one being shown; and the
+  // rest of the first page (the service's display types and the like), which
+  // a jump back hands over with its rows.
+  const runs = []
+  let shown = null
+  let about = {}
+  const keep = (page, replacing, where) => {
+    total = page.total ?? total
+    if (replacing) { const { items: _rows, offset: _at, ...rest } = page; about = rest }
+    const rows = page.items || []
+    if (replacing || !shown) {
+      shown = { from: page.offset || 0, rows: [...rows] }
+      runs.push(shown)
+    } else if (where === 'before') {
+      shown.from = page.offset
+      shown.rows = [...rows, ...shown.rows]
+    } else {
+      shown.rows.push(...rows)
+    }
+    // A run now touching another is joined to it, and its rows go to the
+    // reader as though they had just been read.
+    const end = shown.from + shown.rows.length
+    const after = runs.find((r) => r !== shown && r.from <= end && r.from + r.rows.length > end)
+    const before = runs.find((r) => r !== shown && r.from < shown.from && r.from + r.rows.length >= shown.from)
+    for (const other of [after, before]) {
+      if (!other) continue
+      runs.splice(runs.indexOf(other), 1)
+      if (other === after) {
+        const extra = other.rows.slice(end - other.from)
+        shown.rows.push(...extra)
+        if (extra.length) onPage({ ...page, items: extra, offset: end }, false, 'after')
+      } else {
+        const extra = other.rows.slice(0, shown.from - other.from)
+        shown.from = other.from
+        shown.rows = [...extra, ...shown.rows]
+        if (extra.length) onPage({ ...page, items: extra, offset: other.from }, false, 'before')
+      }
+      pager.resume(shown.from, shown.rows, total)
+    }
+  }
+  const run = (ask, where) => {
+    busy = true
+    const mine = ++turn
+    const replacing = fresh
+    fresh = false
+    ask().then((page) => {
+      if (mine !== turn) return
+      busy = false
+      if (stopped || !page) return
+      onPage(page, replacing, where)
+      keep(page, replacing, where)
+    }, (exc) => {
+      if (mine !== turn) return
+      busy = false
+      if (!stopped) onError?.(exc, replacing)
+    })
+  }
+  const more = () => {
+    if (stopped || busy || pager.done) return
+    run(() => pager.next(), 'after')
+  }
+  const earlier = () => {
+    if (stopped || busy || pager.top <= 0) return
+    run(() => pager.previous(), 'before')
+  }
+  // A jump wins over a page on its way: that page's answer is dropped. A
+  // jump into rows read before shows them straight away.
+  const jumpTo = (at) => {
+    if (stopped) return false
+    const known = runs.find((r) => at >= r.from && at < r.from + r.rows.length)
+    if (known) {
+      turn++
+      busy = false
+      fresh = false
+      shown = known
+      pager.resume(known.from, known.rows, total)
+      onPage({ ...about, items: [...known.rows], offset: known.from, total }, true, 'after')
+      return true
+    }
+    pager.restart(at)
+    fresh = true
+    run(() => pager.next(), 'after')
+    return false
+  }
+  more()
+  return {
+    more, earlier, jumpTo, stop: () => { stopped = true },
+    get done() { return pager.done }, get top() { return pager.top },
+  }
 }

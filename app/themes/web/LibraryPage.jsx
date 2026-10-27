@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import { api } from '../../frontend/src/lib/api.js'
+import React, { useEffect, useRef, useState } from 'react'
+import { api, browsePages, followPages } from '../../frontend/src/lib/api.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
 import Art from './Art.jsx'
+import MoreRows from '../../frontend/src/components/MoreRows.jsx'
 import { PlayRow } from './icons.jsx'
 import { anchorOf, menuAt, useDismiss } from './menus.js'
+
+// A list comes a hundred rows at a time, and the next hundred when the
+// reader scrolls to the end: the product asks offset=100&count=100, then 200
+// and 300, down a 1,000-song Spotify playlist (measured 2026-10-26).
+const PAGE = 100
 
 // The household's music library, opened from Your Sources.
 //
@@ -34,13 +40,19 @@ export default function LibraryPage({ item = 'A:', name = '', uri = '', metadata
   useDismiss(Boolean(menu), () => setMenu(null))
   const root = item === 'A:'
 
+  const following = useRef(null)
+  const more = React.useCallback(() => following.current?.more(), [])
   useEffect(() => {
     let canceled = false
     setState({ loading: true, items: [] })
-    api.browse(item, { zone, count: 500 })
-      .then((data) => !canceled && setState({ loading: false, items: data.items ?? [] }))
-      .catch((exc) => !canceled && setState({ loading: false, items: [], error: exc.message }))
-    return () => { canceled = true }
+    // The first page at once, the next when the list is scrolled to its end.
+    const follow = followPages(browsePages(item, { zone, pageSize: PAGE }), (data, first) => {
+      if (canceled) return
+      if (first) setState({ loading: false, items: data.items ?? [] })
+      else setState((prev) => ({ ...prev, items: [...prev.items, ...(data.items ?? [])] }))
+    }, (exc, first) => { if (!canceled && first) setState({ loading: false, items: [], error: exc.message }) })
+    following.current = follow
+    return () => { canceled = true; follow.stop() }
   }, [item, zone])
 
   // A list of songs -- Songs itself, an album, an imported playlist, an
@@ -167,6 +179,7 @@ export default function LibraryPage({ item = 'A:', name = '', uri = '', metadata
           )}
         </div>
       )}
+      <MoreRows onMore={more} count={state.items.length} />
     </div>
   )
 }

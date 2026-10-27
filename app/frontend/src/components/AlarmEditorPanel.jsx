@@ -14,9 +14,12 @@ import './alarm.css'
 // Playlists, Imported Playlists and each service, browsed in place.
 // `Select` is the dropdown the room is chosen with: the browser's by default, or a theme's own
 // (Material Girl passes its exposed dropdown, which follows its menus).
+// `TimeInput` is the field the alarm's time is set with: Sonora's stepper by default, or a
+// theme's own (Material Girl passes its Material 3 time picker). The duration keeps the stepper,
+// a length of time being no time of day.
 // `heading`: false where the theme's own sheet already names the editor in its header, so
 // "Add Alarm" is not said twice (Liquid Glass).
-export default function AlarmEditorPanel({ alarm = null, rooms, households, onCancel, onSave, busy = false, clock = null, formId = undefined, Select = 'select', heading = true }) {
+export default function AlarmEditorPanel({ alarm = null, rooms, households, onCancel, onSave, busy = false, clock = null, formId = undefined, Select = 'select', TimeInput = TimeField, heading = true }) {
   const { t, language } = useI18n()
   // 12 or 24; a theme that copies an app says which (the Mac app's is 24),
   // and otherwise the locale decides.
@@ -47,7 +50,7 @@ export default function AlarmEditorPanel({ alarm = null, rooms, households, onCa
           <label><input type="radio" checked={!form.enabled} onChange={() => set({ enabled: false })} /> {t('win.alarm.off')}</label>
         </div>
         <label>{t('desk.alarms.time')}</label>
-        <div><TimeField className="alarm-time" value={form.time} clock={hours} label={t('desk.alarms.time')} onChange={(time) => set({ time })} /></div>
+        <div><TimeInput className="alarm-time" value={form.time} clock={hours} label={t('desk.alarms.time')} onChange={(time) => set({ time })} /></div>
         <label>{t('desk.alarms.room')}</label>
         <div><Select value={form.room} onChange={(e) => set({ room: e.target.value })}>
           {rooms.map((r) => <option key={r.uuid} value={r.uuid}>{r.name}</option>)}

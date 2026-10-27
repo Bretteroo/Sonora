@@ -29,6 +29,12 @@ def test_s1_household_against_a_server_that_dropped_smb1():
     assert "enable SMBv1" in said and "S2 system" in said
 
 
+def test_s2_household_against_a_server_that_speaks_only_smb1():
+    facts = {"host": "nas", "port": 445, "smb1": True, "smb2": None}
+    said = explain("//nas/Music", facts, generation="S2")
+    assert "only SMBv1" in said and "SMBv2 or SMBv3" in said and "S1 system" in said
+
+
 def test_s2_household_and_a_server_that_refuses_guests():
     facts = {"host": "nas", "port": 445, "smb1": False, "smb2": "SMB 3.0", "anonymous": False}
     said = explain("//nas/Music", facts, generation="S2", credentials=False)

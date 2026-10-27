@@ -33,6 +33,9 @@ export default {
   'common.next': '다음',
   'common.previous': '이전',
   'common.shuffle': '임의 재생',
+  'common.jumpToLetter': '글자로 이동',
+  'common.show': '표시',
+  'common.hide': '숨기기',
   'common.repeat': '반복',
   'common.mute': '음소거',
   'common.unmute': '음소거 해제',
@@ -610,9 +613,7 @@ export default {
   'desk.library.add': '추가',
   'desk.library.remove': '제거',
   'desk.library.pathHint': '//nas/Music',
-  'desk.library.pathNote':
-    'Sonora는 네트워크 경로(예: //nas/Music)로 폴더를 추가합니다. 폴더는 이미 네트워크에 공유되어 있어야 합니다. '
-    + 'S1 플레이어는 SMBv1 공유만 쓸 수 있고, S2 플레이어는 SMBv2와 SMBv3도 지원합니다.',
+  'desk.library.pathNote': 'Sonora는 네트워크 경로(예: //nas/Music)로 폴더를 추가합니다. 폴더는 이미 네트워크에 공유되어 있어야 합니다. S1 플레이어는 SMBv1 공유만, S2 플레이어는 SMBv2와 SMBv3만 쓸 수 있습니다.',
   'desk.shareWizard.windowTitle': 'Sonora 설정',
   'desk.shareWizard.whereTitle': '음악 폴더 추가',
   'desk.shareWizard.wherePrompt': 'Sonos에서 재생할 음악은 어디에 있나요?',

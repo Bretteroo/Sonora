@@ -97,6 +97,7 @@ export const Edit = (p) => <G {...p}><path d="m15.4 4.6 4 4L9 19H5v-4zM16.8 3.2a
 export const Refresh = (p) => <G {...p}><path {...line} d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4.2h-4.2" /></G>
 export const Sparkle = (p) => <G {...p}><path d="M12 2.5c.7 4.4 2.6 6.8 7 7.5-4.4.7-6.3 3.1-7 7.5-.7-4.4-2.6-6.8-7-7.5 4.4-.7 6.3-3.1 7-7.5M18.5 15c.3 1.9 1.1 2.9 3 3.2-1.9.3-2.7 1.3-3 3.2-.3-1.9-1.1-2.9-3-3.2 1.9-.3 2.7-1.3 3-3.2" /></G>
 export const Person = (p) => <G {...p}><circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0z" /></G>
+export const Calendar = (p) => <G {...p}><rect {...line} x="3.5" y="5" width="17" height="15.5" rx="2.5" /><path {...line} d="M3.5 9.5h17M8 3v4M16 3v4" /><path d="M7 12.5h2.4v2.4H7zm3.8 0h2.4v2.4h-2.4zm3.8 0H17v2.4h-2.4zM7 16.3h2.4v2.4H7zm3.8 0h2.4v2.4h-2.4z" /></G>
 export const Clock = (p) => <G {...p}><circle {...line} cx="12" cy="12" r="8.5" /><path {...line} d="M12 7.5V12l3 2" /></G>
 export const Prohibit = (p) => <G {...p}><circle {...line} cx="12" cy="12" r="8.5" /><path {...line} d="m6 6 12 12" /></G>
 export const Signal = (p) => <G {...p}><rect x="3" y="15" width="3.2" height="5" rx="1" /><rect x="8.3" y="11" width="3.2" height="9" rx="1" /><rect x="13.6" y="7" width="3.2" height="13" rx="1" /><rect x="18.9" y="3" width="3.2" height="17" rx="1" opacity=".38" /></G>

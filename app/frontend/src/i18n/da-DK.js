@@ -33,6 +33,9 @@ export default {
   'common.next': 'Næste',
   'common.previous': 'Forrige',
   'common.shuffle': 'Bland',
+  'common.jumpToLetter': 'Gå til et bogstav',
+  'common.show': 'Vis',
+  'common.hide': 'Skjul',
   'common.repeat': 'Gentag',
   'common.mute': 'Slå lyd fra',
   'common.unmute': 'Slå lyd til',
@@ -651,11 +654,7 @@ export default {
   'desk.library.add': 'Tilføj',
   'desk.library.remove': 'Fjern',
   'desk.library.pathHint': '//nas/Musik',
-  'desk.library.pathNote':
-    'Sonora tilføjer mapper ud fra deres netværkssti (for eksempel '
-    + '//nas/Musik). Mappen skal allerede være delt på dit netværk. '
-    + 'S1-afspillere kan kun bruge SMBv1-delinger; S2-afspillere kan også '
-    + 'bruge SMBv2 og SMBv3.',
+  'desk.library.pathNote': 'Sonora tilføjer mapper ud fra deres netværkssti (for eksempel //nas/Musik). Mappen skal allerede være delt på dit netværk. S1-afspillere kan kun bruge SMBv1-delinger, og S2-afspillere kun SMBv2 og SMBv3.',
   'desk.shareWizard.windowTitle': 'Sonora-opsætning',
   'desk.shareWizard.whereTitle': 'Tilføj musikmappe',
   'desk.shareWizard.wherePrompt': 'Hvor er den musik, du vil afspille på Sonos?',

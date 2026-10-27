@@ -9,6 +9,8 @@ import { groupName } from '../../frontend/src/lib/format.js'
 import { playTarget } from '../../frontend/src/lib/browserRoom.js'
 import { readLibraryPrefs, libraryRows } from '../../frontend/src/lib/libraryPrefs.js'
 import Art from '../../frontend/src/components/Art.jsx'
+import MoreRows from '../../frontend/src/components/MoreRows.jsx'
+import { useLetterIndex, useLetterDrag, useKeepPlace, useRailHeight, fitLetters } from '../../frontend/src/lib/letterIndex.js'
 import { CautionBadge } from '../../frontend/src/components/CautionBadge.jsx'
 import * as I from './icons.jsx'
 import { IconButton, Button, SplitButton, Menu, MenuItem, MenuSep, Confirm, Empty, Busy, Sheet, SheetBar, Chip, SearchBar,
@@ -380,6 +382,19 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
   // its name with View All at its end, in the automatic view.
   const shelves = view === 'auto' && !isCollection ? items.filter((item) => (item.children || []).length > 0) : []
   const loose = shelves.length ? items.filter((item) => !(item.children || []).length) : items
+  // The alphabet beside a long list in letter order (letterIndex.js): Plex
+  // says where its letters start, the library the same, and any other
+  // service's list has its letters read off its rows when they are in order.
+  const rowsHolder = useRef(null)
+  const lettered = !node.root && !isCollection && !shelves.length && !node.virtual
+  const letterSource = !lettered ? null
+    : node.service ? { sid: node.service, item: node.item ?? 'root', account: liveAccount, zone: node.hzone }
+      : /^A:./.test(node.id || '') ? { library: node.id, zone: node.hzone } : null
+  const rowsOf = React.useCallback(() => rowsHolder.current?.querySelectorAll(':scope > [data-item]'), [])
+  const scrollToRow = React.useCallback((i) => { rowsOf()?.[i]?.scrollIntoView({ block: 'start' }) }, [rowsOf])
+  const letterIndex = useLetterIndex({ rows: lettered ? loose : [], offset: page.offset, total: page.total, more: page.more,
+                                       done: page.done, jumpTo: page.jumpTo, source: letterSource, scrollTo: scrollToRow, rowsOf })
+  useKeepPlace(scroller, page.offset)
   const addHouseholdId = (() => {
     const visible = sections.map((sec) => sec.household.id)
     if (activeHousehold && visible.includes(activeHousehold)) return activeHousehold
@@ -502,7 +517,9 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
           </div>
         </header>
 
-        <div className="mg-browse-body" key={`${stack.length}:${node.id}`} data-motion={motion || undefined}>
+        <div className="mg-browse-body" key={`${stack.length}:${node.id}`} data-motion={motion || undefined}
+             data-letters={(letterIndex.show && !searching) || undefined}>
+          {letterIndex.show && !searching && <LetterBar index={letterIndex} label={t('common.jumpToLetter')} loading={t('desk.browse.loading')} />}
           {searching ? (
             <SearchResults allLabel={allLabel} search={search} scope={scope} pickedCategory={pickedCategory} onCategory={setPickedCategory}
                            onOpen={(item, from = scope) => {
@@ -573,8 +590,11 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
                   </div>
                 </section>
               ))}
+              {/* A jump started the list part way down: the rows above it
+                  come as the reader scrolls back up. */}
+              {page.offset > 0 && <MoreRows onMore={page.earlier} count={page.items.length} />}
               {shelves.length > 0 && loose.length === 0 ? null : grid ? (
-                <div className="mg-grid">
+                <div className="mg-grid" ref={rowsHolder}>
                   {loose.map((item, index) => (
                     <ItemCard key={`${item.id}-${index}`} item={item} node={node} t={t} displayTypes={page.displayTypes}
                               onDelete={removal ? () => act({ ...item, ...rowExtras(item, index) }, removal) : undefined}
@@ -583,7 +603,7 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
                   ))}
                 </div>
               ) : loose.length > 0 && (
-                <div className="mg-rows">
+                <div className="mg-rows" ref={rowsHolder}>
                   {loose.map((item, index) => (
                     <ItemRow key={`${item.id}-${index}`} item={item} node={node} t={t} displayTypes={page.displayTypes}
                              onDelete={removal ? () => act({ ...item, ...rowExtras(item, index) }, removal) : undefined}
@@ -596,6 +616,7 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
                   ))}
                 </div>
               )}
+              <MoreRows onMore={page.more} count={page.items.length} />
               {node.id === 'R:0/0' && !page.loading && <div className="mg-page-foot"><Button variant="tonal" icon={<I.Plus />} onClick={onAddRadio}>{t('desk.radio.addNew')}</Button></div>}
               {node.id === 'SQ:' && !page.loading && <div className="mg-page-foot"><Button variant="tonal" icon={<I.Plus />} onClick={() => setNaming({ kind: 'newPlaylist' })}>{t('desk.playlists.new')}</Button></div>}
               {node.localRadio && !page.loading && (
@@ -864,6 +885,33 @@ function subtitleOf(item, node, t, displayTypes = {}) {
   const container = item.is_container && !isPlayableLeaf(item)
   return ((!container || ['album', 'playlist'].includes(item.item_type || item.kind)) && [item.artist || item.author, item.album].filter(Boolean).join(' · '))
     || (item.child_count ? t.plural('common.items', item.child_count) : '')
+}
+
+// The letters down the right of a long list, held in view as the page
+// scrolls. A press jumps to a letter and a drag runs through them, as a
+// phone's index does; letters the list is known not to hold are dimmed.
+function LetterBar({ index, label, loading }) {
+  const drag = useLetterDrag(index.jump)
+  const rail = useRef(null)
+  // The pane less its foot: the mini player and the navigation bar float
+  // over the last 200px or so of it.
+  const height = useRailHeight(rail, { reserve: 216, max: 620 })
+  return (
+    <div className="mg-letters-rail" ref={rail}>
+      <nav className="mg-letters" aria-label={label} aria-busy={index.pending || undefined} style={height ? { height } : undefined} {...drag}>
+        {/* Under 16px a letter is too small to aim at: a short pane gets
+            every other one, with a dot between. */}
+        {fitLetters(index.letters, Math.floor(height / 16)).map(({ letter, present, dot }) => (
+          <button key={dot ? `dot-${letter}` : letter} type="button" data-letter={letter} data-loading={(!dot && index.pending && index.active === letter) || undefined} data-dim={!present || undefined}
+                  data-dot={dot || undefined} aria-label={dot ? letter : undefined}
+                  aria-current={(!dot && index.active === letter) || undefined} onClick={(event) => { if (!event.detail) index.jump(letter) }}>{dot ? '•' : letter}</button>
+        ))}
+        {/* The letter asked for, large, while its rows are read: the press was
+            taken, and the list is on its way there. */}
+        {index.pending && <span className="mg-letter-hud" role="status" aria-label={`${index.active}, ${loading}`}>{index.active}</span>}
+      </nav>
+    </div>
+  )
 }
 
 function ItemRow({ item, node, t, displayTypes = {}, place = false, onDelete, number = 0, checked, onCheck, selected, onOpen, onPlay, onMenu, reorder = null }) {

@@ -9,6 +9,7 @@ import * as I from './icons.jsx'
 import { Sheet, SheetBar, Button, Switch, Confirm, Empty, Busy, Chip, IconButton, Menu, MenuItem, SystemPicker, Select, Skeleton } from './m3.jsx'
 import { SHAPES } from './shapes.js'
 import { groupTitle } from './data.js'
+import { TimeField } from './Pickers.jsx'
 
 // Clock: the two things a room does on a clock. The sleep timer leads, as a
 // tonal card whose countdown is set in display type; the alarms follow as
@@ -105,7 +106,7 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
             <Button variant="text" size="s" type="submit" form="mg-alarm-form" disabled={busy}>{t('common.save')}</Button>
           </SheetBar>
           <div className="mg-sheet-body">
-            <AlarmEditorPanel heading={false} formId="mg-alarm-form" Select={Select} alarm={editing === 'new' ? null : editing} rooms={rooms} households={households} busy={busy}
+            <AlarmEditorPanel heading={false} formId="mg-alarm-form" Select={Select} TimeInput={TimeField} alarm={editing === 'new' ? null : editing} rooms={rooms} households={households} busy={busy}
                               onCancel={() => setEditing(null)}
                               onSave={async (d) => { if (editing === 'new') await create(d); else await update(editing.ID, d); setEditing(null) }} />
           </div>

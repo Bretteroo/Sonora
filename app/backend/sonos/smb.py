@@ -195,6 +195,13 @@ def explain(path: str, facts: dict, *, generation: str = "", credentials: bool =
                 "they have too little memory for anything newer. Either enable SMBv1 on "
                 f"the server ({facts.get('smb2') or 'SMB2'} is all it offers now) or add "
                 "this folder to an S2 system instead.")
+    if generation == "S2" and facts.get("smb1") and not facts.get("smb2"):
+        # The other way round: S2 players stopped using SMBv1 shares in May
+        # 2024 (Sonos app 80.00.04: "Sonos systems no longer support local
+        # library shares that use SMBv1 / HTTP").
+        return (f"{host} speaks only SMBv1, and S2 players no longer use SMBv1 -- only "
+                "SMBv2 and SMBv3. Either enable SMBv2 or SMBv3 on the server, or add "
+                "this folder to an S1 system instead.")
     if facts.get("anonymous") is False and not credentials:
         return (f"{host} refuses connections that carry no credentials, and this share was "
                 "added without a username and password. Add it again with an account that "

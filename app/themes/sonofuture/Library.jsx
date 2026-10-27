@@ -7,6 +7,8 @@ import { stationKey } from '../../frontend/src/lib/myRadio.js'
 import { isPlayableLeaf } from '../../frontend/src/lib/items.js'
 import { groupName } from '../../frontend/src/lib/format.js'
 import Art from '../../frontend/src/components/Art.jsx'
+import MoreRows from '../../frontend/src/components/MoreRows.jsx'
+import { useLetterIndex, useLetterDrag, useAlongside, useKeepPlace, fitLetters } from '../../frontend/src/lib/letterIndex.js'
 import { CautionBadge } from '../../frontend/src/components/CautionBadge.jsx'
 import * as I from './icons.jsx'
 import { IconButton, Button, Menu, MenuItem, MenuSep, Confirm, Empty, Spinner, Sheet, SheetHeader, Chip, Segmented, SystemPicker } from './ui.jsx'
@@ -412,6 +414,45 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
   // the automatic view; Grid and List still mean what they say.
   const shelves = view === 'auto' && !isCollection ? items.filter((item) => (item.children || []).length > 0) : []
   const loose = shelves.length ? items.filter((item) => !(item.children || []).length) : items
+  // The alphabet beside a long list in letter order (letterIndex.js): Plex
+  // says where its letters start, the library the same, and any other
+  // service's list has its letters read off its rows when they are in order.
+  const rowsHolder = useRef(null)
+  const lettered = !node.root && !isCollection && !shelves.length && !node.virtual
+  const letterSource = !lettered ? null
+    : node.service ? { sid: node.service, item: node.item ?? 'root', account: liveAccount, zone: node.hzone }
+      : /^A:./.test(node.id || '') ? { library: node.id, zone: node.hzone } : null
+  const rowsOf = React.useCallback(() => rowsHolder.current?.querySelectorAll(':scope > [data-item]'), [])
+  const scrollToRow = React.useCallback((i) => { rowsOf()?.[i]?.scrollIntoView({ block: 'start' }) }, [rowsOf])
+  const letterIndex = useLetterIndex({ rows: lettered ? loose : [], offset: page.offset, total: page.total, more: page.more,
+                                       done: page.done, jumpTo: page.jumpTo, source: letterSource, scrollTo: scrollToRow, rowsOf })
+  const letterBox = useAlongside(scroller)
+  // The library runs on under the bottom bar, as a list does under a glass
+  // bar: its scroller reaches the window's foot (`reach`, how far that is
+  // below the pane) and pads its end by as much as the bar and anything
+  // under it stand up from that foot (`under`), so the last row scrolls
+  // clear of them. Both are read off the page, since the bar's height
+  // changes with the layout and a phone's tab bar sits below it.
+  const [foot, setFoot] = useState({ reach: 0, under: 0 })
+  useEffect(() => {
+    const read = () => {
+      const pane = scroller.current?.closest('.sf-main')
+      const root = pane?.closest('.sf-root')
+      const bar = root?.querySelector('.sf-nowbar')
+      if (!pane || !root || !bar) return
+      const bottom = root.getBoundingClientRect().bottom
+      const next = { reach: Math.max(0, Math.round(bottom - pane.getBoundingClientRect().bottom)),
+                     under: Math.max(0, Math.round(bottom - bar.getBoundingClientRect().top)) }
+      setFoot((prev) => (prev.reach === next.reach && prev.under === next.under ? prev : next))
+    }
+    read()
+    const watch = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(read) : null
+    const bar = scroller.current?.closest('.sf-root')?.querySelector('.sf-nowbar')
+    if (watch && bar) watch.observe(bar)
+    window.addEventListener('resize', read)
+    return () => { watch?.disconnect(); window.removeEventListener('resize', read) }
+  }, [])
+  useKeepPlace(scroller, page.offset)
   const addHouseholdId = (() => {
     const visible = sections.map((sec) => sec.household.id)
     if (activeHousehold && visible.includes(activeHousehold)) return activeHousehold
@@ -589,7 +630,8 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
           )}
         </header>
 
-        <div className="sf-content-scroll" ref={scroller}>
+        <div className="sf-content-scroll" ref={scroller} data-letters={(letterIndex.show && !searching) || undefined}
+             style={{ '--sf-reach': `${foot.reach}px`, '--sf-under': `${foot.under}px` }}>
           {searching ? (
             <SearchResults allLabel={allLabel} search={search} scope={scope} pickedCategory={pickedCategory} onCategory={setPickedCategory}
                            onOpen={(item, from = scope) => {
@@ -670,8 +712,11 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
                   ))}
                 </div>
               )}
+              {/* A jump started the list part way down: the rows above it
+                  come as the reader scrolls back up. */}
+              {page.offset > 0 && <MoreRows onMore={page.earlier} count={page.items.length} />}
               {shelves.length > 0 && loose.length === 0 ? null : grid ? (
-                <div className="sf-grid">
+                <div className="sf-grid" ref={rowsHolder}>
                   {loose.map((item, index) => (
                     <ItemCard key={`${item.id}-${index}`} item={item} onDelete={removal ? () => act({ ...item, ...rowExtras(item, index) }, removal) : undefined} node={node} t={t} displayTypes={page.displayTypes}
                               onOpen={(event) => open({ ...item, ...rowExtras(item, index) }, event)} onPlay={item.uri ? () => act({ ...item, ...rowExtras(item, index) }, 'now') : null}
@@ -679,7 +724,7 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
                   ))}
                 </div>
               ) : (
-                <div className="sf-rows">
+                <div className="sf-rows" ref={rowsHolder}>
                   {loose.map((item, index) => (
                     <ItemRow key={`${item.id}-${index}`} item={item} onDelete={removal ? () => act({ ...item, ...rowExtras(item, index) }, removal) : undefined} node={node} t={t} displayTypes={page.displayTypes} place={node.pickCity && peek[item.id] === 'final'} number={isCollection && node.kind === 'album' && !item.is_container ? index + 1 : 0}
                              checked={checked.has(item.id)} onCheck={() => toggleCheck(item.id)}
@@ -691,6 +736,7 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
                   ))}
                 </div>
               )}
+              <MoreRows onMore={page.more} count={page.items.length} />
               {node.id === 'R:0/0' && !page.loading && (
                 <div className="sf-page-foot"><Button quiet icon={<I.Plus />} onClick={onAddRadio}>{t('desk.radio.addNew')}</Button></div>
               )}
@@ -703,6 +749,9 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
             </>
           )}
         </div>
+        {letterIndex.show && !searching && letterBox && (
+          <LetterBar index={letterIndex} box={{ ...letterBox, height: letterBox.height - foot.under }} label={t('common.jumpToLetter')} loading={t('desk.browse.loading')} />
+        )}
         {checked.size > 0 && (
           <div className="sf-selection-bar" role="toolbar" aria-label={t('sf.selected', { count: checked.size })}>
             <span>{t('sf.selected', { count: checked.size })}</span>
@@ -814,11 +863,15 @@ function RootOverview({ sections, onOpen, onAccounts, folded, onFold, t }) {
         return (
         <section key={section.household.id} className="sf-root-system" data-dim={section.otherSystem || undefined}>
           {section.header && (section.otherSystem ? (
+            // A disclosure, and drawn as one: the chevron before the name turns
+            // down when the system's services show, and Show or Hide at the end
+            // of the row says what a click does.
             <button type="button" className="sf-root-gen sf-root-fold" aria-expanded={!shut}
                     onClick={() => onFold(section.household.id)}>
+              <I.Chevron className="sf-root-fold-mark" aria-hidden="true" />
               <span>{section.header}</span>
               <small>{t('sf.otherSystem', { gen: section.header })}</small>
-              <I.ChevronDown />
+              <span className="sf-root-fold-act" aria-hidden="true">{shut ? t('common.show') : t('common.hide')}</span>
             </button>
           ) : <h2 className="sf-root-gen">{section.header}</h2>)}
           <div className="sf-fold" data-collapsed={shut || undefined} inert={shut || undefined}>
@@ -964,6 +1017,27 @@ function subtitleOf(item, node, t, displayTypes = {}) {
   const container = item.is_container && !isPlayableLeaf(item)
   return ((!container || ['album', 'playlist'].includes(item.item_type || item.kind)) && [item.artist || item.author, item.album].filter(Boolean).join(' · '))
     || (item.child_count ? t.plural('common.items', item.child_count) : '')
+}
+
+// The letters down the right of a long list. A press jumps to a letter and
+// a drag runs through them, as a phone's index does; letters the list is
+// known not to hold are dimmed.
+function LetterBar({ index, box, label, loading }) {
+  const drag = useLetterDrag(index.jump)
+  return (
+    <nav className="sf-letters" aria-label={label} aria-busy={index.pending || undefined} style={{ top: box.top, height: box.height, right: box.right }} {...drag}>
+      {/* Under 14px a letter is too small to aim at: a short pane gets every
+          other one, with a dot between. */}
+      {fitLetters(index.letters, Math.floor((box.height - 8) / 14)).map(({ letter, present, dot }) => (
+        <button key={dot ? `dot-${letter}` : letter} type="button" data-letter={letter} data-loading={(!dot && index.pending && index.active === letter) || undefined} data-dim={!present || undefined}
+                data-dot={dot || undefined} aria-label={dot ? letter : undefined}
+                aria-current={(!dot && index.active === letter) || undefined} onClick={(event) => { if (!event.detail) index.jump(letter) }}>{dot ? '•' : letter}</button>
+      ))}
+      {/* The letter asked for, large, while its rows are read: the press was
+          taken, and the list is on its way there. */}
+      {index.pending && <span className="sf-letter-hud" role="status" aria-label={`${index.active}, ${loading}`}>{index.active}</span>}
+    </nav>
+  )
 }
 
 function ItemRow({ item, node, t, displayTypes = {}, place = false, onDelete, number = 0, checked, onCheck, selected, onOpen, onPlay, onMenu, reorder = null }) {

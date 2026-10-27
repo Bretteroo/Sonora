@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { api } from '../../frontend/src/lib/api.js'
+import { api, browseServicePages, followPages } from '../../frontend/src/lib/api.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import Art from './Art.jsx'
+import MoreRows from '../../frontend/src/components/MoreRows.jsx'
 import { isPlayableLeaf } from '../../frontend/src/lib/items.js'
 import { CautionBadge } from '../../frontend/src/components/CautionBadge.jsx'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
@@ -12,6 +13,11 @@ import { PlayRow } from './icons.jsx'
 import { anchorOf, menuAt } from './menus.js'
 import { kindLabel } from './kinds.js'
 import { badgeSrc } from './serviceMarks.js'
+
+// A list comes a hundred rows at a time, and the next hundred when the
+// reader scrolls to the end: the product asks offset=100&count=100, then 200
+// and 300, down a 1,000-song Spotify playlist (measured 2026-10-26).
+const PAGE = 100
 
 // A music service's own page.
 //
@@ -56,6 +62,8 @@ export default function ServicePage({ sid, name, summary = '', zone, item, accou
   // refresh made the page flash while speakers and cloud settled after an add.
   const place = `${sid}|${zone}|${item || 'root'}|${accountId || ''}`
   const lastPlace = useRef(null)
+  const following = useRef(null)
+  const more = React.useCallback(() => following.current?.more(), [])
   useEffect(() => {
     let canceled = false
     // A shelf opened from a service's home already has its rows: they came
@@ -67,11 +75,17 @@ export default function ServicePage({ sid, name, summary = '', zone, item, accou
     if (lastPlace.current !== place) { lastPlace.current = place; setState({ loading: true }) }
     // 290: the size the product asks a service for on a browse page, where
     // a tile is 156px (play.sonos.com, 2026-09-19).
-    api.browseService(sid, { zone, item: item || 'root', count: 100, account: accountId || '', art: 290 })
-      .then((data) => !canceled && setState({ loading: false, ...data }))
-      .catch((exc) => !canceled
-        && setState({ loading: false, error: { message: exc.message } }))
-    return () => { canceled = true }
+    // The first page at once, the next when the list is scrolled to its end.
+    const pager = browseServicePages(sid, { zone, item: item || 'root', account: accountId || '', art: 290, pageSize: PAGE })
+    const follow = followPages(pager, (data, first) => {
+      if (canceled) return
+      if (first) setState({ loading: false, ...data })
+      else setState((prev) => ({ ...prev, items: [...(prev.items || []), ...(data.items ?? [])] }))
+    }, (exc, first) => {
+      if (!canceled && first) setState({ loading: false, error: { message: exc.message } })
+    })
+    following.current = follow
+    return () => { canceled = true; follow.stop() }
   }, [sid, zone, item, accountId, refresh, preset])
 
   const atRoot = !item
@@ -463,7 +477,7 @@ export default function ServicePage({ sid, name, summary = '', zone, item, accou
           ))}
         </div>
       )}
-
+      <MoreRows onMore={more} count={items.length} />
     </div>
   )
 }

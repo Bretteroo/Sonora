@@ -2,7 +2,7 @@ import { itemAccount } from '../../frontend/src/lib/itemAccount.js'
 import { libraryScope } from '../../frontend/src/lib/librarySearch.js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SONOS_RADIO } from '../../frontend/src/lib/sonosServices.js'
-import { api } from '../../frontend/src/lib/api.js'
+import { api, browsePages, browseServicePages, followPages } from '../../frontend/src/lib/api.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { orderedHouseholds, streamText, streamFileName } from '../../frontend/src/lib/format.js'
 import { isPlayableLeaf } from '../../frontend/src/lib/items.js'
@@ -494,6 +494,7 @@ export function useBrowsePage(node, account, version = 0) {
   const [state, setState] = useState({ items: [], displayTypes: {}, loading: false, error: '', needsLink: false })
   const [tick, setTick] = useState(0)
   const last = useRef(null)
+  const following = useRef(null)
   useEffect(() => {
     if (!node || node.root || !node.hzone || node.virtual) { setState({ items: [], loading: false, error: '', needsLink: false }); return undefined }
     // A shelf opened from a service's home carries its rows with it: they came
@@ -504,19 +505,31 @@ export function useBrowsePage(node, account, version = 0) {
     const fresh = last.current !== node
     last.current = node
     if (fresh) setState({ items: [], loading: true, error: '', needsLink: false })
-    const fetcher = node.service
-      ? api.browseService(node.service, { zone: node.hzone, item: node.item ?? 'root', count: 200, account: account || '' })
-      : api.browse(node.id, { zone: node.hzone, count: 200 })
-    fetcher.then((result) => {
+    // The first page shows at once; each next one is asked for when the list
+    // is scrolled to its end (`more`, called by the list's MoreRows).
+    const pager = node.service
+      ? browseServicePages(node.service, { zone: node.hzone, item: node.item ?? 'root', account: account || '' })
+      : browsePages(node.id, { zone: node.hzone })
+    const follow = followPages(pager, (result, first, where) => {
       if (canceled) return
+      if (where === 'before') { setState((prev) => ({ ...prev, items: [...(result.items || []), ...prev.items], offset: pager.top })); return }
+      if (!first) { setState((prev) => ({ ...prev, items: [...prev.items, ...(result.items || [])], done: pager.done })); return }
       const err = result.error
       setState({ items: result.items || [], displayTypes: result.display_types || {}, loading: false,
+                 total: result.total || 0, done: pager.done, offset: result.offset || 0,
                  needsLink: Boolean(err?.needs_auth && node.service),
                  error: err && !(err.needs_auth && node.service) ? (err.message || '') : '' })
-    }).catch((exc) => { if (!canceled) setState({ items: [], loading: false, error: exc?.message || 'Error', needsLink: false }) })
-    return () => { canceled = true }
+    }, (exc, first) => {
+      // A later page that fails leaves the rows already shown.
+      if (!canceled && first) setState({ items: [], loading: false, error: exc?.message || 'Error', needsLink: false })
+    })
+    following.current = follow
+    return () => { canceled = true; follow.stop() }
   }, [node, account, version, tick])
-  return { ...state, reload: () => setTick((v) => v + 1) }
+  const more = useCallback(() => following.current?.more(), [])
+  const earlier = useCallback(() => following.current?.earlier(), [])
+  const jumpTo = useCallback((at) => following.current?.jumpTo(at), [])
+  return { offset: 0, ...state, more, earlier, jumpTo, reload: () => setTick((v) => v + 1) }
 }
 
 // --- playing -----------------------------------------------------------------

@@ -1329,6 +1329,39 @@
   /* --- lists ----------------------------------------------------------------------------- */
   & :is(.sv-crt, .sv-screenlike) {
     & .sv-listing { display: grid; }
+    /* A long list's index: one column of characters at the right, behind a dashed rule like the
+       rows', 22px wide with 12px between it and the rows, stuck to the top of the screen while the
+       list scrolls. The letter jumped to prints in reverse video, one the list lacks faint. */
+    & .sv-library-body[data-letters] { padding-right: 36px; }
+    & .sv-letters-rail { position: sticky; top: 0; z-index: 3; height: 0; }
+    & .sv-letters {
+      position: absolute; top: 0; right: -36px; width: 24px; box-sizing: border-box;
+      display: flex; flex-direction: column; justify-content: space-between;
+      border-left: 1px dashed var(--sv-ph-faint); padding-left: 2px;
+      touch-action: none; user-select: none;
+    }
+    & .sv-letters button {
+      flex: 1 1 0; min-height: 0; max-height: calc(22px * var(--mag, 1)); padding: 0; border: 0; background: none; cursor: pointer;
+      display: grid; place-items: center; font: inherit; font-size: calc(14px * var(--mag, 1)); line-height: 1; color: inherit; text-shadow: inherit;
+      /* Letters grow with the pointer (--mag, set by letterIndex.js) and the rest close up to make room. Stepped, as the screen's other changes are. */
+      transition: flex-grow 90ms steps(3, end), font-size 90ms steps(3, end), max-height 90ms steps(3, end);
+    }
+    @media (prefers-reduced-motion: reduce) { & .sv-letters button { transition: none; } }
+    /* While a letter's rows are read: the letter boxed large beside the column with a block cursor
+       blinking after it, as the terminal waits on a read, and the letter in the column blinking
+       with it. */
+    & .sv-letter-hud {
+      position: absolute; right: calc(100% + 12px); top: 50%; transform: translateY(-50%);
+      height: 56px; padding: 0 12px; display: flex; align-items: center; gap: 4px; pointer-events: none;
+      font-size: 30px; line-height: 1; color: var(--sv-ph); background: var(--sv-scr); border: 2px solid var(--sv-ph);
+    }
+    & .sv-letter-hud::after { content: ''; width: 0.55em; height: 0.9em; background: var(--sv-ph); animation: sv-letter-cursor 700ms steps(1, end) infinite; }
+    & .sv-letters button[data-loading] { animation: sv-letter-cursor 700ms steps(1, end) infinite; }
+    @media (prefers-reduced-motion: reduce) { & .sv-letter-hud::after, & .sv-letters button[data-loading] { animation: none; } }
+    & .sv-letters button:hover { background: var(--sv-ph-wash); }
+    & .sv-letters button[aria-current] { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
+    & .sv-letters button[data-dim] { color: var(--sv-ph-dim); }
+    & .sv-letters button:focus-visible { outline: none; background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
     & .sv-listing-cols { grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); column-gap: 18px; }
     & .sv-row, & .sv-li {
       position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto auto; align-items: center; gap: 12px;
@@ -2005,3 +2038,5 @@
 @keyframes sv-crash-flash { 0% { background: rgb(var(--sv-ph-rgb) / 0.55); } 8% { background: none; } 40% { background: rgb(var(--sv-ph-rgb) / 0.2); } 46% { background: none; } }
 @keyframes sv-crash-tear { 0% { translate: 0 0; clip-path: none; } 33% { translate: -6px 2px; } 66% { translate: 4px -3px; } }
 @keyframes sv-crash-line { to { opacity: 1; } }
+
+@keyframes sv-letter-cursor { 0% { opacity: 1; } 50% { opacity: 0; } }

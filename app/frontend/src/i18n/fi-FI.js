@@ -33,6 +33,9 @@ export default {
   'common.next': 'Seuraava',
   'common.previous': 'Edellinen',
   'common.shuffle': 'Satunnaistoisto',
+  'common.jumpToLetter': 'Siirry kirjaimeen',
+  'common.show': 'Näytä',
+  'common.hide': 'Piilota',
   'common.repeat': 'Toisto',
   'common.mute': 'Mykistä',
   'common.unmute': 'Poista mykistys',
@@ -651,11 +654,7 @@ export default {
   'desk.library.add': 'Lisää',
   'desk.library.remove': 'Poista',
   'desk.library.pathHint': '//nas/Music',
-  'desk.library.pathNote':
-    'Sonora lisää kansiot niiden verkkopolun perusteella (esimerkiksi '
-    + '//nas/Music). Kansion on oltava jo jaettu verkossasi. S1-soittimet '
-    + 'voivat käyttää vain SMBv1-jakoja; S2-soittimet osaavat myös SMBv2:n ja '
-    + 'SMBv3:n.',
+  'desk.library.pathNote': 'Sonora lisää kansiot niiden verkkopolun perusteella (esimerkiksi //nas/Music). Kansion on oltava jo jaettu verkossasi. S1-soittimet voivat käyttää vain SMBv1-jakoja ja S2-soittimet vain SMBv2- ja SMBv3-jakoja.',
   'desk.shareWizard.windowTitle': 'Sonoran käyttöönotto',
   'desk.shareWizard.whereTitle': 'Lisää musiikkikansio',
   'desk.shareWizard.wherePrompt': 'Missä on musiikki, jota haluat toistaa Sonosilla?',

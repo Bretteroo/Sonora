@@ -337,6 +337,25 @@ def parse_rate_result(text: str) -> RateResult:
                       message_string_id=(msg.group(1) if msg else "").strip())
 
 
+def parse_scroll_indices(text: str) -> list[tuple[str, int]]:
+    """Read a getScrollIndices answer, "A,0,B,24,...", as (letter, row) pairs.
+
+    Pairs that do not parse are dropped, and so is a letter that starts no
+    later than the one before it, so the list is always in row order.
+    """
+    parts = [p.strip() for p in (text or "").split(",")]
+    out: list[tuple[str, int]] = []
+    for letter, at in zip(parts[0::2], parts[1::2]):
+        try:
+            row = int(at)
+        except ValueError:
+            continue
+        if not letter or row < 0 or (out and row < out[-1][1]):
+            continue
+        out.append((letter, row))
+    return out
+
+
 def smapi_item_id(track_uri: str) -> str:
     """The provider's own id for a track URI the speakers are playing.
 
@@ -506,6 +525,29 @@ class SmapiClient:
                                 household_id=household_id, token=token, key=key,
                                 device_id=device_id)
         return self._filtered(self._parse(text), household_id)
+
+    async def get_scroll_indices(
+        self,
+        *,
+        endpoint: str,
+        service_name: str,
+        item_id: str,
+        household_id: str = "",
+        token: str = "",
+        key: str = "",
+        device_id: str = "",
+    ) -> list[tuple[str, int]]:
+        """Where each letter starts in a long container, as the service counts
+        its rows. The apps put their letter headings where this says; most
+        services answer it with a fault, which the caller takes as none."""
+        text = await self._call(endpoint, service_name, "getScrollIndices",
+                                f"<id>{escape(item_id)}</id>",
+                                household_id=household_id, token=token, key=key,
+                                device_id=device_id)
+        for node in _lenient_fromstring(text).iter():
+            if _local(node.tag) == "getScrollIndicesResult":
+                return parse_scroll_indices(node.text or "")
+        return []
 
     async def get_media_metadata(
         self,

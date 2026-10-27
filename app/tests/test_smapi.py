@@ -116,3 +116,25 @@ def test_an_item_the_service_no_longer_has_is_missing_by_name_or_by_number():
     assert SmapiError("Spotify", "SOAP-ENV:Server", "SonosError 3", sonos_error=3).missing
     assert not SmapiError("Spotify", "Client.LoginUnauthorized", "").missing
     assert not SmapiError("x", "Client.NotLinkedRetry", "", sonos_error=5).missing
+
+
+def test_scroll_indices_read_in_row_order():
+    from backend.sonos.smapi import parse_scroll_indices
+    # Plex's albums, as getScrollIndices answers them.
+    assert parse_scroll_indices("#,0,A,61,B,283,C,661") == [("#", 0), ("A", 61), ("B", 283), ("C", 661)]
+    # A pair that does not parse, or a letter starting before the one ahead
+    # of it, is dropped; an empty answer is no index.
+    assert parse_scroll_indices("A,0,B,x,C,40,D,12,E,50") == [("A", 0), ("C", 40), ("E", 50)]
+    assert parse_scroll_indices("") == []
+
+
+def test_service_kinds_follow_the_apps_rule():
+    from backend.sonos.cloud import service_categories
+    about = lambda d, s='': {"en-US": {"description": d, "summary": s}}
+    # Nothing declared: the words decide, name and English text alike.
+    assert service_categories({"name": "AccuRadio", "about": about("Internet radio with music of every kind")}) == ["MUSIC", "RADIO"]
+    assert service_categories({"name": "Pocket Casts", "about": about("The best way to listen to your podcasts")}) == ["PODCASTS"]
+    assert service_categories({"name": "Libby", "about": about("", "Free audiobooks from your library")}) == ["AUDIOBOOKS"]
+    # Declared kinds are the answer, whatever the words say.
+    assert service_categories({"name": "Radio X", "resource_types": ["PODCAST"], "about": about("radio")}) == ["PODCASTS"]
+    assert service_categories({"name": "Quiet", "about": {}}) == []

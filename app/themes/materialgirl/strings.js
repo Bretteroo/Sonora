@@ -111,6 +111,19 @@ const enUS = {
   'mg.dynamicColor': 'Colors from the cover',
   'mg.dynamicColorBody': 'Tint the whole interface with the colors of what is playing in the room in view.',
   'mg.reload': 'Reload',
+  'mg.picker.selectTime': 'Select time',
+  'mg.picker.enterTime': 'Enter time',
+  'mg.picker.hour': 'Hour',
+  'mg.picker.minute': 'Minute',
+  'mg.picker.toInput': 'Switch to text input',
+  'mg.picker.toDial': 'Switch to clock input',
+  'mg.picker.selectDate': 'Select date',
+  'mg.picker.enterDate': 'Enter date',
+  'mg.picker.toCalendar': 'Switch to calendar input',
+  'mg.picker.prevMonth': 'Previous month',
+  'mg.picker.nextMonth': 'Next month',
+  'mg.picker.chooseYear': 'Choose year',
+  'mg.picker.date': 'Date',
 }
 
 const esES = {
@@ -221,6 +234,19 @@ const esES = {
   'mg.dynamicColor': 'Colores de la portada',
   'mg.dynamicColorBody': 'Tiñe toda la interfaz con los colores de lo que suena en la habitación que estás viendo.',
   'mg.reload': 'Recargar',
+  'mg.picker.selectTime': 'Seleccionar hora',
+  'mg.picker.enterTime': 'Introducir hora',
+  'mg.picker.hour': 'Hora',
+  'mg.picker.minute': 'Minuto',
+  'mg.picker.toInput': 'Cambiar a entrada de texto',
+  'mg.picker.toDial': 'Cambiar a entrada con reloj',
+  'mg.picker.selectDate': 'Seleccionar fecha',
+  'mg.picker.enterDate': 'Introducir fecha',
+  'mg.picker.toCalendar': 'Cambiar a entrada con calendario',
+  'mg.picker.prevMonth': 'Mes anterior',
+  'mg.picker.nextMonth': 'Mes siguiente',
+  'mg.picker.chooseYear': 'Elegir año',
+  'mg.picker.date': 'Fecha',
 }
 
 const huHU = {
@@ -331,6 +357,19 @@ const huHU = {
   'mg.dynamicColor': 'Színek a borítóról',
   'mg.dynamicColorBody': 'Az egész felületet annak a színeivel festi meg, ami a látott szobában szól.',
   'mg.reload': 'Újratöltés',
+  'mg.picker.selectTime': 'Időpont kiválasztása',
+  'mg.picker.enterTime': 'Időpont megadása',
+  'mg.picker.hour': 'Óra',
+  'mg.picker.minute': 'Perc',
+  'mg.picker.toInput': 'Váltás szöveges bevitelre',
+  'mg.picker.toDial': 'Váltás órás bevitelre',
+  'mg.picker.selectDate': 'Dátum kiválasztása',
+  'mg.picker.enterDate': 'Dátum megadása',
+  'mg.picker.toCalendar': 'Váltás naptáras bevitelre',
+  'mg.picker.prevMonth': 'Előző hónap',
+  'mg.picker.nextMonth': 'Következő hónap',
+  'mg.picker.chooseYear': 'Év kiválasztása',
+  'mg.picker.date': 'Dátum',
 }
 
 const frFR = {
@@ -441,6 +480,19 @@ const frFR = {
   'mg.dynamicColor': 'Couleurs de la pochette',
   'mg.dynamicColorBody': 'Teinte toute l’interface aux couleurs de ce qui joue dans la pièce affichée.',
   'mg.reload': 'Recharger',
+  'mg.picker.selectTime': 'Choisir l’heure',
+  'mg.picker.enterTime': 'Saisir l’heure',
+  'mg.picker.hour': 'Heure',
+  'mg.picker.minute': 'Minute',
+  'mg.picker.toInput': 'Passer à la saisie au clavier',
+  'mg.picker.toDial': 'Passer au cadran',
+  'mg.picker.selectDate': 'Choisir la date',
+  'mg.picker.enterDate': 'Saisir la date',
+  'mg.picker.toCalendar': 'Passer au calendrier',
+  'mg.picker.prevMonth': 'Mois précédent',
+  'mg.picker.nextMonth': 'Mois suivant',
+  'mg.picker.chooseYear': 'Choisir l’année',
+  'mg.picker.date': 'Date',
 }
 
 const deDE = {
@@ -551,6 +603,19 @@ const deDE = {
   'mg.dynamicColor': 'Farben aus dem Cover',
   'mg.dynamicColorBody': 'Färbt die ganze Oberfläche in den Farben dessen, was im angezeigten Raum läuft.',
   'mg.reload': 'Neu laden',
+  'mg.picker.selectTime': 'Uhrzeit auswählen',
+  'mg.picker.enterTime': 'Uhrzeit eingeben',
+  'mg.picker.hour': 'Stunde',
+  'mg.picker.minute': 'Minute',
+  'mg.picker.toInput': 'Zur Texteingabe wechseln',
+  'mg.picker.toDial': 'Zur Uhr wechseln',
+  'mg.picker.selectDate': 'Datum auswählen',
+  'mg.picker.enterDate': 'Datum eingeben',
+  'mg.picker.toCalendar': 'Zum Kalender wechseln',
+  'mg.picker.prevMonth': 'Vorheriger Monat',
+  'mg.picker.nextMonth': 'Nächster Monat',
+  'mg.picker.chooseYear': 'Jahr auswählen',
+  'mg.picker.date': 'Datum',
 }
 
 const itIT = {
@@ -661,6 +726,19 @@ const itIT = {
   'mg.dynamicColor': 'Colori dalla copertina',
   'mg.dynamicColorBody': 'Colora tutta l’interfaccia con i colori di ciò che suona nella stanza in vista.',
   'mg.reload': 'Ricarica',
+  'mg.picker.selectTime': 'Seleziona ora',
+  'mg.picker.enterTime': 'Inserisci ora',
+  'mg.picker.hour': 'Ora',
+  'mg.picker.minute': 'Minuto',
+  'mg.picker.toInput': 'Passa all’inserimento di testo',
+  'mg.picker.toDial': 'Passa all’orologio',
+  'mg.picker.selectDate': 'Seleziona data',
+  'mg.picker.enterDate': 'Inserisci data',
+  'mg.picker.toCalendar': 'Passa al calendario',
+  'mg.picker.prevMonth': 'Mese precedente',
+  'mg.picker.nextMonth': 'Mese successivo',
+  'mg.picker.chooseYear': 'Scegli anno',
+  'mg.picker.date': 'Data',
 }
 
 const ptBR = {
@@ -771,6 +849,19 @@ const ptBR = {
   'mg.dynamicColor': 'Cores da capa',
   'mg.dynamicColorBody': 'Tinge toda a interface com as cores do que está tocando no cômodo em exibição.',
   'mg.reload': 'Recarregar',
+  'mg.picker.selectTime': 'Selecionar horário',
+  'mg.picker.enterTime': 'Digitar horário',
+  'mg.picker.hour': 'Hora',
+  'mg.picker.minute': 'Minuto',
+  'mg.picker.toInput': 'Mudar para digitação',
+  'mg.picker.toDial': 'Mudar para o relógio',
+  'mg.picker.selectDate': 'Selecionar data',
+  'mg.picker.enterDate': 'Digitar data',
+  'mg.picker.toCalendar': 'Mudar para o calendário',
+  'mg.picker.prevMonth': 'Mês anterior',
+  'mg.picker.nextMonth': 'Próximo mês',
+  'mg.picker.chooseYear': 'Escolher ano',
+  'mg.picker.date': 'Data',
 }
 
 const nlNL = {
@@ -881,6 +972,19 @@ const nlNL = {
   'mg.dynamicColor': 'Kleuren van de hoes',
   'mg.dynamicColorBody': 'Kleurt de hele interface met de kleuren van wat er speelt in de getoonde ruimte.',
   'mg.reload': 'Opnieuw laden',
+  'mg.picker.selectTime': 'Tijd kiezen',
+  'mg.picker.enterTime': 'Tijd invoeren',
+  'mg.picker.hour': 'Uur',
+  'mg.picker.minute': 'Minuut',
+  'mg.picker.toInput': 'Overschakelen naar tekstinvoer',
+  'mg.picker.toDial': 'Overschakelen naar klok',
+  'mg.picker.selectDate': 'Datum kiezen',
+  'mg.picker.enterDate': 'Datum invoeren',
+  'mg.picker.toCalendar': 'Overschakelen naar kalender',
+  'mg.picker.prevMonth': 'Vorige maand',
+  'mg.picker.nextMonth': 'Volgende maand',
+  'mg.picker.chooseYear': 'Jaar kiezen',
+  'mg.picker.date': 'Datum',
 }
 
 const ukUA = {
@@ -991,6 +1095,19 @@ const ukUA = {
   'mg.dynamicColor': 'Кольори з обкладинки',
   'mg.dynamicColorBody': 'Забарвлює весь інтерфейс кольорами того, що грає у вибраній кімнаті.',
   'mg.reload': 'Оновити',
+  'mg.picker.selectTime': 'Вибрати час',
+  'mg.picker.enterTime': 'Ввести час',
+  'mg.picker.hour': 'Година',
+  'mg.picker.minute': 'Хвилина',
+  'mg.picker.toInput': 'Перейти до введення тексту',
+  'mg.picker.toDial': 'Перейти до циферблата',
+  'mg.picker.selectDate': 'Вибрати дату',
+  'mg.picker.enterDate': 'Ввести дату',
+  'mg.picker.toCalendar': 'Перейти до календаря',
+  'mg.picker.prevMonth': 'Попередній місяць',
+  'mg.picker.nextMonth': 'Наступний місяць',
+  'mg.picker.chooseYear': 'Вибрати рік',
+  'mg.picker.date': 'Дата',
 }
 
 const jaJP = {
@@ -1101,6 +1218,19 @@ const jaJP = {
   'mg.dynamicColor': 'ジャケットの色',
   'mg.dynamicColorBody': '表示中の部屋で再生している曲の色で、画面全体を彩ります。',
   'mg.reload': '再読み込み',
+  'mg.picker.selectTime': '時刻を選択',
+  'mg.picker.enterTime': '時刻を入力',
+  'mg.picker.hour': '時',
+  'mg.picker.minute': '分',
+  'mg.picker.toInput': 'テキスト入力に切り替え',
+  'mg.picker.toDial': '時計入力に切り替え',
+  'mg.picker.selectDate': '日付を選択',
+  'mg.picker.enterDate': '日付を入力',
+  'mg.picker.toCalendar': 'カレンダー入力に切り替え',
+  'mg.picker.prevMonth': '前の月',
+  'mg.picker.nextMonth': '次の月',
+  'mg.picker.chooseYear': '年を選択',
+  'mg.picker.date': '日付',
 }
 
 const koKR = {
@@ -1211,6 +1341,19 @@ const koKR = {
   'mg.dynamicColor': '커버 색상',
   'mg.dynamicColorBody': '보고 있는 방에서 재생 중인 음악의 색으로 화면 전체를 물들입니다.',
   'mg.reload': '새로고침',
+  'mg.picker.selectTime': '시간 선택',
+  'mg.picker.enterTime': '시간 입력',
+  'mg.picker.hour': '시',
+  'mg.picker.minute': '분',
+  'mg.picker.toInput': '텍스트 입력으로 전환',
+  'mg.picker.toDial': '시계 입력으로 전환',
+  'mg.picker.selectDate': '날짜 선택',
+  'mg.picker.enterDate': '날짜 입력',
+  'mg.picker.toCalendar': '달력 입력으로 전환',
+  'mg.picker.prevMonth': '이전 달',
+  'mg.picker.nextMonth': '다음 달',
+  'mg.picker.chooseYear': '연도 선택',
+  'mg.picker.date': '날짜',
 }
 
 const zhCN = {
@@ -1321,6 +1464,19 @@ const zhCN = {
   'mg.dynamicColor': '取自封面的颜色',
   'mg.dynamicColorBody': '用当前房间正在播放内容的颜色为整个界面着色。',
   'mg.reload': '重新加载',
+  'mg.picker.selectTime': '选择时间',
+  'mg.picker.enterTime': '输入时间',
+  'mg.picker.hour': '时',
+  'mg.picker.minute': '分',
+  'mg.picker.toInput': '切换到文本输入',
+  'mg.picker.toDial': '切换到时钟输入',
+  'mg.picker.selectDate': '选择日期',
+  'mg.picker.enterDate': '输入日期',
+  'mg.picker.toCalendar': '切换到日历输入',
+  'mg.picker.prevMonth': '上个月',
+  'mg.picker.nextMonth': '下个月',
+  'mg.picker.chooseYear': '选择年份',
+  'mg.picker.date': '日期',
 }
 
 const zhTW = {
@@ -1431,6 +1587,19 @@ const zhTW = {
   'mg.dynamicColor': '取自封面的顏色',
   'mg.dynamicColorBody': '以目前房間正在播放內容的顏色為整個介面上色。',
   'mg.reload': '重新載入',
+  'mg.picker.selectTime': '選擇時間',
+  'mg.picker.enterTime': '輸入時間',
+  'mg.picker.hour': '時',
+  'mg.picker.minute': '分',
+  'mg.picker.toInput': '切換至文字輸入',
+  'mg.picker.toDial': '切換至時鐘輸入',
+  'mg.picker.selectDate': '選擇日期',
+  'mg.picker.enterDate': '輸入日期',
+  'mg.picker.toCalendar': '切換至日曆輸入',
+  'mg.picker.prevMonth': '上個月',
+  'mg.picker.nextMonth': '下個月',
+  'mg.picker.chooseYear': '選擇年份',
+  'mg.picker.date': '日期',
 }
 
 const csCZ = {
@@ -1541,6 +1710,19 @@ const csCZ = {
   'mg.dynamicColor': 'Barvy z obalu',
   'mg.dynamicColorBody': 'Obarví celé rozhraní barvami toho, co hraje v zobrazené místnosti.',
   'mg.reload': 'Znovu načíst',
+  'mg.picker.selectTime': 'Vybrat čas',
+  'mg.picker.enterTime': 'Zadat čas',
+  'mg.picker.hour': 'Hodina',
+  'mg.picker.minute': 'Minuta',
+  'mg.picker.toInput': 'Přepnout na zadání textem',
+  'mg.picker.toDial': 'Přepnout na ciferník',
+  'mg.picker.selectDate': 'Vybrat datum',
+  'mg.picker.enterDate': 'Zadat datum',
+  'mg.picker.toCalendar': 'Přepnout na kalendář',
+  'mg.picker.prevMonth': 'Předchozí měsíc',
+  'mg.picker.nextMonth': 'Další měsíc',
+  'mg.picker.chooseYear': 'Vybrat rok',
+  'mg.picker.date': 'Datum',
 }
 
 const daDK = {
@@ -1651,6 +1833,19 @@ const daDK = {
   'mg.dynamicColor': 'Farver fra coveret',
   'mg.dynamicColorBody': 'Farver hele brugerfladen med farverne fra det, der spiller i det viste rum.',
   'mg.reload': 'Genindlæs',
+  'mg.picker.selectTime': 'Vælg tidspunkt',
+  'mg.picker.enterTime': 'Angiv tidspunkt',
+  'mg.picker.hour': 'Time',
+  'mg.picker.minute': 'Minut',
+  'mg.picker.toInput': 'Skift til tekstinput',
+  'mg.picker.toDial': 'Skift til ur',
+  'mg.picker.selectDate': 'Vælg dato',
+  'mg.picker.enterDate': 'Angiv dato',
+  'mg.picker.toCalendar': 'Skift til kalender',
+  'mg.picker.prevMonth': 'Forrige måned',
+  'mg.picker.nextMonth': 'Næste måned',
+  'mg.picker.chooseYear': 'Vælg år',
+  'mg.picker.date': 'Dato',
 }
 
 const fiFI = {
@@ -1761,6 +1956,19 @@ const fiFI = {
   'mg.dynamicColor': 'Värit kansikuvasta',
   'mg.dynamicColorBody': 'Sävyttää koko käyttöliittymän näkyvän huoneen soivan musiikin väreillä.',
   'mg.reload': 'Lataa uudelleen',
+  'mg.picker.selectTime': 'Valitse aika',
+  'mg.picker.enterTime': 'Anna aika',
+  'mg.picker.hour': 'Tunti',
+  'mg.picker.minute': 'Minuutti',
+  'mg.picker.toInput': 'Vaihda tekstinsyöttöön',
+  'mg.picker.toDial': 'Vaihda kellotauluun',
+  'mg.picker.selectDate': 'Valitse päivämäärä',
+  'mg.picker.enterDate': 'Anna päivämäärä',
+  'mg.picker.toCalendar': 'Vaihda kalenteriin',
+  'mg.picker.prevMonth': 'Edellinen kuukausi',
+  'mg.picker.nextMonth': 'Seuraava kuukausi',
+  'mg.picker.chooseYear': 'Valitse vuosi',
+  'mg.picker.date': 'Päivämäärä',
 }
 
 const nbNO = {
@@ -1871,6 +2079,19 @@ const nbNO = {
   'mg.dynamicColor': 'Farger fra coveret',
   'mg.dynamicColorBody': 'Farger hele grensesnittet med fargene fra det som spilles i rommet som vises.',
   'mg.reload': 'Last inn på nytt',
+  'mg.picker.selectTime': 'Velg klokkeslett',
+  'mg.picker.enterTime': 'Angi klokkeslett',
+  'mg.picker.hour': 'Time',
+  'mg.picker.minute': 'Minutt',
+  'mg.picker.toInput': 'Bytt til tekstinndata',
+  'mg.picker.toDial': 'Bytt til klokke',
+  'mg.picker.selectDate': 'Velg dato',
+  'mg.picker.enterDate': 'Angi dato',
+  'mg.picker.toCalendar': 'Bytt til kalender',
+  'mg.picker.prevMonth': 'Forrige måned',
+  'mg.picker.nextMonth': 'Neste måned',
+  'mg.picker.chooseYear': 'Velg år',
+  'mg.picker.date': 'Dato',
 }
 
 const plPL = {
@@ -1981,6 +2202,19 @@ const plPL = {
   'mg.dynamicColor': 'Kolory z okładki',
   'mg.dynamicColorBody': 'Barwi cały interfejs kolorami tego, co gra w wyświetlanym pomieszczeniu.',
   'mg.reload': 'Odśwież',
+  'mg.picker.selectTime': 'Wybierz godzinę',
+  'mg.picker.enterTime': 'Wpisz godzinę',
+  'mg.picker.hour': 'Godzina',
+  'mg.picker.minute': 'Minuta',
+  'mg.picker.toInput': 'Przełącz na wpisywanie',
+  'mg.picker.toDial': 'Przełącz na tarczę zegara',
+  'mg.picker.selectDate': 'Wybierz datę',
+  'mg.picker.enterDate': 'Wpisz datę',
+  'mg.picker.toCalendar': 'Przełącz na kalendarz',
+  'mg.picker.prevMonth': 'Poprzedni miesiąc',
+  'mg.picker.nextMonth': 'Następny miesiąc',
+  'mg.picker.chooseYear': 'Wybierz rok',
+  'mg.picker.date': 'Data',
 }
 
 const ptPT = {
@@ -2091,6 +2325,19 @@ const ptPT = {
   'mg.dynamicColor': 'Cores da capa',
   'mg.dynamicColorBody': 'Tinge toda a interface com as cores do que está a tocar na divisão apresentada.',
   'mg.reload': 'Recarregar',
+  'mg.picker.selectTime': 'Selecionar hora',
+  'mg.picker.enterTime': 'Introduzir hora',
+  'mg.picker.hour': 'Hora',
+  'mg.picker.minute': 'Minuto',
+  'mg.picker.toInput': 'Mudar para introdução de texto',
+  'mg.picker.toDial': 'Mudar para o relógio',
+  'mg.picker.selectDate': 'Selecionar data',
+  'mg.picker.enterDate': 'Introduzir data',
+  'mg.picker.toCalendar': 'Mudar para o calendário',
+  'mg.picker.prevMonth': 'Mês anterior',
+  'mg.picker.nextMonth': 'Mês seguinte',
+  'mg.picker.chooseYear': 'Escolher ano',
+  'mg.picker.date': 'Data',
 }
 
 const svSE = {
@@ -2201,6 +2448,19 @@ const svSE = {
   'mg.dynamicColor': 'Färger från omslaget',
   'mg.dynamicColorBody': 'Färgar hela gränssnittet i färgerna från det som spelas i rummet som visas.',
   'mg.reload': 'Läs in igen',
+  'mg.picker.selectTime': 'Välj tid',
+  'mg.picker.enterTime': 'Ange tid',
+  'mg.picker.hour': 'Timme',
+  'mg.picker.minute': 'Minut',
+  'mg.picker.toInput': 'Byt till textinmatning',
+  'mg.picker.toDial': 'Byt till urtavla',
+  'mg.picker.selectDate': 'Välj datum',
+  'mg.picker.enterDate': 'Ange datum',
+  'mg.picker.toCalendar': 'Byt till kalender',
+  'mg.picker.prevMonth': 'Föregående månad',
+  'mg.picker.nextMonth': 'Nästa månad',
+  'mg.picker.chooseYear': 'Välj år',
+  'mg.picker.date': 'Datum',
 }
 
 export default { 'en-US': enUS, 'es-ES': esES, 'hu-HU': huHU, 'fr-FR': frFR, 'de-DE': deDE, 'it-IT': itIT, 'pt-BR': ptBR, 'nl-NL': nlNL, 'uk-UA': ukUA, 'ja-JP': jaJP, 'ko-KR': koKR, 'zh-CN': zhCN, 'zh-TW': zhTW, 'cs-CZ': csCZ, 'da-DK': daDK, 'fi-FI': fiFI, 'nb-NO': nbNO, 'pl-PL': plPL, 'pt-PT': ptPT, 'sv-SE': svSE }

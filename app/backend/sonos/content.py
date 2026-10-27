@@ -13,6 +13,7 @@ from dataclasses import dataclass
 
 from .const import BROWSE_ROOTS, CONTENT_DIRECTORY, QUEUE
 from .didl import DidlItem, parse_didl
+from .smapi import parse_scroll_indices
 from .soap import SoapClient, SoapFault
 
 log = logging.getLogger(__name__)
@@ -166,6 +167,14 @@ class ContentBrowser:
     async def queue_length(self, host: str) -> int:
         page = await self.browse(host, BROWSE_ROOTS["queue"], start=0, count=1)
         return page.total
+
+    async def prefix_locations(self, host: str, object_id: str) -> list[tuple[str, int]]:
+        """Where each letter starts in one of the library's lists, as the
+        speakers sort it (ContentDirectory GetAllPrefixLocations, whose
+        PrefixAndIndexCSV reads "A,0,B,12,...")."""
+        result = await self._soap.call(
+            host, CONTENT_DIRECTORY, "GetAllPrefixLocations", {"ObjectID": object_id})
+        return parse_scroll_indices(dict(result.args).get("PrefixAndIndexCSV", ""))
 
     async def share_index_state(self, host: str) -> dict[str, str]:
         """Whether the music library index is currently being rebuilt."""

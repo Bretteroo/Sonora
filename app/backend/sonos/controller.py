@@ -367,7 +367,11 @@ class SonosController:
         #: listed until the players have mounted it, and the desktop app holds
         #: its wizard on "Adding music folder" with a spinner for exactly this
         #: window, so the panes need something to show for it.
-        self._pending_shares: dict[str, dict[str, dict]] = {}
+        #: Kept on disk: a large library indexes for many minutes before the
+        #: players list it, and a restart in that window forgot the folder,
+        #: so the pane showed indexing with no row for what was being added.
+        self._pending_file = settings.data_dir / "pending_shares.json"
+        self._pending_shares: dict[str, dict[str, dict]] = self._load_pending_shares()
         #: Cover URLs read for tracks the browser room is playing, which no
         #: speaker can vouch for. Bounded; /api/art serves only these.
         #: Pictures Sonora read from a service and may serve back (insertion
@@ -2168,6 +2172,24 @@ class SonosController:
             "path": path, "object_id": object_id, "since": time(), "hint": "",
             "took": took,
         }
+        self._save_pending_shares()
+
+    def _load_pending_shares(self) -> dict[str, dict[str, dict]]:
+        try:
+            raw = json.loads(self._pending_file.read_text())
+        except (OSError, ValueError):
+            return {}
+        if not isinstance(raw, dict):
+            return {}
+        return {key: {path: rec for path, rec in recs.items() if isinstance(rec, dict) and rec.get("path")}
+                for key, recs in raw.items() if isinstance(recs, dict)}
+
+    def _save_pending_shares(self) -> None:
+        try:
+            self._pending_file.parent.mkdir(parents=True, exist_ok=True)
+            self._pending_file.write_text(json.dumps(self._pending_shares))
+        except OSError as exc:
+            log.warning("could not keep the shares being added: %s", exc)
 
     def note_pending_share_hint(self, zone_uuid: str, path: str, hint: str,
                                 failed: bool = False) -> None:
@@ -2182,11 +2204,13 @@ class SonosController:
         if record is not None:
             record["hint"] = hint
             record["failed"] = failed
+            self._save_pending_shares()
 
     def clear_pending_share(self, zone_uuid: str, path: str) -> None:
         household = self.household_of(zone_uuid)
         key = household.id if household is not None else zone_uuid
-        (self._pending_shares.get(key) or {}).pop(self._share_key(path), None)
+        if (self._pending_shares.get(key) or {}).pop(self._share_key(path), None) is not None:
+            self._save_pending_shares()
 
     def settle_pending_shares(self, zone_uuid: str, listed: list[str],
                               indexing: bool = False, error: str = "") -> list[dict]:
@@ -2203,6 +2227,7 @@ class SonosController:
         household = self.household_of(zone_uuid)
         key = household.id if household is not None else zone_uuid
         records = self._pending_shares.get(key) or {}
+        before = {path: dict(rec) for path, rec in records.items()}
         for path in [self._share_key(p) for p in listed]:
             records.pop(path, None)
         # A share is not listed under S: until its index run has finished --
@@ -2221,6 +2246,8 @@ class SonosController:
         if blamed and blamed in records:
             records[blamed]["failed"] = True
             records[blamed]["took"] = ""
+        if records != before:
+            self._save_pending_shares()
         now = time()
         return [
             {

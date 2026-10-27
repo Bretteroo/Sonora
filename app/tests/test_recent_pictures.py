@@ -85,3 +85,22 @@ def test_the_same_broken_address_back_is_kept_and_not_asked_about_again():
     visit(ctl, entry)
     assert ctl.asked == 1
     assert entry["art"] == "https://img.example/old.jpg" and ctl.saved == []
+
+
+def test_a_playlist_with_no_login_takes_its_favorites_picture(monkeypatch):
+    # SoundCloud hands the speaker a playlist with no picture in its metadata,
+    # and Sonora holds no SoundCloud login to ask with; a Sonos Favorite of
+    # the same playlist carries one, and is read without asking the service.
+    playlist = "x-rincon-cpcontainer:1006206cplaylist-%3esoundcloud%3aplaylists%3a1492453105?sid=160&flags=8300&sn=4"
+    favorite = SimpleNamespace(as_dict=lambda _host: {"uri": playlist.replace("sn=4", "sn=7"), "art": "https://img.example/pool.jpg"})
+    ctl = Fake([], loads=set())
+    ctl.content = SimpleNamespace(favorites=lambda _host: asyncio.sleep(0, [favorite]))
+
+    async def needs_login(_ctl, _household, _sid):
+        return SimpleNamespace(endpoint="https://soundcloud.example/smapi", name="SoundCloud", auth="AppLink")
+
+    monkeypatch.setattr(main, "_cached_service", needs_login)
+    entry = {"uri": playlist, "art": "", "service_id": 160, "title": "Poolsuite FM"}
+    visit(ctl, entry)
+    assert entry["art"] == "https://img.example/pool.jpg"
+    assert ctl.saved == ["https://img.example/pool.jpg"] and ctl.asked == 0

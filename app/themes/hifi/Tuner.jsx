@@ -7,6 +7,8 @@ import { stationKey } from '../../frontend/src/lib/myRadio.js'
 import { isPlayableLeaf } from '../../frontend/src/lib/items.js'
 import { groupName } from '../../frontend/src/lib/format.js'
 import Art from '../../frontend/src/components/Art.jsx'
+import MoreRows from '../../frontend/src/components/MoreRows.jsx'
+import { useLetterIndex, useLetterDrag, useKeepPlace, useRailHeight, fitLetters } from '../../frontend/src/lib/letterIndex.js'
 import { CautionBadge } from '../../frontend/src/components/CautionBadge.jsx'
 import * as G from './glyphs.jsx'
 import LevelDeck from './LevelDeck.jsx'
@@ -436,6 +438,19 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
   // the automatic view; Grid and List still mean what they say.
   const shelves = view === 'auto' && !isCollection ? items.filter((item) => (item.children || []).length > 0) : []
   const loose = shelves.length ? items.filter((item) => !(item.children || []).length) : items
+  // The alphabet beside a long list in letter order (letterIndex.js): Plex
+  // says where its letters start, the library the same, and any other
+  // service's list has its letters read off its rows when they are in order.
+  const rowsHolder = useRef(null)
+  const lettered = !node.root && !isCollection && !shelves.length && !node.virtual
+  const letterSource = !lettered ? null
+    : node.service ? { sid: node.service, item: node.item ?? 'root', account: liveAccount, zone: node.hzone }
+      : /^A:./.test(node.id || '') ? { library: node.id, zone: node.hzone } : null
+  const rowsOf = React.useCallback(() => rowsHolder.current?.querySelectorAll(':scope > [data-item]'), [])
+  const scrollToRow = React.useCallback((i) => { rowsOf()?.[i]?.scrollIntoView({ block: 'start' }) }, [rowsOf])
+  const letterIndex = useLetterIndex({ rows: lettered ? loose : [], offset: page.offset, total: page.total, more: page.more,
+                                       done: page.done, jumpTo: page.jumpTo, source: letterSource, scrollTo: scrollToRow, rowsOf })
+  useKeepPlace(scroller, page.offset)
   const addHouseholdId = (() => {
     const visible = sections.map((sec) => sec.household.id)
     if (activeHousehold && visible.includes(activeHousehold)) return activeHousehold
@@ -627,7 +642,8 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
               { id: 'auto', icon: <G.Auto />, title: t('hifi.viewAuto') }, { id: 'grid', icon: <G.Grid />, title: t('hifi.viewGrid') }, { id: 'list', icon: <G.Rows />, title: t('hifi.viewList') }]} />
           )}
         </header>
-        <div className="hf-content-scroll" ref={scroller}>
+        <div className="hf-content-scroll" ref={scroller} data-letters={(letterIndex.show && !searching) || undefined}>
+          {letterIndex.show && !searching && <LetterKeys index={letterIndex} label={t('common.jumpToLetter')} loading={t('desk.browse.loading')} />}
           {searching ? (
             <SearchResults allLabel={allLabel} search={search} scope={scope} pickedCategory={pickedCategory} onCategory={setPickedCategory}
                            onOpen={(item, from = scope) => {
@@ -709,8 +725,11 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
                   ))}
                 </div>
               )}
+              {/* A jump started the list part way down: the rows above it
+                  come as the reader scrolls back up. */}
+              {page.offset > 0 && <MoreRows onMore={page.earlier} count={page.items.length} />}
               {shelves.length > 0 && loose.length === 0 ? null : grid ? (
-                <div className="hf-grid">
+                <div className="hf-grid" ref={rowsHolder}>
                   {loose.map((item, index) => (
                     <ItemCard key={`${item.id}-${index}`} item={item} onDelete={removal ? () => act({ ...item, ...rowExtras(item, index) }, removal) : undefined} node={node} t={t} displayTypes={page.displayTypes}
                               onOpen={(event) => open({ ...item, ...rowExtras(item, index) }, event)} onPlay={item.uri ? () => act({ ...item, ...rowExtras(item, index) }, 'now') : null}
@@ -718,7 +737,7 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
                   ))}
                 </div>
               ) : (
-                <div className="hf-rows">
+                <div className="hf-rows" ref={rowsHolder}>
                   {loose.map((item, index) => (
                     <ItemRow key={`${item.id}-${index}`} item={item} onDelete={removal ? () => act({ ...item, ...rowExtras(item, index) }, removal) : undefined} node={node} t={t} displayTypes={page.displayTypes} place={node.pickCity && peek[item.id] === 'final'} number={isCollection && node.kind === 'album' && !item.is_container ? index + 1 : 0}
                              checked={checked.has(item.id)} onCheck={() => toggleCheck(item.id)}
@@ -730,6 +749,7 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
                   ))}
                 </div>
               )}
+              <MoreRows onMore={page.more} count={page.items.length} />
               {node.id === 'R:0/0' && !page.loading && (
                 <div className="hf-page-foot"><Button quiet icon={<G.Plus />} onClick={onAddRadio}>{t('desk.radio.addNew')}</Button></div>
               )}
@@ -841,6 +861,33 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
                  onConfirm={() => { const ask = replaceAsk; setReplaceAsk(null); playAlbum(ask.shuffle, true) }} />
       )}
     </Unit>
+  )
+}
+
+// The letter keys down the right of a long list: a column of small keys,
+// one letter engraved on each, held in view as the list scrolls. A press
+// jumps to the letter, a drag runs down the keys, and the key last pressed
+// stays lit; a letter the list is known not to hold is a dead key.
+function LetterKeys({ index, label, loading }) {
+  const drag = useLetterDrag(index.jump)
+  const rail = useRef(null)
+  const height = useRailHeight(rail, { reserve: 24 })
+  // A key under 16px tall would not take its legend, so a short pane gets
+  // every other letter with a dot key between.
+  const shown = fitLetters(index.letters, Math.floor(height / 18))
+  return (
+    <div className="hf-letters-rail" ref={rail}>
+      <nav className="hf-letters" aria-label={label} aria-busy={index.pending || undefined} style={height ? { height } : undefined} {...drag}>
+        {shown.map(({ letter, present, dot }) => (
+          <button key={dot ? `dot-${letter}` : letter} type="button" className="hf-letter-key" data-letter={letter} data-loading={(!dot && index.pending && index.active === letter) || undefined} disabled={!present}
+                  data-dot={dot || undefined} aria-label={dot ? letter : undefined}
+                  data-lit={(!dot && index.active === letter) || undefined} onClick={(event) => { if (!event.detail) index.jump(letter) }}>{dot ? '·' : letter}</button>
+        ))}
+        {/* The letter asked for, large, while its rows are read: the press was
+            taken, and the list is on its way there. */}
+        {index.pending && <span className="hf-letter-hud" role="status" aria-label={`${index.active}, ${loading}`}>{index.active}</span>}
+      </nav>
+    </div>
   )
 }
 

@@ -33,6 +33,9 @@ export default {
   'common.next': '下一首',
   'common.previous': '上一首',
   'common.shuffle': '隨機播放',
+  'common.jumpToLetter': '跳至字母',
+  'common.show': '顯示',
+  'common.hide': '隱藏',
   'common.repeat': '重複播放',
   'common.mute': '靜音',
   'common.unmute': '取消靜音',
@@ -592,9 +595,7 @@ export default {
   'desk.library.add': '新增',
   'desk.library.remove': '移除',
   'desk.library.pathHint': '//nas/Music',
-  'desk.library.pathNote':
-    'Sonora 以網路路徑新增資料夾（例如 //nas/Music）。該資料夾必須已在你的網路上分享。S1 播放器只支援 SMBv1 '
-    + '分享；S2 播放器也支援 SMBv2 與 SMBv3。',
+  'desk.library.pathNote': 'Sonora 以網路路徑新增資料夾（例如 //nas/Music）。該資料夾必須已在你的網路上分享。S1 播放器只支援 SMBv1 分享，S2 播放器只支援 SMBv2 與 SMBv3。',
   'desk.shareWizard.windowTitle': 'Sonora 設定',
   'desk.shareWizard.whereTitle': '新增音樂資料夾',
   'desk.shareWizard.wherePrompt': '你想在 Sonos 上播放的音樂在哪裡？',

@@ -33,6 +33,9 @@ export default {
   'common.next': 'Następny',
   'common.previous': 'Poprzedni',
   'common.shuffle': 'Losowo',
+  'common.jumpToLetter': 'Przejdź do litery',
+  'common.show': 'Pokaż',
+  'common.hide': 'Ukryj',
   'common.repeat': 'Powtarzanie',
   'common.mute': 'Wycisz',
   'common.unmute': 'Wyłącz wyciszenie',
@@ -663,11 +666,7 @@ export default {
   'desk.library.add': 'Dodaj',
   'desk.library.remove': 'Usuń',
   'desk.library.pathHint': '//nas/Music',
-  'desk.library.pathNote':
-    'Sonora dodaje foldery według ich ścieżki sieciowej (na przykład '
-    + '//nas/Music). Folder musi być już udostępniony w sieci. Odtwarzacze S1 '
-    + 'obsługują tylko udziały SMBv1; odtwarzacze S2 obsługują też SMBv2 i '
-    + 'SMBv3.',
+  'desk.library.pathNote': 'Sonora dodaje foldery według ich ścieżki sieciowej (na przykład //nas/Music). Folder musi być już udostępniony w sieci. Odtwarzacze S1 obsługują tylko udziały SMBv1, a odtwarzacze S2 tylko SMBv2 i SMBv3.',
   'desk.shareWizard.windowTitle': 'Konfiguracja Sonora',
   'desk.shareWizard.whereTitle': 'Dodaj folder z muzyką',
   'desk.shareWizard.wherePrompt': 'Gdzie jest muzyka, którą chcesz odtwarzać na Sonos?',

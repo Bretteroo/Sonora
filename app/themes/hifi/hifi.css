@@ -2158,3 +2158,56 @@
 :root[data-theme='hifi'] .hf-lyrics-panel .hf-lyrics-credit { position: static; margin: 4px 0 0; align-self: flex-end; }
 @keyframes hf-lyric-in { from { opacity: 0; transform: translateY(4px); } }
 @media (prefers-reduced-motion: reduce) { :root[data-theme='hifi'] .hf-vfd-lyric, :root[data-theme='hifi'] .hf-vfd-lyric-next, :root[data-theme='hifi'] .hf-vfd-lyric-note, :root[data-theme='hifi'] .hf-vfd-lines[data-back] { animation: none; } :root[data-theme='hifi'] .hf-lyrics-credit { transition: none; } }
+
+/* --- letter keys -----------------------------------------------------------
+   A long list's alphabet: a column of small keys at the list's right, the
+   letter engraved on each in the mono legend face, cut and lit like the
+   preset keys. Held in view as the list scrolls (sticky in whatever pane
+   scrolls it), 26px wide, with 12px between it and the rows. The key last
+   pressed glows amber as a latched key's LED does; a letter the list lacks
+   is a dead key. */
+:root[data-theme='hifi'] .hf-content-scroll[data-letters] { padding-right: 52px; }
+:root[data-theme='hifi'] .hf-letters-rail { position: sticky; top: 0; z-index: 3; height: 0; }
+:root[data-theme='hifi'] .hf-letters {
+  position: absolute; top: 0; right: -40px; width: 26px;
+  display: flex; flex-direction: column; gap: 2px; touch-action: none; user-select: none;
+}
+:root[data-theme='hifi'] .hf-letter-key {
+  flex: 1 1 0; min-height: 0; max-height: calc(22px * var(--mag, 1)); padding: 0;
+  display: grid; place-items: center; cursor: pointer;
+  font-family: var(--t-mono); font-size: calc(10px * var(--mag, 1)); font-weight: 700; line-height: 1; color: var(--hf-key-fg);
+  /* Letters grow with the pointer (--mag, set by letterIndex.js) and the rest close up to make room. */
+  transition: flex-grow 90ms ease-out, font-size 90ms ease-out, max-height 90ms ease-out;
+  border: 1px solid rgba(0, 0, 0, 0.72); border-radius: 3px;
+  background: linear-gradient(180deg, var(--hf-key-top), var(--hf-key-low));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 1px 0 rgba(0, 0, 0, 0.55);
+  text-shadow: var(--hf-engrave-shadow);
+  -webkit-tap-highlight-color: transparent;
+}
+:root[data-theme='hifi'] .hf-letter-key:hover:not(:disabled) { filter: brightness(1.12); }
+:root[data-theme='hifi'] .hf-letter-key:active:not(:disabled) { transform: translateY(1px); box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.55); }
+:root[data-theme='hifi'] .hf-letter-key[data-lit] { color: var(--hf-amber); text-shadow: var(--hf-amber-glow); }
+:root[data-theme='hifi'] .hf-letter-key:disabled { opacity: 0.42; cursor: default; }
+:root[data-theme='hifi'] .hf-letter-key:focus-visible { outline: 2px solid var(--hf-amber); outline-offset: 1px; }
+:root[data-theme='hifi']:not([data-desktop-mode]) .hf-content-scroll[data-letters] { padding-right: 48px; }
+@media (prefers-reduced-motion: reduce) { :root[data-theme='hifi'] .hf-letter-key { transition: none; } }
+
+/* While a letter's rows are read: the letter lit large in an amber display
+   window set beside the keys, its glow rising and falling, and the pressed
+   key's legend flashing, so the press shows at once and the wait reads as
+   the tuner seeking. */
+:root[data-theme='hifi'] .hf-letter-hud {
+  position: absolute; right: calc(100% + 12px); top: 50%; transform: translateY(-50%);
+  width: 58px; height: 58px; display: grid; place-items: center; pointer-events: none;
+  font-family: var(--t-mono); font-size: 30px; font-weight: 700;
+  border: 3px solid var(--hf-bezel); border-radius: 6px;
+  background: var(--hf-amber-glass); color: var(--hf-amber); text-shadow: var(--hf-amber-glow);
+  box-shadow: 0 1px 0 var(--hf-edge-hi), 0 6px 14px rgba(0, 0, 0, 0.45);
+  animation: hf-letter-seek 800ms ease-in-out infinite;
+}
+:root[data-theme='hifi'] .hf-letter-key[data-loading] { animation: hf-letter-flash 800ms steps(2, end) infinite; color: var(--hf-amber); text-shadow: var(--hf-amber-glow); }
+@keyframes hf-letter-seek { 0%, 100% { filter: brightness(0.75); } 50% { filter: brightness(1.25); } }
+@keyframes hf-letter-flash { 0% { opacity: 1; } 100% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme='hifi'] .hf-letter-hud, :root[data-theme='hifi'] .hf-letter-key[data-loading] { animation: none; }
+}

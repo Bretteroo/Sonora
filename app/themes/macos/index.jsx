@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { canAct } from '../../frontend/src/lib/transport.js'
 import { createPortal } from 'react-dom'
 import { macTransportIcons } from './icons.jsx'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
@@ -228,6 +229,7 @@ function Shell() {
       const transport = activeZone.transport || {}
       if (event.key === ' ') {
         event.preventDefault()
+        if (!canAct(transport)) return
         if (transport.state === 'PLAYING') actions.pause(activeZone.uuid)
         else if (transport.track_uri) actions.play(activeZone.uuid)
       } else if (cmd && event.key === 'ArrowUp') {

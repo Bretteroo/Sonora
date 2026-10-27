@@ -6,7 +6,7 @@ import { formatDuration } from '../../frontend/src/lib/format.js'
 import Art, { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
 import * as I from './icons.jsx'
 import { IconButton, Slider, Menu, useDismiss } from './ui.jsx'
-import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, nowSummary, groupTitle } from './house.js'
+import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, canAct, nowSummary, groupTitle } from './house.js'
 import { useElapsed } from '../../frontend/src/lib/useElapsed.js'
 import { useSeekDrag } from '../../frontend/src/lib/useSeekDrag.js'
 
@@ -53,7 +53,7 @@ export function TransportControls({ zone, size = 'md', showSeekSteps = false }) 
         </IconButton>
       )}
       <IconButton label={t('common.previous')} disabled={!canPrevious(tr)} onClick={() => actions.previous(zone.uuid)}><I.Prev /></IconButton>
-      <button type="button" className="sf-play" title={label} aria-label={label} disabled={!zone || !loaded}
+      <button type="button" className="sf-play" title={label} aria-label={label} disabled={!zone || !loaded || !canAct(tr)}
               onClick={() => togglePlay(actions, zone)}>
         {what === 'play' ? <I.Play /> : what === 'stop' ? <I.Stop /> : <I.Pause />}
       </button>

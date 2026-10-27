@@ -254,12 +254,15 @@ class MuseFeed:
         kind = header.get("type") or header.get("name")
         if kind == "extendedPlaybackStatus":
             group_id = header.get("groupId") or ""
-            coordinator = group_id.split(":", 1)[0]
-            if coordinator:
+            if group_id:
+                # The group's id, not a coordinator: an id begins with the
+                # player the group was first formed on, which need not lead it
+                # now (Playroom's began with Guest Room's), so the controller
+                # finds the coordinator from its own groups.
                 # Off the reader: the callback ends in a broadcast to browser
                 # sockets, and one slow browser must not hold up the replies
                 # this socket is waiting for.
-                self._spawn(self._on_status(coordinator, home_theater_status(body)))
+                self._spawn(self._on_status(group_id, home_theater_status(body)))
         elif kind == "groups":
             self._spawn(self._subscribe_groups(body.get("groups", [])))
 

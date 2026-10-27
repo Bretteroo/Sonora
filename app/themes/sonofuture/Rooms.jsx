@@ -9,7 +9,7 @@ import { proposedGroups, groupingPlan, runPlan, leaderOf as groupLeader } from '
 import Art, { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
 import * as I from './icons.jsx'
 import { Sheet, SheetHeader, IconButton, Slider, Button, Toggle, Field, Confirm, Segmented, Empty, SystemPicker, Select } from './ui.jsx'
-import { nowSummary, hasMusic, nextTransport, togglePlay, isLoaded, householdOf } from './house.js'
+import { nowSummary, hasMusic, nextTransport, togglePlay, canAct, isLoaded, householdOf } from './house.js'
 import Battery, { batteryShown } from '../../frontend/src/components/Battery.jsx'
 import { versionLabel } from '../../frontend/src/lib/version.js'
 
@@ -117,7 +117,7 @@ export default function RoomsSection({ groups, zones, households, systemFilter, 
                       <p className="sf-group-sub">{summary.sub || tr.service_name || ''}</p>
                     </div>
                     <div className="sf-group-tools" onClick={(event) => event.stopPropagation()}>
-                      <button type="button" className="sf-play sf-play-sm" disabled={!isLoaded(tr)} onClick={() => togglePlay(actions, lead)}
+                      <button type="button" className="sf-play sf-play-sm" disabled={!isLoaded(tr) || !canAct(tr)} onClick={() => togglePlay(actions, lead)}
                               title={what === 'play' ? t('common.play') : what === 'stop' ? t('common.stop') : t('common.pause')}>
                         {what === 'play' ? <I.Play /> : what === 'stop' ? <I.Stop /> : <I.Pause />}
                       </button>

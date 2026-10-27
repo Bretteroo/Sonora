@@ -35,6 +35,7 @@ from .credentials import seal
 from .didl import DidlItem, clean_title, escape, keyed_song, parse_didl, saved_queue_didl
 from .discovery import HouseholdRegistry
 from .events import Event, EventListener
+from .playback import favorite_resmd
 from .topology import parse_zone_group_state, remap_groups
 from . import hhsettings
 from .hhsettings import (EXPLICIT_FILTERING, HouseholdSettings, SettingsError,
@@ -355,6 +356,12 @@ class SonosController:
         # Optional, and the only cloud-dependent part of the app.
         self.cloud = SonosCloud()
         self.muse = MuseFeed(self.cloud, self._on_muse_status)
+        #: The cloud's last word on each coordinator's television input, kept
+        #: for rooms not yet known: after a restart the feed reports every
+        #: group as it connects, before discovery has found the rooms, and a
+        #: soundbar on TV then went without its input's name until the next
+        #: switch.
+        self._muse_status: dict[str, HomeTheaterStatus] = {}
         self.network = NetworkCollector(session)
         self.events = EventListener(session, port=event_port)
         #: Per household: what ContentDirectory last said about the index.
@@ -803,6 +810,11 @@ class SonosController:
                     state.features = existing.features
                     if existing.features and "MONO_SPEAKER" in existing.features and not zone.is_paired:
                         state.has_balance = False
+                known = self._muse_status.get(state.group_id) or self._muse_status.get(zone.uuid)
+                if not state.ht_input and state.is_coordinator and known is not None:
+                    # A room first seen after the feed reported it.
+                    status = known
+                    state.ht_input, state.ht_signal = status.input, status.signal
                 zones[zone.uuid] = state
                 host_map[zone.primary.host] = zone.uuid
 
@@ -880,7 +892,7 @@ class SonosController:
         transport.rel_time = position.get("RelTime", "")
         transport.position_read_at = monotonic()
         (transport.can_pause, transport.can_seek,
-         transport.can_next, transport.can_previous) = await self._transport_actions(state.host)
+         transport.can_next, transport.can_previous, transport.can_stop) = await self._transport_actions(state.host)
         if position.get("TrackMetaData") or transport.track_uri:
             self._apply_track_metadata(transport, position.get("TrackMetaData", ""))
         else:
@@ -1223,9 +1235,13 @@ class SonosController:
         transport.narrator = item.narrator
         transport.book = item.book
 
-    async def _transport_actions(self, host: str) -> tuple[bool, bool, bool, bool]:
+    async def _transport_actions(self, host: str) -> tuple[bool, bool, bool, bool, bool]:
         """What the player will take for what it plays now: pause, seek, next,
-        previous.
+        previous, stop.
+
+        Stop is not always among them: an S2 soundbar on its TV input answers
+        a bare "Set, Play" and refuses Stop with 701 (Arc Ultra and Ray,
+        2026-10-27), and play.sonos.com dims its stop button there.
 
         ``AVTransport#GetCurrentTransportActions`` answers with the list the
         source allows -- "Set, Stop, Pause, Play, X_DLNA_SeekTime, Previous,
@@ -1241,7 +1257,7 @@ class SonosController:
                 host, const.AV_TRANSPORT, "GetCurrentTransportActions",
                 {"InstanceID": 0})
         except Exception:
-            return True, True, True, True
+            return True, True, True, True, True
         # Whole names, not letters: Pandora answered "Set, Stop,
         # Pause, Play, Next, X_DLNA_SeekTrackNr", and the "seek" inside the
         # track-number jump offered a time seek the speaker refused with 701.
@@ -1249,7 +1265,7 @@ class SonosController:
         # plain Seek).
         actions = {a.strip().lower() for a in str(result.get("Actions", "") or "").split(",")}
         return ("pause" in actions, bool(actions & {"x_dlna_seektime", "seek"}),
-                "next" in actions, "previous" in actions)
+                "next" in actions, "previous" in actions, "stop" in actions)
 
     async def _subscribe_all(self, households: dict[str, Household]) -> None:
         tasks = []
@@ -1365,13 +1381,17 @@ class SonosController:
         log.warning("%s could not play %r (%s): %s", where, item, message["service"], reason)
         await self._broadcast(message)
 
-    async def _note_recently_played(self, state: ZoneState) -> None:
+    async def _note_recently_played(self, state: ZoneState, catch_up: bool = False) -> None:
         """Put what this room has started playing on its household's list.
 
         A queue is remembered by the container that filled it (album,
         playlist), a stream by the stream itself; a member following its
         coordinator, a television or line-in, and anything without a name
         are not history.
+
+        ``catch_up`` is for a room first seen already holding a source: it
+        was played while Sonora was not listening (stopped, or restarting),
+        so it goes on the list only if it is not there already.
         """
         transport = state.transport
         media = transport.media_uri
@@ -1399,6 +1419,8 @@ class SonosController:
             "kind": kind_of(item.upnp_class if item else "", uri),
             "art": art, "host": state.host, "service_id": transport.service_id,
         }
+        if catch_up and self.recent.knows(household.id, uri):
+            return
         if self.recent.note(household.id, entry) or self.recent.fill_art(household.id, uri, art):
             await self._broadcast({"type": "recent", "household": household.id})
 
@@ -1539,19 +1561,24 @@ class SonosController:
             # to label the room menu: a queue or an on-demand station offers
             # "Pause Group", a broadcast stream "Stop Group" (2026-09-07).
             (transport.can_pause, transport.can_seek,
-             transport.can_next, transport.can_previous) = await self._transport_actions(state.host)
+             transport.can_next, transport.can_previous, transport.can_stop) = await self._transport_actions(state.host)
         elif began or track_changed:
             # Read again whenever playback starts or the track changes, not only with the source:
             # a source's change arrives while it is still opening, when a Pandora station offers
             # no Next yet, and a station's Next comes and goes with its skip limit. Read once,
             # Next stayed off for the whole station in every theme.
             actions = await self._transport_actions(state.host)
-            if actions != (transport.can_pause, transport.can_seek, transport.can_next, transport.can_previous):
+            if actions != (transport.can_pause, transport.can_seek, transport.can_next, transport.can_previous, transport.can_stop):
                 (transport.can_pause, transport.can_seek,
-                 transport.can_next, transport.can_previous) = actions
+                 transport.can_next, transport.can_previous, transport.can_stop) = actions
                 await self._publish_zone(state)
         if transport.state == "PLAYING" and (began or track_changed or media_changed):
             await self._note_recently_played(state)
+        elif event.seq == 0 and transport.state in ("STOPPED", "PAUSED_PLAYBACK"):
+            # A subscription's first event, on start or after a reconnect:
+            # a room sitting on a source Sonora never saw start played it
+            # while nothing was listening, and the cloud's history has it.
+            await self._note_recently_played(state, catch_up=True)
         # A sleep timer set or cleared anywhere shows up here first; clients
         # read the timers again when told.
         if "SleepTimerGeneration" in props and props["SleepTimerGeneration"] != state.sleep_generation:
@@ -2273,9 +2300,14 @@ class SonosController:
         if callback in self._callbacks:
             self._callbacks.remove(callback)
 
-    async def _on_muse_status(self, coordinator_uuid: str,
+    async def _on_muse_status(self, group_id: str,
                               status: HomeTheaterStatus) -> None:
-        """The cloud feed's word on a coordinator's television input."""
+        """The cloud feed's word on a group's television input."""
+        coordinator_uuid = next((g.coordinator_uuid for h in self.households.values()
+                                 for gid, g in h.groups.items() if gid == group_id), None) \
+            or group_id.split(":", 1)[0]
+        self._muse_status[group_id] = status
+        self._muse_status[coordinator_uuid] = status
         state = self.zones.get(coordinator_uuid)
         if state is None:
             return
@@ -4537,6 +4569,7 @@ class Commands:
         playable URI as its resource, ``r:type`` instantPlay, a description
         such as "Pandora Station", and the source's DIDL in ``r:resMD``."""
         host = self._household_host(zone_uuid)
+        metadata = favorite_resmd(uri, metadata)
         scheme = uri.split(":", 1)[0] if ":" in uri else "x-rincon-playlist"
         # Stations carry a MIME-ish middle part in the apps' entries.
         proto = f"{scheme}:*:audio/{scheme}:*" if scheme == "x-sonosapi-radio" else f"{scheme}:*:*:*"

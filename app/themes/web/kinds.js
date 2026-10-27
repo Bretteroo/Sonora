@@ -28,10 +28,18 @@ export function kindLabel(item) {
   // (measured 2026-09-20).
   if (item.item_type === 'audiobook') return 'web.kind.audiobook'
   const uri = item.uri || ''
+  // A service's radio is a Station too: the product's cloud types an
+  // AccuRadio favorite PROGRAM and labels it Station (2026-10-27).
   if (uri.startsWith('x-sonosapi-stream') || uri.startsWith('x-rincon-mp3radio')
-      || uri.startsWith('x-sonosapi-hls')) return 'web.kind.station'
-  if (uri.startsWith('x-rincon-cpcontainer')) return 'common.kind.playlist'
-  if (uri.startsWith('x-sonosapi-radio')) return 'web.kind.radio'
+      || uri.startsWith('x-sonosapi-hls') || uri.startsWith('x-sonosapi-radio')) return 'web.kind.station'
+  // A service container is whatever its own DIDL calls it: a Plex album
+  // saved as a favorite read "Playlist" from the URI alone.
+  if (uri.startsWith('x-rincon-cpcontainer')) {
+    const cls = /<upnp:class>([^<]*)</.exec(item.metadata || '')?.[1] || ''
+    if (/^object\.container\.album/.test(cls)) return 'common.kind.album'
+    if (/^object\.container\.person/.test(cls)) return 'web.kind.artist'
+    return 'common.kind.playlist'
+  }
   if (item.kind === 'album') return 'common.kind.album'
   if (item.kind === 'playlist') return 'common.kind.playlist'
   if (item.kind === 'track') return 'web.kind.track'

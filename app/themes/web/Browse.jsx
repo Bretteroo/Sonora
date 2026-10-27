@@ -880,7 +880,10 @@ function Sources({ active, onPlay, library = false, onLibrary }) {
               <span className="wb-source-circle"><Glyph /></span>
               <span className="wb-source-label">{label}</span>
             </span>
-            <Icon.ChevronRight className="wb-source-chev" width={24} height={24} aria-hidden="true" />
+            {/* Only a source that opens a page carries a chevron: the
+                product's Music Library has one and its TV, which plays at
+                once, has none (play.sonos.com, 2026-10-27). */}
+            {open && <Icon.ChevronRight className="wb-source-chev" width={24} height={24} aria-hidden="true" />}
           </button>
         ))}
       </div>

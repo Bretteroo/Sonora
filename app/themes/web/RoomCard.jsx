@@ -9,7 +9,7 @@ import Art, { nowPlayingArt } from './Art.jsx'
 import { NpVolume, NpVolumeMute, SpeakerOutline, StationGlyph } from './icons.jsx'
 import Slider from './Slider.jsx'
 import { broadcastLines, heldStation, heldStationLines, holdsStation, isStation, restingSecondary } from './useTransport.js'
-import { nextTransport } from '../../frontend/src/lib/transport.js'
+import { nextTransport, canAct } from '../../frontend/src/lib/transport.js'
 import { useTint } from './tint.js'
 // Shared with Sonofuture, which used to build this string by hand.
 import { groupLabelFor as groupLabel } from '../../frontend/src/lib/groups.js'
@@ -56,7 +56,9 @@ export default function RoomCard({ zone, members, active, onSelect, onGroup }) {
   // mark at all.
   const sid = transport.service_id
   const sub = lines ? lines.sub
-    : transport.source === 'tv' ? restingSecondary(transport, now)
+    // A soundbar on TV: the card names the input alone ("SPDIF"), where the
+    // bar adds the signal ("SPDIF • No Signal") -- play.sonos.com, 2026-10-27.
+    : transport.source === 'tv' ? (transport.tv_input || restingSecondary(transport, now))
     : transport.title || station
       ? (transport.artist || transport.service_name
          || now.secondary || '')
@@ -109,7 +111,9 @@ export default function RoomCard({ zone, members, active, onSelect, onGroup }) {
           the card's right edge, and centered on the block of names -- 24px
           down from the card's top over one name, 38 over two (measured on
           play.sonos.com 2026-09-19 and 2026-09-22). */}
-      {playing && (
+      {/* None for a soundbar on TV with no signal: the speaker says it is
+          playing, and the product draws no bars over it (2026-10-27). */}
+      {playing && !(transport.source === 'tv' && transport.tv_signal === false) && (
         <span className="wb-room-bars" role="img" aria-label={t('web.queue.playing')}>
           <i /><i /><i /><i />
         </span>
@@ -162,7 +166,9 @@ export default function RoomCard({ zone, members, active, onSelect, onGroup }) {
               : external ? t('web.externalSession')
               : fixedSource || next === 'stop' ? t('common.stop')
               : next === 'pause' ? t('common.pause') : t('common.play')}
-            disabled={!playable || (fixedSource && !playing)}
+            // Dimmed where the speaker takes neither Pause nor Stop, as the
+            // product's bar dims its stop on a soundbar's TV input.
+            disabled={!playable || (fixedSource && !playing) || !canAct(transport)}
             onClick={(event) => {
               event.stopPropagation()
               if (fixedSource || next === 'stop') actions.stop(zone.uuid)

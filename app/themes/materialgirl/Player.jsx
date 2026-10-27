@@ -10,7 +10,7 @@ import { isLarge } from './layout.js'
 import * as I from './icons.jsx'
 import { IconButton, ButtonGroup, Slider, Chip, Segmented, ShapeArt, Menu, MenuItem, cx } from './m3.jsx'
 import { SHAPES, KIND_SHAPES } from './shapes.js'
-import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, nowSummary, nowLines, useProviderMetadata, groupTitle, readStored, writeStored } from './data.js'
+import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, canAct, nowSummary, nowLines, useProviderMetadata, groupTitle, readStored, writeStored } from './data.js'
 import { QueueList, QueueActions, queueSummary } from './Queue.jsx'
 import { useOptimisticRatings } from '../../frontend/src/lib/optimisticRatings.js'
 import { useSeekDrag } from '../../frontend/src/lib/useSeekDrag.js'
@@ -98,7 +98,7 @@ export function PlayButton({ zone, size = 'm', className = '' }) {
   const label = !zone ? '' : !loaded ? t('common.nothingQueued') : what === 'play' ? t('common.play') : what === 'stop' ? t('common.stop') : t('common.pause')
   return (
     <button type="button" className={cx('mg-play', `mg-play-${size}`, className)} data-playing={playing || undefined}
-            title={label} aria-label={label} disabled={!zone || !loaded} onClick={() => togglePlay(actions, zone)}>
+            title={label} aria-label={label} disabled={!zone || !loaded || !canAct(tr)} onClick={() => togglePlay(actions, zone)}>
       <span className="mg-play-shape" aria-hidden="true" />
       <span className="mg-play-icon"><I.PlayMorph what={what} /></span>
     </button>

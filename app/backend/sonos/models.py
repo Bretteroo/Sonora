@@ -219,6 +219,9 @@ class TransportState:
     #: Whether the source will take Pause. A broadcast stream will not, and
     #: the apps' room menu then reads "Stop Group" instead of "Pause Group".
     can_pause: bool = True
+    #: Whether the player takes Stop for what it plays now (an S2 soundbar
+    #: on TV does not).
+    can_stop: bool = True
     #: Whether the source will take Seek. Some services' tracks refuse it by
     #: design and the apps then draw the progress bar inert; a click here used
     #: to earn a UPnP 701 instead.

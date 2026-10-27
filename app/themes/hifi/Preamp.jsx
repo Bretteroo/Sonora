@@ -10,7 +10,7 @@ import { ratingGlyph } from '../../frontend/src/lib/ratingGlyph.js'
 import { useOptimisticRatings } from '../../frontend/src/lib/optimisticRatings.js'
 import * as G from './glyphs.jsx'
 import { Unit, Display, Key, IconKey, Knob, Fader, Menu, MenuItem, Led, Select, SlideSwitch } from './controls.jsx'
-import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, nowSummary, nowLines, groupTitle, useProviderMetadata } from './house.js'
+import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, canAct, nowSummary, nowLines, groupTitle, useProviderMetadata } from './house.js'
 import { useSeekDrag } from '../../frontend/src/lib/useSeekDrag.js'
 import { isConnectSession } from '../../frontend/src/lib/transport.js'
 import { useDisplayLyrics, LyricsReading, LyricsCredit } from './Lyrics.jsx'
@@ -382,7 +382,7 @@ export function TransportKeys({ zone, onSleep, sleepOn, onInfo, onLink, full = t
         {full && <Key label={t('desk.transport.back30')} icon={<G.Rewind />} disabled={!seekable} onClick={() => seekBy(-30)} shape="transport" legend="-30" />}
         <Key label={t('common.previous')} icon={<G.Prev />} disabled={!canPrevious(tr)} onClick={() => actions.previous(zone.uuid)} shape="transport" />
         <Key label={playLabel} icon={what === 'play' ? <G.Play /> : what === 'stop' ? <G.Stop /> : <G.Pause />}
-             disabled={!zone || !loaded} onClick={() => togglePlay(actions, zone)} shape="transport" size="lg" tone="play"
+             disabled={!zone || !loaded || !canAct(tr)} onClick={() => togglePlay(actions, zone)} shape="transport" size="lg" tone="play"
              led={tr.state === 'PLAYING' || tr.state === 'TRANSITIONING'} />
         <Key label={t('common.next')} icon={<G.Next />} disabled={!canNext(tr)} onClick={() => actions.next(zone.uuid)} shape="transport" />
         {full && <Key label={t('desk.transport.forward30')} icon={<G.Forward />} disabled={!seekable} onClick={() => seekBy(30)} shape="transport" legend="+30" />}
@@ -645,7 +645,7 @@ function RemoteMini({ zone, group, zones, onExpand }) {
         </MarqueeProvider>
       </button>
       <Key label={playLabel} icon={what === 'play' ? <G.Play /> : what === 'stop' ? <G.Stop /> : <G.Pause />}
-           disabled={!zone || !loaded} onClick={() => togglePlay(actions, zone)} size="sm" tone="play"
+           disabled={!zone || !loaded || !canAct(tr)} onClick={() => togglePlay(actions, zone)} size="sm" tone="play"
            led={tr.state === 'PLAYING' || tr.state === 'TRANSITIONING'} />
     </div>
   )

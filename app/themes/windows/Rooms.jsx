@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { isLoaded } from '../../frontend/src/lib/transport.js'
+import { isLoaded, canAct } from '../../frontend/src/lib/transport.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { describeNowPlaying, orderedHouseholds, streamFileName, twoLineMetadata, systemChoiceMatters } from '../../frontend/src/lib/format.js'
@@ -182,18 +182,21 @@ function Tile({ group, zones, active, onSelect, onGroup, onEq, plainNames, idleP
       </div>
       {menu && menu.zone && (
         <TileMenu x={menu.x} y={menu.y} group={group} zone={menu.zone} state={state} fixed={fixed}
-                  playDisabled={idlePlayDisabled && state !== 'PLAYING'
+                  playDisabled={(idlePlayDisabled && state !== 'PLAYING'
                     // A stopped station has no track but is loaded all the
                     // same: the Mac app offers "Play Group" for a stopped
                     // Lovers Rock Reggae (2026-09-29).
-                    && !(zones[group.coordinator]?.transport?.track_uri || zones[group.coordinator]?.transport?.media_uri)}
+                    && !(zones[group.coordinator]?.transport?.track_uri || zones[group.coordinator]?.transport?.media_uri))}
+                  // A soundbar on TV that takes neither Pause nor Stop offers
+                  // Play, as the Windows app's transport does.
+                  asPlay={!canAct(zones[group.coordinator]?.transport)}
                   onEq={group.local ? null : onEq} actions={actions} onClose={() => setMenu(null)} />
       )}
     </div>
   )
 }
 
-function TileMenu({ x, y, group, zone, state, fixed, onEq, actions, onClose, playDisabled = false }) {
+function TileMenu({ x, y, group, zone, state, fixed, onEq, actions, onClose, playDisabled = false, asPlay = false }) {
   const { t } = useI18n()
   const ref = useRef(null)
   useEffect(() => {
@@ -208,7 +211,7 @@ function TileMenu({ x, y, group, zone, state, fixed, onEq, actions, onClose, pla
   }, [onClose])
   const grouped = group.members.length > 1
   const coordinator = group.coordinator
-  const playing = state === 'PLAYING'
+  const playing = state === 'PLAYING' && !asPlay
   const playKey = playing ? (fixed ? 'desk.rooms.menu.stop' : 'desk.rooms.menu.pause') : 'desk.rooms.menu.play'
   const subject = grouped ? t('desk.rooms.menu.group') : zone.name
   const groupMuted = Boolean(group.group_muted ?? zone.group_muted)

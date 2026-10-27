@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { isLoaded } from '../../frontend/src/lib/transport.js'
+import { isLoaded, canAct } from '../../frontend/src/lib/transport.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { MINI_QUERY, MINI_CHANNEL, isMiniWindow, openMiniWindow as openWindow,
@@ -132,7 +132,9 @@ export default function Mini({ zone, mode = 'panel', win = window, onClose, onIn
   const noPause = transport.can_pause === false
     || (transport.can_pause === undefined
         && ['radio', 'http_stream', 'service_stream', 'service_radio', 'service_hls'].includes(transport.source))
-  const nextState = !playing ? 'play' : (fixed || noPause ? 'stop' : 'pause')
+  // A soundbar on TV that takes neither Pause nor Stop gets a live Play, as
+  // in the Windows app.
+  const nextState = !playing || !canAct(transport) ? 'play' : (fixed || noPause ? 'stop' : 'pause')
   const toggle = () => {
     if (!zone) return
     if (nextState === 'play') actions.play(zone.uuid)

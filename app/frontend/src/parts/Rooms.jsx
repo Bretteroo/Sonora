@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { isLoaded } from '../lib/transport.js'
+import { isLoaded, canAct } from '../lib/transport.js'
 import { useSystem } from '../lib/store.jsx'
 import { useI18n } from '../i18n/index.jsx'
 import { describeNowPlaying, orderedHouseholds, streamFileName, twoLineMetadata, systemChoiceMatters } from '../lib/format.js'
@@ -180,11 +180,13 @@ function Tile({ group, zones, active, onSelect, onGroup, onEq, plainNames, idleP
       </div>
       {menu && menu.zone && (
         <TileMenu x={menu.x} y={menu.y} group={group} zone={menu.zone} state={state} fixed={fixed}
-                  playDisabled={idlePlayDisabled && state !== 'PLAYING'
+                  playDisabled={(idlePlayDisabled && state !== 'PLAYING'
                     // A stopped station has no track but is loaded all the
                     // same: the Mac app offers "Play Group" for a stopped
                     // Lovers Rock Reggae (2026-09-29).
-                    && !(zones[group.coordinator]?.transport?.track_uri || zones[group.coordinator]?.transport?.media_uri)}
+                    && !(zones[group.coordinator]?.transport?.track_uri || zones[group.coordinator]?.transport?.media_uri))
+                    // A soundbar on TV that takes neither Pause nor Stop.
+                    || !canAct(zones[group.coordinator]?.transport)}
                   onEq={group.local ? null : onEq} actions={actions} onClose={() => setMenu(null)} />
       )}
     </div>

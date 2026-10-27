@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { SONOS_RADIO } from '../../frontend/src/lib/sonosServices.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
@@ -637,7 +637,9 @@ export default function Browse({
       // Root rows carry their own household room; deeper items inherit the
       // node's room, since API items don't know which system they belong to.
       if (!item.hzone) return
-      if (item.playable) { setMenu({ item }); return }
+      // A click on the TV row only selects it, as in the app; its menu
+      // opens from the caret or a right-click.
+      if (item.playable) { setLastRoot({ id: item.id, hh: item.hh }); return }
       // The saved-stations list is "My Radio Stations" inside TuneIn, as the
       // app titles it.
       if (item.id === 'linein') {
@@ -1140,7 +1142,7 @@ export default function Browse({
                        onPlay={() => playResult(item)}
                        onMenu={(event) => {
                          event.stopPropagation()
-                         setMenu({ item: { ...item, hzone: scope.hzone, service: scope.id }, x: event.clientX, y: event.clientY , context: event.type === 'contextmenu' })
+                         setMenu({ item: { ...item, hzone: scope.hzone, service: scope.id }, ...menuSpot(event), context: event.type === 'contextmenu' })
                        }} />
                 ))}
               </div>
@@ -1238,7 +1240,7 @@ export default function Browse({
                              : item.playable ? (event) => {
                                event.preventDefault()
                                event.stopPropagation()
-                               setMenu({ item, x: event.clientX, y: event.clientY , context: event.type === 'contextmenu' })
+                               setMenu({ item, ...menuSpot(event), context: event.type === 'contextmenu' })
                              } : item.accounts ? (event) => {
                                event.preventDefault()
                                event.stopPropagation()
@@ -1415,7 +1417,7 @@ export default function Browse({
                   {/* The Play row carries the album's own menu (observed
                       2026-09-05): a caret on hover, nothing else. */}
                   <button type="button" className="dk-browse-actions" title={t('desk.browse.actions')}
-                          onClick={(event) => { event.stopPropagation(); setMenu({ item: albumItem(), x: event.clientX, y: event.clientY }) }}>
+                          onClick={(event) => { event.stopPropagation(); setMenu({ item: albumItem(), ...menuSpot(event) }) }}>
                     <Icon.CaretDown />
                   </button>
                 </div>
@@ -1457,7 +1459,7 @@ export default function Browse({
                    onDelete={removal(node) ? () => act(rowItem(item, index), removal(node)) : undefined}
                    onMenu={node.id === 'A:' ? undefined : (event) => {
                      event.stopPropagation()
-                     setMenu({ item: rowItem(item, index), x: event.clientX, y: event.clientY , context: event.type === 'contextmenu' })
+                     setMenu({ item: rowItem(item, index), ...menuSpot(event), context: event.type === 'contextmenu' })
                    }} />
               </React.Fragment>
             ))}
@@ -2828,6 +2830,17 @@ function RenameFavorite({ item, onClose, onRename }) {
   return <NameDialog title={t('desk.favorites.rename')} body={t('desk.favorites.renameBody')} initial={item.title || ''} onClose={onClose} onSubmit={onRename} />
 }
 
+// Where a row's menu opens, as the app places it: from a caret, under the
+// row with its left edge on the caret button's (BrowseItemListBox's
+// dropdownButton_Click sets Placement Bottom on the button); from a
+// right-click, top-left at the pointer, WPF's default.
+function menuSpot(event) {
+  const caret = event.type === 'click' ? event.currentTarget?.getBoundingClientRect?.() : null
+  if (!caret?.width) return { x: event.clientX, y: event.clientY }
+  const row = event.currentTarget.closest?.('.dk-browse-row')?.getBoundingClientRect()
+  return { x: caret.left, y: (row ?? caret).bottom }
+}
+
 function ActionMenu({ item, x, y, onClose, onAct, canUnselect = false, saved = null, servicePlaylistLabel = null }) {
   const { t } = useI18n()
   const ref = useRef(null)
@@ -2841,8 +2854,17 @@ function ActionMenu({ item, x, y, onClose, onAct, canUnselect = false, saved = n
       document.removeEventListener('keydown', key)
     }
   }, [onClose])
+  // Kept inside the window by its own measured size: a fixed allowance put
+  // the one-line TV menu well left of the caret that opened it.
+  const [fit, setFit] = useState(null)
+  useLayoutEffect(() => {
+    if (x == null || !ref.current) return
+    const { width, height } = ref.current.getBoundingClientRect()
+    setFit({ left: Math.max(0, Math.min(x, window.innerWidth - width - 4)),
+             top: Math.max(0, y + height > window.innerHeight - 4 ? y - height : y) })
+  }, [x, y])
   const style = x != null
-    ? { left: Math.min(x, window.innerWidth - 240), top: Math.min(y, window.innerHeight - 180) }
+    ? (fit ?? { left: x, top: y, visibility: 'hidden' })
     : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
   const playable = Boolean(item.uri)
   const favoriteButton = saved

@@ -67,6 +67,8 @@ def test_a_track_number_jump_is_not_a_seek():
         ctl = module.SonosController.__new__(module.SonosController)
         ctl.soap = Soap()
         return asyncio.run(ctl._transport_actions("10.0.0.1"))
-    assert actions_of("Set, Stop, Pause, Play, Next, X_DLNA_SeekTrackNr") == (True, False, True, False)
-    assert actions_of("Set, Stop, Pause, Play, X_DLNA_SeekTime, Previous, X_DLNA_SeekTrackNr") == (True, True, False, True)
-    assert actions_of("Set, Stop, Play") == (False, False, False, False)
+    assert actions_of("Set, Stop, Pause, Play, Next, X_DLNA_SeekTrackNr") == (True, False, True, False, True)
+    assert actions_of("Set, Stop, Pause, Play, X_DLNA_SeekTime, Previous, X_DLNA_SeekTrackNr") == (True, True, False, True, True)
+    assert actions_of("Set, Stop, Play") == (False, False, False, False, True)
+    # An S2 soundbar on its TV input: neither pause nor stop.
+    assert actions_of("Set, Play") == (False, False, False, False, False)

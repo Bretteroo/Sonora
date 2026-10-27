@@ -1,5 +1,6 @@
 import { winTransportIcons, winBrowseIcons } from '../../frontend/src/components/Icons.jsx'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { canAct } from '../../frontend/src/lib/transport.js'
 import { createPortal } from 'react-dom'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
@@ -245,7 +246,10 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
       const transport = activeZone.transport || {}
       const mode = transport.play_mode || 'NORMAL'
       const toggle = () => {
-        if (transport.state === 'PLAYING') actions.pause(activeZone.uuid)
+        // Play for a soundbar on TV that takes neither Pause nor Stop, as
+        // the Windows app's button offers.
+        if (!canAct(transport)) actions.play(activeZone.uuid)
+        else if (transport.state === 'PLAYING') actions.pause(activeZone.uuid)
         else if (transport.track_uri) actions.play(activeZone.uuid)
       }
       if (event.key === ' ' || (cmd && key === 'p')) {

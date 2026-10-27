@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSystem } from '../lib/store.jsx'
 import { useI18n } from '../i18n/index.jsx'
-import { canPause, isFixedSource, isLoaded } from '../lib/transport.js'
+import { canPause, canAct, isFixedSource, isLoaded } from '../lib/transport.js'
 import { useElapsed } from '../lib/useElapsed.js'
 import { formatDuration, orderedHouseholds, systemChoiceMatters } from '../lib/format.js'
 import * as Icon from '../components/Icons.jsx'
@@ -171,7 +171,7 @@ export default function Transport({ zone, group, query, onQuery, searchRef, scop
           type="button"
           className="dk-btn-play"
           title={playTitle}
-          disabled={!zone || !loaded}
+          disabled={!zone || !loaded || !canAct(transport)}
           onClick={() => (playing
             ? (pausable ? actions.pause(zone.uuid) : actions.stop(zone.uuid))
             : actions.play(zone.uuid))}

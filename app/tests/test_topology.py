@@ -358,6 +358,7 @@ def test_a_rebuild_keeps_the_television_input_the_cloud_named():
     household = Household(id="HH", players=players, zones=zones, groups=remap_groups(groups, zones, players))
     ctl = SonosController.__new__(SonosController)
     ctl.zones = {}
+    ctl._muse_status = {}
     ctl._rebuild_zones({"HH": household})
     first = ctl.zones["RINCON_A1"]
     first.ht_input, first.ht_signal, first.ht_audio_in = "HDMI", "Dolby MAT", 84934718

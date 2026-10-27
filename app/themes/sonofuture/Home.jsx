@@ -6,7 +6,7 @@ import { orderedHouseholds } from '../../frontend/src/lib/format.js'
 import { dayPart } from '../../frontend/src/lib/playlistName.js'
 import * as I from './icons.jsx'
 import { IconButton, Slider, Menu, MenuItem, MenuSep, Button, Empty, SystemPicker } from './ui.jsx'
-import { nowSummary, nextTransport, togglePlay, isLoaded, canSkip, canNext, canPrevious, pauseEverything, hasMusic, isOnAir, genericArt, householdOf } from './house.js'
+import { nowSummary, nextTransport, togglePlay, canAct, isLoaded, canSkip, canNext, canPrevious, pauseEverything, hasMusic, isOnAir, genericArt, householdOf } from './house.js'
 import Battery, { groupBattery } from '../../frontend/src/components/Battery.jsx'
 
 // Home: the house at a glance. One card per group with its artwork, what it
@@ -59,7 +59,7 @@ function GroupCard({ group, zones, active, onSelect, onGroupSheet, onRoomSetting
       </div>
         <div className="sf-card-controls" onClick={(event) => event.stopPropagation()}>
           <IconButton size="sm" label={t('common.previous')} disabled={!canPrevious(tr)} onClick={() => actions.previous(zone.uuid)}><I.Prev /></IconButton>
-          <button type="button" className="sf-play sf-play-sm" disabled={!loaded} onClick={() => togglePlay(actions, zone)}
+          <button type="button" className="sf-play sf-play-sm" disabled={!loaded || !canAct(tr)} onClick={() => togglePlay(actions, zone)}
                   title={what === 'play' ? t('common.play') : what === 'stop' ? t('common.stop') : t('common.pause')}>
             {what === 'play' ? <I.Play /> : what === 'stop' ? <I.Stop /> : <I.Pause />}
           </button>
@@ -71,7 +71,7 @@ function GroupCard({ group, zones, active, onSelect, onGroupSheet, onRoomSetting
         </div>
       {menu && (
         <Menu x={menu.x} y={menu.y} onClose={() => setMenu(null)} title={title}>
-          <MenuItem icon={what === 'play' ? <I.Play /> : what === 'stop' ? <I.Stop /> : <I.Pause />} disabled={!loaded}
+          <MenuItem icon={what === 'play' ? <I.Play /> : what === 'stop' ? <I.Stop /> : <I.Pause />} disabled={!loaded || !canAct(tr)}
                     onSelect={() => { setMenu(null); togglePlay(actions, zone) }}>
             {t(what === 'play' ? 'desk.rooms.menu.play' : what === 'stop' ? 'desk.rooms.menu.stop' : 'desk.rooms.menu.pause', { name: members.length > 1 ? t('desk.rooms.menu.group') : zone.name })}
           </MenuItem>

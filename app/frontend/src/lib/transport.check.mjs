@@ -1,6 +1,6 @@
 // The rule, against the shapes the speakers actually report.
 // node frontend/src/lib/transport.check.mjs
-import { nextTransport, isLoaded } from './transport.js'
+import { nextTransport, isLoaded, canAct } from './transport.js'
 import { browserTransport } from './browserRoom.js'
 const cases = [
   // measured on this household 2026-09-18
@@ -36,4 +36,16 @@ for (const [tr, want, why] of cases) {
   console.log(`${ok ? 'ok  ' : 'FAIL'}  ${got.padEnd(5)} (want ${want.padEnd(5)})  ${why}`)
 }
 console.log('loaded:', isLoaded({ track_uri: 'x' }), isLoaded({ queue_length: 3 }), isLoaded({}), '(expect true true false)')
+// What the speaker takes decides whether the button does anything: an S2
+// soundbar on TV lists "Set, Play" and refuses Stop (2026-10-27).
+for (const [tr, want, why] of [
+  [{ source: 'tv', state: 'PLAYING', can_pause: false, can_stop: false }, false, 'an S2 soundbar on TV: nothing to press'],
+  [{ source: 'tv', state: 'PLAYING', can_pause: false, can_stop: true }, true, 'a soundbar on TV that takes Stop'],
+  [{ source: 'service_radio', state: 'PLAYING', can_pause: false }, true, 'a station (no can_stop reported)'],
+  [{ source: 'tv', state: 'STOPPED', can_pause: false, can_stop: false }, true, 'stopped: Play is always there'],
+]) {
+  const ok = canAct(tr) === want
+  if (!ok) bad++
+  console.log(`${ok ? 'ok  ' : 'FAIL'}  canAct ${String(canAct(tr)).padEnd(5)} (want ${String(want).padEnd(5)})  ${why}`)
+}
 process.exit(bad ? 1 : 0)

@@ -16,7 +16,7 @@ import { artUrl, cachedArt } from '../../frontend/src/components/Art.jsx'
 // after the current track), so a room behaves the same whichever theme
 // drives it.
 
-import { isLoaded, nextTransport, togglePlay, isFixedSource } from '../../frontend/src/lib/transport.js'
+import { isLoaded, nextTransport, togglePlay, isFixedSource, canAct } from '../../frontend/src/lib/transport.js'
 import { groupTitle } from '../../frontend/src/lib/groups.js'
 import { useQueue } from '../../frontend/src/lib/useQueue.js'
 import { tvSignalLine } from '../../frontend/src/lib/tvFormat.js'
@@ -103,7 +103,7 @@ export function isOnAir(tr) {
 // re-exported straight through, because this file calls them itself and a
 // bare `export … from` gives no local binding -- which once emptied a shell
 // before the theme sweep caught it.
-export { isLoaded, nextTransport, togglePlay, isFixedSource }
+export { isLoaded, nextTransport, togglePlay, isFixedSource, canAct }
 export function canSkip(tr) {
   // A transport that says it cannot skip means it: the browser room plays a
   // single live stream with nothing on either side of it.

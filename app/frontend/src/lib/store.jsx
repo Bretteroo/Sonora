@@ -477,7 +477,13 @@ export function SystemProvider({ children }) {
                         { describe: 'notice.conflict.title', uuid }),
     pause: (uuid) => run(() => api.transport(uuid, 'pause'),
                          { describe: 'notice.conflict.title', uuid }),
-    stop: (uuid) => run(() => api.transport(uuid, 'stop'), { describe: 'notice.conflict.title', uuid }),
+    // Not asked for where the speaker says it will not take it: an S2
+    // soundbar on its TV input lists only "Set, Play" and answers Stop with
+    // 701, whichever button, menu or "pause all" reached for it.
+    stop: (uuid) => {
+      if (stateRef.current.zones?.[uuid]?.transport?.can_stop === false) return Promise.resolve(false)
+      return run(() => api.transport(uuid, 'stop'), { describe: 'notice.conflict.title', uuid })
+    },
     next: (uuid) => run(() => api.transport(uuid, 'next'), { uuid, skip: true }),
     previous: (uuid) => run(() => api.transport(uuid, 'previous'), { uuid, skip: true }),
     seek: (uuid, position) => run(() => api.seek(uuid, { position }),

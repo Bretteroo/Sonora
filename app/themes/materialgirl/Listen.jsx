@@ -6,7 +6,7 @@ import { dayPart } from '../../frontend/src/lib/playlistName.js'
 import * as I from './icons.jsx'
 import { IconButton, Button, Chip, Slider, Menu, MenuItem, MenuSep, Empty, ListItem } from './m3.jsx'
 import { KIND_SHAPES } from './shapes.js'
-import { nowSummary, nextTransport, togglePlay, isLoaded, genericArt, groupTitle } from './data.js'
+import { nowSummary, nextTransport, togglePlay, canAct, isLoaded, genericArt, groupTitle } from './data.js'
 import { Transport, WavySeek } from './Player.jsx'
 import Battery, { groupBattery } from '../../frontend/src/components/Battery.jsx'
 
@@ -274,7 +274,7 @@ export default function Listen({ groups, zones, households, activeId, activeZone
         const name = many ? t('desk.rooms.menu.group') : zone.name
         return (
           <Menu x={menu.x} y={menu.y} onClose={() => setMenu(null)} title={groupTitle(group, zones, t)}>
-            <MenuItem icon={what === 'play' ? <I.Play /> : what === 'stop' ? <I.Stop /> : <I.Pause />} disabled={!isLoaded(zone.transport || {})}
+            <MenuItem icon={what === 'play' ? <I.Play /> : what === 'stop' ? <I.Stop /> : <I.Pause />} disabled={!isLoaded(zone.transport || {}) || !canAct(zone.transport)}
                       onSelect={() => { setMenu(null); togglePlay(actions, zone) }}>
               {t(what === 'play' ? 'desk.rooms.menu.play' : what === 'stop' ? 'desk.rooms.menu.stop' : 'desk.rooms.menu.pause', { name })}
             </MenuItem>

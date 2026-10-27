@@ -22,6 +22,7 @@ and ``desc`` is ``SA_RINCON<type>_X_#Svc<type>-0-Token``, where the type is
 
 from __future__ import annotations
 
+import re
 import urllib.parse
 
 from .didl import escape
@@ -177,3 +178,42 @@ def station_didl(uri: str, title: str, udn: str = "") -> str:
         f'{escape(udn or f"SA_RINCON{stype}_X_#Svc{stype}-0-Token")}</desc>'
         f'</item></DIDL-Lite>'
     )
+
+
+def _object_id(uri: str) -> str:
+    """The service object id a URI names, prefixed as the apps' own DIDL
+    prefixes it; "" when the URI does not carry one."""
+    scheme, _, rest = uri.partition(":")
+    ident = rest.partition("?")[0]
+    if not ident:
+        return ""
+    if scheme == "x-sonosapi-stream":
+        return f"F00092020{ident}"
+    if scheme in ("x-sonosapi-radio", "x-sonosapi-hls"):
+        return f"000c206c{ident}"
+    if scheme == "x-rincon-cpcontainer":
+        return ident
+    return ""
+
+
+def favorite_resmd(uri: str, metadata: str) -> str:
+    """The source DIDL a Sonos Favorite keeps, with the item id the service
+    knows it by.
+
+    A station started from Sonos' cloud (the web app, the Sonos app) is
+    reported by the speaker with ``<item id="-1" parentID="-1">``, and a
+    favorite saved from that keeps it. The speakers play such a favorite, but
+    Sonos' cloud cannot build an item from it and leaves it out of every
+    cloud-backed favorites list: the same SomaFM station saved with its
+    object id was listed and with "-1" was not (2026-10-27). The id is
+    rebuilt from the URI, which always names the object.
+    """
+    match = re.search(r'<(item|container) id="([^"]*)" parentID="[^"]*"', metadata)
+    if match is None or match.group(2) not in ("", "-1"):
+        return metadata
+    did = _object_id(uri)
+    if not did:
+        return metadata
+    return (metadata[:match.start()]
+            + f'<{match.group(1)} id="{escape(did)}" parentID="0"'
+            + metadata[match.end():])

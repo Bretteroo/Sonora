@@ -17,7 +17,10 @@
 //
 // The one hardcoded exception left is the television and line-in inputs.
 // Those are not a stream the speaker is fetching and there is nothing to
-// resume, so Stop is structurally right whatever the field says.
+// resume, so Stop is the button whatever the field says -- where the speaker
+// takes Stop at all. An S2 soundbar on its TV input lists only "Set, Play"
+// and refuses Stop (701), so there the button does nothing and is drawn
+// unavailable, as play.sonos.com dims its own (`canAct`).
 
 const FIXED_SOURCES = ['tv', 'line_in']
 
@@ -56,6 +59,13 @@ export function canPause(transport) {
   return !isFixedSource(transport) && transport?.can_pause !== false
 }
 
+/** Whether the button can do anything: false for a playing room that
+ *  offers neither Pause nor Stop (a soundbar on TV). */
+export function canAct(transport) {
+  const playing = transport?.state === 'PLAYING' || transport?.state === 'TRANSITIONING'
+  return !playing || canPause(transport) || transport?.can_stop !== false
+}
+
 /** 'play', 'pause' or 'stop': what the next press of the button does. */
 export function nextTransport(transport) {
   const playing = transport?.state === 'PLAYING' || transport?.state === 'TRANSITIONING'
@@ -66,6 +76,7 @@ export function nextTransport(transport) {
 /** Perform it, on the zone's own coordinator. */
 export function togglePlay(actions, zone) {
   if (!zone) return
+  if (!canAct(zone.transport)) return
   const what = nextTransport(zone.transport)
   if (what === 'play') actions.play(zone.uuid)
   else if (what === 'stop') actions.stop(zone.uuid)

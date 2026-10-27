@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { isLoaded } from '../../frontend/src/lib/transport.js'
+import { isLoaded, canAct } from '../../frontend/src/lib/transport.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { isMiniWindow, openMiniWindow as openWindow, openMiniPip as openPip } from '../../frontend/src/lib/miniWindow.js'
@@ -86,9 +86,11 @@ export default function Mini({ zone, mode = 'panel', win = window, onClose, onIn
   const noPause = transport.can_pause === false
     || (transport.can_pause === undefined
         && ['radio', 'http_stream', 'service_stream', 'service_radio', 'service_hls'].includes(transport.source))
-  const nextState = !playing ? 'play' : (fixed || noPause ? 'stop' : 'pause')
+  // A soundbar on TV that takes neither Pause nor Stop shows Play, dimmed,
+  // as in the Mac app.
+  const nextState = !playing || !canAct(transport) ? 'play' : (fixed || noPause ? 'stop' : 'pause')
   const toggle = () => {
-    if (!zone) return
+    if (!zone || !canAct(transport)) return
     if (nextState === 'play') actions.play(zone.uuid)
     else if (nextState === 'stop') actions.stop(zone.uuid)
     else actions.pause(zone.uuid)
@@ -148,7 +150,7 @@ export default function Mini({ zone, mode = 'panel', win = window, onClose, onIn
         <div className="mac-mini-transport">
           <button type="button" className="mac-mini-btn mac-mini-back" disabled={!skippable || (transport.can_seek === false && transport.can_previous === false)}
                   title={t('common.previous')} onClick={() => actions.previous(zone.uuid)}><Icon.Prev /></button>
-          <button type="button" className="mac-mini-btn mac-mini-play" disabled={!zone || !loaded}
+          <button type="button" className="mac-mini-btn mac-mini-play" disabled={!zone || !loaded || !canAct(transport)}
                   title={t('desk.shortcuts.playPause')} onClick={toggle}><PlayGlyph /></button>
           <button type="button" className="mac-mini-btn mac-mini-forward" disabled={!skippable || (transport.can_seek === false && transport.can_next === false)}
                   title={t('common.next')} onClick={() => actions.next(zone.uuid)}><Icon.Next /></button>

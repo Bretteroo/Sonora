@@ -53,6 +53,10 @@ class RecentlyPlayed:
         self._save()
         return True
 
+    def knows(self, household_id: str, uri: str) -> bool:
+        """Whether ``uri`` is on the household's list."""
+        return any(e.get("uri") == uri for e in self._items.get(household_id, []))
+
     def fill_art(self, household_id: str, uri: str, art: str) -> bool:
         """Give the entry for ``uri`` a picture if it has none. True if it got one.
 

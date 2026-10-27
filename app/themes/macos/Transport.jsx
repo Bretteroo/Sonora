@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
-import { canPause, isFixedSource, isLoaded } from '../../frontend/src/lib/transport.js'
+import { canPause, canAct, isFixedSource, isLoaded } from '../../frontend/src/lib/transport.js'
 import { useElapsed } from '../../frontend/src/lib/useElapsed.js'
 import { formatDuration, orderedHouseholds, systemChoiceMatters } from '../../frontend/src/lib/format.js'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
@@ -49,6 +49,9 @@ export default function Transport({ zone, group, query, onQuery, searchRef, scop
   // bars. Every shell reads that same rule now; it lives in
   // lib/transport.js.
   const pausable = canPause(transport)
+  // A soundbar on TV that takes neither Pause nor Stop: the Mac app draws its
+  // Play glyph there, dimmed (S2 Mac app, a Ray on TV, 2026-10-27).
+  const asPlaying = playing && canAct(transport)
   // A transport that says it cannot skip means it (the browser room).
   const skippable = loaded && transport.can_skip !== false && !fixed && !transport.is_external_session
   // Either skip glyph is live where the track can be skipped or the position
@@ -116,7 +119,7 @@ export default function Transport({ zone, group, query, onQuery, searchRef, scop
     : !['idle', 'tv', 'line_in', 'radio', 'service_stream', 'service_hls', 'grouped', 'unknown'].includes(transport.source))
   const volumeLabel = !zone ? '' : grouped ? t('desk.transport.groupVolume') : zone.name
   const playTitle = !zone ? '' : !loaded ? t('common.nothingQueued')
-    : playing ? (pausable ? t('common.pause') : t('common.stop')) : t('common.play')
+    : asPlaying ? (pausable ? t('common.pause') : t('common.stop')) : t('common.play')
 
   return (
     <header className="dk-strip">
@@ -171,12 +174,12 @@ export default function Transport({ zone, group, query, onQuery, searchRef, scop
           type="button"
           className="dk-btn-play"
           title={playTitle}
-          disabled={!zone || !loaded}
-          onClick={() => (playing
+          disabled={!zone || !loaded || !canAct(transport)}
+          onClick={() => (asPlaying
             ? (pausable ? actions.pause(zone.uuid) : actions.stop(zone.uuid))
             : actions.play(zone.uuid))}
         >
-          {playing ? (pausable ? <G.Pause /> : <G.Stop />) : <G.Play />}
+          {asPlaying ? (pausable ? <G.Pause /> : <G.Stop />) : <G.Play />}
         </button>
         <button type="button" className="dk-btn-next" title={t('common.next')}
                 disabled={!skipForward || stopped} onClick={() => actions.next(zone.uuid)}>

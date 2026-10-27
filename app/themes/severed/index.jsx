@@ -14,7 +14,7 @@ import * as G from './glyphs.jsx'
 import * as L from './legends.jsx'
 import { Key, Cluster, Led, Lcd, Fader, KnobSwitch, SlideSwitch, DriveLamp, FloppyFace, useFloppyRead, Menu, MenuItem, MenuSep, Confirm, Ticker, TooltipLayer, cx } from './kit.jsx'
 import { PROGRAM_KEY, readStored, writeStored, useServices, useLibraryPresence, useAccountChoice, useFavorites, usePlaylists, useRecent,
-         useQueue, householdOf, zoneForHousehold, playItems, pauseEverything, togglePlay, groupTitle, describeFavorite, isQueueable, favoriteTarget,
+         useQueue, householdOf, zoneForHousehold, playItems, pauseEverything, togglePlay, canAct, groupTitle, describeFavorite, isQueueable, favoriteTarget,
          canNext, canPrevious, canSkip, isLoaded, nextTransport, searchScopesOf, useProviderMetadata, usePrefetchProviders } from './house.js'
 import { PlayerProgram, NowLcd, Volumes, RatingGlyph, useModes, useProgress, hms } from './Player.jsx'
 import { useOptimisticRatings } from '../../frontend/src/lib/optimisticRatings.js'
@@ -695,7 +695,7 @@ export function Shell() {
       <Key absent={!skippable} tone="navy" size="s" legend="−30" label={t('desk.transport.back30')} onPress={() => skipBy(-30)} />
       {<Key absent={!canPrevious(tr)} tone="navy" size="l" glyph={<L.Prev size={24} />} label={t('common.previous')} onPress={() => actions.previous(activeZone.uuid)} />}
       {(
-        <Key absent={!activeZone || !isLoaded(tr)} tone="navy" size="bar" className="sv-key-play" glyph={<L.PlayWhat what={what} size={24} />}
+        <Key absent={!activeZone || !isLoaded(tr) || !canAct(tr)} tone="navy" size="bar" className="sv-key-play" glyph={<L.PlayWhat what={what} size={24} />}
              legend={what === 'play' ? t('common.play') : what === 'stop' ? t('common.stop') : t('common.pause')}
              label={what === 'play' ? t('common.play') : what === 'stop' ? t('common.stop') : t('common.pause')}
              onPress={() => togglePlay(actions, activeZone)} />
@@ -854,7 +854,7 @@ export function Shell() {
         const name = group.members.length > 1 ? t('desk.rooms.menu.group') : zone.name
         return (
           <Menu x={roomMenu.x} y={roomMenu.y} onClose={() => setRoomMenu(null)} title={groupTitle(group, zones, t)}>
-            {isLoaded(zone.transport || {}) && (
+            {isLoaded(zone.transport || {}) && canAct(zone.transport) && (
               <MenuItem icon={<G.PlayWhat what={next} size={12} />} onSelect={() => { setRoomMenu(null); togglePlay(actions, zone) }}>
                 {t(next === 'play' ? 'desk.rooms.menu.play' : next === 'stop' ? 'desk.rooms.menu.stop' : 'desk.rooms.menu.pause', { name })}
               </MenuItem>

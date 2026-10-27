@@ -67,3 +67,47 @@ def test_an_announcement_kept_before_the_rule_is_not_listed(tmp_path):
     path.write_text('{"H": [{"uri": "http://192.168.1.245:33793/chime-0.wav", "title": "chime"}, '
                     '{"uri": "x-sonosapi-stream:s34635?sid=254", "title": "LAist"}]}')
     assert [e["title"] for e in RecentlyPlayed(path).items("H")] == ["LAist"]
+
+
+def test_knows_what_is_on_the_list(tmp_path):
+    store = RecentlyPlayed(tmp_path / "recent.json")
+    store.note("H", {"uri": "a", "title": "A"})
+    assert store.knows("H", "a")
+    assert not store.knows("H", "b")
+    assert not store.knows("elsewhere", "a")
+
+
+def test_a_source_played_while_sonora_was_not_listening_is_caught_up(tmp_path):
+    """A room first seen stopped on a source that is not on the list played it
+    while nothing was listening: it goes to the front. One already listed
+    stays where it is, since when it last played is not known."""
+    import asyncio
+    from types import SimpleNamespace
+
+    from backend.sonos.controller import SonosController, ZoneState
+
+    ctl = SonosController.__new__(SonosController)
+    ctl.recent = RecentlyPlayed(tmp_path / "recent.json")
+    ctl.recent.note("H", {"uri": "old", "title": "Old"})
+    ctl.recent.note("H", {"uri": "newer", "title": "Newer"})
+    ctl.household_of = lambda _uuid: SimpleNamespace(id="H")
+    sent = []
+
+    async def broadcast(message):
+        sent.append(message)
+
+    ctl._broadcast = broadcast
+
+    def room(uri, title):
+        state = ZoneState(uuid="RINCON_A1", name="Playroom", host="192.168.1.9")
+        state.transport.media_uri = uri
+        state.transport.title = title
+        state.transport.state = "STOPPED"
+        return state
+
+    asyncio.run(ctl._note_recently_played(room("old", "Old"), catch_up=True))
+    assert [e["uri"] for e in ctl.recent.items("H")] == ["newer", "old"]
+    asyncio.run(ctl._note_recently_played(
+        room("x-sonosapi-stream:stream_100?sid=894&flags=8232&sn=9", "80er Kultnight"), catch_up=True))
+    assert ctl.recent.items("H")[0]["title"] == "80er Kultnight"
+    assert sent == [{"type": "recent", "household": "H"}]

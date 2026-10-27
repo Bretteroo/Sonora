@@ -7,7 +7,7 @@ import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
 import * as I from './icons.jsx'
 import { Slider } from './ui.jsx'
-import { nowSummary, nextTransport, togglePlay, isLoaded, canSkip, canNext, canPrevious } from './house.js'
+import { nowSummary, nextTransport, togglePlay, canAct, isLoaded, canSkip, canNext, canPrevious } from './house.js'
 
 // The compact controller: a square of artwork with the transport and the
 // group's volume along its foot, in a window of its own where the browser
@@ -123,7 +123,7 @@ export default function Mini({ zone, mode = 'panel', win = window, onClose, onOp
           </button>
           <Slider value={zone?.group_volume ?? 0} disabled={!zone} label={t('win.mini.volume')} onCommit={(v) => actions.setGroupVolume(zone.uuid, v)} />
           <button type="button" className="sf-mini-btn" disabled={!canPrevious(tr)} title={t('common.previous')} onClick={() => actions.previous(zone.uuid)}><I.Prev /></button>
-          <button type="button" className="sf-mini-btn sf-mini-play" disabled={!zone || !loaded} title={t('desk.shortcuts.playPause')} onClick={() => togglePlay(actions, zone)}>
+          <button type="button" className="sf-mini-btn sf-mini-play" disabled={!zone || !loaded || !canAct(tr)} title={t('desk.shortcuts.playPause')} onClick={() => togglePlay(actions, zone)}>
             {what === 'play' ? <I.Play /> : what === 'stop' ? <I.Stop /> : <I.Pause />}
           </button>
           <button type="button" className="sf-mini-btn" disabled={!canNext(tr)} title={t('common.next')} onClick={() => actions.next(zone.uuid)}><I.Next /></button>

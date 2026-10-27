@@ -10,7 +10,7 @@ import Battery, { batteryShown } from '../../frontend/src/components/Battery.jsx
 import { versionLabel } from '../../frontend/src/lib/version.js'
 import * as G from './glyphs.jsx'
 import { Window, WindowBar, Btn, IconBtn, Bar, Toggle, Confirm, Empty, Select, Field, Row, Seg, Menu, MenuItem, Tick, cx } from './kit.jsx'
-import { nowSummary, hasMusic, householdOf, nextTransport, isLoaded, togglePlay } from './house.js'
+import { nowSummary, hasMusic, householdOf, nextTransport, isLoaded, togglePlay, canAct } from './house.js'
 
 // The Rooms program: every room of the systems in view, filed by what plays
 // together. Each group is a numbered bin, its rooms listed inside with their
@@ -119,7 +119,7 @@ export default function RoomsProgram({ groups, zones, households, systemFilter, 
                         <span className="sv-bin-sub">{summary.sub || tr.service_name || ''}</span>
                       </span>
                       <span className="sv-bin-tools" onClick={(event) => event.stopPropagation()}>
-                        {lead && isLoaded(tr) && (
+                        {lead && isLoaded(tr) && canAct(tr) && (
                           <IconBtn size="l" onClick={() => togglePlay(actions, lead)}
                                    label={what === 'play' ? t('common.play') : what === 'stop' ? t('common.stop') : t('common.pause')}>
                             <G.PlayWhat what={what} size={24} />

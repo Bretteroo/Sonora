@@ -9,7 +9,7 @@ import { proposedGroups, groupingPlan, runPlan, leaderOf as groupLeader } from '
 import Art, { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
 import * as G from './glyphs.jsx'
 import { Unit, Display, Key, IconKey, Knob, Fader, Lever, Led, Panel, PanelHead, Button, Confirm, Menu, MenuItem, MenuSep, Select, Field, Empty, KeyBank } from './controls.jsx'
-import { nowSummary, hasMusic, nextTransport, togglePlay, isLoaded, householdOf, pauseEverything, canSkip, canNext } from './house.js'
+import { nowSummary, hasMusic, nextTransport, togglePlay, canAct, isLoaded, householdOf, pauseEverything, canSkip, canNext } from './house.js'
 import Battery, { batteryShown } from '../../frontend/src/components/Battery.jsx'
 import { versionLabel } from '../../frontend/src/lib/version.js'
 import { pt } from './scale.js'
@@ -68,7 +68,7 @@ function ZoneModule({ group, lead, members, active, showSystem, onSelect, onLink
                 label={grouped ? `${t('desk.transport.groupVolume')} · ${title}` : lead.name} size="sm" showValue />
           <div className="hf-zone-keys">
             <Key label={what === 'play' ? t('common.play') : what === 'stop' ? t('common.stop') : t('common.pause')}
-                 icon={what === 'play' ? <G.Play /> : what === 'stop' ? <G.Stop /> : <G.Pause />} disabled={!loaded}
+                 icon={what === 'play' ? <G.Play /> : what === 'stop' ? <G.Stop /> : <G.Pause />} disabled={!loaded || !canAct(tr)}
                  led={playing} onClick={() => togglePlay(actions, lead)} size="xs" />
             <Key label={t('common.next')} icon={<G.Next />} disabled={!canNext(tr)} onClick={() => actions.next(lead.uuid)} size="xs" />
             <Key label={lead.group_muted ? t('common.unmute') : t('common.mute')} icon={lead.group_muted ? <G.Muted /> : <G.Volume />}
@@ -102,7 +102,7 @@ function ZoneModule({ group, lead, members, active, showSystem, onSelect, onLink
       </ul>
       {menu && (
         <Menu x={menu.x} y={menu.y} onClose={() => setMenu(null)} title={title}>
-          <MenuItem icon={what === 'play' ? <G.Play /> : what === 'stop' ? <G.Stop /> : <G.Pause />} disabled={!loaded}
+          <MenuItem icon={what === 'play' ? <G.Play /> : what === 'stop' ? <G.Stop /> : <G.Pause />} disabled={!loaded || !canAct(tr)}
                     onSelect={() => { setMenu(null); togglePlay(actions, lead) }}>
             {t(what === 'play' ? 'desk.rooms.menu.play' : what === 'stop' ? 'desk.rooms.menu.stop' : 'desk.rooms.menu.pause', { name: grouped ? t('desk.rooms.menu.group') : lead.name })}
           </MenuItem>

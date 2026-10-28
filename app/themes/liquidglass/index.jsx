@@ -24,10 +24,7 @@ export default {
   id: 'liquidglass',
   name: 'Liquid Glass',
   thumbnail,
-  description:
-    "Apple's Liquid Glass material over the reimagined shell: floating panels of frosted, "
-    + 'specular glass above a drifting mesh wallpaper, capsule controls, concentric corners '
-    + 'and the system palette, following the operating system between light and dark.',
+  description: 'The visual design language made popular by Apple. Modern and clean. Floating panels of frosted, specular glass above a drifting mesh wallpaper, capsule controls, and concentric corners.',
   colorScheme: 'light dark',
   strings,
   tokens,

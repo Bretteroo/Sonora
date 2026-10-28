@@ -31,10 +31,7 @@ export default {
   id: 'solarized',
   name: 'Solarized',
   thumbnail,
-  description:
-    'The desktop controller in Ethan Schoonover\u2019s Solarized palette, light '
-    + 'or dark as you choose, with blue for selection. Its windows and dialogs '
-    + 'follow the half you choose.',
+  description: "Ethan Schoonover's famous palette for nerds.",
   colorScheme: 'dark',
   tokens,
   // Both appearances: dark is the base above, light lays the palette the

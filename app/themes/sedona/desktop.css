@@ -1394,6 +1394,7 @@
 :where(:root[data-theme='sedona']) .dk-scope-check svg { width: 11px; height: 13px; }
 :where(:root[data-theme='sedona']) .dk-scope-heading { margin: 0; padding: 3px 0 3px 19px; color: var(--t-fg-dim); }
 :where(:root[data-theme='sedona']) .dk-scope-menu .dk-scope-recent { padding-left: 30px; }
+:where(:root[data-theme='sedona']) .dk-scope-menu .dk-scope-clear { padding-left: 19px; }
 
 /* Choose Music, when grouping merges rooms that are each playing something
    (the apps' GroupingMusicPicker). */

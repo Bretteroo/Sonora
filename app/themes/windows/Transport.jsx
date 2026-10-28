@@ -420,7 +420,7 @@ function ScopeMenu({ scopes, scope, recent = [], onClose, onPick, onRecent, onCl
                     onClick={() => onRecent?.(text)}>{text}</button>
           ))}
           <hr className="dk-popover-sep" />
-          <button type="button" role="menuitem" onClick={() => onClearRecent?.()}>{t('desk.search.clearRecent')}</button>
+          <button type="button" role="menuitem" className="dk-scope-clear" onClick={() => onClearRecent?.()}>{t('desk.search.clearRecent')}</button>
         </>
       )}
     </div>

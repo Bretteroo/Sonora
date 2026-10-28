@@ -68,10 +68,7 @@ export default {
   id: 'sedona',
   name: 'Sedona',
   thumbnail,
-  description:
-    'The desktop controller as a desert section: sky overhead, a mesa horizon, '
-    + 'panes of sand capped with sedimentary bands and rooms resting on the '
-    + 'ground like boulders. Everything the Windows theme does, in the arid palette.',
+  description: 'Red rocks and a mesa horizon against a desert skyline. Gaze at sedimentary rock while you listen to progressive rock.',
   colorScheme: 'light',
   strings,
   tokens,

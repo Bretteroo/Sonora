@@ -478,7 +478,7 @@ export default {
   id: 'macos',
   name: 'Sonos macOS Desktop',
   thumbnail,
-  description: 'Replicates the Sonos S1 desktop controller as shipped for the Mac: its menus, the transport strip, and Rooms, Now Playing, Queue and Music panes side by side.',
+  description: 'A web recreation of the Sonos desktop controller for macOS.',
   colorScheme: 'dark',
   strings,
   tokens,

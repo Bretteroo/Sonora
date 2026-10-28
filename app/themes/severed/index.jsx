@@ -1642,8 +1642,7 @@ export default {
   id: 'severed',
   name: 'Severed',
   thumbnail,
-  description: 'A desk terminal for doing mysterious and important work. Soothing scanlines and a phosphor glow pour over your music library. '
-    + 'Uniquely suited for macrodata refinement.',
+  description: 'A desk terminal for doing mysterious and important work. Soothing scanlines and a phosphor glow pour over your music library. Uniquely suited for macrodata refinement.',
   colorScheme: 'dark',
   strings,
   tokens,

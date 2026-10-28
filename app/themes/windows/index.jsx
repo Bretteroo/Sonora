@@ -509,7 +509,7 @@ export default {
   id: 'windows',
   name: 'Sonos Windows Desktop',
   thumbnail,
-  description: 'Replicates the Sonos S1 desktop controller as shipped for Windows: a light title bar and menu bar over the same transport strip and Rooms, Now Playing, Queue and Music panes as the Mac build.',
+  description: 'A web recreation of the Sonos desktop controller for Windows.',
   colorScheme: 'dark',
   strings,
   tokens,

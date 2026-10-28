@@ -235,6 +235,9 @@ export const api = {
   setPlayerColor: (uuid, color) =>
     request(`/api/players/${encodeURIComponent(uuid)}/color`, { method: 'POST', body: { color } }),
   softwareUpdate: (household) => request(`/api/households/${encodeURIComponent(household)}/software-update`),
+  advancedSettings: (household) => request(`/api/households/${encodeURIComponent(household)}/advanced`),
+  setAdvancedSetting: (household, key, value) =>
+    request(`/api/households/${encodeURIComponent(household)}/advanced`, { method: 'POST', body: { key, value } }),
   startSoftwareUpdate: (household) =>
     request(`/api/households/${encodeURIComponent(household)}/software-update`, { method: 'POST' }),
   recent: (zone) => (zone === 'SONORA_BROWSER' ? Promise.resolve({ items: [] }) : request(`/api/recent?zone=${encodeURIComponent(zone)}`)),
@@ -258,6 +261,12 @@ export const api = {
   deleteTheme: (id) => request(`/api/themes/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   contentFiltering: (zone) => request(`/api/content-filtering?zone=${encodeURIComponent(zone)}`),
   setContentFiltering: (body) => request('/api/content-filtering', { method: 'POST', body }),
+  // Adding a device to a system: open a session, follow it, then name it.
+  setupStart: (body) => request('/api/setup', { method: 'POST', body }),
+  setupStatus: (id) => request(`/api/setup/${encodeURIComponent(id)}`),
+  setupJoin: (id) => request(`/api/setup/${encodeURIComponent(id)}/join`, { method: 'POST', body: {} }),
+  setupFinish: (id, body) => request(`/api/setup/${encodeURIComponent(id)}/finish`, { method: 'POST', body }),
+  setupCancel: (id) => request(`/api/setup/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   timeSettings: (zone) => request(`/api/time?zone=${encodeURIComponent(zone)}`),
   setTime: (body) => request('/api/time', { method: 'POST', body }),
   librarySettings: (zone) => request(`/api/library?zone=${encodeURIComponent(zone)}`),

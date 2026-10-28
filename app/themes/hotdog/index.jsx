@@ -25,9 +25,7 @@ export default {
   id: 'hotdog',
   name: 'Hot Dog Stand',
   thumbnail,
-  description:
-    'The desktop controller in the Windows 3.1 color scheme of the same name: '
-    + 'red, yellow, black and white, square corners, bevelled buttons.',
+  description: "For the OGs. Windows 3.1's most infamous contribution to the world of UX. Ketchup, mustard, and a side of eye strain. Not recommended.",
   colorScheme: 'light',
   strings,
   tokens,

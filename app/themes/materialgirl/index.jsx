@@ -493,8 +493,7 @@ export default {
   id: 'materialgirl',
   name: 'Material Girl',
   thumbnail,
-  description: 'The controller rebuilt on Material 3 Expressive: adaptive navigation from phone to desktop, a floating player whose colors come '
-    + 'from the cover, shape-shifting artwork, button groups and split buttons. Light or dark.',
+  description: "Built on Google's Material 3 Expressive design system. Shape-shifting covers, a floating player tinted by what's playing, and wavy lines in all the right places.",
   colorScheme: 'light',
   strings,
   tokens,

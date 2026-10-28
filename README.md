@@ -242,7 +242,7 @@ You can make your own themes, too! [THEMES.md](THEMES.md) shows how.
 <details open>
 <summary><b>Coromar</b></summary>
 <br>
-Sonora's own default: light concrete and navy glass, inspired by the seaside office building Sonos calls home.
+Sonora's own default: light concrete, navy glass, tilt-up concrete walls, and stacked stone veneers. Inspired by the seaside office building Sonos calls home.
 <br>
 <br>
 <img src="docs/screenshots/coromar/spread.webp" alt="Coromar theme: Home, Now Playing and a music service">
@@ -254,7 +254,7 @@ Sonora's own default: light concrete and navy glass, inspired by the seaside off
 <details>
 <summary><b>Sedona</b></summary>
 <br>
-Red rocks and desert sky.
+Red rocks and a mesa horizon against a desert skyline. Gaze at sedimentary rock while you listen to progressive rock.
 <br>
 <br>
 <img src="docs/screenshots/sedona/spread.webp" alt="Sedona theme: Home, Now Playing and a music service">
@@ -266,7 +266,7 @@ Red rocks and desert sky.
 <details>
 <summary><b>Outrun</b></summary>
 <br>
-Neon, lasers, and a setting sun.  Quintessential Outrun.
+A synthwave sunset, neon, lasers, and a nostalgic feeling. Quintessential Outrun.
 <br>
 <br>
 <img src="docs/screenshots/outrun/spread.webp" alt="Outrun theme: Home, Now Playing and a music service">
@@ -293,7 +293,7 @@ Neon, lasers, and a setting sun.  Quintessential Outrun.
 <details>
 <summary><b>Hot Dog Stand</b></summary>
 <br>
-For the OGs.
+For the OGs. Windows 3.1's most infamous contribution to the world of UX. Ketchup, mustard, and a side of eye strain. Not recommended.
 <br>
 <br>
 <img src="docs/screenshots/hotdog/spread.webp" alt="Hot Dog Stand theme: Home, Now Playing and a music service">
@@ -305,7 +305,7 @@ For the OGs.
 <details>
 <summary><b>Liquid Glass</b></summary>
 <br>
-The visual design language made popular by the fruit company.
+The visual design language made popular by Apple. Modern and clean. Floating panels of frosted, specular glass above a drifting mesh wallpaper, capsule controls, and concentric corners.
 <br>
 <br>
 <img src="docs/screenshots/liquidglass/spread.webp" alt="Liquid Glass theme: Home, Now Playing and a music service">
@@ -320,7 +320,7 @@ The visual design language made popular by the fruit company.
 <details>
 <summary><b>Sonofuture</b></summary>
 <br>
-The controller thought out again: every room at a glance, drag one onto another to group them. Dark or light, or following your system.
+The Sonos controller reimagined. Every room at a glance, with drag-to-group, and settings arranged by task. Every capability of the desktop apps, on shorter paths.
 <br>
 <br>
 <img src="docs/screenshots/sonofuture/spread.webp" alt="Sonofuture theme: Home, Now Playing and a music service">
@@ -335,7 +335,7 @@ The controller thought out again: every room at a glance, drag one onto another 
 <details>
 <summary><b>Hi-Fi</b></summary>
 <br>
-Your house as a rack of high-end audio components: a turning record, a glowing display, knobs, and a cassette deck for the queue. Black anodized or brushed silver.
+Your house as a rack of audio components: a turning record, a glowing display, knobs, and a cassette deck for the queue. Brushed silver by day, black anodized at night.
 <br>
 <br>
 <img src="docs/screenshots/hifi/spread.webp" alt="Hi-Fi theme: Home, Now Playing and a music service">
@@ -350,7 +350,7 @@ Your house as a rack of high-end audio components: a turning record, a glowing d
 <details>
 <summary><b>Material Girl</b></summary>
 <br>
-The controller rebuilt on Google's Material 3 Expressive: shape-shifting covers, a floating player tinted by what's playing, and a FAB menu for the whole house.
+Built on Google's Material 3 Expressive design system. Shape-shifting covers, a floating player tinted by what's playing, and wavy lines in all the right places.
 <br>
 <br>
 <img src="docs/screenshots/materialgirl/spread.webp" alt="Material Girl theme: Home, Now Playing and a music service">
@@ -392,7 +392,7 @@ A recreation of Sonos' own web player, brought into the future (or is it the pas
 <details>
 <summary><b>Sonos macOS Desktop</b></summary>
 <br>
-A recreation of the Sonos desktop controller for macOS.
+A web recreation of the Sonos desktop controller for macOS.
 <br>
 <br>
 <img src="docs/screenshots/macos/spread.webp" alt="Sonos macOS Desktop theme: Home, Now Playing and a music service">
@@ -404,7 +404,7 @@ A recreation of the Sonos desktop controller for macOS.
 <details>
 <summary><b>Sonos Windows Desktop</b></summary>
 <br>
-The Sonos desktop controller from Windows, rebuilt for the web.
+A web recreation of the Sonos desktop controller for Windows.
 <br>
 <br>
 <img src="docs/screenshots/windows/spread.webp" alt="Sonos Windows Desktop theme: Home, Now Playing and a music service">

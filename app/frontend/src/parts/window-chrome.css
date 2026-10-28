@@ -986,6 +986,10 @@
 :where(:root[data-layout]) .win-root .dk-scope-menu button img, :where(:root[data-layout]) .win-root .dk-scope-menu button > svg { width: 18px; height: 18px; border-radius: 50%; }
 :where(:root[data-layout]) .win-root .dk-scope-heading { padding: 2px 0 2px 44px; font-size: 12px; color: #909090; }
 :where(:root[data-layout]) .win-root .dk-scope-menu .dk-scope-recent { padding-left: 55px; }
+/* searchboxspecialized.xaml draws "Clear Recent Searches" with the same
+   template as the "Recent Searches" heading, so it starts in the heading's
+   column, not at the menu's edge. */
+:where(:root[data-layout]) .win-root .dk-scope-menu .dk-scope-clear { padding-left: 44px; }
 /* ---- Now Playing as captured: an (i) at the header's right, the service and
    what it is playing under the art, Pandora's thumbs under the metadata; no
    position counter or text link. The queue header's caret folds the queue. */

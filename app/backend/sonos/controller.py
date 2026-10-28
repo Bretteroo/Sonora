@@ -176,6 +176,9 @@ class ZoneState:
     online: bool = True
     paired: bool = False
     topology_label: str = ""
+    #: The household's icon for the room (x-rincon-roomicon:<name>, from the
+    #: topology), which the 2018 Windows app drew beside the room's name.
+    room_icon: str = ""
     #: Whether the apps offer a Balance slider for the room (has_balance()).
     has_balance: bool = False
     #: The last source the transport was handed, as its own DIDL: the
@@ -777,6 +780,7 @@ class SonosController:
                     paired=zone.is_paired,
                     has_balance=has_balance(zone.is_paired, zone.primary.model_number),
                     topology_label=zone.topology_label,
+                    room_icon=zone.primary.icon,
                     supports_line_in=zone.primary.supports_line_in,
                     group_id=group.id if group else "",
                     is_coordinator=bool(group and group.coordinator_uuid == zone.uuid),
@@ -2885,6 +2889,52 @@ class SonosController:
         self._radio_locations[household.id] = (monotonic(), {"node": node, "city": city})
         return {"node": node, "city": city}
 
+    #: The household settings the 2018 Windows app (9.1) kept on its Advanced
+    #: tab, each a SystemProperties string, with the values its native core
+    #: writes: line-in Audio Compression, automatic update checks, the two
+    #: "show" switches for music servers on its Music Servers tab, and how the
+    #: music library sorts a folder. Only these names and values are written.
+    ADVANCED_PROPERTIES: dict[str, tuple[str, frozenset[str]]] = {
+        "audio_compression": ("R_AudioInEncodeType", frozenset({"AUTO", "UNCOMPRESSED", "COMPRESSED"})),
+        "auto_update": ("R_UpdatePreference", frozenset({"all", "none"})),
+        "show_media_servers": ("R_ShowNSSServers", frozenset({"0", "1"})),
+        "show_upnp": ("R_ShowRhapUPnP", frozenset({"0", "1"})),
+        "folder_sort": ("R_BrowseByFolderSort", frozenset({"File", "Tracknum"})),
+    }
+
+    async def advanced_settings(self, household: "Household") -> dict:
+        """The household's Advanced settings as their stored strings ("" where
+        the household keeps none; an S2 household answers 800 to all)."""
+        host = self.any_host(household)
+        out: dict = {}
+        for key, (name, _values) in self.ADVANCED_PROPERTIES.items():
+            raw = ""
+            if host is not None:
+                try:
+                    result = await self.soap.call(
+                        host, const.SYSTEM_PROPERTIES, "GetString",
+                        {"VariableName": name}, quiet_codes=frozenset({"800"}))
+                    raw = str(result.get("StringValue", "") or "")
+                except Exception as exc:
+                    log.info("no %s for %s: %s", name, household.id[:22], exc)
+            out[key] = raw
+        return out
+
+    async def set_advanced_setting(self, household: "Household", key: str, value: str) -> dict:
+        """Write one Advanced setting, refusing any name or value the app
+        itself would not write."""
+        if key not in self.ADVANCED_PROPERTIES:
+            raise ValueError(f"unknown setting {key}")
+        name, values = self.ADVANCED_PROPERTIES[key]
+        if value not in values:
+            raise ValueError(f"{key} cannot be {value!r}")
+        host = self.any_host(household)
+        if host is None:
+            raise RuntimeError("no speaker available")
+        await self.soap.call(host, const.SYSTEM_PROPERTIES, "SetString",
+                             {"VariableName": name, "StringValue": value})
+        return await self.advanced_settings(household)
+
     #: How long a pairability audit is trusted before being re-run. The answer
     #: is a property of the provider, so it changes rarely.
     UNPAIRABLE_TTL = 6 * 3600.0
@@ -4080,11 +4130,25 @@ class Commands:
 
     # -- zone settings -------------------------------------------------------
 
-    async def rename_zone(self, zone_uuid: str, name: str) -> None:
+    async def rename_zone(self, zone_uuid: str, name: str | None, icon: str | None = None) -> None:
+        """Set a room's name, its icon, or both. SetZoneAttributes always takes
+        all three of name, icon and configuration, so whatever is not being
+        changed is read back first and sent as it stands."""
         state = self._c.zone(zone_uuid)
+        current = await self.soap.call(state.host, const.DEVICE_PROPERTIES, "GetZoneAttributes")
         await self.soap.call(
             state.host, const.DEVICE_PROPERTIES, "SetZoneAttributes",
-            {"DesiredZoneName": name, "DesiredIcon": "", "DesiredConfiguration": ""})
+            {"DesiredZoneName": name or current.get("CurrentZoneName", ""),
+             "DesiredIcon": icon if icon is not None else current.get("CurrentIcon", ""),
+             "DesiredConfiguration": current.get("CurrentConfiguration", "")})
+
+    async def set_fixed_output(self, zone_uuid: str, fixed: bool) -> None:
+        """Line-Out Level: Fixed hands the line out at full level for another
+        amplifier to set; Variable lets Sonos volume drive it."""
+        state = self._c.zone(zone_uuid)
+        await self.soap.call(state.host, const.RENDERING_CONTROL, "SetOutputFixed",
+                             {"InstanceID": 0, "DesiredFixed": "1" if fixed else "0"})
+        state.fixed_output = fixed
 
     # -- date and time -------------------------------------------------------
     #

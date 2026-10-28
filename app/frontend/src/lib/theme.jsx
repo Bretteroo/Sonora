@@ -166,6 +166,9 @@ function applyPackageCss(css) {
 
 export function ThemeProvider({ children }) {
   const [themeId, setThemeId] = useState(readStoredTheme)
+  // Hidden themes unlocked on this page. Held in memory only: a reload or a
+  // new visit hides them again, though one in use stays in use.
+  const [unlocked, setUnlocked] = useState(() => new Set())
   // Installed packages arrive after the first paint; until then the built-ins
   // are the whole list, which is why a saved id that belongs to a package
   // falls back to the default for that moment and then resolves.
@@ -238,12 +241,23 @@ export function ThemeProvider({ children }) {
     }
   }, [all])
 
+  // Unlock every hidden theme until the page reloads, and switch to the first.
+  const unlockHidden = useCallback(() => {
+    const hidden = Object.values(BUILT_IN).filter((entry) => entry.hidden).map((entry) => entry.id)
+    if (!hidden.length) return
+    setUnlocked(new Set([...unlocked, ...hidden]))
+    fadeThemeChange(() => selectTheme(hidden[0]))
+  }, [unlocked, selectTheme])
+
   // Installed themes are listed after the built-ins, so the shipped set keeps
-  // its order and an upload appends rather than shuffling the list.
+  // its order and an upload appends rather than shuffling the list. A hidden
+  // theme is listed once unlocked, or while it is the one in use.
   const value = useMemo(() => ({
     theme,
     themeId: theme.id,
-    themes: [...Object.values(BUILT_IN), ...Object.values(packages)],
+    themes: [...Object.values(BUILT_IN), ...Object.values(packages)]
+      .filter((entry) => !entry.hidden || unlocked.has(entry.id) || entry.id === theme.id),
+    unlockHidden,
     reloadThemes: () => api.themes().then((r) => {
       const map = {}
       for (const pkg of r?.items || []) map[pkg.id] = fromPackage(pkg)
@@ -258,7 +272,7 @@ export function ThemeProvider({ children }) {
     systemDark,
     // Whether the theme in hand answers to the setting at all.
     appearanceSupported: Boolean(variant) || appearancesOf(theme).length > 0,
-  }), [theme, packages, selectTheme, all, appearance, setAppearance, resolved, variant, systemDark])
+  }), [theme, packages, selectTheme, unlocked, unlockHidden, all, appearance, setAppearance, resolved, variant, systemDark])
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }

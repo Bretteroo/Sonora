@@ -565,6 +565,11 @@ class RoomSettingsBody(BaseModel):
     #: registered answers every POST, so those three had been dropped
     #: without a word (found on the test list).
     name: str | None = None
+    #: The room's icon (x-rincon-roomicon:<name>), sent with or without a new
+    #: name; the room keeps its own when this is left out.
+    icon: str | None = None
+    #: Line-Out Level on a player with a line out: True is Fixed.
+    fixed_output: bool | None = None
     status_light: bool | None = None
     button_lock: bool | None = None
     speech_level: int | None = None
@@ -585,10 +590,12 @@ async def set_room_settings(uuid: str, body: RoomSettingsBody) -> dict:
             await cmd.set_line_in(uuid, body.line_in_level, body.line_in_name)
         if any(v is not None for v in (body.autoplay_room, body.autoplay_linked, body.autoplay_use_volume, body.autoplay_volume)):
             await cmd.set_autoplay(uuid, body.autoplay_room, body.autoplay_linked, body.autoplay_use_volume, body.autoplay_volume)
-        if body.name:
-            await cmd.rename_zone(uuid, body.name)
+        if body.name or body.icon:
+            await cmd.rename_zone(uuid, body.name, body.icon)
         if body.status_light is not None:
             await cmd.set_status_light(uuid, body.status_light)
+        if body.fixed_output is not None:
+            await cmd.set_fixed_output(uuid, body.fixed_output)
         if body.button_lock is not None:
             await cmd.set_button_lock(uuid, body.button_lock)
         if body.speech_level is not None:
@@ -4902,6 +4909,58 @@ async def set_content_filtering(body: ContentFilterBody) -> dict:
         raise HTTPException(403, str(exc)) from None
     except SettingsError as exc:
         raise HTTPException(502, str(exc)) from None
+
+
+class AdvancedBody(BaseModel):
+    key: str
+    value: str
+
+
+@app.get("/api/households/{household_id}/advanced")
+async def advanced_settings(household_id: str) -> dict:
+    """The household settings on the 2018 Windows app's Advanced tab."""
+    ctl = controller()
+    household = ctl.households.get(household_id)
+    if household is None:
+        raise HTTPException(404, f"unknown household {household_id}")
+    return await ctl.advanced_settings(household)
+
+
+@app.post("/api/households/{household_id}/advanced")
+async def set_advanced_setting(household_id: str, body: AdvancedBody) -> dict:
+    ctl = controller()
+    household = ctl.households.get(household_id)
+    if household is None:
+        raise HTTPException(404, f"unknown household {household_id}")
+    try:
+        return await ctl.set_advanced_setting(household, body.key, body.value)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc)) from exc
+
+
+class SetupBody(BaseModel):
+    household: str
+    kind: str
+
+
+@app.post("/api/setup")
+async def start_setup(body: SetupBody) -> dict:
+    """Add a speaker, SUB, Boost or Bridge, as the 2018 app's wizard did.
+
+    Not possible for Sonora. The app hands a new device the household's keys
+    over its setup protocol (UDP 6969), and the players answer that exchange
+    only for a request signed with a key embedded in Sonos' own controller.
+    Using that key would be presenting Sonora as Sonos' app.
+    """
+    # Named for the system it is joining: the 9.1 theme adds to either.
+    household = controller().households.get(body.household)
+    generation = household.generation if household is not None else ""
+    app_name = f"Sonos {generation} app" if generation in ("S1", "S2") else "Sonos S1 or S2 app"
+    raise HTTPException(501, "Joining a device needs a key that only Sonos' own "
+                             f"apps hold. Add it with the {app_name}; it will "
+                             "appear here once it has joined.")
 
 
 @app.get("/api/time")

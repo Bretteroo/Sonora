@@ -424,9 +424,7 @@ export default {
   id: 'sonofuture',
   name: 'Sonofuture',
   thumbnail,
-  description: 'The controller thought out again: a home view of every room with drag-to-group, a stage for what is playing, '
-    + 'a library with search and a command palette, and settings arranged by task. Every capability of the desktop themes, on shorter paths, on any screen, '
-    + 'dark or light.',
+  description: 'The Sonos controller reimagined. Every room at a glance, with drag-to-group, and settings arranged by task. Every capability of the desktop apps, on shorter paths.',
   colorScheme: 'dark',
   strings,
   tokens,

@@ -398,9 +398,7 @@ export default {
   id: 'web',
   name: 'Sonos Web',
   thumbnail,
-  description:
-    'Replicates the official web controller at play.sonos.com, extended to '
-    + 'work with S1 systems that the original refuses.',
+  description: "A recreation of Sonos' own web player, brought into the future (or is it the past?) with support for S1.",
   colorScheme: 'dark',
   strings,
   tokens,

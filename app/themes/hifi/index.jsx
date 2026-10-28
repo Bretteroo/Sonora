@@ -357,9 +357,7 @@ export default {
   id: 'hifi',
   name: 'Hi-Fi',
   thumbnail,
-  description: 'Your house as a rack of high-fidelity components: a control amplifier with a turning record, a glowing display, '
-    + 'and a volume knob, over a zone amplifier, a source tuner with a preset dial, a cassette deck for the queue, a program timer, '
-    + 'and a rear panel of settings. Black anodized with an amber display, or brushed silver by daylight.',
+  description: 'Your house as a rack of audio components: a turning record, a glowing display, knobs, and a cassette deck for the queue. Brushed silver by day, black anodized at night.',
   colorScheme: 'dark',
   strings,
   tokens,

@@ -48,11 +48,7 @@ export default {
   id: 'coromar',
   name: 'Coromar',
   thumbnail,
-  description:
-    'The default: the Sonos headquarters at 301 Coromar Drive. Sunlit tilt-up '
-    + 'concrete scored with panel reveals, the corner curtain wall\'s navy glass '
-    + 'and mullions for the chrome, sandstone from the entry piers, and the '
-    + 'cobalt sky of Goleta in the corner of the window.',
+  description: "Sonora's own default: light concrete, navy glass, tilt-up concrete walls, and stacked stone veneers. Inspired by the seaside office building Sonos calls home.",
   colorScheme: 'light',
   strings,
   tokens,

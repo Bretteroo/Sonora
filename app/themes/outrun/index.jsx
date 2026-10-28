@@ -67,10 +67,7 @@ export default {
   id: 'outrun',
   name: 'Outrun',
   thumbnail,
-  description:
-    'The desktop controller in the Outrun aesthetic: a synthwave sunset and grid '
-    + 'over deep indigo, neon magenta and cyan for selection, with the network the '
-    + 'speakers depend on kept as a first-class view under Help.',
+  description: 'A synthwave sunset, neon, lasers, and a nostalgic feeling. Quintessential Outrun.',
   colorScheme: 'dark',
   strings,
   tokens,

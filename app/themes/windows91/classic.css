@@ -1,0 +1,1221 @@
+/* The 2018 Windows controller (9.1), before Sonos moved its desktop app to
+   black and gray. The layout is the Windows theme's own; this sheet repaints
+   it in 9.1's colors: a navy body behind a textured graphite transport, blue
+   pane headers, and rounded navy room cards.
+
+   Every color is a measurement: the 9.1 build's XAML where it names one, and
+   otherwise the running 9.1 app at 1600x900. Nothing here is the app's art.
+   Its bitmaps are redrawn as gradients, masks and small SVG shapes of
+   Sonora's own; the pattern in the music pane's corner is an original drawing
+   in its manner (bloom.svg, from sonora-notes/research/windows91/bloom.py). */
+
+/* ---- Window ----------------------------------------------------------- */
+
+/* backgroundGrid is black (mainwindow.xaml); the 5px splitters show it. */
+:root[data-theme='windows91'] .win-root:not(.win-mini-root),
+:root[data-theme='windows91'] .win-root .dk-panes { background: #000000; }
+
+/* The menu bar: a 22px band from #5d5d5d to #424242 (mainmenustyles.xaml),
+   its labels #cccccc with a dark line above them (the app's
+   MenuLabelDropShadowEffect points up), brightening to #f5f5f5 under the
+   pointer with no box behind them. */
+:root[data-theme='windows91'] .win-root .win-menubar { background: linear-gradient(#5d5d5d, #424242); }
+:root[data-theme='windows91'] .win-root .win-menubar-title:hover { background: none; }
+:root[data-theme='windows91'] .win-root .win-menubar-title { color: #cccccc; text-shadow: 0 -1px 0 rgba(62, 62, 62, 0.65); }
+:root[data-theme='windows91'] .win-root .win-menubar-title:hover,
+:root[data-theme='windows91'] .win-root .win-menubar-title[aria-expanded='true'] { color: #f5f5f5; }
+
+/* ---- Transport -------------------------------------------------------- */
+
+/* The strip sits on a frame that runs from #4b4b4b under the menu bar to
+   #1c1c1c at the panes, with a 1px lighter line down each window edge. On it
+   is a rounded panel 5px in from the sides: a dark rim, a perforated
+   graphite face (one #252525 dot in every 2x2 block, on a ground fading
+   from #434343 near the top to #202020 at the foot), and a
+   #2f2e2e highlight along its bottom edge. */
+:root[data-theme='windows91'] .win-root .dk-strip {
+  position: relative;
+  isolation: isolate;
+  /* Above the panes, so the group volume popover it holds is not under them. */
+  z-index: 5;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px calc(100% - 1px), rgba(255, 255, 255, 0.04) calc(100% - 1px)),
+    linear-gradient(#4b4b4b, #202020);
+  box-shadow: 0 6px 0 -1px #1d1d1d, 0 5px 0 #292929;
+}
+:root[data-theme='windows91'] .win-root .dk-strip::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0 5px 3px;
+  border: 1px solid #141414;
+  border-top-color: #0f0f0f;
+  border-bottom-color: #2f2e2e;
+  border-radius: 4px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2'%3E%3Crect width='1' height='1' fill='%23252525'/%3E%3C/svg%3E") 0 0 / 2px 2px,
+    linear-gradient(#303030 0.5px, #3c3c3c 1.5px, #404040 2.5px, #434343 3.5px, #343434 37px, #313131 39px, #202020 77px);
+}
+
+/* The ledge under the buttons that holds repeat, shuffle, the position bar,
+   crossfade and EQ: 448 wide, centered, a flat top with smooth shoulders
+   down to the panel's foot, #303030 to #2c2c2c under a near-black edge. */
+:root[data-theme='windows91'] .win-root .dk-strip-progress { isolation: isolate; }
+:root[data-theme='windows91'] .win-root .dk-strip-progress::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  /* 22 tall from 1px above the row to the panel's foot, its edge 6px clear
+     of the glyphs' tops, centered where 9.1 centers it (measured against
+     the running app in the same VM). */
+  left: calc(50% - 230px);
+  top: -1px;
+  width: 448px;
+  height: 22px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='448' height='22' viewBox='0 0 448 22'%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23353535'/%3E%3Cstop offset='1' stop-color='%232c2c2c'/%3E%3C/linearGradient%3E%3Cpath d='M0 22C15 22 21 .5 38 .5H410C427 .5 433 22 448 22Z' fill='url%28%23g%29'/%3E%3Cpath d='M0 22C15 22 21 .5 38 .5H410C427 .5 433 22 448 22' fill='none' stroke='%230f0f0f'/%3E%3Cpath d='M3 22C17 21 22 1.5 38 1.5H410C426 1.5 431 21 445 22' fill='none' stroke='%231f1f1f'/%3E%3C/svg%3E") no-repeat;
+}
+
+/* The transport buttons are lit discs (tc_now_playing_*): a 1px dark halo,
+   a bright rim at the top, #727272 shading to #474747 at the foot; lighter
+   under the pointer, the light turned over while pressed, a flat dim disc
+   when there is nothing to control. The glyph stays the shell's own. */
+:root[data-theme='windows91'] .win-root .dk-strip-controls button,
+:root[data-theme='windows91'] .win-root .dk-strip-mute { isolation: isolate; color: #ffffff; }
+:root[data-theme='windows91'] .win-root .dk-strip-controls button::before,
+:root[data-theme='windows91'] .win-root .dk-strip-mute::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  width: var(--disc, 32px);
+  height: var(--disc, 32px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: linear-gradient(#8a8a8a 0 1px, #727272 2px, #686868 40%, #575757 60%, #474747);
+  box-shadow: 0 0 0 1px rgba(46, 45, 45, 0.75), 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme='windows91'] .win-root .dk-strip-controls .dk-btn-play { --disc: 42px; }
+:root[data-theme='windows91'] .win-root .dk-strip-mute { --disc: 32px; }
+:root[data-theme='windows91'] .win-root .dk-strip-controls button:hover:not(:disabled) { background: none; }
+:root[data-theme='windows91'] .win-root .dk-strip-controls button:hover:not(:disabled)::before,
+:root[data-theme='windows91'] .win-root .dk-strip-mute:hover:not(:disabled)::before {
+  background: linear-gradient(#a6a6a7 0 1px, #878789 2px, #7e7e7f 40%, #636364 60%, #565657);
+}
+:root[data-theme='windows91'] .win-root .dk-strip-controls button:active:not(:disabled)::before,
+:root[data-theme='windows91'] .win-root .dk-strip-mute:active:not(:disabled)::before {
+  background: linear-gradient(#3a3939, #484747 30%, #5c5c5c 70%, #656565);
+}
+:root[data-theme='windows91'] .win-root .dk-strip-controls button:disabled { color: #555555; }
+:root[data-theme='windows91'] .win-root .dk-strip-controls button:disabled::before,
+:root[data-theme='windows91'] .win-root .dk-strip-mute:disabled::before {
+  background: #3b3b3b;
+  box-shadow: 0 0 0 1px rgba(30, 30, 30, 0.5);
+}
+
+/* The glyphs are 9.1's shapes redrawn: skips a 2px bar and two 6px
+   triangles (14x10), play a 9x16 triangle, pause two 4px bars 18 tall, stop
+   a 12px square, each where the app's cell puts it. */
+:root[data-theme='windows91'] .win-root .dk-strip-controls :is(.dk-btn-prev, .dk-btn-next, .dk-btn-play) svg { visibility: hidden; }
+:root[data-theme='windows91'] .win-root .dk-strip-controls :is(.dk-btn-prev, .dk-btn-next, .dk-btn-play)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  -webkit-mask: var(--glyph) center / 100% 100% no-repeat;
+  mask: var(--glyph) center / 100% 100% no-repeat;
+}
+:root[data-theme='windows91'] .win-root .dk-btn-prev { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='44' viewBox='0 0 34 44'%3E%3Crect x='10' y='17' width='2' height='10'/%3E%3Cpath d='M12 22L18 17V27Z M18 22L24 17V27Z'/%3E%3C/svg%3E"); }
+:root[data-theme='windows91'] .win-root .dk-btn-next { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='44' viewBox='0 0 34 44'%3E%3Crect x='22' y='17' width='2' height='10'/%3E%3Cpath d='M22 22L16 17V27Z M16 22L10 17V27Z'/%3E%3C/svg%3E"); }
+:root[data-theme='windows91'] .win-root .dk-btn-play { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M19 14L28 22L19 30Z'/%3E%3C/svg%3E"); }
+:root[data-theme='windows91'] .win-root .dk-btn-play[data-glyph='pause'] { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Crect x='16' y='13' width='4' height='18'/%3E%3Crect x='24' y='13' width='4' height='18'/%3E%3C/svg%3E"); }
+:root[data-theme='windows91'] .win-root .dk-btn-play[data-glyph='stop'] { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Crect x='16' y='16' width='12' height='12'/%3E%3C/svg%3E"); }
+
+/* Volume: a 23px pill. The part below the level is lit (#4e4e4e to #3c3c3c),
+   the rest is a dark ribbed groove (#252525 to #303030 in 1px lines), both
+   with a light line along the bottom edge. As in 9.1 the knob's center runs
+   from 12px in at one end to 12px in at the other (a 2px inset on the
+   20px knob), and the lit part ends under it (Slider.jsx). */
+:root[data-theme='windows91'] .win-root .dk-slider-track {
+  top: 0;
+  height: 23px;
+  border-radius: 11.5px;
+  background:
+    linear-gradient(transparent calc(100% - 2px), #464646 calc(100% - 2px) calc(100% - 1px), transparent calc(100% - 1px)),
+    repeating-linear-gradient(rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 2px),
+    linear-gradient(#232323, #303030);
+  box-shadow: inset 0 1px 0 #1c1c1c;
+}
+:root[data-theme='windows91'] .win-root .dk-slider-fill {
+  top: 0;
+  height: 23px;
+  border-radius: 11.5px 0 0 11.5px;
+  background: linear-gradient(#252525 0 1px, #505050 1px, #3c3c3c calc(100% - 2px), #4e4e4e calc(100% - 2px) calc(100% - 1px), transparent calc(100% - 1px));
+}
+:root[data-theme='windows91'] .win-root .dk-slider-fill[data-full] { border-radius: 11.5px; }
+:root[data-theme='windows91'] .win-root .dk-slider input { width: calc(100% - 4px); margin: 0 2px; }
+
+/* The knob is a dish, not rings: about 20px across, dark at the top (#262626)
+   and lit toward the lower right (#4e4e4e), inside a 1px rim that runs from
+   #515151 at the top to #646464 at the bottom, with a soft shadow below. At
+   its center sits a pale #dadada dot about 4px wide in a near-black 1px ring.
+   Pointing at it lightens the dish (#3e3e3e to #878787), as does keyboard
+   focus; pressing it sits between the two (#323232 to #6c6c6c). While the
+   room is muted the resting dish darkens (#191919 to #454545) and the dot
+   goes #4b4b4b; pointing at it, focusing or pressing it look as they do
+   unmuted. */
+:root[data-theme='windows91'] .win-root .dk-slider {
+  --k-top: #262626; --k-mid: #323232; --k-low: #4e4e4e;
+  --k-rim-top: #515151; --k-rim-low: #646464; --k-dot: #dadada; --k-dot-edge: #a8a8a8;
+}
+:root[data-theme='windows91'] .win-root .dk-slider:has(input:hover) { --k-top: #3e3e3e; --k-mid: #565656; --k-low: #878787; --k-rim-top: #515151; --k-rim-low: #646464; --k-dot: #dadada; --k-dot-edge: #a8a8a8; }
+:root[data-theme='windows91'] .win-root .dk-slider:has(input:focus-visible) { --k-top: #3e3e3e; --k-mid: #565656; --k-low: #878787; --k-rim-top: #515151; --k-rim-low: #646464; --k-dot: #dadada; --k-dot-edge: #a8a8a8; }
+:root[data-theme='windows91'] .win-root .dk-slider:has(input:active) { --k-top: #323232; --k-mid: #454545; --k-low: #6c6c6c; --k-rim-top: #515151; --k-rim-low: #646464; --k-dot: #dadada; --k-dot-edge: #a8a8a8; }
+:root[data-theme='windows91'] .win-root .dk-slider[data-muted] {
+  --k-top: #191919; --k-mid: #272727; --k-low: #454545;
+  --k-rim-top: #484848; --k-rim-low: #5d5d5d; --k-dot: #4b4b4b; --k-dot-edge: #3a3a3a;
+}
+:root[data-theme='windows91'] .win-root .dk-slider input::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 48% 48%, var(--k-dot) 0 1.6px, var(--k-dot-edge) 2.1px, #121212 2.5px 3.3px, transparent 3.8px) padding-box,
+    linear-gradient(160deg, var(--k-top) 20%, var(--k-mid) 55%, var(--k-low) 90%) padding-box,
+    linear-gradient(var(--k-rim-top), var(--k-rim-low)) border-box;
+  box-shadow: 0 1px 1.5px rgba(15, 15, 15, 0.75);
+}
+:root[data-theme='windows91'] .win-root .dk-slider input::-webkit-slider-thumb {
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 48% 48%, var(--k-dot) 0 1.6px, var(--k-dot-edge) 2.1px, #121212 2.5px 3.3px, transparent 3.8px) padding-box,
+    linear-gradient(160deg, var(--k-top) 20%, var(--k-mid) 55%, var(--k-low) 90%) padding-box,
+    linear-gradient(var(--k-rim-top), var(--k-rim-low)) border-box;
+  box-shadow: 0 1px 1.5px rgba(15, 15, 15, 0.75);
+}
+
+/* Repeat, shuffle and crossfade are #a3a3a3 when off and Sonos blue when
+   on; there is no dot under them. The EQ glyph is the same gray. */
+:root[data-theme='windows91'] .win-root .dk-strip-progress .dk-mode { color: #a3a3a3; }
+:root[data-theme='windows91'] .win-root .dk-strip-progress .dk-mode[aria-pressed='true'] { color: #189cfc; }
+:root[data-theme='windows91'] .win-root .dk-strip-progress .dk-mode[aria-pressed='true']:not(:disabled)::after { content: none; }
+:root[data-theme='windows91'] .win-root .dk-mode-eq { color: #a3a3a3 !important; }
+:root[data-theme='windows91'] .win-root .dk-strip-progress .dk-mode:disabled,
+:root[data-theme='windows91'] .win-root .dk-mode-eq:disabled { color: #3c3c3c !important; }
+
+/* The ledge glyphs are 9.1's shapes redrawn: repeat a squared loop with an
+   arrowhead at each break (a 1 inside for one track), shuffle two crossing
+   arrows, crossfade two slider bars with ring knobs, EQ two arrows in a
+   rounded frame. */
+:root[data-theme='windows91'] .win-root .dk-strip-progress .dk-mode svg { visibility: hidden; }
+:root[data-theme='windows91'] .win-root .dk-strip-progress .dk-mode::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  -webkit-mask: var(--glyph) center / 100% 100% no-repeat;
+  mask: var(--glyph) center / 100% 100% no-repeat;
+}
+:root[data-theme='windows91'] .win-root .dk-mode-repeat { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='22' viewBox='0 0 20 22'%3E%3Cpath d='M2 6h7.5v2H4v6h3v2H2z M18 16h-7.5v-2H16V8h-3V6h5z'/%3E%3Cpath d='M9.5 4.6l2.4 2.4-2.4 2.4z M10.5 12.6L8.1 15l2.4 2.4z'/%3E%3C/svg%3E"); }
+:root[data-theme='windows91'] .win-root .dk-mode-repeat[data-repeat='one'] { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='22' viewBox='0 0 20 22'%3E%3Cpath d='M2 6h7.5v2H4v6h3v2H2z M18 16h-7.5v-2H16V8h-3V6h5z'/%3E%3Cpath d='M9.5 4.6l2.4 2.4-2.4 2.4z M10.5 12.6L8.1 15l2.4 2.4z'/%3E%3Cpath d='M9 9h2v5H9.6V10.2L9 10.6z'/%3E%3C/svg%3E"); }
+:root[data-theme='windows91'] .win-root .dk-mode-shuffle { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='22' viewBox='0 0 20 22'%3E%3Cpath d='M2 6h3.4l7.6 8H16v2h-3.8L4.6 8H2z M2 14h2.6l2.3-2.4 1.4 1.4L5.4 16H2z M11 9l1.6-1.8 0 0H16V6h-3.8l-2.6 2.6z'/%3E%3Cpath d='M15.6 4.3l3 2.7-3 2.7z M15.6 12.3l3 2.7-3 2.7z'/%3E%3C/svg%3E"); }
+:root[data-theme='windows91'] .win-root .dk-mode-crossfade { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='22' viewBox='0 0 21 22'%3E%3Crect x='2' y='7' width='12' height='2'/%3E%3Ccircle cx='15' cy='8' r='2.4' fill='none' stroke='black' stroke-width='1.3'/%3E%3Crect x='8' y='14' width='11' height='2'/%3E%3Ccircle cx='6' cy='15' r='2.4' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E"); }
+:root[data-theme='windows91'] .win-root .dk-mode-eq { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='22' viewBox='0 0 21 22'%3E%3Cpath d='M3 5h15v13H3z M4.6 6.6v9.8h11.8V6.6z' fill-rule='evenodd'/%3E%3Crect x='7' y='8' width='2' height='7'/%3E%3Cpath d='M6 10h4l-2-2z'/%3E%3Crect x='12' y='8' width='2' height='7'/%3E%3Cpath d='M11 13h4l-2 2z'/%3E%3C/svg%3E"); }
+
+/* The position bar is a 6px groove: a near-black top edge over #444 shading
+   to #2f2f2f where it has played, an empty channel with a #404040 lip after
+   that, and a small gray bead for the position. The times are #787878. */
+:root[data-theme='windows91'] .win-root .dk-progress-track {
+  top: 9px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(#1a1a1a 0 1px, rgba(0, 0, 0, 0.15) 1px calc(100% - 1px), #404040 calc(100% - 1px));
+}
+:root[data-theme='windows91'] .win-root .dk-progress-fill {
+  top: 9px;
+  height: 6px;
+  border-radius: 3px 0 0 3px;
+  background: linear-gradient(#0a0a0a 0 1px, #444444 1px, #2f2f2f);
+}
+:root[data-theme='windows91'] .win-root .dk-progress-thumb {
+  width: 6px;
+  height: 6px;
+  top: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, #cccccc, #909090 55%, #545454);
+  box-shadow: 0 0 0 1px rgba(51, 51, 51, 0.8);
+}
+:root[data-theme='windows91'] .win-root .dk-strip-progress time { color: #787878; text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.75); }
+
+/* Search (searchboxspecialized.xaml): a white field 25px tall, its top edge
+   sunk under a black line, #848484 and #d6d6d6, a #444444 line along its
+   foot, and a #e6e6e6 end cap at the left; the words #484848 until typed
+   over. The button at its right end is gray behind a white glass, lighter
+   under the pointer. While search is unavailable the field goes #4d4d4d. */
+:root[data-theme='windows91'] .win-root .dk-strip-search {
+  /* A nine-patch of Sonora's own drawing (sonora-notes/research/windows91/
+     searchbox.py): a round left cap, the field's rows stretched between,
+     and the button's round end, each fitted to the app's by eye and by
+     diff. The field is laid over the cap from x=11, as the app's is. */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='25' shape-rendering='geometricPrecision'%3E%0A%3Cdefs%3E%3CclipPath id='k'%3E%3Cpath d='M0 0.9H15.0A14.3 12.1 0 0 1 15.0 25.1H0Z'/%3E%3C/clipPath%3E%3C/defs%3E%0A%3Cpath d='M0 0.9H15.0A14.3 12.1 0 0 1 15.0 25.1H0Z' transform='translate(0 -1)' fill='rgba(171,174,177,0.19)'/%3E%0A%3Cg clip-path='url(%23k)'%3E%3Crect y='1' width='30' height='1' fill='%23252525'/%3E%3Crect y='2' width='30' height='1' fill='%237c7c7c'/%3E%3Crect y='3' width='30' height='1' fill='%23868686'/%3E%3Crect y='4' width='30' height='1' fill='%237a7a7a'/%3E%3Crect y='5' width='30' height='1' fill='%23787878'/%3E%3Crect y='6' width='30' height='1' fill='%23757575'/%3E%3Crect y='7' width='30' height='1' fill='%23737373'/%3E%3Crect y='8' width='30' height='1' fill='%23707070'/%3E%3Crect y='9' width='30' height='1' fill='%236e6e6e'/%3E%3Crect y='10' width='30' height='1' fill='%236b6b6b'/%3E%3Crect y='11' width='30' height='1' fill='%23696969'/%3E%3Crect y='12' width='30' height='1' fill='%23666666'/%3E%3Crect y='13' width='30' height='1' fill='%23646464'/%3E%3Crect y='14' width='30' height='1' fill='%23616161'/%3E%3Crect y='15' width='30' height='1' fill='%235f5f5f'/%3E%3Crect y='16' width='30' height='1' fill='%235c5c5c'/%3E%3Crect y='17' width='30' height='1' fill='%235a5a5a'/%3E%3Crect y='18' width='30' height='1' fill='%23575757'/%3E%3Crect y='19' width='30' height='1' fill='%23555555'/%3E%3Crect y='20' width='30' height='1' fill='%23525252'/%3E%3Crect y='21' width='30' height='1' fill='%23505050'/%3E%3Crect y='22' width='30' height='1' fill='%234d4d4d'/%3E%3Crect y='23' width='30' height='1' fill='%234b4b4b'/%3E%3Crect y='24' width='30' height='1' fill='%23333333'/%3E%3Cpath d='M0 0.9H15.0A14.3 12.1 0 0 1 15.0 25.1H0Z' fill='none' stroke='%233a3a3a' stroke-width='0.02' stroke-opacity='0.4'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%23060606'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%23828282'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%23d0d0d0'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%23f7f7f7'/%3E%3Crect x='0' y='5' width='1' height='1' fill='%23f7f7f7'/%3E%3Crect x='0' y='6' width='1' height='1' fill='%23f7f7f7'/%3E%3Crect x='0' y='7' width='1' height='1' fill='%23f7f7f7'/%3E%3Crect x='0' y='8' width='1' height='1' fill='%23f7f7f7'/%3E%3Crect x='0' y='9' width='1' height='1' fill='%23f7f7f7'/%3E%3Crect x='0' y='10' width='1' height='1' fill='%23f7f7f7'/%3E%3Crect x='0' y='11' width='1' height='1' fill='%23f7f7f7'/%3E%3Crect x='0' y='12' width='1' height='1' fill='%23f7f7f7'/%3E%3Crect x='0' y='13' width='1' height='1' fill='%23f7f7f7'/%3E%3Crect x='0' y='14' width='1' height='1' fill='%23f6f6f6'/%3E%3Crect x='0' y='15' width='1' height='1' fill='%23f6f6f6'/%3E%3Crect x='0' y='16' width='1' height='1' fill='%23f6f6f6'/%3E%3Crect x='0' y='17' width='1' height='1' fill='%23f6f6f6'/%3E%3Crect x='0' y='18' width='1' height='1' fill='%23f6f6f6'/%3E%3Crect x='0' y='19' width='1' height='1' fill='%23f6f6f6'/%3E%3Crect x='0' y='20' width='1' height='1' fill='%23f6f6f6'/%3E%3Crect x='0' y='21' width='1' height='1' fill='%23f6f6f6'/%3E%3Crect x='0' y='22' width='1' height='1' fill='%23f6f6f6'/%3E%3Crect x='0' y='23' width='1' height='1' fill='%23f6f6f6'/%3E%3Crect x='0' y='24' width='1' height='1' fill='%23464646'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23101010'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%235a5a5a'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%236e6e6e'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%23767676'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%23757575'/%3E%3Crect x='1' y='6' width='1' height='1' fill='%23747474'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%23737373'/%3E%3Crect x='1' y='8' width='1' height='1' fill='%23727272'/%3E%3Crect x='1' y='9' width='1' height='1' fill='%23717171'/%3E%3Crect x='1' y='10' width='1' height='1' fill='%23707070'/%3E%3Crect x='1' y='11' width='1' height='1' fill='%236f6f6f'/%3E%3Crect x='1' y='12' width='1' height='1' fill='%236e6e6e'/%3E%3Crect x='1' y='13' width='1' height='1' fill='%236d6d6d'/%3E%3Crect x='1' y='14' width='1' height='1' fill='%236b6b6b'/%3E%3Crect x='1' y='15' width='1' height='1' fill='%236a6a6a'/%3E%3Crect x='1' y='16' width='1' height='1' fill='%23696969'/%3E%3Crect x='1' y='17' width='1' height='1' fill='%23686868'/%3E%3Crect x='1' y='18' width='1' height='1' fill='%23676767'/%3E%3Crect x='1' y='19' width='1' height='1' fill='%23666666'/%3E%3Crect x='1' y='20' width='1' height='1' fill='%23656565'/%3E%3Crect x='1' y='21' width='1' height='1' fill='%23646464'/%3E%3Crect x='1' y='22' width='1' height='1' fill='%23636363'/%3E%3Crect x='1' y='23' width='1' height='1' fill='%23626262'/%3E%3Crect x='1' y='24' width='1' height='1' fill='%233b3b3b'/%3E%3C/g%3E%0A%3C/svg%3E") right 0 top 0 / 30px 25px no-repeat,
+    linear-gradient(rgba(171,174,177,0.19) 0 1px, #000000 1px 2px, #848484 2px 3px, #d6d6d6 3px 4px, #ffffff 4px calc(100% - 1px), #444444 calc(100% - 1px)) 11px 0 / calc(100% - 41px) 100% no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='25'%3E%0A%3Cdefs%3E%3ClinearGradient id='r' x1='0' y1='1' x2='0' y2='24.6' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23000000'/%3E%3Cstop offset='0.5' stop-color='%23151515'/%3E%3Cstop offset='1' stop-color='%233d3d3d'/%3E%3C/linearGradient%3E%0A%3ClinearGradient id='f' x1='0' y1='2' x2='0' y2='24' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23848484'/%3E%3Cstop offset='0.045' stop-color='%23848484'/%3E%3Cstop offset='0.05' stop-color='%23e6e6e6'/%3E%3C/linearGradient%3E%0A%3ClinearGradient id='w' x1='0' y1='2' x2='0' y2='24' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23848484'/%3E%3Cstop offset='0.045' stop-color='%23848484'/%3E%3Cstop offset='0.05' stop-color='%23d6d6d6'/%3E%3Cstop offset='0.09' stop-color='%23d6d6d6'/%3E%3Cstop offset='0.095' stop-color='%23ffffff'/%3E%3C/linearGradient%3E%0A%3CclipPath id='c'%3E%3Cellipse cx='11.9' cy='13.2' rx='10.9' ry='10.8'/%3E%3C/clipPath%3E%3C/defs%3E%0A%3Cellipse cx='11.9' cy='12.2' rx='11.9' ry='11.7' fill='rgba(171,174,177,0.19)'/%3E%0A%3Cellipse cx='11.9' cy='13.2' rx='11.9' ry='11.7' fill='url(%23r)'/%3E%0A%3Cg clip-path='url(%23c)'%3E%3Crect width='13' height='25' fill='url(%23f)'/%3E%3Crect x='11' y='2' width='2' height='22' fill='url(%23w)'/%3E%3C/g%3E%0A%3C/svg%3E") 0 0 / 13px 25px no-repeat;
+  border-radius: 0;
+  box-shadow: none;
+  color: #1a1a1a;
+}
+:root[data-theme='windows91'] .win-root .dk-strip-search:has(button[type='submit']:hover:not(:disabled)) {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='25' shape-rendering='geometricPrecision'%3E%0A%3Cdefs%3E%3CclipPath id='k'%3E%3Cpath d='M0 0.9H15.0A14.3 12.1 0 0 1 15.0 25.1H0Z'/%3E%3C/clipPath%3E%3C/defs%3E%0A%3Cpath d='M0 0.9H15.0A14.3 12.1 0 0 1 15.0 25.1H0Z' transform='translate(0 -1)' fill='rgba(171,174,177,0.19)'/%3E%0A%3Cg clip-path='url(%23k)'%3E%3Crect y='1' width='30' height='1' fill='%23474747'/%3E%3Crect y='2' width='30' height='1' fill='%238f8f8f'/%3E%3Crect y='3' width='30' height='1' fill='%239e9e9e'/%3E%3Crect y='4' width='30' height='1' fill='%23929292'/%3E%3Crect y='5' width='30' height='1' fill='%238e8e8e'/%3E%3Crect y='6' width='30' height='1' fill='%238a8a8a'/%3E%3Crect y='7' width='30' height='1' fill='%23868686'/%3E%3Crect y='8' width='30' height='1' fill='%23828282'/%3E%3Crect y='9' width='30' height='1' fill='%237e7e7e'/%3E%3Crect y='10' width='30' height='1' fill='%237a7a7a'/%3E%3Crect y='11' width='30' height='1' fill='%23767676'/%3E%3Crect y='12' width='30' height='1' fill='%23727272'/%3E%3Crect y='13' width='30' height='1' fill='%236e6e6e'/%3E%3Crect y='14' width='30' height='1' fill='%236a6a6a'/%3E%3Crect y='15' width='30' height='1' fill='%23666666'/%3E%3Crect y='16' width='30' height='1' fill='%23626262'/%3E%3Crect y='17' width='30' height='1' fill='%235e5e5e'/%3E%3Crect y='18' width='30' height='1' fill='%235a5a5a'/%3E%3Crect y='19' width='30' height='1' fill='%23565656'/%3E%3Crect y='20' width='30' height='1' fill='%23525252'/%3E%3Crect y='21' width='30' height='1' fill='%234e4e4e'/%3E%3Crect y='22' width='30' height='1' fill='%234a4a4a'/%3E%3Crect y='23' width='30' height='1' fill='%23464646'/%3E%3Crect y='24' width='30' height='1' fill='%23525252'/%3E%3Cpath d='M0 0.9H15.0A14.3 12.1 0 0 1 15.0 25.1H0Z' fill='none' stroke='%234a4a4a' stroke-width='0.02' stroke-opacity='0.4'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%23151515'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%23929292'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%23e0e0e0'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='5' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='6' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='7' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='8' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='9' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='10' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='11' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='12' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='13' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='14' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='15' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='16' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='17' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='18' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='19' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='20' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='21' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='22' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='23' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='0' y='24' width='1' height='1' fill='%23555555'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23242424'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%236a6a6a'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%236c6c6c'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%236b6b6b'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%236a6a6a'/%3E%3Crect x='1' y='6' width='1' height='1' fill='%23696969'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%23686868'/%3E%3Crect x='1' y='8' width='1' height='1' fill='%23676767'/%3E%3Crect x='1' y='9' width='1' height='1' fill='%23656565'/%3E%3Crect x='1' y='10' width='1' height='1' fill='%23646464'/%3E%3Crect x='1' y='11' width='1' height='1' fill='%23636363'/%3E%3Crect x='1' y='12' width='1' height='1' fill='%23626262'/%3E%3Crect x='1' y='13' width='1' height='1' fill='%23616161'/%3E%3Crect x='1' y='14' width='1' height='1' fill='%23606060'/%3E%3Crect x='1' y='15' width='1' height='1' fill='%235f5f5f'/%3E%3Crect x='1' y='16' width='1' height='1' fill='%235e5e5e'/%3E%3Crect x='1' y='17' width='1' height='1' fill='%235d5d5d'/%3E%3Crect x='1' y='18' width='1' height='1' fill='%235c5c5c'/%3E%3Crect x='1' y='19' width='1' height='1' fill='%235a5a5a'/%3E%3Crect x='1' y='20' width='1' height='1' fill='%23595959'/%3E%3Crect x='1' y='21' width='1' height='1' fill='%23585858'/%3E%3Crect x='1' y='22' width='1' height='1' fill='%23575757'/%3E%3Crect x='1' y='23' width='1' height='1' fill='%23565656'/%3E%3Crect x='1' y='24' width='1' height='1' fill='%234f4f4f'/%3E%3C/g%3E%0A%3C/svg%3E") right 0 top 0 / 30px 25px no-repeat,
+    linear-gradient(rgba(171,174,177,0.19) 0 1px, #000000 1px 2px, #848484 2px 3px, #d6d6d6 3px 4px, #ffffff 4px calc(100% - 1px), #444444 calc(100% - 1px)) 11px 0 / calc(100% - 41px) 100% no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='25'%3E%0A%3Cdefs%3E%3ClinearGradient id='r' x1='0' y1='1' x2='0' y2='24.6' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23000000'/%3E%3Cstop offset='0.5' stop-color='%23151515'/%3E%3Cstop offset='1' stop-color='%233d3d3d'/%3E%3C/linearGradient%3E%0A%3ClinearGradient id='f' x1='0' y1='2' x2='0' y2='24' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23848484'/%3E%3Cstop offset='0.045' stop-color='%23848484'/%3E%3Cstop offset='0.05' stop-color='%23e6e6e6'/%3E%3C/linearGradient%3E%0A%3ClinearGradient id='w' x1='0' y1='2' x2='0' y2='24' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23848484'/%3E%3Cstop offset='0.045' stop-color='%23848484'/%3E%3Cstop offset='0.05' stop-color='%23d6d6d6'/%3E%3Cstop offset='0.09' stop-color='%23d6d6d6'/%3E%3Cstop offset='0.095' stop-color='%23ffffff'/%3E%3C/linearGradient%3E%0A%3CclipPath id='c'%3E%3Cellipse cx='11.9' cy='13.2' rx='10.9' ry='10.8'/%3E%3C/clipPath%3E%3C/defs%3E%0A%3Cellipse cx='11.9' cy='12.2' rx='11.9' ry='11.7' fill='rgba(171,174,177,0.19)'/%3E%0A%3Cellipse cx='11.9' cy='13.2' rx='11.9' ry='11.7' fill='url(%23r)'/%3E%0A%3Cg clip-path='url(%23c)'%3E%3Crect width='13' height='25' fill='url(%23f)'/%3E%3Crect x='11' y='2' width='2' height='22' fill='url(%23w)'/%3E%3C/g%3E%0A%3C/svg%3E") 0 0 / 13px 25px no-repeat;
+}
+:root[data-theme='windows91'] .win-root .dk-strip-search input { color: #1a1a1a; }
+:root[data-theme='windows91'] .win-root .dk-strip-search input::placeholder { color: #484848; }
+:root[data-theme='windows91'] .win-root .dk-strip-search .dk-strip-scope { color: #1a1a1a; }
+/* The glass is Search91 in Transport.jsx; the button itself draws nothing. */
+:root[data-theme='windows91'] .win-root .dk-strip-search button[type='submit'] { color: #fdfdfd; background: none; box-shadow: none; }
+:root[data-theme='windows91'] .win-root .dk-strip-search:has(input:disabled) {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='25' shape-rendering='geometricPrecision'%3E%0A%3Cdefs%3E%3CclipPath id='k'%3E%3Cpath d='M0 0.9H15.0A14.3 12.1 0 0 1 15.0 25.1H0Z'/%3E%3C/clipPath%3E%3C/defs%3E%0A%3Cpath d='M0 0.9H15.0A14.3 12.1 0 0 1 15.0 25.1H0Z' transform='translate(0 -1)' fill='rgba(171,174,177,0.19)'/%3E%0A%3Cg clip-path='url(%23k)'%3E%3Crect y='1' width='30' height='1' fill='%232d2d2d'/%3E%3Crect y='2' width='30' height='1' fill='%23757575'/%3E%3Crect y='3' width='30' height='1' fill='%23868686'/%3E%3Crect y='4' width='30' height='1' fill='%237a7a7a'/%3E%3Crect y='5' width='30' height='1' fill='%23787878'/%3E%3Crect y='6' width='30' height='1' fill='%23757575'/%3E%3Crect y='7' width='30' height='1' fill='%23737373'/%3E%3Crect y='8' width='30' height='1' fill='%23707070'/%3E%3Crect y='9' width='30' height='1' fill='%236e6e6e'/%3E%3Crect y='10' width='30' height='1' fill='%236b6b6b'/%3E%3Crect y='11' width='30' height='1' fill='%23696969'/%3E%3Crect y='12' width='30' height='1' fill='%23666666'/%3E%3Crect y='13' width='30' height='1' fill='%23646464'/%3E%3Crect y='14' width='30' height='1' fill='%23616161'/%3E%3Crect y='15' width='30' height='1' fill='%235f5f5f'/%3E%3Crect y='16' width='30' height='1' fill='%235c5c5c'/%3E%3Crect y='17' width='30' height='1' fill='%235a5a5a'/%3E%3Crect y='18' width='30' height='1' fill='%23575757'/%3E%3Crect y='19' width='30' height='1' fill='%23555555'/%3E%3Crect y='20' width='30' height='1' fill='%23525252'/%3E%3Crect y='21' width='30' height='1' fill='%23505050'/%3E%3Crect y='22' width='30' height='1' fill='%234d4d4d'/%3E%3Crect y='23' width='30' height='1' fill='%234b4b4b'/%3E%3Crect y='24' width='30' height='1' fill='%23383838'/%3E%3Cpath d='M0 0.9H15.0A14.3 12.1 0 0 1 15.0 25.1H0Z' fill='none' stroke='%23383838' stroke-width='0.02' stroke-opacity='0.4'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%232d2d2d'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='5' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='6' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='7' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='8' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='9' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='10' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='11' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='12' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='13' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='14' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='15' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='16' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='17' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='18' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='19' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='20' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='21' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='22' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='23' width='1' height='1' fill='%234d4d4d'/%3E%3Crect x='0' y='24' width='1' height='1' fill='%23383838'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%232d2d2d'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23484848'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%236d6d6d'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%23646464'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%23636363'/%3E%3Crect x='1' y='6' width='1' height='1' fill='%23636363'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%23626262'/%3E%3Crect x='1' y='8' width='1' height='1' fill='%23626262'/%3E%3Crect x='1' y='9' width='1' height='1' fill='%23616161'/%3E%3Crect x='1' y='10' width='1' height='1' fill='%23616161'/%3E%3Crect x='1' y='11' width='1' height='1' fill='%23606060'/%3E%3Crect x='1' y='12' width='1' height='1' fill='%23606060'/%3E%3Crect x='1' y='13' width='1' height='1' fill='%235f5f5f'/%3E%3Crect x='1' y='14' width='1' height='1' fill='%235f5f5f'/%3E%3Crect x='1' y='15' width='1' height='1' fill='%235e5e5e'/%3E%3Crect x='1' y='16' width='1' height='1' fill='%235e5e5e'/%3E%3Crect x='1' y='17' width='1' height='1' fill='%235d5d5d'/%3E%3Crect x='1' y='18' width='1' height='1' fill='%235d5d5d'/%3E%3Crect x='1' y='19' width='1' height='1' fill='%235c5c5c'/%3E%3Crect x='1' y='20' width='1' height='1' fill='%235c5c5c'/%3E%3Crect x='1' y='21' width='1' height='1' fill='%235b5b5b'/%3E%3Crect x='1' y='22' width='1' height='1' fill='%235b5b5b'/%3E%3Crect x='1' y='23' width='1' height='1' fill='%235a5a5a'/%3E%3Crect x='1' y='24' width='1' height='1' fill='%23383838'/%3E%3C/g%3E%0A%3C/svg%3E") right 0 top 0 / 30px 25px no-repeat,
+    linear-gradient(rgba(171,174,177,0.19) 0 1px, #000000 1px 2px, #363636 2px 3px, #454545 3px 4px, #4d4d4d 4px calc(100% - 1px), #444444 calc(100% - 1px)) 11px 0 / calc(100% - 41px) 100% no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='25'%3E%0A%3Cdefs%3E%3ClinearGradient id='r' x1='0' y1='1' x2='0' y2='24.6' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23000000'/%3E%3Cstop offset='0.5' stop-color='%23151515'/%3E%3Cstop offset='1' stop-color='%23444444'/%3E%3C/linearGradient%3E%0A%3ClinearGradient id='f' x1='0' y1='2' x2='0' y2='24' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23363636'/%3E%3Cstop offset='0.045' stop-color='%23363636'/%3E%3Cstop offset='0.05' stop-color='%234d4d4d'/%3E%3C/linearGradient%3E%0A%3ClinearGradient id='w' x1='0' y1='2' x2='0' y2='24' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23363636'/%3E%3Cstop offset='0.045' stop-color='%23363636'/%3E%3Cstop offset='0.05' stop-color='%23454545'/%3E%3Cstop offset='0.09' stop-color='%23454545'/%3E%3Cstop offset='0.095' stop-color='%234d4d4d'/%3E%3C/linearGradient%3E%0A%3CclipPath id='c'%3E%3Cellipse cx='11.9' cy='13.2' rx='10.9' ry='10.8'/%3E%3C/clipPath%3E%3C/defs%3E%0A%3Cellipse cx='11.9' cy='12.2' rx='11.9' ry='11.7' fill='rgba(171,174,177,0.19)'/%3E%0A%3Cellipse cx='11.9' cy='13.2' rx='11.9' ry='11.7' fill='url(%23r)'/%3E%0A%3Cg clip-path='url(%23c)'%3E%3Crect width='13' height='25' fill='url(%23f)'/%3E%3Crect x='11' y='2' width='2' height='22' fill='url(%23w)'/%3E%3C/g%3E%0A%3C/svg%3E") 0 0 / 13px 25px no-repeat;
+  color: #e5e5e5;
+}
+:root[data-theme='windows91'] .win-root .dk-strip-search:has(input:disabled) :is(input, .dk-strip-scope) { color: #e5e5e5; }
+:root[data-theme='windows91'] .win-root .dk-strip-search:has(input:disabled) input::placeholder { color: #9a9a9a; }
+:root[data-theme='windows91'] .win-root .dk-strip-search:has(input:disabled) button[type='submit'] { color: #333333; }
+
+/* ---- Panes ------------------------------------------------------------ */
+
+/* Every pane's body is PanelBackgroundBrush, #021b2e. */
+:root[data-theme='windows91'] .win-root .dk-pane { background: #021b2e; }
+
+/* Behind the music sources a blue glow rises out of the bottom right corner
+   above the footer, under a faint sunburst, rosettes and beaded scrolls
+   (browse_bloom: 418 by 434, anchored bottom right, still while the list
+   scrolls over it). The image comes from index.jsx as --w91-bloom. */
+:root[data-theme='windows91'] .win-root .dk-panes > :last-child .dk-slide-stage { background: var(--w91-bloom) right bottom / 418px 434px no-repeat; }
+
+/* Pane headers: 32px from #002c4d to #001c38, a black rule, then a #012947
+   line where the body starts. Titles are 12px bold #0a97ff, capitals for
+   Rooms, Now Playing and Queue, with a dark line above the letters. */
+:root[data-theme='windows91'] .win-root .dk-header {
+  background: linear-gradient(#002c4d, #001c38);
+  border-bottom: 1px solid #000000;
+  box-shadow: 0 1px 0 #012947;
+  color: #0a97ff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.75);
+  position: relative;
+  z-index: 1;
+}
+:root[data-theme='windows91'] .win-root .dk-header-sub { color: #0a97ff; }
+:root[data-theme='windows91'] .win-root .dk-panes > :first-child .dk-header-title,
+:root[data-theme='windows91'] .win-root .dk-center .dk-header-title { text-transform: uppercase; }
+:root[data-theme='windows91'] .win-root .dk-header-sub { text-transform: none; }
+/* While the queue is not what the room plays, its whole title is the
+   darker #064f87 (NoTracksHeaderTextBlockStyle), "(Not in Use)" included. */
+:root[data-theme='windows91'] .win-root .dk-queue-pane .dk-header[data-idle] .dk-header-title,
+:root[data-theme='windows91'] .win-root .dk-queue-pane .dk-header[data-idle] .dk-header-sub { color: #064f87; }
+
+/* Now Playing's header is brighter: #075084 easing to #093a5e over its top
+   25px, its title #cfdce5 and the room after it #acb7bf, over a #012440 rule
+   and a #25557d line. The body under it is lit from the top: #064573 down to
+   the panel color over its first 206px. */
+:root[data-theme='windows91'] .win-root .dk-center > .dk-pane:first-child > .dk-header {
+  background: linear-gradient(#075084, #093a5e 25px);
+  border-bottom-color: #012440;
+  box-shadow: 0 1px 0 #25557d;
+  color: #cfdce5;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+}
+:root[data-theme='windows91'] .win-root .dk-center > .dk-pane:first-child > .dk-header .dk-header-sub { color: #acb7bf; font-weight: 400; }
+:root[data-theme='windows91'] .win-root .dk-now { background: linear-gradient(#064573, #021b2e 206px); }
+
+/* The queue header's title and count are a darker blue while the queue is
+   not what the room plays (NoTracksHeaderTextBlockStyle). */
+:root[data-theme='windows91'] .win-root .dk-queue-pane .dk-header-count { color: #0a97ff; font-weight: 400; }
+
+/* Now Playing's captions are #0a97ff over #b8c3cc values; "Next" and its
+   track are #076cb7. */
+:root[data-theme='windows91'] .win-root .dk-now-line { color: #b8c3cc; }
+:root[data-theme='windows91'] .win-root .dk-now-line[data-caption]::before { color: #0a97ff; }
+/* 9.1 has no 50px gap before the details (metadataStack Margin 0), and
+   puts "Next" at the pane's left, 5px in and 10px off the bottom, in 11px
+   type: a #076cb7 label over a #b8c3cc track. */
+:root[data-theme='windows91'] .win-root .dk-now-lines { left: 136px; }
+:root[data-theme='windows91'] .win-root .dk-now-source { left: 5px; top: 202px; font-size: 11px; }
+:root[data-theme='windows91'] .win-root .dk-now-source strong { color: #076cb7; }
+:root[data-theme='windows91'] .win-root .dk-now-source span { color: #b8c3cc; }
+/* The cover stands in perspective (nowplayingpanel.xaml's Viewport3D: a
+   20x20 square at x 10..30, z 10 seen from -6,5.5,76 along 1,0,-1.7 with a
+   35-degree field of view, in a 292x237 view). Projected, its corners land
+   at 5.9,16.2 / 131,30.1 / 131,153.4 / 5.9,158.7 from the body's top left,
+   within a pixel of the app's; the matrices map the 150px square onto
+   those. Under it a flipped copy fades from 38% to nothing over 44px. */
+:root[data-theme='windows91'] .win-root .dk-now { position: relative; overflow: hidden; }
+:root[data-theme='windows91'] .win-root .dk-now-art,
+:root[data-theme='windows91'] .win-root .dk-now-art-reflection {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 150px;
+  height: 150px;
+  transform-origin: 0 0;
+  background: transparent;
+}
+:root[data-theme='windows91'] .win-root .dk-now-art { transform: matrix3d(0.970556, 0.124285, 0, 0.00104004, 0, 0.949852, 0, 0, 0, 0, 1, 0, 5.85608, 16.2036, 0, 1); }
+:root[data-theme='windows91'] .win-root .dk-now-art-reflection {
+  transform: matrix3d(0.970556, 0.124285, 0, 0.00104004, 0, -0.949852, 0, 0, 0, 0, 1, 0, 5.85608, 300.447, 0, 1);
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.38), transparent 44px);
+  mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.38), transparent 44px);
+}
+:root[data-theme='windows91'] .win-root .dk-now-art img,
+:root[data-theme='windows91'] .win-root .dk-now-art-reflection img { width: 150px; height: 150px; object-fit: contain; object-position: center; }
+/* With nothing to show, 9.1 stands up a light blue card in a white frame,
+   a shade lighter in its upper half. */
+:root[data-theme='windows91'] .win-root .dk-now-art:not(:has(img)),
+:root[data-theme='windows91'] .win-root .dk-now-art-reflection:not(:has(img)) {
+  border: 7px solid #ffffff;
+  box-sizing: border-box;
+  background: linear-gradient(#86c1e9, #7fbbe4 48%, #72b0da 52%, #6aa9d4);
+}
+:root[data-theme='windows91'] .win-root .dk-now-art:not(:has(img)) > *,
+:root[data-theme='windows91'] .win-root .dk-now-art-reflection:not(:has(img)) > * { visibility: hidden; }
+
+/* The empty queue: #076bc7 words over a dim navy note, the note in a soft
+   glow (empty_queue_pane): #002440 at about 63% at its middle, mostly gone
+   95px out, hatched with lighter #193953: one pixel in three on each row,
+   a step left on the next, so the lines repeat evenly. */
+:root[data-theme='windows91'] .win-root .dk-empty p { color: #076bc7; }
+:root[data-theme='windows91'] .win-root .dk-empty svg { color: #062339; }
+:root[data-theme='windows91'] .win-root .dk-empty-art { position: relative; display: flex; isolation: isolate; }
+/* The note itself is darker than the glow round it, #021a2d at about 87%,
+   and 60px tall (its ink is 20.5 of the icon's 24). */
+:root[data-theme='windows91'] .win-root .dk-empty-art svg { width: 70px; height: 70px; color: rgba(2, 26, 45, 0.87); }
+:root[data-theme='windows91'] .win-root .dk-empty-art::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 250px;
+  height: 250px;
+  translate: -50% -50%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='3' shape-rendering='crispEdges'%3E%3Cpath fill='%23193953' d='M2 0h1v1H2zM1 1h1v1H1zM0 2h1v1H0z'/%3E%3C/svg%3E") 0 0 / 3px 3px,
+    #002440;
+  -webkit-mask: radial-gradient(closest-side, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.42) 22%, rgba(0, 0, 0, 0.14) 48%, rgba(0, 0, 0, 0.03) 72%, transparent 88%);
+  mask: radial-gradient(closest-side, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.42) 22%, rgba(0, 0, 0, 0.14) 48%, rgba(0, 0, 0, 0.03) 72%, transparent 88%);
+}
+
+/* ---- Room cards ------------------------------------------------------- */
+
+/* zm_bgr_normal_*: a 5px-rounded navy card, lit at its top edge (#054367)
+   and shading from #04304f to #032540 over the first 25px, with a #021b2e
+   rule and a #042f52 line between the room names and what is playing.
+   Hover is brighter (#0a89d3 edge, #096fb8 to #0e568d) and the chosen room
+   brighter still between them (#086eaa edge, #07568f to #0a4069). Names are
+   #b8c3cc, white on the hovered or chosen card; the playing line is white. */
+:root[data-theme='windows91'] .win-root .dk-tile {
+  border-radius: 5px;
+  background: linear-gradient(#054367 0 1px, #04304f 1px, #032540 25px);
+  box-shadow: inset 1px 0 0 #032c4b, inset -1px 0 0 #032a49, inset 0 -1px 0 #032b4a;
+  color: #b8c3cc;
+}
+:root[data-theme='windows91'] .win-root .dk-tile:hover {
+  background: linear-gradient(#0a89d3 0 1px, #096fb8 1px, #0e568d 25px);
+  box-shadow: inset 1px 0 0 #0b5c97, inset -1px 0 0 #0b5c97, inset 0 -1px 0 #005999;
+  color: #ffffff;
+}
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true'] {
+  background: linear-gradient(#086eaa 0 1px, #07568f 1px, #0a4069 25px);
+  box-shadow: inset 1px 0 0 #014474, inset -1px 0 0 #014474, inset 0 -1px 0 #004170;
+  color: #ffffff;
+}
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true']:hover {
+  background: linear-gradient(#0a89d3 0 1px, #096fb8 1px, #0e568d 25px);
+}
+:root[data-theme='windows91'] .win-root .dk-tile-devices { box-shadow: 0 1px 0 #021b2e, 0 2px 0 #042f52; }
+:root[data-theme='windows91'] .win-root .dk-tile:hover .dk-tile-devices { box-shadow: 0 1px 0 #074473, 0 2px 0 #145f99; }
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true'] .dk-tile-devices { box-shadow: 0 1px 0 #053458, 0 2px 0 #104b78; }
+:root[data-theme='windows91'] .win-root .dk-tile-device { font-weight: 400; text-shadow: 0 -1px 1px #002233; }
+:root[data-theme='windows91'] .win-root .dk-tile .dk-tile-marquee,
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true'] .dk-tile-marquee,
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true'] .dk-tile-indicator,
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true'] .dk-tile-device small { color: #ffffff; }
+:root[data-theme='windows91'] .win-root .dk-tile .dk-tile-marquee { opacity: 1; font-weight: 400; }
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true'] .dk-tile-group,
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true'] .dk-tile-group svg { color: #b8c3cc; }
+:root[data-theme='windows91'] .win-root .dk-tile-group { color: #b8c3cc; }
+
+/* zonegroupcontrol.xaml (9.1): cards 14px in, 12px apart and from the
+   header (13 as drawn); each room is a 28px glyph, 6px, then its name in
+   13px regular type, rooms 9px apart, 10px above the first and 7px under
+   the last; the playing line below is 25px. One room is a 70px card. */
+:root[data-theme='windows91'] .win-root .dk-rooms-list { padding: 13px 11px 12px 16px; gap: 13px; }
+:root[data-theme='windows91'] .win-root .dk-tile { min-height: 70px; }
+:root[data-theme='windows91'] .win-root .dk-tile-devices { padding: 8px 48px 9px 7px; min-height: 45px; }
+:root[data-theme='windows91'] .win-root .dk-tile-device { display: flex; align-items: center; gap: 5px; height: 28px; line-height: 28px; font-size: 13px; }
+:root[data-theme='windows91'] .win-root .dk-tile-device + .dk-tile-device { height: 28px; line-height: 28px; margin-top: 9px; }
+:root[data-theme='windows91'] .win-root .dk-tile-device > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root[data-theme='windows91'] .win-root .dk-room-icon { flex: none; color: #ffffff; opacity: 0.8; }
+:root[data-theme='windows91'] .win-root .dk-tile:hover .dk-room-icon,
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true'] .dk-room-icon { opacity: 1; }
+:root[data-theme='windows91'] .win-root .dk-tile-now { height: 25px; }
+/* The Group button: a 60px pill 26 tall, 10px from the card's top and 11
+   from its right, with "Group" in 11px #b8c3cc. At rest it is a translucent
+   navy (#053964 to #032542 under a #01508c highlight, zg_normal_*); on a
+   hovered card #06477c to #032d4f; on the chosen card #074f8a to #04345c;
+   under the pointer it dips in the middle (#06467a, #032540, #043359); and
+   pressed it turns the light over. */
+:root[data-theme='windows91'] .win-root .dk-tile-group {
+  top: 10px;
+  right: 11px;
+  width: auto;
+  min-width: 60px;
+  height: 26px;
+  padding: 0 10px 2px;
+  border-radius: 5px;
+  background: linear-gradient(rgba(1, 80, 140, 0.8) 0 1px, rgba(5, 57, 100, 0.8) 1px, rgba(3, 37, 66, 0.8) calc(100% - 3px), rgba(4, 44, 77, 0.8) calc(100% - 3px) calc(100% - 2px), rgba(0, 27, 40, 0.8) calc(100% - 2px) calc(100% - 1px), rgba(0, 34, 51, 0.33) calc(100% - 1px));
+  box-shadow: inset 1px 0 0 rgba(0, 46, 68, 0.8), inset -1px 0 0 rgba(0, 46, 68, 0.8), inset 0 1px 0 rgba(0, 50, 76, 0.8);
+}
+:root[data-theme='windows91'] .win-root .dk-tile:hover .dk-tile-group {
+  background: linear-gradient(rgba(2, 94, 165, 0.8) 0 1px, rgba(6, 71, 124, 0.8) 1px, rgba(3, 45, 79, 0.8) calc(100% - 3px), rgba(4, 52, 92, 0.8) calc(100% - 3px) calc(100% - 2px), rgba(0, 35, 53, 0.8) calc(100% - 2px) calc(100% - 1px), rgba(0, 34, 51, 0.33) calc(100% - 1px));
+}
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true'] .dk-tile-group {
+  background: linear-gradient(rgba(2, 102, 179, 0.8) 0 1px, rgba(7, 79, 138, 0.8) 1px, rgba(4, 52, 92, 0.8) calc(100% - 3px), rgba(5, 59, 105, 0.8) calc(100% - 3px) calc(100% - 2px), rgba(0, 35, 53, 0.8) calc(100% - 2px) calc(100% - 1px), rgba(0, 43, 64, 0.4) calc(100% - 1px));
+}
+:root[data-theme='windows91'] .win-root .dk-tile .dk-tile-group:hover {
+  background: linear-gradient(rgba(2, 94, 165, 0.8) 0 1px, rgba(6, 70, 122, 0.8) 1px, rgba(3, 37, 64, 0.8) 60%, rgba(4, 51, 89, 0.8) calc(100% - 2px), rgba(0, 35, 53, 0.8) calc(100% - 2px) calc(100% - 1px), rgba(0, 34, 51, 0.33) calc(100% - 1px));
+}
+:root[data-theme='windows91'] .win-root .dk-tile .dk-tile-group:active {
+  background: linear-gradient(#014d87 0 1px, #043660 1px, #07508c calc(100% - 2px), #00324c calc(100% - 2px) calc(100% - 1px), rgba(0, 34, 51, 0.35) calc(100% - 1px));
+}
+:root[data-theme='windows91'] .win-root .dk-tile-group svg { display: none; }
+:root[data-theme='windows91'] .win-root .dk-tile-group-label { font-size: 11px; line-height: 24px; color: #b8c3cc; text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.75); opacity: 0.8; }
+:root[data-theme='windows91'] .win-root .dk-tile:hover .dk-tile-group-label,
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true'] .dk-tile-group-label { opacity: 1; }
+:root[data-theme='windows91'] .win-root .dk-tile:hover .dk-tile-group-label,
+:root[data-theme='windows91'] .win-root .dk-tile[aria-pressed='true'] .dk-tile-group-label { color: #ffffff; }
+
+/* ---- Rows ------------------------------------------------------------- */
+
+/* Music sources and the queue: #b8c3cc titles, #596f80 second lines, the
+   chevron #065b99. */
+:root[data-theme='windows91'] .win-root .dk-browse-row,
+:root[data-theme='windows91'] .win-root .dk-row { color: #b8c3cc; text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.75); }
+:root[data-theme='windows91'] .win-root .dk-browse-sub,
+:root[data-theme='windows91'] .win-root .dk-row-sub { color: #596f80; }
+:root[data-theme='windows91'] .win-root .dk-browse-disclosure { background: #065b99; }
+
+/* A row's state is a band drawn 1px inside its 44px slot, square at the
+   left and rounded 5px at the right, ending 2px short of the row
+   (ListContainerControl's row_bgr pairs). In 9.1's order of precedence:
+   a button row under the pointer; checked and under the pointer or
+   selected; checked; selected and under the pointer; under the pointer;
+   selected. A row whose menu is open counts as under the pointer. The
+   playing queue row has no band of its own. */
+:root[data-theme='windows91'] .win-root :is(.dk-browse-row, .dk-row) { --w91-inset: 1px; background: none; }
+:root[data-theme='windows91'] .win-root .dk-browse-row { --w91-inset: 0px; }
+:root[data-theme='windows91'] .win-root :is(.dk-browse-row, .dk-row)::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: var(--w91-inset);
+  bottom: var(--w91-inset);
+  left: 0;
+  right: 2px;
+  border-radius: 0 5px 5px 0;
+  /* Each state's shorthand would reset it: the edge lies on the pane, not on the band. */
+  background-clip: padding-box !important;
+  pointer-events: none;
+  visibility: hidden;
+}
+:root[data-theme='windows91'] .win-root :is(.dk-browse-row, .dk-row) { position: relative; isolation: isolate; }
+/* Under the pointer: a lit top line over a navy wash at 56%. */
+:root[data-theme='windows91'] .win-root :is(.dk-browse-row, .dk-row):is(:hover, [data-menu])::before {
+  visibility: visible;
+  background: linear-gradient(rgba(5, 69, 115, 0.7) 0 1px, rgba(0, 57, 101, 0.56) 1px, rgba(3, 43, 76, 0.56) 60%);
+}
+/* Selected: the same wash at a quarter, edged #1a5580 top, right and foot. */
+:root[data-theme='windows91'] .win-root :is(.dk-browse-row, .dk-row)[aria-selected='true']::before {
+  visibility: visible;
+  border: 1px solid rgba(26, 85, 128, 0.7);
+  border-left: 0;
+  background: linear-gradient(rgba(0, 57, 101, 0.243), rgba(3, 43, 76, 0.243) 62%);
+}
+:root[data-theme='windows91'] .win-root :is(.dk-browse-row, .dk-row)[aria-selected='true']:hover:not([data-menu])::before {
+  background: linear-gradient(rgba(0, 57, 101, 0.56), rgba(3, 43, 76, 0.56) 62%);
+}
+:root[data-theme='windows91'] .win-root :is(.dk-browse-row, .dk-row)[aria-selected='true'][data-menu]::before {
+  border: 0;
+  background: linear-gradient(rgba(5, 69, 115, 0.7) 0 1px, rgba(0, 57, 101, 0.56) 1px, rgba(3, 43, 76, 0.56) 60%);
+}
+/* Checked: an opaque band 41px tall, #054a80 along the top, #04355a
+   deepening to #004c80 at the foot. */
+:root[data-theme='windows91'] .win-root :is(.dk-browse-row, .dk-row)[aria-checked='true']::before {
+  visibility: visible;
+  border: 0;
+  bottom: calc(var(--w91-inset) + 1px);
+  background: linear-gradient(#054a80 0 1px, #04355a 1px, #004c80);
+}
+/* Checked and under the pointer, or checked and selected: lit, edged #1687d9. */
+:root[data-theme='windows91'] .win-root :is(.dk-browse-row, .dk-row)[aria-checked='true']:is(:hover, [data-menu], [aria-selected='true'])::before {
+  border: 1px solid rgba(22, 135, 217, 0.8);
+  border-left: 0;
+  background: linear-gradient(#053d67, #005b98);
+}
+/* A button row under the pointer: bright blue at 70%, #0ca6f2 along the
+   top and #148fcc along the foot. */
+:root[data-theme='windows91'] .win-root .dk-browse-row[data-button]:is(:hover, [data-menu])::before {
+  visibility: visible;
+  border: 0;
+  bottom: var(--w91-inset);
+  background: linear-gradient(rgba(12, 166, 242, 0.56) 0 1px, rgba(0, 119, 209, 0.7) 1px, rgba(0, 92, 162, 0.7) 62%, rgba(0, 105, 186, 0.7) calc(100% - 1px), rgba(20, 143, 204, 0.56) calc(100% - 1px));
+}
+
+/* The queue's buttons sit on a 22px blue disc under the pointer, lit
+   #087dd1 at the top down to #04426d, the glyph turning dark. */
+:root[data-theme='windows91'] .win-root .dk-queue-pane .dk-header-btn:hover:not(:disabled) {
+  background: radial-gradient(circle 11px at 50% 50%, #0767ac 0, #055187 6px, #04426d 10.5px, transparent 11px);
+  color: #032740;
+}
+
+/* Music sources (9.1, as drawn at 1600 wide): 44px rows from the pane's
+   first pixel, a 30px picture 10px in, its title 8px after in 12px type,
+   the chevron an 8x12 #065b99 stroke 16px from the right. Sonora's own
+   source glyphs stand on 9.1's glossy blue disc: a gray-blue sheen over the
+   top half, #054069 brightening to #0d6198 under it, a white glyph. */
+:root[data-theme='windows91'] .win-root .dk-panes > :last-child .dk-scroll { padding-top: 0; }
+:root[data-theme='windows91'] .win-root .dk-browse-row { --win-row-gap: 8px; height: 44px; padding: 0 16px 0 10px; font-size: 12px; border-top-width: 1px; border-bottom-width: 1px; }
+:root[data-theme='windows91'] .win-root .dk-browse-row:has(.dk-browse-glyph) { --win-row-gap: 8px; }
+:root[data-theme='windows91'] .win-root .dk-browse-title { font-size: 12px; }
+:root[data-theme='windows91'] .win-root .dk-browse-art,
+:root[data-theme='windows91'] .win-root .dk-browse-art img,
+:root[data-theme='windows91'] .win-root .dk-browse-art.dk-browse-glyph,
+:root[data-theme='windows91'] .win-root .dk-browse-art.dk-browse-glyph img { width: 30px; height: 30px; }
+:root[data-theme='windows91'] .win-root .dk-browse-art.dk-browse-glyph:not(:has(img)) {
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse 13px 7px at 50% 5px, rgba(152, 178, 196, 0.55), transparent),
+    linear-gradient(#3f5f74 0, #2e5774 40%, #054069 46%, #06568d 75%, #0d6198 92%, #073555);
+  box-shadow: 0 0 0 1px rgba(3, 30, 50, 0.6);
+  color: #ffffff;
+}
+:root[data-theme='windows91'] .win-root .dk-browse-art.dk-browse-glyph:not(:has(img)) svg { width: 18px; height: 18px; color: #ffffff; }
+:root[data-theme='windows91'] .win-root .dk-browse-disclosure {
+  width: 8px;
+  height: 12px;
+  -webkit-mask-size: 8px 12px;
+  mask-size: 8px 12px;
+}
+
+/* ---- Popovers -------------------------------------------------------- */
+
+/* 9.1's popovers are light panels in a graphite frame (popover_*): a 7px
+   #3c3c3c rim lit #525252 along its top, rounded 8px, an inner #2e2f31 then
+   #7c7d7d edge, and #d2d3d3 inside with #242424 words. The beak is
+   graphite too. */
+:root[data-theme='windows91'] .win-root .dk-sleep-window,
+:root[data-theme='windows91'] .win-root .dk-group-volume {
+  background: #3c3c3c;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 #525252, 0 5px 25px rgba(0, 0, 0, 0.35);
+  color: #242424;
+}
+:root[data-theme='windows91'] .win-root .dk-sleep-window::after { border-top-color: #3c3c3c; }
+:root[data-theme='windows91'] .win-root .dk-group-volume::before { border-bottom-color: #3c3c3c; }
+
+/* Sleep Timer (sleeptimerpopover.xaml): 250 wide; the title in white bold
+   on a 37px graphite band, then 6px; the light panel 8px in from every edge
+   of the frame (from 39px down), ringed #7c7d7d then #2e2f31; the
+   instruction 17px in and 8px down in #242424 with a faint white line
+   under it; the list 16px below, its 30px rows each opening with a #acacac
+   over #e0e0e0 rule 16px in, 13px bold labels 22px in. A row is lit only
+   while it has the keyboard (the current choice when the popover opens):
+   #618cf6 down to #1f6af3 under a #93c6fb line, 7px in, its label white.
+   The pointer passing over a row changes nothing. The beak is a 34x14
+   graphite point under the middle. */
+:root[data-theme='windows91'] .win-root .dk-sleep-window { width: 250px; box-shadow: inset 0 1px 0 #525252, 0 -5px 25px rgba(0, 0, 0, 0.1); }
+:root[data-theme='windows91'] .win-root .dk-sleep-window::after { bottom: -14px; margin-left: -17px; border-width: 14px 17px 0; border-top-color: #3c3c3c; }
+:root[data-theme='windows91'] .win-root .dk-sleep-window .dk-sleep { position: relative; isolation: isolate; padding: 0 0 15px; color: #242424; background: none; }
+:root[data-theme='windows91'] .win-root .dk-sleep-window .dk-sleep::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 39px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  background: #d2d3d3;
+  box-shadow: 0 0 0 1px #7c7d7d, 0 0 0 2px #2e2f31;
+}
+:root[data-theme='windows91'] .win-root .dk-sleep-window .dk-sleep-title { height: 37px; margin: 0 0 6px; line-height: 37px; color: #ffffff; font-size: 13px; }
+:root[data-theme='windows91'] .win-root .dk-sleep-window .dk-sleep-choose {
+  margin: 0;
+  padding: 8px 17px 0;
+  font-size: 12px;
+  color: #242424;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+:root[data-theme='windows91'] .win-root .dk-sleep-window .dk-sleep-choices { margin: 16px 0 0; padding: 0; }
+:root[data-theme='windows91'] .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn {
+  height: 30px;
+  padding: 0 22px;
+  border: 0;
+  color: #242424;
+  font-size: 13px;
+  font-weight: 700;
+  background: none;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+:root[data-theme='windows91'] .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn::before { left: 16px; right: 16px; top: 0; height: 2px; background: linear-gradient(#acacac 0 1px, #e0e0e0 1px); }
+:root[data-theme='windows91'] .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:hover { background: none; }
+:root[data-theme='windows91'] .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn[data-current] {
+  outline: none;
+  background: linear-gradient(#93c6fb 0 1px, #618cf6 1px, #1f6af3 calc(100% - 3px), #296ef2 calc(100% - 3px) calc(100% - 2px), #3e79ef calc(100% - 2px) calc(100% - 1px), #005ce9 calc(100% - 1px)) 7px 0 / calc(100% - 14px) 100% no-repeat;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(30, 35, 60, 0.5);
+}
+:root[data-theme='windows91'] .win-root .dk-sleep-window .dk-sleep-choices .dk-win-btn:focus { outline: none; }
+
+/* Group volume (groupvolumepopover.xaml): the same light panel inside the
+   rim, rooms in 12px bold #242424, each row closed by a #a0a0a0 rule over a
+   30% white one. Its sliders are the light-panel kind: the played part
+   #383838 down to #252525, the rest a translucent dark groove, a white lip
+   along the bottom. */
+:root[data-theme='windows91'] .win-root .dk-group-volume {
+  padding: 18px 15px 9px;
+  background:
+    linear-gradient(#d2d3d3, #d2d3d3) padding-box,
+    #3c3c3c;
+  border: 7px solid #3c3c3c;
+  box-shadow: inset 0 0 0 1px #7c7d7d, 0 0 0 1px #2e2f31, 0 5px 25px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme='windows91'] .win-root .dk-group-volume-row strong { color: #242424; }
+/* Each room's mute button carries its own disc (popover_vol_speakers_*). */
+:root[data-theme='windows91'] .win-root .dk-group-volume .dk-strip-mute { position: relative; left: 0; top: 0; }
+:root[data-theme='windows91'] .win-root .dk-group-volume-row + .dk-group-volume-row { border-top: 1px solid #a0a0a0; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+:root[data-theme='windows91'] .win-root .dk-group-volume .dk-slider-track {
+  background:
+    linear-gradient(transparent calc(100% - 1px), #e4e5e5 calc(100% - 1px)),
+    linear-gradient(rgba(36, 36, 36, 0.93), rgba(44, 44, 44, 0.71) 15%, rgba(41, 41, 41, 0.77));
+}
+:root[data-theme='windows91'] .win-root .dk-group-volume .dk-slider-fill {
+  background: linear-gradient(#383838, #252525 calc(100% - 1px), #e4e5e5 calc(100% - 1px));
+}
+
+/* ---- Footers ---------------------------------------------------------- */
+
+/* Footer buttons: a #2f2f2f top line over #2c2c2c shading to #1c1c1c, a
+   #111111 | #333333 seam between neighbors; hover and pressed are the app's
+   own gradients. Labels are #888888, #454647 while disabled; a disabled
+   button is otherwise drawn as it is (FooterButtonDisabledTextBlockStyle
+   only changes the words), so it is not faded as buttons elsewhere are. */
+:root[data-theme='windows91'] .win-root .dk-footer { background: #000000; border-top: 1px solid #2f2f2f; }
+:root[data-theme='windows91'] .win-root .dk-footer button { background: linear-gradient(#2c2c2c, #1c1c1c); }
+:root[data-theme='windows91'] .win-root .dk-footer button:disabled { opacity: 1; }
+:root[data-theme='windows91'] .win-root .dk-footer button + button { box-shadow: inset 1px 0 0 #333333, -1px 0 0 #111111; }
+:root[data-theme='windows91'] .win-root .dk-footer button:hover:not(:disabled) { background: linear-gradient(#4d4d4d, #2d2d2d); }
+:root[data-theme='windows91'] .win-root .dk-footer button:active:not(:disabled) { background: linear-gradient(#111111, #242424); }
+
+/* Sleep Timer is a 16px clock 4px before its title, "Sleep Timer", or with
+   a timer running "Sleep Timer (0:28)" (FooterButtonSleepStyle); Alarms is a
+   16px bell 4px before the word. Both glyphs follow the label's color. */
+:root[data-theme='windows91'] .win-root .dk-footer :is(.dk-footer-sleep, .dk-footer-alarms) { display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+:root[data-theme='windows91'] .win-root .dk-footer :is(.dk-footer-sleep, .dk-footer-alarms)::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  flex: none;
+  background: currentColor;
+  -webkit-mask: var(--glyph) center / 16px 16px no-repeat;
+  mask: var(--glyph) center / 16px 16px no-repeat;
+}
+:root[data-theme='windows91'] .win-root .dk-footer-sleep { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1z M8 3a5 5 0 1 0 0 10A5 5 0 0 0 8 3z' fill-rule='evenodd'/%3E%3Crect x='7' y='5' width='1.4' height='4'/%3E%3Crect x='7' y='8' width='3' height='1.5'/%3E%3C/svg%3E"); }
+:root[data-theme='windows91'] .win-root .dk-footer-alarms { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M8 1.2c2.4 0 3.6 1.9 3.6 4.4v3.2l1.9 2.3v1.6H2.5v-1.6l1.9-2.3V5.6C4.4 3.1 5.6 1.2 8 1.2z M8 3c-1.4 0-2 1.1-2 2.7v3.6l-1 1.3h6l-1-1.3V5.7C10 4.1 9.4 3 8 3z' fill-rule='evenodd'/%3E%3Cpath d='M6.6 13.6h2.8a1.4 1.4 0 0 1-2.8 0z'/%3E%3C/svg%3E"); }
+
+/* ---- Scrollbars ------------------------------------------------------ */
+
+/* A 9px thumb, #014a80 at 70% over the panel at rest (#023c67 as drawn). */
+:root[data-theme='windows91'] .win-root .dk-scroll { scrollbar-color: #023c67 transparent; }
+
+/* ---- Connection overlay ---------------------------------------------- */
+
+/* While the speakers cannot be reached 9.1 covers the panes with a navy
+   ramp, #020c1e under the transport to #022a3c at the foot, its words
+   #b8c3cc under a white wordmark. */
+:root[data-theme='windows91'] .dk-lc { background: linear-gradient(#020c1e, #022a3c); color: #b8c3cc; }
+:root[data-theme='windows91'] .dk-lc-mark { color: #ffffff; }
+:root[data-theme='windows91'] .dk-lc-body p { color: #b8c3cc; text-shadow: 0 -1px 1px #000000; }
+
+/* ---- Mini Controller ------------------------------------------------- */
+
+/* Without a picture the Mini shows 9.1's navy (mp_bgr_*, a ramp from
+   #01090f at the top to #021e35 at the foot; the logo pattern over it is
+   left out). Its buttons sit on a glossy gray disc under the pointer
+   (#747475 to #5b5b5d), turned over while pressed, flat #353535 when
+   disabled. */
+:root[data-theme='windows91'] .win-root .win-mini-panel { background: linear-gradient(#01090f, #010a11 8%, #010e18 23%, #021626 50%, #021a2e 70%, #021e35); }
+:root[data-theme='windows91'] .win-root .win-mini-btn:hover:not(:disabled) { background: radial-gradient(circle 16.5px, #6a6a6c, #5f5f60 70%, #5b5b5d 15px, rgba(36, 36, 36, 0.75) 15.5px, transparent 16.5px); }
+:root[data-theme='windows91'] .win-root .win-mini-btn.win-mini-play:hover:not(:disabled) { background: linear-gradient(#747475, #646465 40%, #5b5b5d); box-shadow: 0 0 0 1px rgba(36, 36, 36, 0.75); }
+:root[data-theme='windows91'] .win-root .win-mini-btn:active:not(:disabled) { background: radial-gradient(circle 15.5px, #3d3d3d, #464646 70%, #494949 15px, rgba(36, 36, 36, 0.75) 15.5px, transparent 16.5px); }
+:root[data-theme='windows91'] .win-root .win-mini-btn.win-mini-play:active:not(:disabled) { background: linear-gradient(#323232, #424242 40%, #494949); }
+:root[data-theme='windows91'] .win-root .win-mini-btn:disabled { background: radial-gradient(circle, #353535 14.5px, transparent 15.5px); }
+:root[data-theme='windows91'] .win-root .win-mini-btn.win-mini-play:disabled { background: radial-gradient(circle, #353535 19.5px, transparent 20.5px); }
+
+/* ---- Info & Options --------------------------------------------------- */
+
+/* infoviewheader.xaml (9.1): the header block is lit #002645 to #00203d,
+   closed by a #01234e line over a #010b12 one; captions #0a97ff over
+   #b8c3cc values. */
+:root[data-theme='windows91'] .win-root .dk-info-block {
+  background: linear-gradient(#002645, #00203d);
+  border-bottom: 1px solid #010b12;
+  box-shadow: inset 0 -1px 0 #01234e;
+}
+:root[data-theme='windows91'] .win-root .dk-info-block dt { color: #0a97ff; }
+:root[data-theme='windows91'] .win-root .dk-info-block dd { color: #b8c3cc; }
+:root[data-theme='windows91'] .win-root .dk-info-row,
+:root[data-theme='windows91'] .win-root .dk-info-row[aria-disabled='true'] { color: #b8c3cc; }
+
+/* The EQ glyph's room menu (transport.xaml): a 23px room glyph 12px in and
+   2px before each name, #989898, turning #ebebeb on the lit row. */
+:root[data-theme='windows91'] .win-root .dk-room-menu button { display: flex; align-items: center; gap: 2px; padding-left: 12px; }
+:root[data-theme='windows91'] .win-root .dk-room-menu .dk-room-icon { width: 23px; height: 23px; flex: none; color: #989898; opacity: 1; }
+:root[data-theme='windows91'] .win-root .dk-room-menu button:hover .dk-room-icon,
+:root[data-theme='windows91'] .win-root .dk-room-menu button:focus-visible .dk-room-icon { color: #ebebeb; }
+
+/* ---- States: rows, buttons and the ledge ------------------------------ */
+
+/* Ledge buttons (tc_progress_*): under the pointer or with the keyboard a
+   1px #767676 line lights the ledge's edge above the glyph; pressed, the
+   glyph turns white. EQ dims to #919191 under the pointer. */
+:root[data-theme='windows91'] .win-root .dk-strip-progress .dk-mode:is(:hover, :focus-visible):not(:disabled) {
+  background: linear-gradient(transparent 1px, #767676 1px 2px, transparent 2px);
+  outline: none;
+}
+:root[data-theme='windows91'] .win-root .dk-strip-progress .dk-mode:active:not(:disabled) { color: #ffffff !important; }
+:root[data-theme='windows91'] .win-root .dk-strip-progress .dk-mode-eq:hover:not(:disabled):not(:active) { color: #919191 !important; }
+
+/* The position bead turns Sonos blue under the pointer and pale while
+   dragged (tc_progressbar_scrubber_*). */
+:root[data-theme='windows91'] .win-root .dk-progress:hover .dk-progress-thumb { background: linear-gradient(#53b4ef, #64baed 30%, #0ba7fe 70%, #0875c4); box-shadow: 0 0 0 1px rgba(11, 162, 250, 0.8); }
+:root[data-theme='windows91'] .win-root .dk-progress:active .dk-progress-thumb { background: linear-gradient(#c9c9ca, #bcbdbe 40%, #e6e6e7); box-shadow: 0 0 0 1px rgba(204, 204, 204, 0.8); }
+
+/* A row's menu caret (bttn_dd_*): a 13x8 Sonos-blue point at rest; under
+   the pointer or while its menu is open a 25px blue disc, #0a76cd shading
+   to #065089 at 80% with a pale cap over its top, the point white; pressed
+   the light turns over. */
+:root[data-theme='windows91'] .win-root .dk-browse-actions { position: relative; isolation: isolate; color: #0967b5; }
+:root[data-theme='windows91'] .win-root .dk-browse-actions::after {
+  width: 13px;
+  height: 8px;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='8' viewBox='0 0 13 8'%3E%3Cpath d='M0 0h13L6.5 8z'/%3E%3C/svg%3E") center / 13px 8px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='8' viewBox='0 0 13 8'%3E%3Cpath d='M0 0h13L6.5 8z'/%3E%3C/svg%3E") center / 13px 8px no-repeat;
+}
+:root[data-theme='windows91'] .win-root .dk-browse-actions:hover,
+:root[data-theme='windows91'] .win-root :is(.dk-browse-row, .dk-row)[aria-selected='true'] .dk-browse-actions { color: #ffffff; }
+:root[data-theme='windows91'] .win-root .dk-browse-actions:hover::before,
+:root[data-theme='windows91'] .win-root :is(.dk-browse-row, .dk-row)[aria-selected='true'] .dk-browse-actions::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  width: 25px;
+  height: 25px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse 9px 5px at 50% 4px, rgba(172, 208, 230, 0.9), transparent),
+    linear-gradient(rgba(7, 99, 174, 0.8), rgba(10, 118, 205, 0.8) 8%, rgba(8, 97, 170, 0.8) 55%, rgba(6, 80, 137, 0.8) 92%, rgba(0, 38, 69, 0.8));
+}
+:root[data-theme='windows91'] .win-root .dk-browse-actions:active::before {
+  background: linear-gradient(rgba(7, 99, 171, 0.8), rgba(6, 74, 130, 0.8) 10%, rgba(9, 106, 185, 0.8) 90%, rgba(0, 52, 93, 0.8));
+}
+
+/* A queue or track row's checkbox (checkbox_*): a 16px navy well (#032740,
+   a dark top edge and a lit bottom one) at rest; under the pointer and when
+   ticked a pale blue box (#86a8bf under an #acd0e6 line in a #002340 rim),
+   ticked with a dark navy mark. */
+:root[data-theme='windows91'] .win-root .dk-browse-check svg { visibility: hidden; }
+:root[data-theme='windows91'] .win-root .dk-browse-check { position: relative; }
+:root[data-theme='windows91'] .win-root .dk-browse-check::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translate(-50%, -50%);
+  border-radius: 2px;
+  background: linear-gradient(#000e1a 0 1px, #032740 1px calc(100% - 1px), #094159 calc(100% - 1px));
+}
+:root[data-theme='windows91'] .win-root .dk-browse-check:is(:hover, [aria-checked='true'])::before {
+  background: linear-gradient(#acd0e6 0 1px, #86a8bf 1px);
+  box-shadow: 0 0 0 1px #002340;
+}
+:root[data-theme='windows91'] .win-root .dk-browse-check[aria-checked='true']::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  background: #021b2e;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M1 6.5l3.2 3.2L11 2.6' fill='none' stroke='black' stroke-width='2.2'/%3E%3C/svg%3E") center / 12px 12px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M1 6.5l3.2 3.2L11 2.6' fill='none' stroke='black' stroke-width='2.2'/%3E%3C/svg%3E") center / 12px 12px no-repeat;
+}
+
+/* The chevron of a hovered row sits on a faint dark disc
+   (chevron_row_hover). */
+:root[data-theme='windows91'] .win-root .dk-browse-row:hover .dk-browse-disclosure { box-shadow: 0 0 0 8px rgba(2, 22, 38, 0.6); border-radius: 50%; }
+
+/* The rating buttons in Now Playing (np_ratings_bttn_*): 40x32 with 4px
+   corners, #064171 shading to #032c4e under a #02589a line; lighter under
+   the pointer (#085798 to #054274), darker while pressed. A rating that is
+   set keeps the lighter face with its glyph in Sonos blue. */
+:root[data-theme='windows91'] .win-root .dk-now-rating button {
+  width: 40px;
+  height: 32px;
+  border-radius: 4px;
+  background: linear-gradient(#02589a 0 1px, #064171 1px, #032c4e calc(100% - 2px), #04345b calc(100% - 2px) calc(100% - 1px), #002334 calc(100% - 1px));
+  color: #ffffff;
+}
+:root[data-theme='windows91'] .win-root .dk-now-rating button:hover:not(:disabled),
+:root[data-theme='windows91'] .win-root .dk-now-rating button[aria-pressed='true'] {
+  background: linear-gradient(#0266b3 0 1px, #085798 1px, #054274 calc(100% - 2px), #064980 calc(100% - 2px) calc(100% - 1px), #002b41 calc(100% - 1px)) !important;
+}
+:root[data-theme='windows91'] .win-root .dk-now-rating button[aria-pressed='true'] { color: #0a97ff !important; }
+:root[data-theme='windows91'] .win-root .dk-now-rating button:active:not(:disabled) {
+  background: linear-gradient(#014d87 0 1px, #042f52 1px, #043156) !important;
+}
+:root[data-theme='windows91'] .win-root .dk-now-rating button:disabled { color: #2b5a80; }
+
+/* 9.1's menu bar draws no box behind a title under the pointer or open; the
+   bar's own ramp runs on behind it and only the label brightens (measured
+   on the running app). The row caret's disc is its whole hover; the shell's
+   square fill under it is not drawn. */
+:root[data-theme='windows91'] .win-root .win-menubar-title:is(:hover, [aria-expanded='true'])::after { content: none; }
+:root[data-theme='windows91'] .win-root .dk-browse-actions:hover { background: none; }
+
+
+/* ---- 9.1 settings pages ---------------------------------------------- */
+
+/* The tab list's rules between its groups (Separator1/2 in 9.1). */
+:root[data-theme='windows91'] .win-root .win-settings-list .w91-tab-rule { height: 0; margin: 6px 10px; border: 0; border-top: 1px solid #c8c8c8; }
+
+/* The image combo box: a white field with the system's gray edge, the
+   chosen item's 23px glyph inside its left end, a small black point in a
+   17px button at the right; its list is white, each item a glyph and a
+   name, the item under the pointer in the system highlight. The room
+   picker beside "Room Settings for" is the 215x31 size; a settings field
+   is 215x23. */
+:root[data-theme='windows91'] .win-root .w91-combo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 215px;
+  height: 23px;
+  box-sizing: border-box;
+  border: 1px solid #acacac;
+  background: linear-gradient(#ffffff, #f0f0f0 50%, #e5e5e5);
+  color: #000000;
+  font-size: 12px;
+  font-weight: 400;
+  vertical-align: middle;
+}
+:root[data-theme='windows91'] .win-root .w91-combo:has(input) { background: #ffffff; }
+:root[data-theme='windows91'] .win-root .w91-combo.w91-room-picker { height: 31px; margin-left: 8px; }
+:root[data-theme='windows91'] .win-root .w91-combo .dk-room-icon { width: 23px; height: 23px; margin: 0 2px 0 3px; flex: none; color: #989898; opacity: 1; }
+:root[data-theme='windows91'] .win-root .w91-combo.w91-room-picker .dk-room-icon { width: 23px; height: 23px; }
+:root[data-theme='windows91'] .win-root .w91-combo-text {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:root[data-theme='windows91'] .win-root .w91-combo-text:focus { outline: none; }
+:root[data-theme='windows91'] .win-root .w91-combo:focus-within { border-color: #569de5; }
+:root[data-theme='windows91'] .win-root .w91-combo-arrow {
+  flex: none;
+  width: 17px;
+  height: 100%;
+  border: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4' viewBox='0 0 7 4'%3E%3Cpath d='M0 0h7L3.5 4z' fill='%23000'/%3E%3C/svg%3E") center / 7px 4px no-repeat;
+}
+:root[data-theme='windows91'] .win-root .w91-combo-list {
+  position: absolute;
+  z-index: 40;
+  left: -1px;
+  right: -1px;
+  top: 100%;
+  max-height: 260px;
+  margin: 0;
+  padding: 1px;
+  overflow-y: auto;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #646464;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+}
+:root[data-theme='windows91'] .win-root .w91-combo-list li { display: flex; align-items: center; gap: 5px; height: 27px; padding: 0 5px; cursor: default; }
+:root[data-theme='windows91'] .win-root .w91-combo-list li .dk-room-icon { width: 23px; height: 23px; color: #989898; opacity: 1; flex: none; }
+:root[data-theme='windows91'] .win-root .w91-combo-list li[data-lit] { background: #3399ff; color: #ffffff; }
+:root[data-theme='windows91'] .win-root .w91-combo-list li[data-lit] .dk-room-icon { color: #ebebeb; }
+
+/* Settings rows (HeaderControl): a 12px bold label in a 94px column 21px
+   inside the panel, the control after it, 44px from row to row and 35 for
+   a row that holds only a checkbox. */
+:root[data-theme='windows91'] .win-root .w91-page-rows { padding: 24px 21px; }
+:root[data-theme='windows91'] .win-root .w91-row { display: flex; align-items: center; min-height: 44px; }
+:root[data-theme='windows91'] .win-root .w91-row:has(> .w91-label:empty) { min-height: 35px; }
+:root[data-theme='windows91'] .win-root .w91-label { flex: none; width: 94px; font-size: 12px; font-weight: 700; color: #242424; }
+:root[data-theme='windows91'] .win-root .w91-control { display: flex; align-items: center; flex: 1; min-width: 0; font-size: 12px; color: #242424; }
+:root[data-theme='windows91'] .win-root .w91-check { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #242424; }
+:root[data-theme='windows91'] .win-root .w91-check input { width: 13px; height: 13px; margin: 0; }
+:root[data-theme='windows91'] .win-root .w91-control select { width: 215px; height: 23px; font-size: 12px; }
+:root[data-theme='windows91'] .win-root .w91-control select.w91-wide { width: 100%; max-width: 664px; }
+:root[data-theme='windows91'] .win-root .w91-control input.w91-date,
+:root[data-theme='windows91'] .win-root .w91-control input.w91-timefield { width: 125px; height: 23px; box-sizing: border-box; font-size: 12px; }
+
+/* Apply and Cancel after an edited field: a dark check 4px on, then a
+   dark cross 3px after it. */
+:root[data-theme='windows91'] .win-root .w91-applycancel { display: inline-flex; align-items: center; gap: 3px; margin-left: 4px; }
+:root[data-theme='windows91'] .win-root .w91-applycancel button { width: 16px; height: 16px; padding: 0; border: 0; background: none center no-repeat; cursor: pointer; }
+:root[data-theme='windows91'] .win-root .w91-apply { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M1 8l4 4L13 1.5' fill='none' stroke='%23242424' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important; background-size: 14px 14px !important; }
+:root[data-theme='windows91'] .win-root .w91-cancel { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='12' viewBox='0 0 13 12'%3E%3Cpath d='M2 1.5l9 9M11 1.5l-9 9' fill='none' stroke='%23242424' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") !important; background-size: 13px 12px !important; }
+:root[data-theme='windows91'] .win-root .w91-applycancel button:active { transform: translateY(1px); }
+
+/* Date and Time Settings: the page title 14px bold, then one panel edged
+   #a0a0a0 holding every row, the time zone running the panel's width. */
+:root[data-theme='windows91'] .win-root .w91-page-title { margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #242424; }
+:root[data-theme='windows91'] .win-root .w91-panel { border: 1px solid #a0a0a0; padding: 24px 21px; min-height: 340px; }
+:root[data-theme='windows91'] .win-root .w91-panel fieldset { margin: 0; padding: 0; border: 0; }
+:root[data-theme='windows91'] .win-root .w91-system-tabs { margin: -6px 0 10px; }
+
+/* The Basic tab's rows start at the panel's top, as every 9.1 settings
+   page does; the stereo pair row takes the same label column. */
+:root[data-theme='windows91'] .win-root .win-eq-panel[data-tab='basic'] { display: block; padding: 0; }
+:root[data-theme='windows91'] .win-root .w91-page-rows .dk-field { display: flex; align-items: center; gap: 0; min-height: 44px; margin: 0; }
+:root[data-theme='windows91'] .win-root .w91-page-rows .dk-field > span:first-child { flex: none; width: 94px; font-size: 12px; font-weight: 700; color: #242424; text-align: left; }
+:root[data-theme='windows91'] .win-root .w91-page-rows .dk-field select { width: 215px; height: 23px; margin-right: 4px; }
+
+/* Behind a modal window 9.1 lays 50% black over the whole app below the
+   title bar (measured on Keyboard Shortcuts and the Error Log: every pixel
+   at half its value), not the lighter wash the later app uses. */
+:root[data-theme='windows91'] .dk-modal-backdrop { background: rgba(0, 0, 0, 0.5); }
+:root[data-theme='windows91'] .win-root:not(.win-mini-root) .dk-modal-backdrop { top: 23px; }
+
+
+/* The language page (9.1's setup assistant, 514 wide): "Choose a
+   language:" 14px bold 28px in, then a 472x288 list edged #abadb3 whose
+   20px rows are navy (#1f3d7a) names, the chosen one on a pale blue band
+   (#b6e7fd), Back, Done and Cancel in the gray foot. */
+:root[data-theme='windows91'] .win-root .w91-language { width: 514px; }
+:root[data-theme='windows91'] .win-root .w91-language .win-wizard-body { padding: 21px 28px 31px; background: #ffffff; }
+:root[data-theme='windows91'] .win-root .w91-wizard-heading { margin: 0 0 38px; font-size: 14px; line-height: 18px; font-weight: 700; color: #000000; }
+:root[data-theme='windows91'] .win-root .w91-language-list { height: 288px; margin: 0; padding: 1px; overflow-y: auto; list-style: none; border: 1px solid #abadb3; background: #ffffff; }
+:root[data-theme='windows91'] .win-root .w91-language-list li { height: 20px; padding: 0 8px; line-height: 20px; font-size: 12px; color: #1f3d7a; cursor: default; }
+:root[data-theme='windows91'] .win-root .w91-language-list li[aria-selected='true'] { background: linear-gradient(#d9f4fe, #b6e7fd); box-shadow: inset 0 0 0 1px #84d3f6; border-radius: 2px; }
+:root[data-theme='windows91'] .win-root .w91-language-list li:hover:not([aria-selected='true']) { background: #e5f3fb; }
+
+/* The label column is as wide as the page's widest label (HeaderControl's
+   shared size group): 94px on Date and Time, wider on Advanced. Rows lay
+   out on one grid so the controls line up whatever the labels say. */
+:root[data-theme='windows91'] .win-root :is(.w91-page-rows, .w91-panel > fieldset, .w91-advanced) {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 20px;
+  align-content: start;
+}
+:root[data-theme='windows91'] .win-root :is(.w91-page-rows, .w91-panel > fieldset, .w91-advanced) > .w91-row { display: contents; }
+:root[data-theme='windows91'] .win-root :is(.w91-page-rows, .w91-panel > fieldset, .w91-advanced) > .w91-row > * { min-height: 44px; display: flex; align-items: center; }
+:root[data-theme='windows91'] .win-root :is(.w91-page-rows, .w91-panel > fieldset, .w91-advanced) > .w91-row:has(> .w91-label:empty) > * { min-height: 35px; }
+:root[data-theme='windows91'] .win-root :is(.w91-page-rows, .w91-panel > fieldset, .w91-advanced) .w91-label { width: auto; min-width: 74px; white-space: nowrap; }
+:root[data-theme='windows91'] .win-root :is(.w91-page-rows, .w91-panel > fieldset, .w91-advanced) > :not(.w91-row) { grid-column: 1 / -1; }
+:root[data-theme='windows91'] .win-root .w91-page-rows > .dk-field { display: flex; grid-column: 1 / -1; }
+
+
+/* Date and Time's rows sit as 9.1 spaces them: the time zone, its two
+   checkboxes 29 and 35 below, the date 40 below those, then 44 apart; the
+   panel runs 374 tall. */
+:root[data-theme='windows91'] .win-root .w91-time { min-height: 374px; box-sizing: border-box; padding-top: 22px; }
+:root[data-theme='windows91'] .win-root .w91-time > fieldset > .w91-row:nth-child(1) > * { min-height: 29px; }
+:root[data-theme='windows91'] .win-root .w91-time > fieldset > .w91-row:nth-child(2) > * { min-height: 35px; }
+:root[data-theme='windows91'] .win-root .w91-time > fieldset > .w91-row:nth-child(3) > * { min-height: 40px; }
+
+/* The app's drop-downs are the light Aero combo box: a #acacac edge, a
+   white-to-gray face split at the middle, a small black point at the right,
+   whatever the browser would draw for a select of its own. */
+:root[data-theme='windows91'] .win-root .w91-control select {
+  appearance: none;
+  -moz-appearance: none;
+  padding: 0 22px 0 6px;
+  border: 1px solid #acacac;
+  border-radius: 2px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4' viewBox='0 0 7 4'%3E%3Cpath d='M0 0h7L3.5 4z' fill='%23000'/%3E%3C/svg%3E") right 6px center / 7px 4px no-repeat, linear-gradient(#f2f2f2, #ebebeb 50%, #dddddd 50%, #cfcfcf);
+  color: #000000;
+}
+:root[data-theme='windows91'] .win-root .w91-control select:hover:not(:disabled) {
+  border-color: #3c7fb1;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4' viewBox='0 0 7 4'%3E%3Cpath d='M0 0h7L3.5 4z' fill='%23000'/%3E%3C/svg%3E") right 6px center / 7px 4px no-repeat, linear-gradient(#eaf6fd, #d9f0fc 50%, #bee6fd 50%, #a7d9f5);
+}
+:root[data-theme='windows91'] .win-root .w91-control select:disabled { color: #838383; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4' viewBox='0 0 7 4'%3E%3Cpath d='M0 0h7L3.5 4z' fill='%23000'/%3E%3C/svg%3E") right 6px center / 7px 4px no-repeat, #f4f4f4; border-color: #adb2b5; }
+:root[data-theme='windows91'] .win-root .w91-control input.w91-date,
+:root[data-theme='windows91'] .win-root .w91-control input.w91-timefield { border: 1px solid #abadb3; border-radius: 0; background: #ffffff; padding: 0 4px; }
+
+/* 9.1's drop-down menus open right under the bar with their first item 2px
+   higher inside the box than the later app's (measured side by side in the
+   same VM with Segoe UI): 13px above it, not 15. */
+:root[data-theme='windows91'] .win-root .win-menu { padding-top: 13px; padding-bottom: 14px; }
+
+/* The Usage tab's heading (9.1: "Usage Data", bold, 10px above its box). */
+:root[data-theme='windows91'] .win-root .w91-section-head { grid-column: 1 / -1; margin: 0 0 10px; font-size: 12px; font-weight: 700; color: #242424; }
+/* The music library's busy spinner is Sonos blue in 9.1 (#0760a2). */
+:root[data-theme='windows91'] .win-root .win-lib-panel .dk-spinner { color: #0760a2; border-top-color: #0760a2; }
+
+/* In the narrow layout the strip's pieces flow in rows: each button stays
+   the box its disc and glyph are drawn in, and the 448px ledge, which only
+   fits the wide strip, gives way to the plain panel. */
+@media (max-width: 936px) {
+  :root[data-theme='windows91'] .win-root .dk-strip-controls > button,
+  :root[data-theme='windows91'] .win-root .dk-strip-mute { position: relative; left: 0; top: 0; }
+  :root[data-theme='windows91'] .win-root .dk-strip-progress::before { content: none; }
+}
+
+/* The panes' own scrollbar (ScrollBar91.jsx) stands in for the browser's.
+   While a list overflows it keeps a 16px column clear, as the app's bar
+   takes its own column; the bar is 9px wide, 2px in from the pane's edge.
+   Translucent #014a80 at rest, the lit gradient while the pointer is on it. */
+:root[data-theme='windows91'] .win-root .dk-scroll { scrollbar-width: none; }
+/* Behind the pane headers the window keeps the strip's fade, #1c1c1c to
+   #0f0f0f with the lighter line at each window edge, and turns black only
+   at the headers' foot. */
+:root[data-theme='windows91'] .win-root:not(.win-mini-root) .dk-panes {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px calc(100% - 1px), rgba(255, 255, 255, 0.05) calc(100% - 1px)) 0 0 / 100% 35px no-repeat,
+    linear-gradient(#1c1c1c, #0f0f0f) 0 0 / 100% 35px no-repeat,
+    #000000;
+}
+/* 9.1 leaves 6px of black left of the panes and 4px right of them, and
+   its layout rounding sets Rooms 1px wider than an even 264:322:418 split,
+   with the other two panes 1px further right. */
+:root[data-theme='windows91'] .win-root .dk-panes > :first-child { margin-left: 6px; }
+:root[data-theme='windows91'] .win-root .dk-panes > :last-child { margin-right: 4px; }
+@media (min-width: 937px) {
+  :root[data-theme='windows91'] .win-root:not(.win-mini-root) .dk-panes > :first-child { margin-right: -1px; }
+  :root[data-theme='windows91'] .win-root:not(.win-mini-root) .dk-panes > :nth-child(3) { margin-left: 1px; margin-right: -1px; }
+  :root[data-theme='windows91'] .win-root:not(.win-mini-root) .dk-panes > :last-child { margin-left: 1px; }
+}
+:root[data-theme='windows91'] .win-root .dk-scroll::-webkit-scrollbar { display: none; }
+:root[data-theme='windows91'] .win-root .dk-scroll[data-w91-overflow] { padding-right: 16px; }
+:root[data-theme='windows91'] .win-root .w91-sb {
+  position: absolute;
+  z-index: 2;
+  width: 9px;
+  margin-left: -11px;
+  --sb-fill: rgba(1, 74, 128, 0.7);
+}
+:root[data-theme='windows91'] .win-root .w91-sb[data-hot] { --sb-fill: linear-gradient(to left, #015fa5, #014b82); }
+:root[data-theme='windows91'] .win-root .w91-sb > span { position: absolute; left: 0; width: 9px; background: var(--sb-fill); }
+:root[data-theme='windows91'] .win-root .w91-sb-thumb { border-radius: 4.5px; }
+:root[data-theme='windows91'] .win-root .w91-sb-up,
+:root[data-theme='windows91'] .win-root .w91-sb-down { height: 6px; }
+:root[data-theme='windows91'] .win-root .w91-sb-up {
+  top: 5px;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 -2 9 6'%3E%3Cpath d='M0 4L4.5-2L9 4Z'/%3E%3C/svg%3E") no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 -2 9 6'%3E%3Cpath d='M0 4L4.5-2L9 4Z'/%3E%3C/svg%3E") no-repeat;
+}
+:root[data-theme='windows91'] .win-root .w91-sb-down {
+  bottom: 4px;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 4 9 6'%3E%3Cpath d='M0 4L4.5 10L9 4Z'/%3E%3C/svg%3E") no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 4 9 6'%3E%3Cpath d='M0 4L4.5 10L9 4Z'/%3E%3C/svg%3E") no-repeat;
+}
+
+/* The Mini Controller's resize and close (mp_resize, mp_close): 22px cells
+   6px in from the corner, an 18px disc of #0d0d0d at half strength, lit to
+   a 20px #969696 to #4b4b4b disc under the pointer. Resize is two windows,
+   the front one cut from the back one by a #5a5a5a line; close a 2px x. */
+:root[data-theme='windows91'] .win-root .win-mini-chrome-btn {
+  position: relative;
+  background: radial-gradient(circle, rgba(13, 13, 13, 0.5) 8.5px, transparent 9.25px);
+}
+:root[data-theme='windows91'] .win-root .win-mini-chrome-btn:hover {
+  background: linear-gradient(#969696 1px, #888888 2px, #808080 3px, #4b4b4b 18px, #3a3a3a) content-box;
+  padding: 1px;
+}
+:root[data-theme='windows91'] .win-root .win-mini-chrome-btn:active {
+  background: linear-gradient(#3a3a3a, #4b4b4b 3px, #808080 18px, #888888) content-box;
+  padding: 1px;
+}
+:root[data-theme='windows91'] .win-root .win-mini-chrome-btn svg { visibility: hidden; }
+:root[data-theme='windows91'] .win-root .win-mini-chrome-btn::after { content: ''; position: absolute; inset: 0; background: no-repeat center / 22px 22px; }
+:root[data-theme='windows91'] .win-root .win-mini-chrome-btn:first-child::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Crect x='8' y='7' width='8' height='7' fill='%23fff'/%3E%3Crect x='7' y='8' width='8' height='6' fill='%235a5a5a'/%3E%3Crect x='6' y='9' width='8' height='6' fill='%23fff'/%3E%3C/svg%3E");
+}
+:root[data-theme='windows91'] .win-root .win-mini-chrome-btn:last-child::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Cpath d='M7 7L15 15M15 7L7 15' stroke='%23fff' stroke-width='1.8'/%3E%3C/svg%3E");
+}
+
+/* Advanced > Usage, stacked from the left edge (settingswindowdictionary.xaml):
+   the heading 10px above a wrapping paragraph, its link on the next line
+   10px above the checkbox. */
+:root[data-theme='windows91'] .win-root .w91-usage { grid-column: 1 / -1; font-size: 12px; color: #242424; }
+:root[data-theme='windows91'] .win-root .w91-usage p { margin: 0; line-height: 16px; }
+:root[data-theme='windows91'] .win-root .w91-usage .w91-usage-link { margin-bottom: 10px; }
+:root[data-theme='windows91'] .win-root .w91-usage a { color: #0066cc; }
+
+/* The generic wizard page (Wizard91.jsx), measured on 9.1's Sonos Account
+   page: content 20px in; a 44px gray mark centered at the top; the title 14px
+   bold on 17px with 25px under it; paragraphs 13px on 18px, 20px apart; the
+   page's own buttons 240x27 with 6px corners, stacked 10px apart and ending
+   30px above the foot's rule. The foot is the Language window's. */
+:root[data-theme='windows91'] .win-root .w91-wizard-body { display: flex; flex-direction: column; padding: 20px 20px 30px; color: #242424; }
+:root[data-theme='windows91'] .win-root .w91-wizard-top { flex: 1; min-height: 0; overflow: auto; }
+:root[data-theme='windows91'] .win-root .w91-wizard-alert {
+  display: block; width: 8px; height: 44px; margin: 1px auto 20px; background: #959595;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='44'%3E%3Cpath d='M1 1.5Q1 0 2.5 0h3Q7 0 7 1.5L6 31.5h-4z'/%3E%3Ccircle cx='4' cy='39.5' r='3.5'/%3E%3C/svg%3E") no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='44'%3E%3Cpath d='M1 1.5Q1 0 2.5 0h3Q7 0 7 1.5L6 31.5h-4z'/%3E%3Ccircle cx='4' cy='39.5' r='3.5'/%3E%3C/svg%3E") no-repeat;
+}
+:root[data-theme='windows91'] .win-root .w91-wizard-spinner {
+  display: block; width: 32px; height: 32px; margin: 60px auto 30px; border-radius: 50%;
+  border: 3px solid rgba(7, 96, 162, 0.2); border-top-color: #0760a2; animation: w91-spin 0.9s linear infinite;
+}
+@keyframes w91-spin { to { transform: rotate(360deg); } }
+:root[data-theme='windows91'] .win-root .w91-wizard-title { margin: 0 0 25px; font-size: 14px; line-height: 17px; font-weight: 700; color: #242424; }
+:root[data-theme='windows91'] .win-root .w91-wizard-text { margin: 0 0 20px; font-size: 13px; line-height: 18px; color: #242424; }
+:root[data-theme='windows91'] .win-root .w91-wizard-buttons { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+:root[data-theme='windows91'] .win-root .w91-wizard-btn {
+  width: 240px; height: 27px; padding: 0 8px; border: 1px solid #cccccc; border-radius: 6px;
+  background: #ffffff; color: #242424; font: inherit; font-size: 12px;
+}
+:root[data-theme='windows91'] .win-root .w91-wizard-btn:focus-visible,
+:root[data-theme='windows91'] .win-root .w91-wizard-btn:focus { outline: none; border-color: #3d3d3d; }
+:root[data-theme='windows91'] .win-root .w91-wizard-btn:hover:not(:disabled) { background: #f2f2f2; }
+:root[data-theme='windows91'] .win-root .w91-wizard-btn:active:not(:disabled) { background: #d8d8d8; }
+:root[data-theme='windows91'] .win-root .w91-wizard-btn:disabled { border-color: #d8d8d8; color: #989898; }
+:root[data-theme='windows91'] .win-root .w91-wizard-field { display: grid; grid-template-columns: 120px 1fr; align-items: center; margin: 0 0 14px; font-size: 13px; }
+:root[data-theme='windows91'] .win-root .w91-wizard-field input { height: 23px; padding: 0 4px; border: 1px solid #abadb3; font: inherit; font-size: 12px; }
+:root[data-theme='windows91'] .win-root .w91-wizard-choice { display: flex; flex-direction: column; gap: 12px; margin: 0 0 20px; font-size: 13px; }
+:root[data-theme='windows91'] .win-root .w91-wizard-radio { display: flex; align-items: center; gap: 8px; }

@@ -1,11 +1,13 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useI18n } from '../i18n/index.jsx'
 import { APP } from '../lib/meta.js'
+import { useTheme } from '../lib/theme.jsx'
 import { api } from '../lib/api.js'
 import { Heart } from './Icons.jsx'
 import icon from '../assets/sonora.png'
 import './about.css'
 import { guardAboutText } from '../lib/aboutGuard.js'
+import { playUnlockChime } from '../lib/unlockChime.js'
 
 // A single About dialog, shared by every theme. It draws itself with the
 // active theme's design tokens, so it fits each theme without a per-theme
@@ -19,6 +21,9 @@ import { guardAboutText } from '../lib/aboutGuard.js'
 // The support control is a blue wash behind the theme's own text rather than a
 // solid button (blue; it was Ko-fi's coral): a
 // saturated solid button fights every palette this card is drawn in.
+
+// The Konami code, then Enter.
+const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a', 'Enter']
 
 export default function AboutSonora({ onClose }) {
   const { t } = useI18n()
@@ -53,11 +58,28 @@ export default function AboutSonora({ onClose }) {
     return () => { watch.disconnect(); clearTimeout(late) }
   }, [])
 
+  // The Konami code typed while the card is open unlocks the hidden themes
+  // until the page reloads and switches to one. Enter, the last key, is kept from
+  // reaching the card's buttons.
+  const { unlockHidden } = useTheme()
+  const typed = useRef([])
   useEffect(() => {
-    const onKey = (event) => { if (event.key === 'Escape') onClose() }
+    const onKey = (event) => {
+      if (event.key === 'Escape') { onClose(); return }
+      if (event.repeat) return
+      const key = event.key.length === 1 ? event.key.toLowerCase() : event.key
+      typed.current = [...typed.current, key].slice(-11)
+      if (KONAMI.every((want, i) => typed.current[typed.current.length - KONAMI.length + i] === want)) {
+        typed.current = []
+        event.preventDefault()
+        playUnlockChime()
+        onClose()
+        unlockHidden()
+      }
+    }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [onClose, unlockHidden])
 
   return (
     <div

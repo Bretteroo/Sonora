@@ -34,6 +34,7 @@ import sedona from './sedona/index.jsx'
 import web from './web/index.jsx'
 import macos from './macos/index.jsx'
 import windows from './windows/index.jsx'
+import windows91 from './windows91/index.jsx'
 import hotdog from './hotdog/index.jsx'
 import solarized from './solarized/index.jsx'
 import materialgirl from './materialgirl/index.jsx'
@@ -47,6 +48,7 @@ export const THEMES = {
   [web.id]: web,
   [macos.id]: macos,
   [windows.id]: windows,
+  [windows91.id]: windows91,
   [outrun.id]: outrun,
   [sedona.id]: sedona,
   [hotdog.id]: hotdog,

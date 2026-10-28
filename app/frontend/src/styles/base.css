@@ -114,6 +114,8 @@ ol {
 /* The still on the left, what the theme is on the right. */
 .theme-about { flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column;
                align-items: flex-start; gap: 6px; }
+/* The version on a line of its own under the theme's name. */
+.theme-about .theme-version-num { display: block; }
 
 /* Light, dark and system as one pill of three. A theme with a single look
    shows no pill at all, which is the only thing said on the subject. */

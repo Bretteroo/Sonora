@@ -1999,6 +1999,19 @@ button.wb-settings-row:hover:not(:disabled) {
   background: var(--t-surface-active);
 }
 
+/* Every dropdown draws its own chevron, 14px in from the right edge. The
+   browsers' own arrows sit wherever each browser likes: Chrome on a Mac put
+   it nearly against the edge of a pill. */
+.wb-system-filter select, .wb-settings-select, select.wb-sound-input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px 8px;
+}
+
 /* On a phone a select is as wide as its longest option, which ran past the
    row's rounded edge; the control may narrow, and the select with it, and
    leaves its label room. */

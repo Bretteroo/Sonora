@@ -212,8 +212,8 @@ export default function ThemeChooser({ classes = {}, title = null, Field = null,
         <div className="theme-about">
           <p className={c.version}>
             {chosen?.name || pending}
-            {chosen?.version && <span> {t('desk.prefs.themeVersion', { version: chosen.version })}</span>}
             {chosen?.installed && <em> {t('desk.prefs.themeInstalled')}</em>}
+            {chosen?.version && <span className="theme-version-num">{t('desk.prefs.themeVersion', { version: chosen.version })}</span>}
           </p>
           {chosen?.description && <p className={c.blurb}>{chosen.description}</p>}
           {/* Apply commits both, and is offered whenever either differs. The

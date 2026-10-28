@@ -2211,3 +2211,13 @@
 @media (prefers-reduced-motion: reduce) {
   :root[data-theme='hifi'] .hf-letter-hud, :root[data-theme='hifi'] .hf-letter-key[data-loading] { animation: none; }
 }
+
+/* --- a pinch-zoomed phone page keeps its foot ------------------------------
+   Firefox for Android (seen in 158) does not repaint the strip its address
+   bar leaves when the bar slides away from a page that is zoomed in even
+   slightly, and whatever the shell has there (the row of keys) was left
+   undrawn. Giving the shell a layer of its own gets it repainted. Touch
+   screens only, where the bar can hide. */
+@media (pointer: coarse) {
+  :root[data-theme='hifi'] .hf-root { will-change: transform; }
+}

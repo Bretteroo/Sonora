@@ -2040,3 +2040,13 @@
 @keyframes sv-crash-line { to { opacity: 1; } }
 
 @keyframes sv-letter-cursor { 0% { opacity: 1; } 50% { opacity: 0; } }
+
+/* --- a pinch-zoomed phone page keeps its foot ------------------------------
+   Firefox for Android (seen in 158) does not repaint the strip its address
+   bar leaves when the bar slides away from a page that is zoomed in even
+   slightly, and whatever the shell has there (the foot of the volume
+   slider) was left undrawn. Giving the shell a layer of its own gets it
+   repainted. Touch screens only, where the bar can hide. */
+@media (pointer: coarse) {
+  :root[data-theme='severed'] .sv-root { will-change: transform; }
+}

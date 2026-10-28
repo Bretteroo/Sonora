@@ -1790,3 +1790,13 @@
   & .mg-dp-typing { padding: 16px 24px 8px; }
   & .mg-dp .mg-tp-actions { padding: 0 12px; margin-top: 8px; }
 }
+
+/* --- a pinch-zoomed phone page keeps its foot ------------------------------
+   Firefox for Android (seen in 158) does not repaint the strip its address
+   bar leaves when the bar slides away from a page that is zoomed in even
+   slightly, and whatever the shell has there (the navigation bar) was left
+   undrawn. Giving the shell a layer of its own gets it repainted. Touch
+   screens only, where the bar can hide. */
+@media (pointer: coarse) {
+  :root[data-theme='materialgirl'] .mg-root { will-change: transform; }
+}

@@ -749,7 +749,9 @@
   margin-bottom: calc(-1 * var(--sf-reach, 0px));
   padding-bottom: calc(var(--sf-under, 0px) + 24px);
 }
-:root[data-theme='liquidglass'] .sf-nowbar { position: relative; z-index: 3; }
+/* Both bars are drawn over the scroller, the tab bar too where it sits under
+   the player bar on a narrow window, or the rows ran over it and took its taps. */
+:root[data-theme='liquidglass'] :is(.sf-nowbar, .sf-rail) { position: relative; z-index: 3; }
 
 
 /* --- a system's header that folds its services away ---------------------
@@ -773,3 +775,13 @@
    and were cut off where they crossed it, worst on a round one. */
 :root[data-theme='liquidglass'] .sf-tile-art { overflow: visible; }
 :root[data-theme='liquidglass'] .sf-tile-art > img { border-radius: inherit; }
+
+/* --- a pinch-zoomed phone page keeps its foot ------------------------------
+   Firefox for Android (seen in 158) does not repaint the strip its address
+   bar leaves when the bar slides away from a page that is zoomed in even
+   slightly, and whatever the shell has there (the dock) was left undrawn.
+   Giving the shell and the dock layers of their own gets them repainted.
+   Touch screens only, where the bar can hide. */
+@media (pointer: coarse) {
+  :root[data-theme='liquidglass'] :is(.sf-root, .sf-rail) { will-change: transform; }
+}

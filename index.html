@@ -240,13 +240,17 @@ h2 { margin: 10px 0 0; font: 700 clamp(30px, 4vw, 46px)/1.12 var(--display); let
 .install-panel h3 { margin: 0 0 6px; font-size: 20px; }
 .install-panel ol { padding-left: 22px; margin: 14px 0 0; }
 .install-panel li { margin: 10px 0; color: var(--ink-soft); }
+.install-panel li ul { padding-left: 20px; margin: 6px 0 0; list-style: disc; }
+.install-panel li li { margin: 4px 0; }
 .install-panel li b { color: var(--ink); }
 .install-panel .note { color: var(--ink-dim); font-size: 14px; margin-top: 18px; }
 .code {
   position: relative; margin: 10px 0 4px; padding: 14px 52px 14px 16px; border-radius: 12px;
   background: #0d0710; border: 1px solid rgba(246, 176, 122, 0.12);
   font: 14px/1.5 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; color: var(--sand);
-  overflow-x: auto; white-space: pre;
+  /* A long command wraps at its spaces rather than scrolling under the Copy
+     button; a URL with none breaks where it must. */
+  white-space: pre-wrap; overflow-wrap: anywhere;
 }
 .code button {
   position: absolute; top: 8px; right: 8px; padding: 5px 10px; border-radius: 8px; cursor: pointer;
@@ -557,7 +561,11 @@ footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
           <div class="install-panel" id="panel-docker">
             <h3>Install with Docker</h3>
             <ol>
-              <li>Install <a href="https://docs.docker.com/engine/install/">Docker Engine</a> with <a href="https://docs.docker.com/compose/install/">Docker Compose</a>.</li>
+              <li>Install <a href="https://docs.docker.com/engine/install/">Docker Engine</a> with <a href="https://docs.docker.com/compose/install/">Docker Compose</a>.
+                <ul>
+                  <li>If you're on macOS, enable Host Networking within Docker Desktop. It's disabled by default.</li>
+                </ul>
+              </li>
               <li>Download <a href="https://github.com/Bretteroo/Sonora/blob/main/docker-compose.yml"><code class="inline">docker-compose.yml</code></a> into a folder of its own.</li>
               <li>From that folder, start Sonora:
                 <div class="code">docker compose up -d<button type="button">Copy</button></div>

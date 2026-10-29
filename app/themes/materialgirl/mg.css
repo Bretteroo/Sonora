@@ -1513,6 +1513,9 @@
     padding-inline: 8px; margin-inline: -8px;
   }
   & .mg-root:not(.mg-size-compact) .mg-main > .mg-settings:not(.mg-settings-single) > .mg-settings-list { justify-content: flex-start; }
+  /* Its groups keep their full height and the column scrolls: in a short window they shrank
+     instead, each clipping its own last rows out of reach. */
+  & .mg-settings-list > * { flex: none; }
   & .mg-clockface { display: flex; flex-direction: column; gap: 4px; padding: 24px; border-radius: 28px; }
   & .mg-clockface strong { font-size: 57px; line-height: 64px; font-weight: 500; font-variant-numeric: tabular-nums; }
   & .mg-clockface small { opacity: 0.8; }

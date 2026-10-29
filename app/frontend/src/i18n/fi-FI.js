@@ -693,6 +693,7 @@ export default {
     'Sonos lisää kansiota vielä. Se näkyy täällä, kun soittimet ovat '
     + 'liittäneet sen.',
   'desk.library.adding': 'Lisätään musiikkikansiota',
+  'desk.library.removing': 'Poistetaan musiikkikansiota',
   'desk.library.addedIndexing':
     'Lisätty. Sonos päivittää musiikkihakemistoa, mikä voi kestää suurella '
     + 'kansiolla useita minuutteja.',

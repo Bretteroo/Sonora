@@ -700,6 +700,7 @@ export default {
     'Sonos tuto složku stále přidává. Zobrazí se zde, jakmile ji přehrávače '
     + 'připojí.',
   'desk.library.adding': 'Přidávání hudební složky',
+  'desk.library.removing': 'Odebírání hudební složky',
   'desk.library.addedIndexing':
     'Přidáno. Sonos aktualizuje hudební index, což může u velké složky '
     + 'trvat několik minut.',

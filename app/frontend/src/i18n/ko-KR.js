@@ -649,6 +649,7 @@ export default {
   'desk.library.addPending':
     'Sonos가 아직 그 폴더를 추가하고 있습니다. 플레이어가 마운트하면 여기에 표시됩니다.',
   'desk.library.adding': '음악 폴더를 추가하는 중',
+  'desk.library.removing': '음악 폴더를 제거하는 중',
   'desk.library.addedIndexing':
     '추가했습니다. Sonos가 음악 색인을 업데이트하고 있으며, 폴더가 크면 몇 분 걸릴 수 있습니다.',
   'desk.library.addingPath':

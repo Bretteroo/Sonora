@@ -616,6 +616,7 @@ export default {
   'desk.library.indexError': 'Sonos no pudo terminar de actualizar el índice musical: {error}',
   'desk.library.addPending': 'Sonos sigue añadiendo esa carpeta. Aparecerá aquí cuando los reproductores la hayan montado.',
   'desk.library.adding': 'Añadiendo carpeta de música',
+  'desk.library.removing': 'Eliminando carpeta de música',
   'desk.library.addedIndexing': 'Añadida. Sonos está actualizando el índice musical; con una carpeta grande puede tardar varios minutos.',
   'desk.library.addingPath': '{path}: los reproductores la están montando. Con una carpeta grande puede tardar varios minutos.',
   'desk.library.addFailed': 'Sonos no ha podido añadir la carpeta de música {path}.',

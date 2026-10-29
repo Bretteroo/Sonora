@@ -723,6 +723,7 @@ export default {
     'O Sonos ainda está a adicionar essa pasta. Aparece aqui assim que os '
     + 'leitores a montarem.',
   'desk.library.adding': 'A adicionar pasta de música',
+  'desk.library.removing': 'A remover a pasta de música',
   'desk.library.addedIndexing':
     'Adicionada. O Sonos está a atualizar o índice de música, o que pode '
     + 'demorar vários minutos no caso de uma pasta grande.',

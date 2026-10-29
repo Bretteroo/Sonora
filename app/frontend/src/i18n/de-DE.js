@@ -694,6 +694,7 @@ export default {
     'Sonos fügt diesen Ordner noch hinzu. Er erscheint hier, sobald die '
     + 'Player ihn eingebunden haben.',
   'desk.library.adding': 'Musikordner wird hinzugefügt',
+  'desk.library.removing': 'Musikordner wird entfernt',
   'desk.library.addedIndexing':
     'Hinzugefügt. Sonos aktualisiert den Musikindex, was bei einem großen '
     + 'Ordner mehrere Minuten dauern kann.',

@@ -14,6 +14,10 @@ import { chosenHousehold } from './shellSelection.js'
 // that arrives while they are looking is (user's report). This
 // once lived in the Windows theme's own Library page, which is
 // why the Mac and Sonofuture panes went on showing a stale error for ever.
+// How long a removed folder's row takes to leave; every theme's exit
+// animation runs for this long.
+export const LEAVE_MS = 320
+
 export function useLibrarySettings(households, { section = '' } = {}) {
   const ordered = orderedHouseholds(households)
   const [tab, setTab] = useState(null)
@@ -45,9 +49,35 @@ export function useLibrarySettings(households, { section = '' } = {}) {
 
   const apply = async (patch) => {
     setBusy(true); setError('')
-    try { setData(await api.setLibrary({ zone, ...patch })) } catch (exc) { setError(exc.message) }
+    let ok = true
+    try { setData(await api.setLibrary({ zone, ...patch })) } catch (exc) { setError(exc.message); ok = false }
     setBusy(false)
+    return ok
   }
+  // A folder being removed. The speakers take a few seconds to let go of it,
+  // and the row sat there unchanged until they had, so it is marked from the
+  // moment the removal is confirmed: `phase` is "removing" while they work
+  // and "leaving" for the moment the row takes to go once they are done.
+  // The leaving row is kept in `shares` in its old place until then.
+  const [removing, setRemoving] = useState(null)
+  useEffect(() => { setRemoving(null) }, [zone])
+  const remove = async (share) => {
+    if (!share) return
+    const at = (data?.shares || []).findIndex((s) => s.id === share.id)
+    setRemoving({ id: share.id, share, at, phase: 'removing' })
+    if (selected === share.id) setSelected(null)
+    if (!(await apply({ remove_id: share.id }))) { setRemoving(null); return }
+    setRemoving({ id: share.id, share, at, phase: 'leaving' })
+    setTimeout(() => setRemoving((r) => (r?.id === share.id && r.phase === 'leaving' ? null : r)), LEAVE_MS)
+  }
+  const shares = (() => {
+    const list = data?.shares || []
+    if (removing?.phase !== 'leaving' || list.some((s) => s.id === removing.id)) return list
+    const out = [...list]
+    out.splice(Math.max(0, Math.min(removing.at, out.length)), 0, removing.share)
+    return out
+  })()
+  const removingPhase = (share) => (removing?.id === share.id ? removing.phase : undefined)
   const highlighted = data?.shares.find((s) => s.id === selected) || null
   const scheduled = Boolean(data?.daily_refresh)
   const scheduleTime = (data?.daily_refresh || '02:00:00').slice(0, 5)
@@ -57,5 +87,6 @@ export function useLibrarySettings(households, { section = '' } = {}) {
   if (seenFailures.current === null && data) seenFailures.current = failedPaths(everything)
   useEffect(() => { if (data) seenFailures.current = failedPaths(data.pending_shares || []) }, [section]) // eslint-disable-line react-hooks/exhaustive-deps
   const pending = everything.filter((p) => p.state !== 'failed' || !seenFailures.current?.has(p.path))
-  return { ordered, activeTab, setTab, data, error, busy, selected, setSelected, apply, highlighted, scheduled, scheduleTime, reload: load, pending }
+  return { ordered, activeTab, setTab, data, error, busy, selected, setSelected, apply, highlighted, scheduled, scheduleTime, reload: load, pending,
+           shares, remove, removing, removingPhase }
 }

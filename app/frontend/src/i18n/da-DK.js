@@ -693,6 +693,7 @@ export default {
     'Sonos er stadig ved at tilføje mappen. Den vises her, når afspillerne '
     + 'har tilsluttet den.',
   'desk.library.adding': 'Tilføjer musikmappe',
+  'desk.library.removing': 'Fjerner musikmappe',
   'desk.library.addedIndexing':
     'Tilføjet. Sonos opdaterer musikindekset, hvilket kan tage flere '
     + 'minutter for en stor mappe.',

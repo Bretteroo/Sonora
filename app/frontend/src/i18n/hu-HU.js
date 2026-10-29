@@ -614,6 +614,7 @@ export default {
   'desk.library.indexError': 'A Sonos nem tudta befejezni a zenei index frissítését: {error}',
   'desk.library.addPending': 'A Sonos még hozzáadja a mappát. Akkor jelenik meg itt, ha az eszközök csatolták.',
   'desk.library.adding': 'Zenemappa hozzáadása',
+  'desk.library.removing': 'Zenemappa eltávolítása',
   'desk.library.addedIndexing': 'Hozzáadva. A Sonos frissíti a zenei indexet; nagy mappánál ez több percig is eltarthat.',
   'desk.library.addingPath': '{path} – a lejátszók éppen csatolják. Nagy mappánál ez több percig is eltarthat.',
   'desk.library.addFailed': 'A Sonos nem tudta hozzáadni a(z) {path} zenemappát.',

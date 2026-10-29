@@ -310,19 +310,25 @@ function LibraryPage({ households }) {
       {data && (
         <>
           <h2 className="sv-rule-head">{t('desk.library.mine')}</h2>
-          {data.shares.length === 0 && lib.pending.length === 0 ? <p className="sv-dim">{t('desk.library.none')}</p> : (
+          {lib.shares.length === 0 && lib.pending.length === 0 ? <p className="sv-dim">{t('desk.library.none')}</p> : (
             <div className="sv-listing">
-              {data.shares.map((s) => (
-                <Row key={s.id} lead={<G.Folder size={24} />}
-                     title={(s.path || s.title || '').split('/').filter(Boolean).pop()} sub={s.path || s.title}
-                     trail={<IconBtn size="s" label={t('desk.library.remove')} disabled={lib.busy} onClick={() => setConfirm(s)}><G.Trash size={24} /></IconBtn>} />
-              ))}
+              {lib.shares.map((s) => {
+                const going = lib.removingPhase(s)
+                return (
+                  <Row key={s.id} data-removing={going} role={going ? 'status' : undefined} lead={going ? <Busy inline /> : <G.Folder size={24} />}
+                       title={(s.path || s.title || '').split('/').filter(Boolean).pop()}
+                       sub={going ? <><span className="sv-li-line">{s.path || s.title}</span><span className="sv-li-line">{t('desk.library.removing')}</span></> : s.path || s.title}
+                       trail={going ? null : <IconBtn size="s" label={t('desk.library.remove')} disabled={lib.busy} onClick={() => setConfirm(s)}><G.Trash size={24} /></IconBtn>} />
+                )
+              })}
               {lib.pending.map((p) => (
                 <Row key={p.path} role="status" lead={p.state === 'failed' ? <G.Warning size={24} /> : <Busy inline />}
                      title={p.state === 'failed' ? t('desk.library.addFailed', { path: p.path })
                        : p.state === 'indexing' ? (p.path || '').split(/[\\/]/).filter(Boolean).pop() : t('desk.library.adding')}
                      sub={p.state === 'failed' ? (p.hint || t('desk.library.addFailedWhy'))
-                       : p.state === 'indexing' ? t('desk.library.addedIndexing') : `${t('desk.library.addingPath', { path: p.path })}${p.hint ? ` ${p.hint}` : ''}`} />
+                       // The address under the name, as on the folders above, then the news.
+                       : p.state === 'indexing' ? <><span className="sv-li-line">{p.path}</span><span className="sv-li-line">{t('desk.library.addedIndexing')}</span></>
+                       : `${t('desk.library.addingPath', { path: p.path })}${p.hint ? ` ${p.hint}` : ''}`} />
               ))}
             </div>
           )}
@@ -368,7 +374,7 @@ function LibraryPage({ households }) {
           </Setting>
           {confirm && (
             <Confirm title={t('desk.library.removeTitle')} body={t('desk.library.removeBody', { folder: confirm.title || confirm.uri })} action={t('desk.library.remove')} danger disabled={lib.busy} icon={<G.Folder size={48} />}
-                     onConfirm={() => { lib.apply({ remove_id: confirm.id }); setConfirm(null) }} onClose={() => setConfirm(null)} />
+                     onConfirm={() => { lib.remove(confirm); setConfirm(null) }} onClose={() => setConfirm(null)} />
           )}
         </>
       )}

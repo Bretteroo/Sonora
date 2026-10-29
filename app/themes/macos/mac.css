@@ -1174,3 +1174,9 @@
 :root[data-view-swap] .mac-root .dk-queue-pane { view-transition-name: macos-queue-pane; }
 :root[data-theme='macos']::view-transition-group(*) { animation-duration: 260ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
 @media (prefers-reduced-motion: reduce) { .mac-root .dk-lyrics-timed p { transition: none; } }
+
+/* A music folder being removed: dimmed beside a spinner while the speakers
+   work, then faded out once they are done. */
+.mac-root .dk-lib-table [role='option'][data-removing] { opacity: 0.5; }
+.mac-root .dk-lib-table [role='option'][data-removing='leaving'] { animation: mac-lib-leave 320ms ease-in forwards; }
+@keyframes mac-lib-leave { from { opacity: 0.5; } to { opacity: 0; } }

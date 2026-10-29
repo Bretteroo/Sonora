@@ -702,6 +702,7 @@ export default {
     'Sonos ajoute encore ce dossier. Il apparaîtra ici une fois monté par '
     + 'les lecteurs.',
   'desk.library.adding': 'Ajout du dossier de musique',
+  'desk.library.removing': 'Suppression du dossier de musique',
   'desk.library.addedIndexing':
     'Ajouté. Sonos met à jour l’index musical, ce qui peut prendre '
     + 'plusieurs minutes pour un dossier volumineux.',

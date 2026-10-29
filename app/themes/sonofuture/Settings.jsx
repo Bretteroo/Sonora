@@ -346,13 +346,14 @@ function LibraryPage({ households }) {
       {data && (
         <>
           <h3 className="sf-h3">{t('desk.library.mine')}</h3>
-          {data.shares.length === 0 ? <p className="sf-muted">{t('desk.library.none')}</p> : (
+          {lib.shares.length === 0 ? <p className="sf-muted">{t('desk.library.none')}</p> : (
             <ul className="sf-svc-list">
-              {data.shares.map((s) => (
-                <li key={s.id} className="sf-svc">
-                  <span className="sf-svc-icon"><I.Folder /></span>
-                  <span className="sf-svc-text"><span className="sf-svc-name">{(s.path || s.title || '').split('/').filter(Boolean).pop()}</span><span className="sf-svc-state">{s.path || s.title}</span></span>
-                  <IconButton size="sm" label={t('desk.library.remove')} disabled={lib.busy} onClick={() => setConfirm(s)}><I.Trash /></IconButton>
+              {lib.shares.map((s) => (
+                <li key={s.id} className="sf-svc" data-removing={lib.removingPhase(s)} role={lib.removingPhase(s) ? 'status' : undefined}>
+                  <span className="sf-svc-icon">{lib.removingPhase(s) ? <Swirl size={16} /> : <I.Folder />}</span>
+                  <span className="sf-svc-text"><span className="sf-svc-name">{(s.path || s.title || '').split('/').filter(Boolean).pop()}</span><span className="sf-svc-state">{s.path || s.title}</span>
+                    {lib.removingPhase(s) && <span className="sf-svc-state">{t('desk.library.removing')}</span>}</span>
+                  {!lib.removingPhase(s) && <IconButton size="sm" label={t('desk.library.remove')} disabled={lib.busy} onClick={() => setConfirm(s)}><I.Trash /></IconButton>}
                 </li>
               ))}
             </ul>
@@ -372,9 +373,11 @@ function LibraryPage({ households }) {
                   {p.state === 'failed'
                     ? (p.hint || t('desk.library.addFailedWhy'))
                     : p.state === 'indexing'
-                    ? t('desk.library.addedIndexing')
+                    ? p.path
                     : `${t('desk.library.addingPath', { path: p.path })}${p.hint ? ` ${p.hint}` : ''}`}
                 </span>
+                {/* The address under the name, as on the folders above, then the news. */}
+                {p.state === 'indexing' && <span className="sf-svc-state">{t('desk.library.addedIndexing')}</span>}
               </span>
             </div>
           ))}
@@ -422,7 +425,7 @@ function LibraryPage({ households }) {
           </Field>
           {confirm && (
             <Confirm title={t('desk.library.removeTitle')} body={t('desk.library.removeBody', { folder: confirm.title || confirm.uri })} action={t('desk.library.remove')} danger disabled={lib.busy}
-                     onConfirm={() => { lib.apply({ remove_id: confirm.id }); setConfirm(null) }} onClose={() => setConfirm(null)} />
+                     onConfirm={() => { lib.remove(confirm); setConfirm(null) }} onClose={() => setConfirm(null)} />
           )}
         </>
       )}

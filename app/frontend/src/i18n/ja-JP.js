@@ -640,6 +640,7 @@ export default {
   'desk.library.addPending':
     'Sonos はまだそのフォルダーを追加しています。プレーヤーがマウントするとここに表示されます。',
   'desk.library.adding': '音楽フォルダーを追加しています',
+  'desk.library.removing': '音楽フォルダーを削除しています',
   'desk.library.addedIndexing':
     '追加しました。Sonos が音楽インデックスを更新しています。大きなフォルダーでは数分かかることがあります。',
   'desk.library.addingPath':

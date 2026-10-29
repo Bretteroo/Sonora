@@ -705,6 +705,7 @@ export default {
     'Sonos nadal dodaje ten folder. Pojawi się tutaj, gdy odtwarzacze go '
     + 'zamontują.',
   'desk.library.adding': 'Dodawanie folderu muzycznego',
+  'desk.library.removing': 'Usuwanie folderu muzycznego',
   'desk.library.addedIndexing':
     'Dodano. Sonos aktualizuje indeks muzyki, co w przypadku dużego folderu '
     + 'może potrwać kilka minut.',

@@ -699,6 +699,15 @@
   & .mg-li-glyph { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); flex: none; }
   & .mg-li-glyph svg { width: 22px; height: 22px; }
   & .mg-li-glyph-primary { background: var(--mg-primary-container); color: var(--mg-on-primary-container); }
+  /* A music folder being removed: dimmed under a loading indicator while the
+     speakers let go of it, then folded away (the row's height and its fade on
+     the emphasized-accelerate curve, as M3 takes an item out of a list). */
+  & .mg-li[data-removing] .mg-li-text { opacity: 0.6; }
+  & .mg-li[data-removing='leaving'] { overflow: hidden; animation: mg-li-leave 320ms var(--mg-emph-accel) forwards; }
+  /* The address and the status under it, each a line of its own. */
+  & .mg-li-sup:has(.mg-li-line) { display: block; -webkit-line-clamp: unset; }
+  & .mg-li-sup .mg-li-line { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & .mg-li-sup .mg-li-line + .mg-li-line { white-space: normal; }
   & .mg-li-logo { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; overflow: visible; background: var(--mg-surface-container-lowest); flex: none; }
   & .mg-li-logo img { width: 100%; height: 100%; border-radius: 12px; object-fit: contain; }
   & .mg-li-art { display: inline-flex; width: 40px; height: 40px; border-radius: 8px; overflow: hidden; }
@@ -1638,7 +1647,7 @@
     & *, & *::before, & *::after { transition-property: opacity, color, background-color, box-shadow !important; transition-duration: 150ms !important; }
     & :is(.mg-main, [data-motion], .mg-player-panel, .mg-sheet, .mg-menu[data-ready], .mg-snack, .mg-fabmenu-list li, .mg-dest-indicator, .mg-chip-icon, .mg-player, .mg-player > *) {
       animation: mg-fade 150ms var(--mg-effects-fast) both !important; }
-    & .mg-layer[data-exiting] .mg-sheet, & .mg-menu[data-exiting], & .mg-player[data-transform='out'], & .mg-snack[data-leaving] { animation: mg-fade-out 150ms var(--mg-effects-fast) both !important; }
+    & .mg-layer[data-exiting] .mg-sheet, & .mg-menu[data-exiting], & .mg-player[data-transform='out'], & .mg-snack[data-leaving], & .mg-li[data-removing='leaving'] { animation: mg-fade-out 150ms var(--mg-effects-fast) both !important; }
     & :is(.mg-player-cover, .mg-player-cover img, .mg-shape-spin, .mg-shape-spin img, .mg-sleep-badge, .mg-sleep-badge svg, .mg-skel-row, .mg-skel-card, .mg-wavy-phase) { animation: none !important; }
   }
 }
@@ -1662,6 +1671,7 @@
 @keyframes mg-dialog-in { from { opacity: 0; transform: scaleY(0.85); } 35% { opacity: 1; } to { opacity: 1; transform: none; } }
 @keyframes mg-snack-in { from { opacity: 0; transform: scaleY(0.6); } 40% { opacity: 1; } to { opacity: 1; transform: none; } }
 @keyframes mg-fade-out { to { opacity: 0; } }
+@keyframes mg-li-leave { from { max-height: 100px; } to { max-height: 0; min-height: 0; opacity: 0; padding-block: 0; margin-block: 0; } }
 @keyframes mg-snack-out { to { opacity: 0; transform: scale(0.96); } }
 @keyframes mg-scrim-out { to { background-color: transparent; } }
 @keyframes mg-ct-in { from { clip-path: inset(var(--ct-t) var(--ct-r) var(--ct-b) var(--ct-l) round 28px); } to { clip-path: inset(0 0 0 0 round 0px); } }

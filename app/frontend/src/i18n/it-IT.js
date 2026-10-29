@@ -692,6 +692,7 @@ export default {
     'Sonos sta ancora aggiungendo quella cartella. Comparirà qui una volta '
     + 'montata dai lettori.',
   'desk.library.adding': 'Aggiunta della cartella musicale',
+  'desk.library.removing': 'Rimozione della cartella musicale',
   'desk.library.addedIndexing':
     'Aggiunta. Sonos sta aggiornando l’indice musicale: con una cartella '
     + 'grande può volerci qualche minuto.',

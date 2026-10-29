@@ -548,7 +548,8 @@ export function LibraryPage({ households }) {
   const [prefs, setPrefs] = useState(readLibraryPrefs)
   const { t } = useI18n()
   const [section, setSection] = useState('folders')
-  const { ordered, activeTab, setTab, data, error, busy, selected, setSelected, apply, highlighted, scheduled, scheduleTime, pending } = useLibrarySettings(households, { section })
+  const { ordered, activeTab, setTab, data, error, busy, selected, setSelected, apply, highlighted, scheduled, scheduleTime, pending,
+          shares, remove, removing, removingPhase } = useLibrarySettings(households, { section })
   const [adding, setAdding] = useState(false)
   const [confirm, setConfirm] = useState(null)
 
@@ -581,10 +582,11 @@ export function LibraryPage({ households }) {
                 <span /><span>{t('desk.prefs.folderCol')}</span><span>{t('desk.prefs.pathCol')}</span>
               </div>
               <div className="dk-table-body">
-                {data.shares.length === 0 && <p className="dk-table-empty">{t('desk.library.none')}</p>}
-                {data.shares.map((s) => (
-                  <div key={s.id} role="option" aria-selected={selected === s.id} onClick={() => setSelected(s.id)}>
-                    <Icon.NetworkShare width={14} height={14} />
+                {shares.length === 0 && <p className="dk-table-empty">{t('desk.library.none')}</p>}
+                {shares.map((s) => (
+                  <div key={s.id} role="option" aria-selected={selected === s.id} data-removing={removingPhase(s)}
+                       onClick={() => { if (!removingPhase(s)) setSelected(s.id) }}>
+                    {removingPhase(s) ? <Swirl size={14} className="dk-lib-swirl" /> : <Icon.NetworkShare width={14} height={14} />}
                     {/* The share's own folder name, as the Mac app lists it
                         ("music3" beside //192.168.0.102/music/Alex/music3,
                         S2 Mac app 2026-09-29): the speaker titles a share with
@@ -595,6 +597,13 @@ export function LibraryPage({ households }) {
                 ))}
               </div>
             </div>
+            {/* A removal the speakers are still carrying out, said the way
+                an add in flight is. */}
+            {removing?.phase === 'removing' && (
+              <p className="dk-prefs-note" role="status">
+                <Swirl size={12} className="dk-lib-swirl" /> {t('desk.library.removing')}: {removing.share.path || removing.share.uri}
+              </p>
+            )}
             {/* Taken by the players, not yet mounted: the app holds its add
                 wizard on a spinner for this window, so the pane says so too. */}
             {pending.map((p) => (
@@ -622,7 +631,7 @@ export function LibraryPage({ households }) {
               <Confirm title={t('desk.library.removeTitle')}
                        body={t('desk.library.removeBody', { folder: confirm.title || confirm.uri })}
                        action={t('desk.library.remove')} disabled={busy}
-                       onConfirm={() => { apply({ remove_id: confirm.id }); setConfirm(null); setSelected(null) }}
+                       onConfirm={() => { remove(confirm); setConfirm(null) }}
                        onClose={() => setConfirm(null)} />
             )}
           </>

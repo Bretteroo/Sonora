@@ -629,6 +629,7 @@ export default {
   'desk.library.indexError': 'Sonos could not finish updating the music index: {error}',
   'desk.library.addPending': 'Sonos is still adding that folder. It appears here once the players have mounted it.',
   'desk.library.adding': 'Adding music folder',
+  'desk.library.removing': 'Removing music folder',
   'desk.library.addedIndexing': 'Added. Sonos is updating the music index, which can take several minutes for a large folder.',
   'desk.library.addingPath': '{path} — the players are mounting it. This can take several minutes for a large folder.',
   'desk.library.addFailed': 'Sonos was unable to add the music folder {path}.',

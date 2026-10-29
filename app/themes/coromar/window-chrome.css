@@ -2012,3 +2012,9 @@
 /* The Windows wizard's Authorize: one wide button centered in the page, as its
    account buttons are (240px, 2026-09-29). */
 :where(:root[data-theme='coromar']) .win-root .dk-add-flow .dk-add-authorize { display: block; width: 240px; margin: 18px auto 12px; }
+
+/* A music folder being removed: its row dims under the window's busy mask
+   while the speakers work, and fades out once they are done. */
+:where(:root[data-theme='coromar']) .win-root :is(.win-lib-table tr, .dk-lib-table [role='option'])[data-removing] { opacity: 0.5; }
+:where(:root[data-theme='coromar']) .win-root :is(.win-lib-table tr, .dk-lib-table [role='option'])[data-removing='leaving'] { animation: coromar-lib-leave 320ms ease-in forwards; }
+@keyframes coromar-lib-leave { from { opacity: 0.5; } to { opacity: 0; } }

@@ -628,6 +628,7 @@ export default {
   'desk.library.indexError': 'Sonos 未能完成音乐索引的更新：{error}',
   'desk.library.addPending': 'Sonos 还在添加那个文件夹。播放器挂载完成后它会出现在这里。',
   'desk.library.adding': '正在添加音乐文件夹',
+  'desk.library.removing': '正在移除音乐文件夹',
   'desk.library.addedIndexing': '已添加。Sonos 正在更新音乐索引，文件夹较大时可能要几分钟。',
   'desk.library.addingPath': '{path} — 播放器正在挂载它。文件夹较大时可能要几分钟。',
   'desk.library.addFailed': 'Sonos 未能添加音乐文件夹 {path}。',

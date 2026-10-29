@@ -27,7 +27,8 @@ const ALBUM_ARTIST_OPTIONS = ['ITUNES', 'WMP', 'NONE']
 export default function Library({ households, onBusy }) {
   const { t } = useI18n()
   const [section, setSection] = useState('folders')
-  const { ordered, activeTab, setTab, data, error, busy, selected, setSelected, apply, highlighted, scheduled, scheduleTime, reload, pending } = useLibrarySettings(households, { section })
+  const { ordered, activeTab, setTab, data, error, busy, selected, setSelected, apply, highlighted, scheduled, scheduleTime, reload, pending,
+          shares, remove, removingPhase } = useLibrarySettings(households, { section })
   // The app dims and blocks the whole settings window during a library
   // write (main/busyskin.xaml), so the shell paints the overlay.
   useEffect(() => { onBusy?.(busy) }, [busy, onBusy])
@@ -76,9 +77,9 @@ export default function Library({ households, onBusy }) {
                 <table>
                   <thead><tr><th>{t('win.library.name')}</th><th>{t('win.library.path')}</th></tr></thead>
                   <tbody>
-                    {data.shares.map((s) => (
+                    {shares.map((s) => (
                       <tr key={s.id} role="option" aria-selected={selected === s.id} title={unc(s)}
-                          onClick={() => setSelected(s.id)}>
+                          data-removing={removingPhase(s)} onClick={() => { if (!removingPhase(s)) setSelected(s.id) }}>
                         <td><Icon.Library width={16} height={16} /><span>{name(s)}</span></td>
                         <td>{unc(s)}</td>
                       </tr>
@@ -140,7 +141,7 @@ export default function Library({ households, onBusy }) {
               <Confirm title={t('desk.library.removeTitle')}
                        body={t('desk.library.removeBody', { folder: confirm.title || unc(confirm.uri) })}
                        action={t('desk.library.remove')} disabled={busy}
-                       onConfirm={() => { apply({ remove_id: confirm.id }); setConfirm(null); setSelected(null) }}
+                       onConfirm={() => { remove(confirm); setConfirm(null) }}
                        onClose={() => setConfirm(null)} />
             )}
           </>

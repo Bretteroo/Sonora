@@ -2050,3 +2050,16 @@
 @media (pointer: coarse) {
   :root[data-theme='severed'] .sv-root { will-change: transform; }
 }
+
+/* A music folder being removed: dimmed beside the busy mark while the
+   speakers let go of it, then shut in four steps, as the terminal's other
+   motion runs. */
+:root[data-theme='severed'] .sv-li[data-removing] .sv-li-text { opacity: 0.5; }
+:root[data-theme='severed'] .sv-li[data-removing='leaving'] { overflow: hidden; animation: sv-li-leave 320ms steps(4, jump-end) forwards; }
+@keyframes sv-li-leave { from { max-height: 100px; } to { max-height: 0; min-height: 0; opacity: 0; padding-block: 0; margin-block: 0; } }
+:root[data-theme='severed'] .sv-li-sub .sv-li-line { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root[data-theme='severed'] .sv-li-sub .sv-li-line + .sv-li-line { white-space: normal; }
+:root[data-theme='severed'] .sv-li-sub:has(.sv-li-line) { white-space: normal; }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme='severed'] .sv-li[data-removing='leaving'] { animation: none; opacity: 0; }
+}

@@ -689,6 +689,7 @@ export default {
     'Sonos is die map nog aan het toevoegen. Hij verschijnt hier zodra de '
     + 'spelers hem hebben aangekoppeld.',
   'desk.library.adding': 'Muziekmap toevoegen',
+  'desk.library.removing': 'Muziekmap verwijderen',
   'desk.library.addedIndexing':
     'Toegevoegd. Sonos werkt de muziekindex bij; bij een grote map kan dat '
     + 'een paar minuten duren.',

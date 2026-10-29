@@ -694,6 +694,7 @@ export default {
     'Sonos lägger fortfarande till mappen. Den visas här när spelarna har '
     + 'monterat den.',
   'desk.library.adding': 'Lägger till musikmapp',
+  'desk.library.removing': 'Tar bort musikmapp',
   'desk.library.addedIndexing':
     'Tillagd. Sonos uppdaterar musikindexet, vilket kan ta flera minuter '
     + 'för en stor mapp.',

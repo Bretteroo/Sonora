@@ -258,7 +258,7 @@ h2 { margin: 10px 0 0; font: 700 clamp(30px, 4vw, 46px)/1.12 var(--display); let
 }
 .code button:hover { color: var(--ink); background: rgba(248, 236, 226, 0.16); }
 code.inline { font: 0.92em ui-monospace, Menlo, Consolas, monospace; color: var(--sand); background: rgba(248, 236, 226, 0.08); padding: 1px 6px; border-radius: 6px; }
-@media (max-width: 880px) { .install { grid-template-columns: 1fr; } .install-tabs { grid-template-columns: repeat(3, 1fr); } .install-tabs button small { display: none; } }
+@media (max-width: 880px) { .install { grid-template-columns: 1fr; } .install-tabs { grid-template-columns: repeat(4, 1fr); } .install-tabs button small { display: none; } }
 @media (max-width: 520px) { .install-tabs { grid-template-columns: 1fr; } .install-panel { padding: 22px 18px; } }
 
 /* --- faq ------------------------------------------------------------------ */
@@ -555,6 +555,7 @@ footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
         <div class="install-tabs" role="tablist">
           <button type="button" role="tab" aria-selected="true" data-panel="docker">Docker<small>Recommended</small></button>
           <button type="button" role="tab" aria-selected="false" data-panel="ha">Home Assistant<small>As an app</small></button>
+          <button type="button" role="tab" aria-selected="false" data-panel="unraid">Unraid<small>Community Apps</small></button>
           <button type="button" role="tab" aria-selected="false" data-panel="source">Without Docker<small>Python and Node.js</small></button>
         </div>
         <div>
@@ -586,6 +587,16 @@ footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
               <li>Turn on <b>Show in sidebar</b>.</li>
             </ol>
             <p class="note">Needs Home Assistant OS or a Supervised install. Phones and other computers can also open Sonora directly at http://homeassistant.local:50205. Home Assistant offers each new release as an app update.</p>
+          </div>
+          <div class="install-panel" id="panel-unraid" hidden>
+            <h3>Install on Unraid</h3>
+            <ol>
+              <li>In Unraid, open the <b>Apps</b> tab. If it offers to install Community Applications, do that first.</li>
+              <li>Search for <b>Sonora</b> and click <b>Install</b>.</li>
+              <li>Click <b>Apply</b>. The defaults suit most servers.</li>
+              <li>Open <b>http://your-server:50205</b>, or choose <b>WebUI</b> from Sonora's icon on the Docker tab.</li>
+            </ol>
+            <p class="note">To update later, click Check for Updates on the Docker tab.</p>
           </div>
           <div class="install-panel" id="panel-source" hidden>
             <h3>Install without Docker</h3>

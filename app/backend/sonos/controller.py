@@ -1710,6 +1710,18 @@ class SonosController:
             state.last_play_state = event.properties["LastChangedPlayState"]
         if event.properties.get("ZoneName"):
             state.name = event.properties["ZoneName"]
+        # The icon comes in the same event as the name. Left to the topology
+        # refresh, a new one showed several seconds after the new name. The
+        # room's own player is the one that says it, and its record is
+        # updated too, so the topology event that follows reads as nothing
+        # new and a rebuild before it keeps the icon.
+        icon = event.properties.get("Icon")
+        if icon and event.host == state.host:
+            state.room_icon = icon
+            for household in self.households.values():
+                zone = household.zones.get(state.uuid)
+                if zone is not None:
+                    zone.primary.icon = icon
         await self._publish_zone(state)
 
     async def _on_topology_event(self, event: Event) -> None:
@@ -1985,8 +1997,9 @@ class SonosController:
 
     async def _apply_topology(self, host: str, state_xml: str) -> bool:
         """Regroup from an evented ZoneGroupState when it names only players
-        already known, unchanged in name and bonding; anything else (a new
-        player, a rename, a pair forming) is left to the full refresh."""
+        already known, unchanged in name, icon and bonding; anything else (a
+        new player, a rename, a new icon, a pair forming) is left to the full
+        refresh."""
         players, groups, _ = parse_zone_group_state(state_xml)
         if not players:
             return False
@@ -1997,8 +2010,10 @@ class SonosController:
         # The same rooms, built the same way: the players themselves have
         # been adjusted by that building (a pair's second unit is marked
         # invisible), so comparing them raw would refuse every event.
+        # The icon too: a room given a new one in another app, or in Sonora,
+        # kept its old one here until the page was reloaded.
         def rooms(zones):
-            return {uuid: (zone.name, tuple(sorted(p.uuid for p in zone.players)))
+            return {uuid: (zone.name, zone.primary.icon, tuple(sorted(p.uuid for p in zone.players)))
                     for uuid, zone in zones.items()}
         if rooms(zones_from_players(players.values())) != rooms(household.zones):
             return False

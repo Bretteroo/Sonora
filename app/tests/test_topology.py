@@ -50,6 +50,35 @@ def test_unrelated_rooms_stay_separate():
     assert sorted(zones_from_players([a, b])) == ["RINCON_A1", "RINCON_B2"]
 
 
+def test_two_rooms_with_one_name_stay_two_rooms():
+    """Two rooms renamed "Den" were folded into one, so both rooms' cards
+    drew the same room and both showed as the one selected."""
+    a = _player("RINCON_A1", "Den")
+    b = _player("RINCON_B2", "Den")
+    zones = zones_from_players([a, b])
+    assert sorted(zones) == ["RINCON_A1", "RINCON_B2"]
+    assert [p.uuid for p in zones["RINCON_A1"].players] == ["RINCON_A1"]
+    assert [p.uuid for p in zones["RINCON_B2"].players] == ["RINCON_B2"]
+
+
+def test_a_pair_beside_a_room_of_the_same_name():
+    left = _player("RINCON_A1", "Den", channel_map="RINCON_A1:LF,LF;RINCON_B2:RF,RF")
+    right = _player("RINCON_B2", "Den", invisible=True, channel_map="RINCON_A1:LF,LF;RINCON_B2:RF,RF")
+    other = _player("RINCON_C3", "Den")
+    zones = zones_from_players([left, right, other])
+    assert sorted(zones) == ["RINCON_A1", "RINCON_C3"]
+    assert [p.uuid for p in zones["RINCON_A1"].players] == ["RINCON_A1", "RINCON_B2"]
+    assert [p.uuid for p in zones["RINCON_C3"].players] == ["RINCON_C3"]
+
+
+def test_a_hidden_unit_no_map_claims_joins_its_room_by_name():
+    sat = _player("RINCON_B2", "Lounge", invisible=True)
+    bar = _player("RINCON_A1", "Lounge")
+    zones = zones_from_players([sat, bar])
+    assert list(zones) == ["RINCON_A1"]
+    assert [p.uuid for p in zones["RINCON_A1"].players] == ["RINCON_A1", "RINCON_B2"]
+
+
 # --- a slow speaker is not an absent one -------------------------------------
 
 
@@ -345,6 +374,26 @@ def test_an_evented_state_naming_a_new_player_waits_for_discovery():
     assert sent == []
 
 
+def test_an_evented_new_room_icon_waits_for_the_refresh():
+    """A room given a new icon kept its old one in the 2018 Windows theme
+    until the page was reloaded: the event was taken for a regroup that
+    changed nothing, so the refresh that reads the icon never ran."""
+    import asyncio
+
+    from backend.sonos.models import Household, zones_from_players
+    from backend.sonos.topology import parse_zone_group_state, remap_groups
+
+    before = _zgs([("RINCON_A1", [("RINCON_A1", "Lab")])])
+    players, groups, _ = parse_zone_group_state(before)
+    zones = zones_from_players(players.values())
+    household = Household(id="HH", players=players, zones=zones, groups=remap_groups(groups, zones, players))
+    ctl, sent = _controller_with({"HH": household})
+
+    after = before.replace('ZoneName="Lab"', 'ZoneName="Lab" Icon="x-rincon-roomicon:office"')
+    assert asyncio.run(ctl._apply_topology("192.168.1.A1", after)) is False
+    assert sent == []
+
+
 def test_a_rebuild_keeps_the_television_input_the_cloud_named():
     """The cloud names a soundbar's input only when it changes; a rebuild
     that dropped it left a soundbar on HDMI showing a bare
@@ -459,3 +508,36 @@ def test_a_missed_household_id_keeps_the_known_one():
                            "Sonos_B": _household("Sonos_B", "RINCON_21")}
     assert registry._known_household({"RINCON_12": None}) == "Sonos_A"
     assert registry._known_household({"RINCON_99": None}) == ""
+
+
+def test_a_new_room_icon_shows_with_the_new_name():
+    """Renamed with a new icon, a room showed its new name at once and its
+    new icon several seconds later: the icon waited on the topology refresh,
+    though the speaker's DeviceProperties event carries it beside the name."""
+    import asyncio
+    from types import SimpleNamespace
+
+    from backend.sonos.models import Household, zones_from_players
+    from backend.sonos.topology import parse_zone_group_state, remap_groups
+
+    before = _zgs([("RINCON_A1", [("RINCON_A1", "Lab")])])
+    players, groups, _ = parse_zone_group_state(before)
+    zones = zones_from_players(players.values())
+    household = Household(id="HH", players=players, zones=zones, groups=remap_groups(groups, zones, players))
+    ctl, sent = _controller_with({"HH": household})
+    state = SimpleNamespace(uuid="RINCON_A1", host="192.168.1.A1", name="Lab", room_icon="")
+    ctl._zone_for_host = lambda host: state
+    published = []
+
+    async def publish(zone):
+        published.append((zone.name, zone.room_icon))
+
+    ctl._publish_zone = publish
+    event = SimpleNamespace(host="192.168.1.A1", properties={
+        "ZoneName": "Den", "Icon": "x-rincon-roomicon:den"})
+    asyncio.run(ctl._on_device_properties(event))
+    assert published == [("Den", "x-rincon-roomicon:den")]
+
+    # The topology event that follows has nothing left to bring.
+    after = before.replace('ZoneName="Lab"', 'ZoneName="Lab" Icon="x-rincon-roomicon:den"')
+    assert asyncio.run(ctl._apply_topology("192.168.1.A1", after)) is True

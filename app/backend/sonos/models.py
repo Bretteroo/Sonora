@@ -453,11 +453,12 @@ def _natural_key(value: str) -> tuple:
 def zones_from_players(players: Iterable[Player]) -> dict[str, Zone]:
     """Collapse players into zones, folding bonded satellites into their room.
 
-    Bonded players share a room name and all but one are flagged invisible, so
-    grouping by name and electing the visible member reconstructs what a
-    controller should show. Two genuinely separate speakers that happen to share
-    a name would collapse too, but Sonos itself treats identically named rooms
-    as one room, so that matches the official behavior.
+    A pair or a home-theater set is told by the channel map its visible unit
+    carries, which names the others; those join its room. Every other visible
+    player is a room of its own, whatever it is called: two rooms renamed
+    "Den" stayed two rooms in the household, each in its own group and
+    playing its own music, where folding them by name drew one room on both
+    rooms' cards. Only a hidden player that no map claims is placed by name.
     """
     players = list(players)
     # A channel map on one player claims the others it is bonded with. In the
@@ -473,16 +474,32 @@ def zones_from_players(players: Iterable[Player]) -> dict[str, Zone]:
             other = entry.split(":", 1)[0].strip()
             if other and other != player.uuid:
                 claimed_by[other] = player
+    for uuid in claimed_by:
+        for player in players:
+            if player.uuid == uuid:
+                player.invisible = True
     zones: dict[str, Zone] = {}
+    by_name: dict[str, Zone] = {}
+    # The rooms first, one per visible unclaimed player; then what joins them.
     for player in players:
+        if player.invisible or player.uuid in claimed_by:
+            continue
+        zone = Zone(uuid=player.uuid, name=player.name, players=[player])
+        zones[player.uuid] = zone
+        by_name.setdefault(player.name, zone)
+    for player in players:
+        if player.uuid in zones:
+            continue
         owner = claimed_by.get(player.uuid)
-        if owner is not None:
-            player.invisible = True
-        key = owner.name if owner is not None else player.name
-        zone = zones.get(key)
+        zone = zones.get(owner.uuid) if owner is not None else None
         if zone is None:
-            zone = Zone(uuid=player.uuid, name=key)
-            zones[key] = zone
+            zone = by_name.get(player.name)
+        if zone is None:
+            # A hidden player whose room is not in view: grouped with any
+            # other such player of its name, as before.
+            zone = Zone(uuid=player.uuid, name=player.name)
+            zones[player.uuid] = zone
+            by_name[player.name] = zone
         zone.players.append(player)
     out: dict[str, Zone] = {}
     for zone in zones.values():

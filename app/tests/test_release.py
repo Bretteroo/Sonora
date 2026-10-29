@@ -165,11 +165,11 @@ def test_the_first_look_waits_90_seconds_then_daily(monkeypatch):
 
     async def check():
         checks.append(1)
-        raise OSError("GitHub did not answer")  # only logged; tried again next day
+        raise OSError("GitHub did not answer")  # only logged; tried again a week later
 
     monkeypatch.setattr(release.asyncio, "sleep", sleep)
     monkeypatch.setattr(release, "check_once", check)
     with pytest.raises(asyncio.CancelledError):
         asyncio.run(release._loop())
-    assert waits == [90, 24 * 3600, 24 * 3600]
+    assert waits == [90, 7 * 24 * 3600, 7 * 24 * 3600]
     assert len(checks) == 2

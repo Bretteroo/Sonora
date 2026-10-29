@@ -14,6 +14,7 @@ import QueuePanel from './QueuePanel.jsx'
 import GroupPanel from './GroupPanel.jsx'
 import LinkServiceModal from './LinkServiceModal.jsx'
 import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import { useNavigation } from './useNavigation.js'
 import { api } from '../../frontend/src/lib/api.js'
 import { tokens } from './tokens.js'
@@ -369,6 +370,7 @@ function Shell() {
       )}
 
       {aboutOpen && <AboutSonora onClose={() => setAboutOpen(false)} />}
+      <UpdateNotice />
       {linking && (
         <LinkServiceModal preset={linking}
                           onClose={() => setLinking(null)}

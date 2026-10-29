@@ -1,6 +1,6 @@
-"""Whether a newer Sonora has been released, looked up once a day.
+"""Whether a newer Sonora has been released, looked up once a week.
 
-The first look is 90 seconds after start-up, then one every 24 hours, in the
+The first look is 90 seconds after start-up, then one every 7 days, in the
 background whether or not anyone has a page open; the About card only reads
 the stored answer. It is one anonymous request for the repository's latest
 release on GitHub, compared with the version running. Drafts and
@@ -10,7 +10,7 @@ person's to do.
 
 The answer lives in memory, so a restart (an update included) looks again
 90 seconds later. Quiet on failure: no answer leaves things as they were, is
-only logged, and is tried again the next day.
+only logged, and is tried again a week later.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ REPOSITORY = "Bretteroo/Sonora"
 LATEST_URL = f"https://api.github.com/repos/{REPOSITORY}/releases/latest"
 #: Where About sends people: every release's notes, newest first.
 RELEASES_PAGE = f"https://github.com/{REPOSITORY}/releases"
-INTERVAL_S = 24 * 3600
+INTERVAL_S = 7 * 24 * 3600
 FIRST_S = 90
 
 _state: dict[str, object] = {"latest": None, "checked_at": 0.0}

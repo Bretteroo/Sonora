@@ -8,6 +8,7 @@ import { useNarrow } from '../../frontend/src/lib/useNarrow.js'
 import { useShellSelection } from '../../frontend/src/lib/shellSelection.js'
 import { isTyping, isCommand, keyOf, shuffleToggled, repeatCycled } from '../../frontend/src/lib/keys.js'
 import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import * as G from './glyphs.jsx'
 import { IconKey, Menu, MenuItem, MenuSep, Confirm } from './controls.jsx'
 import { FUNCTION_KEY, readStored, writeStored, useServices, useLibraryPresence, useAccountChoice, useFavorites, usePlaylists, useRecent,
@@ -311,6 +312,7 @@ export function Shell() {
       {addRadio && <AddRadioSheet zone={activeZone} onClose={() => setAddRadio(false)} onAdded={(r) => toast(t(r.exists ? 'desk.radio.exists' : 'desk.radio.added', { title: r.title }))} />}
       {linking && <LinkServiceSheet households={households} preset={linking} onClose={() => setLinking(null)} onLinked={() => setServicesVersion((v) => v + 1)} />}
       {about && <AboutSonora onClose={() => setAbout(false)} />}
+      <UpdateNotice />
       {shortcuts && <ShortcutsSheet onClose={() => setShortcuts(false)} />}
       {confirm && <Confirm title={confirm.title} body={confirm.body} action={confirm.action} onConfirm={() => { setConfirm(null); confirm.onConfirm() }} onClose={() => setConfirm(null)} />}
       {quickMenu && (

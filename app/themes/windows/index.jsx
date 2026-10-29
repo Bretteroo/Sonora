@@ -19,6 +19,7 @@ import PaneSwitch, { isNarrowShell, usePaneDirection } from './PaneSwitch.jsx'
 import { AddServices, Confirm, GroupRooms, TrackInfo, SleepTimer, AddRadioStation } from './Dialogs.jsx'
 import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
 import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import TransientMessage from '../../frontend/src/components/TransientMessage.jsx'
 import Settings from './Settings.jsx'
 import WinAbout from './About.jsx'
@@ -471,6 +472,7 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
       {dialog?.kind === 'errorlog' && <ErrorLogWindow onClose={() => setDialog(null)} />}
       {dialog?.kind === 's2' && <S2Upgrade onClose={() => setDialog(null)} />}
       {dialog?.kind === 'aboutSonora' && <AboutSonora onClose={() => setDialog(null)} />}
+      <UpdateNotice />
       {dialog?.kind === 'shortcuts' && <WinShortcuts onClose={() => setDialog(null)} />}
       {dialog?.kind === 'info' && <TrackInfo zone={activeZone} onClose={() => setDialog(null)} />}
       {dialog?.kind === 'sleep' && <SleepTimer zone={activeZone} anchor={dialog.anchor}

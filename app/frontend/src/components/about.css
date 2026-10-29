@@ -212,3 +212,31 @@
    invitation and its button 14, and the small print 13; nothing smaller, and
    every line in the theme's own face. */
 .about-card, .about-card a.about-support { font-family: inherit; }
+
+/* --- a newer release (UpdateNotice.jsx) ------------------------------------
+   The About card's frame, shorter: the icon, a heading, one line and two
+   buttons, "Got it" filled in the theme's accent and the reminder beside it
+   outlined. */
+.about-card.update-card { max-width: 420px; padding: 28px 28px 24px; }
+.update-card .update-icon { width: 64px; height: 64px; }
+.update-title { margin: 14px 0 0; font-size: 20px; font-weight: 700; line-height: 1.3; }
+.update-body { margin: 10px 0 0; font-size: 14px; line-height: 1.5; color: var(--t-fg-muted, #9aa3ad); }
+.update-body a { color: var(--t-accent, #3b82f6); }
+.update-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 22px 0 0; }
+.about-backdrop .update-card .update-actions button {
+  min-height: 36px; padding: 8px 18px; border-radius: 999px; font: inherit; font-size: 14px; font-weight: 650;
+  cursor: pointer; transition: filter 140ms ease, background 140ms ease;
+}
+.about-backdrop .update-card .update-actions button.update-later {
+  border: 1px solid var(--t-border-strong, var(--t-border, rgba(127, 127, 127, 0.5)));
+  background: transparent; color: var(--t-fg, #f4f5f7);
+}
+.about-backdrop .update-card .update-actions button.update-later:hover { background: var(--t-surface-hover, rgba(127, 127, 127, 0.12)); }
+/* Written long so a theme's own button colors, which reach every button in
+   its shell, do not put dark words on the accent. */
+.about-backdrop .update-card .update-actions button.update-ok {
+  border: 1px solid var(--t-accent, #3b82f6);
+  background: var(--t-accent, #3b82f6); color: var(--t-accent-fg, #ffffff);
+}
+.about-backdrop .update-card .update-actions button.update-ok:hover { filter: brightness(1.08); }
+@media (prefers-reduced-motion: reduce) { .update-actions button { transition: none; } }

@@ -6,6 +6,7 @@ import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds, systemChoiceMatters, isLiveStream, parseDuration, positionNow } from '../../frontend/src/lib/format.js'
 import { useSleepTimer } from '../../frontend/src/lib/useSleepTimer.js'
 import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import { useShellSelection } from '../../frontend/src/lib/shellSelection.js'
 import { isTyping, isCommand, keyOf, shuffleToggled, repeatCycled } from '../../frontend/src/lib/keys.js'
 import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
@@ -893,6 +894,7 @@ export function Shell() {
                  onOpenSource={(scope) => browseSource(`svc:${scope.id}`)} />
       )}
       {about && <AboutSonora onClose={() => setAbout(false)} />}
+      <UpdateNotice />
       {shortcuts && <ShortcutsWindow onClose={() => setShortcuts(false)} />}
       {quickMenu && (
         <Menu x={quickMenu.x} y={quickMenu.y} onClose={() => setQuickMenu(null)} title={quickMenu.item.title}>

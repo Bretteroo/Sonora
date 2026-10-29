@@ -489,7 +489,7 @@ async def set_player_color(uuid: str, body: PlayerColorBody) -> dict:
 
 @app.get("/api/app-update")
 async def app_update() -> dict:
-    """Whether a newer Sonora has been released, from the daily check
+    """Whether a newer Sonora has been released, from the weekly check
     (release.py); reading it never asks GitHub."""
     return release.status()
 

@@ -16,4 +16,6 @@ export const APP = {
   // Where Sonora's source is: AGPL-3.0-only's offer to everyone who uses a
   // copy over the network. About links to it in every theme.
   source: 'https://github.com/Bretteroo/Sonora',
+  // Every release's notes, newest first: where "What's new?" goes.
+  releases: 'https://github.com/Bretteroo/Sonora/releases',
 }

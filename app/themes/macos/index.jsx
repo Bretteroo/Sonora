@@ -15,6 +15,7 @@ import PaneSwitch, { isNarrowShell, usePaneDirection } from './PaneSwitch.jsx'
 import { Window, About, AddServices, Confirm, GroupRooms, Preferences, Shortcuts, SleepTimer, Alarms, AddRadioStation, ClearQueueConfirm } from './Dialogs.jsx'
 import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
 import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import ErrorLog from '../../frontend/src/components/ErrorLog.jsx'
 import TransientMessage from '../../frontend/src/components/TransientMessage.jsx'
 import { tokens } from './tokens.js'
@@ -441,6 +442,7 @@ function Shell() {
       {dialog?.kind === 'about' && <About onClose={() => setDialog(null)} />}
       {dialog?.kind === 's2' && <S2Upgrade onClose={() => setDialog(null)} />}
       {dialog?.kind === 'aboutSonora' && <AboutSonora onClose={() => setDialog(null)} />}
+      <UpdateNotice />
       {dialog?.kind === 'shortcuts' && <Shortcuts onClose={() => setDialog(null)} />}
       {dialog?.kind === 'sleep' && (
         <SleepTimer zone={activeZone} anchor={dialog.anchor} placement="left" chooseKey="desk.sleep.setFor"

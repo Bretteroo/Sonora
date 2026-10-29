@@ -5,6 +5,7 @@ import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds, systemChoiceMatters } from '../../frontend/src/lib/format.js'
 import { useSleepTimer } from '../../frontend/src/lib/useSleepTimer.js'
 import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
 import { useShellSelection } from '../../frontend/src/lib/shellSelection.js'
 import { isTyping, isCommand, keyOf, shuffleToggled, repeatCycled } from '../../frontend/src/lib/keys.js'
@@ -455,6 +456,7 @@ export function Shell() {
                     onOpenSource={(scope) => { setPlayerOpen(false); browseSource(`svc:${scope.id}`) }} />
       )}
       {about && <AboutSonora onClose={() => setAbout(false)} />}
+      <UpdateNotice />
       {shortcuts && <ShortcutsSheet onClose={() => setShortcuts(false)} />}
       {confirm && <Confirm title={confirm.title} body={confirm.body} action={confirm.action} onConfirm={() => { setConfirm(null); confirm.onConfirm() }} onClose={() => setConfirm(null)} />}
       {quickMenu && (

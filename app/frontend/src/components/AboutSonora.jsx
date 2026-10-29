@@ -28,12 +28,12 @@ const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'Ar
 export default function AboutSonora({ onClose }) {
   const { t } = useI18n()
 
-  // Whether a newer release is out, from the server's daily check of GitHub;
+  // Whether a newer release is out, from the server's weekly check of GitHub;
   // opening the card only reads its answer, and nothing shows without one.
   const [latest, setLatest] = useState(null)
   useEffect(() => {
     let live = true
-    api.appUpdate().then((r) => { if (live && r?.available) setLatest({ version: r.latest, url: r.url }) }).catch(() => {})
+    api.appUpdate().then((r) => { if (live && r?.available) setLatest({ version: r.latest }) }).catch(() => {})
     return () => { live = false }
   }, [])
 
@@ -63,8 +63,15 @@ export default function AboutSonora({ onClose }) {
   // reaching the card's buttons.
   const { unlockHidden } = useTheme()
   const typed = useRef([])
+  // The listener is added once and reads the latest callbacks from here. A
+  // theme that hands over a new onClose each render, and renders on the arrow
+  // keys, had the listener swapped mid-keystroke, and a listener removed during
+  // an event never hears it.
+  const handlers = useRef({ onClose, unlockHidden })
+  handlers.current = { onClose, unlockHidden }
   useEffect(() => {
     const onKey = (event) => {
+      const { onClose, unlockHidden } = handlers.current
       if (event.key === 'Escape') { onClose(); return }
       if (event.repeat) return
       const key = event.key.length === 1 ? event.key.toLowerCase() : event.key
@@ -79,7 +86,7 @@ export default function AboutSonora({ onClose }) {
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [onClose, unlockHidden])
+  }, [])
 
   return (
     <div
@@ -101,12 +108,8 @@ export default function AboutSonora({ onClose }) {
         {latest && (
           <p className="about-update">
             <span data-about-text>{t('about.updateAvailable', { version: latest.version })}</span>
-            {latest.url && (
-              <>
-                {' '}
-                <a href={latest.url} target="_blank" rel="noopener noreferrer" data-about-text>{t('about.whatsNew')}</a>
-              </>
-            )}
+            {' '}
+            <a href={APP.releases} target="_blank" rel="noopener noreferrer" data-about-text>{t('about.whatsNew')}</a>
           </p>
         )}
         <p className="about-tagline" data-about-text>{t('about.tagline')}</p>

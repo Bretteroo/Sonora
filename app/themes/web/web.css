@@ -3774,7 +3774,7 @@ button.wb-settings-row:disabled {
 .wb-transport-rate .wb-rate-btn img { width: 20px; height: 20px; object-fit: contain; }
 
 .wb-theme-preview { flex-direction: row; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
-.wb-theme-manage { padding: 0 16px 16px; }
+.wb-theme-manage { padding: 16px; }
 /* In Settings > Appearance the picture and Manage Themes are the group's
    last rows, so they wear a row's ground and the group's rounded foot shows
    under them. */

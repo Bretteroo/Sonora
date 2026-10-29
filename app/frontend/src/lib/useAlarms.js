@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from './api.js'
 import { useSystem } from './store.jsx'
+import { isBrowserRoom } from './browserRoom.js'
 
 // The household's alarms (read from any of its speakers), with on/off,
 // delete, create and update. The speakers take a full alarm definition each
@@ -8,28 +9,54 @@ import { useSystem } from './store.jsx'
 export function useAlarms(zoneUuid) {
   // AlarmClock's AlarmListVersion reaches the store as an "alarms" message,
   // so a change made in one of the desktop apps refreshes the list here too.
-  const { alarmsEpoch } = useSystem()
+  const { alarmsEpoch, households, zones } = useSystem()
   const [alarms, setAlarms] = useState(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  // This browser belongs to no household, so it has no alarm list of its own
+  // and the speakers refused its id. Chosen, it lists every household's
+  // alarms, each read through one of that household's rooms; an alarm is
+  // then changed through its own room, and a new one through the room it
+  // will play in. Alarm ids count from 1 in each household, so they are kept
+  // apart here as "<room>|<id>".
+  const every = isBrowserRoom(zoneUuid)
+  const readers = every
+    ? (households || []).map((h) => (h.zone_uuids.find((uuid) => zones?.[uuid]?.online !== false && zones?.[uuid]) || h.zone_uuids.find((uuid) => zones?.[uuid]))).filter(Boolean)
+    : []
+  const readersKey = readers.join(',')
   const load = useCallback(() => {
     if (!zoneUuid) return
-    api.alarms(zoneUuid).then((r) => { setAlarms(r.alarms || []); setError('') })
+    const read = every
+      ? Promise.all(readers.map((uuid) => api.alarms(uuid))).then((lists) => ({
+        alarms: lists.flatMap((r) => (r.alarms || []).map((a) => ({ ...a, ID: `${a.RoomUUID}|${a.ID}` }))),
+      }))
+      : api.alarms(zoneUuid)
+    read.then((r) => { setAlarms(r.alarms || []); setError('') })
       .catch((exc) => setError(exc.message))
-  }, [zoneUuid])
+  }, [zoneUuid, readersKey])  // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { setAlarms(null); load() }, [load])
   useEffect(() => { if (alarmsEpoch) load() }, [alarmsEpoch, load])
   const apply = async (fn) => {
     setBusy(true); setError('')
-    try { const r = await fn(); setAlarms(r.alarms || []) } catch (exc) { setError(exc.message) }
+    try {
+      const r = await fn()
+      if (every) load()
+      else setAlarms(r.alarms || [])
+    } catch (exc) { setError(exc.message) }
     setBusy(false)
+  }
+  // The room to send a change through, and the speakers' own id.
+  const target = (id) => {
+    if (!every) return [zoneUuid, id]
+    const cut = String(id).lastIndexOf('|')
+    return [String(id).slice(0, cut), String(id).slice(cut + 1)]
   }
   return {
     alarms, error, busy, refresh: load,
-    toggle: (id, enabled) => apply(() => api.setAlarm(id, { zone: zoneUuid, enabled })),
-    remove: (id) => apply(() => api.deleteAlarm(id, zoneUuid)),
-    create: (definition) => apply(() => api.createAlarm({ zone: zoneUuid, ...definition })),
-    update: (id, definition) => apply(() => api.updateAlarm(id, { zone: zoneUuid, ...definition })),
+    toggle: (id, enabled) => { const [zone, own] = target(id); return apply(() => api.setAlarm(own, { zone, enabled })) },
+    remove: (id) => { const [zone, own] = target(id); return apply(() => api.deleteAlarm(own, zone)) },
+    create: (definition) => apply(() => api.createAlarm({ zone: every ? definition.room_uuid : zoneUuid, ...definition })),
+    update: (id, definition) => { const [zone, own] = target(id); return apply(() => api.updateAlarm(own, { zone, ...definition })) },
   }
 }
 
@@ -52,7 +79,9 @@ export function alarmToForm(alarm, rooms, defaultRoom = '') {
   return {
     enabled: alarm ? alarm.Enabled === '1' : true,
     time: (alarm?.StartTime || '07:00:00').slice(0, 5),
-    room: alarm?.RoomUUID || defaultRoom || rooms[0]?.uuid || '',
+    // An alarm plays on a speaker: chosen from this browser, a new one opens
+    // on the first room instead.
+    room: alarm?.RoomUUID || (isBrowserRoom(defaultRoom) ? '' : defaultRoom) || rooms[0]?.uuid || '',
     musicTitle: alarm && alarm.ProgramURI !== 'x-rincon-buzzer:0' ? (alarm.program_title || alarm.ProgramURI) : '',
     programUri: alarm?.ProgramURI || 'x-rincon-buzzer:0',
     programMetadata: alarm?.ProgramMetaData || '',

@@ -887,15 +887,29 @@ function subtitleOf(item, node, t, displayTypes = {}) {
     || (item.child_count ? t.plural('common.items', item.child_count) : '')
 }
 
+// How much of the window's foot is covered in the letter bar's column by
+// the bars that float there, with 16px kept clear above them.
+const FLOATING = '.mg-navbar, .mg-toolbar, .mg-compact-fab'
+function footOver(rail) {
+  const column = (rail.firstElementChild || rail).getBoundingClientRect()
+  let top = window.innerHeight
+  for (const bar of document.querySelectorAll(FLOATING)) {
+    const box = bar.getBoundingClientRect()
+    if (box.height && box.left < column.right && box.right > column.left) top = Math.min(top, box.top)
+  }
+  return window.innerHeight - top + 16
+}
+
 // The letters down the right of a long list, held in view as the page
 // scrolls. A press jumps to a letter and a drag runs through them, as a
 // phone's index does; letters the list is known not to hold are dimmed.
 function LetterBar({ index, label, loading }) {
   const drag = useLetterDrag(index.jump)
   const rail = useRef(null)
-  // The pane less its foot: the mini player and the navigation bar float
-  // over the last 200px or so of it.
-  const height = useRailHeight(rail, { reserve: 216, max: 620 })
+  // Down to the foot of the window, less whatever floats over the bar's
+  // column there: the navigation bar and the toolbar on a phone, nothing
+  // on a wide window, where the toolbar ends short of the bar.
+  const height = useRailHeight(rail, { reserve: footOver, max: Infinity })
   return (
     <div className="mg-letters-rail" ref={rail}>
       <nav className="mg-letters" aria-label={label} aria-busy={index.pending || undefined} style={height ? { height } : undefined} {...drag}>

@@ -1,5 +1,5 @@
 import ScrollBar91 from './ScrollBar91.jsx'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { SONOS_RADIO } from '../../frontend/src/lib/sonosServices.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
@@ -665,7 +665,9 @@ export default function Browse({
       // Root rows carry their own household room; deeper items inherit the
       // node's room, since API items don't know which system they belong to.
       if (!item.hzone) return
-      if (item.playable) { setMenu({ item }); return }
+      // A click on the TV row only selects it, as in the app; its menu
+      // opens from the caret or a right-click.
+      if (item.playable) { setLastRoot({ id: item.id, hh: item.hh }); return }
       // The saved-stations list is "My Radio Stations" inside TuneIn, as the
       // app titles it.
       if (item.id === 'linein') {
@@ -2846,8 +2848,20 @@ function ActionMenu({ item, x, y, onClose, onAct, canUnselect = false, saved = n
       document.removeEventListener('keydown', key)
     }
   }, [onClose])
+  // Kept inside the window by its own measured size: a fixed allowance put
+  // the one-line TV menu well left of the caret that opened it. It is
+  // measured at the window's left edge, hidden: measured where it was opened,
+  // near the right edge, it had shrunk to the room left there and its rows
+  // wrapped over each other.
+  const [fit, setFit] = useState(null)
+  useLayoutEffect(() => {
+    if (x == null || !ref.current) return
+    const { width, height } = ref.current.getBoundingClientRect()
+    setFit({ left: Math.max(0, Math.min(x, window.innerWidth - width - 4)),
+             top: Math.max(0, y + height > window.innerHeight - 4 ? y - height : y) })
+  }, [x, y])
   const style = x != null
-    ? { left: Math.min(x, window.innerWidth - 240), top: Math.min(y, window.innerHeight - 180) }
+    ? (fit ?? { left: 0, top: y, visibility: 'hidden' })
     : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
   const playable = Boolean(item.uri)
   const favoriteButton = saved

@@ -331,7 +331,8 @@ export function useKeepPlace(ref, offset) {
 // bar starts (or the top of the pane that scrolls it, once it has stuck
 // there) to the foot of that pane, less `reserve` for what sits over the
 // foot, at most `max`. Read on every render, as the pane scrolls and when
-// the window is resized.
+// the window is resized. `reserve` may be a function of the bar's element,
+// for a theme whose foot covers the bar only in some layouts.
 export function useRailHeight(ref, { reserve = 0, max = 640, min = 160 } = {}) {
   const [height, setHeight] = useState(0)
   const measure = useCallback(() => {
@@ -344,7 +345,8 @@ export function useRailHeight(ref, { reserve = 0, max = 640, min = 160 } = {}) {
     // The span is read on the screen and set in CSS pixels: under a zoom the
     // two differ, and an unscaled height came out short (Severed).
     const scale = scaleOf(el.parentElement)
-    const next = Math.round(Math.max(min, Math.min(max, (box.bottom - top) / scale - reserve)))
+    const keep = typeof reserve === 'function' ? reserve(el) : reserve
+    const next = Math.round(Math.max(min, Math.min(max, (box.bottom - top) / scale - keep)))
     setHeight((prev) => (prev === next ? prev : next))
   }, [ref, reserve, max, min])
   useLayoutEffect(measure)

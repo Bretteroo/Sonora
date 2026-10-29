@@ -506,7 +506,10 @@ export function Confirm({ title, body, action, cancelLabel, onConfirm, onClose, 
 
 export function Menu({ x, y, anchor = null, align = 'left', onClose, children, title = '', width = 0 }) {
   const ref = useRef(null)
-  const [pos, setPos] = useState({ left: x || 0, top: y || 0, ready: false, above: false })
+  // Measured at the window's left edge, hidden, then placed: measured where it
+  // was opened, near the right edge, it had shrunk to the room left there and
+  // its items wrapped.
+  const [pos, setPos] = useState({ left: 0, top: y || 0, ready: false, above: false })
   // Dismissed, a menu fades out quickly before it goes.
   const [exiting, setExiting] = useState(false)
   const leave = useCallback(() => { if (exiting) return; setExiting(true); setTimeout(() => onClose?.(), 100) }, [exiting, onClose])
@@ -550,7 +553,7 @@ export function Menu({ x, y, anchor = null, align = 'left', onClose, children, t
   }
   return createPortal(
     <div className="mg-menu" ref={ref} role="menu" data-ready={pos.ready || undefined} data-above={pos.above || undefined} data-exiting={exiting || undefined} onKeyDown={onKeyDown}
-         style={{ left: pos.left, top: pos.top, minWidth: width || undefined }}
+         style={{ left: pos.left, top: pos.top, minWidth: width || undefined, visibility: pos.ready ? undefined : 'hidden' }}
          data-grouped={groups.length > 1 || undefined}
          onContextMenu={(event) => event.preventDefault()}>
       {groups.length > 1 ? groups.map((group, i) => (

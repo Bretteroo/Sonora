@@ -816,7 +816,9 @@
   & .mg-menu-group { padding: 4px; border-radius: 8px; background: var(--mg-surface-container-low); box-shadow: var(--mg-elev-2); }
   & .mg-menu-group:first-child { border-top-left-radius: 16px; border-top-right-radius: 16px; }
   & .mg-menu-group:last-child { border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
-  & .mg-menu-scroll { max-height: 50vh; overflow: auto; }
+  /* Never taller than the menu around it (560px less its 4px padding), or in a tall window both
+     would scroll. */
+  & .mg-menu-scroll { max-height: min(50vh, 552px); overflow: auto; }
   & .mg-menu-pad { padding: 8px 8px 4px; }
 
   /* The exposed dropdown and text fields: outlined, 56 tall. */

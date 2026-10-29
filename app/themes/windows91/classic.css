@@ -604,6 +604,13 @@
 :root[data-theme='windows91'] .win-root .dk-browse-art img,
 :root[data-theme='windows91'] .win-root .dk-browse-art.dk-browse-glyph,
 :root[data-theme='windows91'] .win-root .dk-browse-art.dk-browse-glyph img { width: 30px; height: 30px; }
+/* The generic tiles fill the 30px square too; at the later app's 40px they
+   hung past its right and bottom edges. */
+:root[data-theme='windows91'] .win-root .dk-browse-art:not(.dk-browse-glyph) > :is(svg:not([class]), svg.dk-browse-folder) { width: 30px; height: 30px; }
+/* So do the station and playlist tiles, their glyphs scaled with them
+   (22 of 40 there, 16 of 30 here). */
+:root[data-theme='windows91'] .win-root .dk-browse-art > .dk-radio-glyph { width: 30px; height: 30px; }
+:root[data-theme='windows91'] .win-root .dk-browse-art > .dk-radio-glyph svg { width: 16px; height: 16px; }
 :root[data-theme='windows91'] .win-root .dk-browse-art.dk-browse-glyph:not(:has(img)) {
   border-radius: 50%;
   background:

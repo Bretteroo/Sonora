@@ -2855,7 +2855,10 @@ function ActionMenu({ item, x, y, onClose, onAct, canUnselect = false, saved = n
     }
   }, [onClose])
   // Kept inside the window by its own measured size: a fixed allowance put
-  // the one-line TV menu well left of the caret that opened it.
+  // the one-line TV menu well left of the caret that opened it. It is
+  // measured at the window's left edge, hidden: measured where it was opened,
+  // near the right edge, it had shrunk to the room left there and its rows
+  // wrapped over each other.
   const [fit, setFit] = useState(null)
   useLayoutEffect(() => {
     if (x == null || !ref.current) return
@@ -2864,7 +2867,7 @@ function ActionMenu({ item, x, y, onClose, onAct, canUnselect = false, saved = n
              top: Math.max(0, y + height > window.innerHeight - 4 ? y - height : y) })
   }, [x, y])
   const style = x != null
-    ? (fit ?? { left: x, top: y, visibility: 'hidden' })
+    ? (fit ?? { left: 0, top: y, visibility: 'hidden' })
     : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
   const playable = Boolean(item.uri)
   const favoriteButton = saved

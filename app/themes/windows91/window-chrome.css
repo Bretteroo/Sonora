@@ -307,13 +307,16 @@
 /* The service's own logo, 18px and round: the app draws them as circles in
    the pill and in its scope menu (checked against Sonos Radio's, 2026-09-06),
    even though searchboxspecialized.xaml's Image element is square. Its
-   2px top margin, in a 20px stack centered in the 25px field, puts its top
-   4.5px down, 1px below the field's middle line, clear of the sunk top edge. */
-:where(:root[data-theme='windows91']) .win-root .dk-strip-scope img, :where(:root[data-theme='windows91']) .win-root .dk-strip-scope > svg:first-child { width: 18px; height: 18px; border-radius: 50%; box-shadow: none; position: relative; top: 1px; }
-/* Both sit on the pill's own middle line: the app centers them, whatever
-   the XAML's cell margins suggest (measured 2026-09-06: pill interior
-   73..96, caret ink 84..87). */
-:where(:root[data-theme='windows91']) .win-root .dk-strip-scope > svg:last-child { width: 8px; height: 5px; color: #868686; }
+   2px top margin, in a 20px stack centered in the 25px field, puts it 1px
+   below the field's middle line; a round logo that nearly fills the field
+   reads as sitting low there, so it is centered instead. */
+:where(:root[data-theme='windows91']) .win-root .dk-strip-scope img, :where(:root[data-theme='windows91']) .win-root .dk-strip-scope > svg:first-child { width: 18px; height: 18px; border-radius: 50%; box-shadow: none; }
+/* The caret sits below the middle line, not on it. Its 3px top margin in
+   the same 20px stack puts its top 11.5px down the 25px field, and the app's
+   ink runs 12..15 down from the field's top (measured 2026-09-06: pill
+   interior 73..96, caret ink 84..87). Centered, it started at 10 and read
+   as too high. */
+:where(:root[data-theme='windows91']) .win-root .dk-strip-scope > svg:last-child { width: 8px; height: 5px; color: #868686; position: relative; top: 2px; }
 :where(:root[data-theme='windows91']) .win-root .dk-strip-scope { align-items: center; }
 :where(:root[data-theme='windows91']) .win-root .dk-strip-search input { height: 25px; padding: 0 0 0 5px; }
 :where(:root[data-theme='windows91']) .win-root .dk-strip-search button[type='submit'] { width: 30px; height: 25px; padding: 0; color: #868686; }
@@ -1382,7 +1385,9 @@
 :where(:root[data-theme='windows91']) .win-root .dk-album-shuffle[data-on='true'] .dk-browse-art.dk-browse-glyph { color: #ffffff; }
 /* Hovering a row that has a checkbox shows caret and checkbox in place of
    the chevron (Plex album list capture, 2026-09-05). */
-:where(:root[data-theme='windows91']) .win-root .dk-browse-row:has(.dk-browse-check):hover .dk-browse-disclosure { display: none; }
+/* Not on the selected row, whose checkbox is hidden: the chevron went too,
+   and the caret slid over the place where it had been. */
+:where(:root[data-theme='windows91']) .win-root .dk-browse-row:not([aria-selected='true']):has(.dk-browse-check):hover .dk-browse-disclosure { display: none; }
 :where(:root[data-theme='windows91']) .win-root .dk-album-shuffle .dk-browse-glyph svg { width: 22px; height: 22px; }
 /* The checkbox is a 16px square whose right edge sits 21px in from the
    gutter (the row's 14px padding plus 7px of a 30px box); 22px separate it

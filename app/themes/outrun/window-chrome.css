@@ -1377,7 +1377,9 @@
 :where(:root[data-theme='outrun']) .win-root .dk-album-shuffle[data-on='true'] .dk-browse-art.dk-browse-glyph { color: #ffffff; }
 /* Hovering a row that has a checkbox shows caret and checkbox in place of
    the chevron (Plex album list capture, 2026-09-05). */
-:where(:root[data-theme='outrun']) .win-root .dk-browse-row:has(.dk-browse-check):hover .dk-browse-disclosure { display: none; }
+/* Not on the selected row, whose checkbox is hidden: the chevron went too,
+   and the caret slid over the place where it had been. */
+:where(:root[data-theme='outrun']) .win-root .dk-browse-row:not([aria-selected='true']):has(.dk-browse-check):hover .dk-browse-disclosure { display: none; }
 :where(:root[data-theme='outrun']) .win-root .dk-album-shuffle .dk-browse-glyph svg { width: 22px; height: 22px; }
 /* The checkbox is a 16px square whose right edge sits 21px in from the
    gutter (the row's 14px padding plus 7px of a 30px box); 22px separate it

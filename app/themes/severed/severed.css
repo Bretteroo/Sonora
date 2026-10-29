@@ -1815,6 +1815,18 @@
     & button:focus-visible { outline: 2px dashed var(--sv-ph); outline-offset: -5px; }
   }
 
+  /* The Upgrade Advisor and Network check's shared panels, on the screen's own type scale: they
+     set 10 to 17px for a proportional face, and the screen's face is drawn larger everywhere
+     else, so beside the pages Severed draws itself they read a size or two small. Small print
+     and table text come up to the screen's 16px, body text to 18px, headings to 21px. */
+  & :is(.s2-table, .s2-table thead th, .s2-note-inline, .s2-mono, .s2-verdict, .s2-tier, .s2-callout, .s2-fine, .s2-buy,
+        .s2-opt-text small, .s2-tl-bar, .s2-tl-bounds, .s2-tl-mark span, .s2-tl-axis,
+        .s2-table tbody th small, .nm-blurb, .nm-note, .nm-system-head, .nm-model, .nm-mesh-rules, .nm-mesh-links, .nm-drop-list,
+        .nm-donut-name) { font-size: 16px; }
+  & :is(.s2-body, .s2-table-bill tfoot :is(th, td), .s2-disclosure, .nm-system-head strong, .nm-room) { font-size: 18px; }
+  & :is(.s2-body h3, .s2-choice legend, .s2-total, .nm-title) { font-size: 21px; }
+  & .s2-dialog-head h2 { font-size: 22px; }
+
   & .sv-tooltip {
     position: fixed; z-index: 1200; pointer-events: none; padding: 1px 8px; max-width: 320px;
     background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px), var(--sv-scr);

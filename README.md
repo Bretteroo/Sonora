@@ -83,7 +83,7 @@ Sonora needs to be installed on your home network on any machine that has access
 
 Docker is the recommended way to run Sonora: one command to install, one to update, and nothing else to set up on the machine.
 
-If you run Home Assistant, Sonora can also be installed as a Home Assistant app.
+If you run Home Assistant or Unraid, Sonora can also be installed as an app there.
 
 Images are provided for `linux/amd64` and `linux/arm64`. Sonora is lightweight enough to run on an older Raspberry Pi.
 
@@ -127,6 +127,20 @@ Sonora then appears in Home Assistant's sidebar for every user. Phones and other
 ### Future Updates
 
 Home Assistant offers each new Sonora release as an app update, alongside its own updates.
+</details>
+
+<details>
+<summary><strong>Install on Unraid</strong></summary>
+
+### Install Sonora
+* In Unraid, open the **Apps** tab. If it offers to install Community Applications, do that first.
+* Search for **Sonora** and click **Install**.
+* Click **Apply**. The defaults suit most servers.
+* Open <http://your-server:50205>, or choose **WebUI** from Sonora's icon on the **Docker** tab.
+
+### Future Updates
+
+On the **Docker** tab, click **Check for Updates**, then **apply update** next to Sonora.
 </details>
 
 <details>

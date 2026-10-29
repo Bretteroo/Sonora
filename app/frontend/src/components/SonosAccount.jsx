@@ -20,7 +20,7 @@ function DefaultRow({ c, label, children }) {
   )
 }
 
-export default function SonosAccount({ classes = {}, title = null, Field = null }) {
+export default function SonosAccount({ classes = {}, title = null, Field = null, showTitle = true }) {
   const { t } = useI18n()
   const { known, signedIn, email, busy, error, signIn, signOut } = useCloudAccount()
   const [form, setForm] = useState({ email: '', password: '' })
@@ -50,7 +50,7 @@ export default function SonosAccount({ classes = {}, title = null, Field = null 
 
   return (
     <div className={`${c.section} account-block`}>
-      <h4>{title || t('account.title')}</h4>
+      {showTitle && <h4>{title || t('account.title')}</h4>}
       <p className={`${c.blurb} account-blurb`}>{t('account.blurb')}</p>
       <p className={`${c.blurb} account-blurb`}>{t('account.optional')}</p>
       {error && <p className={c.error}>{error}</p>}

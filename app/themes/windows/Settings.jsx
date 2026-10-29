@@ -4,7 +4,7 @@ import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { api } from '../../frontend/src/lib/api.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
-import { Window, BasicPage } from './Dialogs.jsx'
+import { Window, BasicPage, AccountPage } from './Dialogs.jsx'
 import WinLibrary from './Library.jsx'
 import WinServices from './Services.jsx'
 import WinParental from './Parental.jsx'
@@ -41,9 +41,11 @@ export default function Settings({ initial, activeRoom = '', onClose, onAddServi
     ['library', t('win.settings.library')],
     ['services', t('win.settings.services')],
     // The app's list ends here. Parental Controls is 9.1's own tab, rebuilt
-    // from its XAML and put back at the user's request; Sonora's
-    // own page follows it, as it always has.
+    // from its XAML and put back at the user's request. Then Sonora's own
+    // pages: the Sonos account, then language and theme, two pages so that
+    // each fits the window as the app's own do.
     ['parental', t('win.parental.title')],
+    ['account', t('account.title')],
     ['basic', t('win.settings.sonora')],
   ]
   const tocRef = useRef(null)
@@ -107,7 +109,8 @@ export default function Settings({ initial, activeRoom = '', onClose, onAddServi
         {page === 'library' && <WinLibrary households={households} onBusy={setLibraryBusy} />}
         {page === 'services' && <WinServices households={households} onAdd={onAddService} onChanged={onServicesChanged} />}
         {page === 'parental' && <WinParental households={households} />}
-        {page === 'basic' && <BasicPage title={t('win.settings.sonora')} />}
+        {page === 'account' && <AccountPage />}
+        {page === 'basic' && <BasicPage title={t('win.settings.sonora')} account={false} />}
       </div>
     </Window>
   )

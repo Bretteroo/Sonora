@@ -780,17 +780,29 @@ function MessagePage({ title, body }) {
   )
 }
 
-export function BasicPage({ title }) {
+export function BasicPage({ title, account = true }) {
   const { t } = useI18n()
   // Both pieces are shared with every other settings page (see
   // components/ThemeChooser.jsx and components/SonosAccount.jsx); this page
   // adds only the dialog's heading. The account sits under the theme because
   // it is optional: a person who never signs in loses nothing but the service
-  // logos and a soundbar's television input.
+  // logos and a soundbar's television input. The Settings window gives it a
+  // page of its own (AccountPage), so this one fits the window as the others do.
   return (
     <>
       <ThemeChooser title={title === undefined ? t('desk.prefs.basic') : title} />
-      <SonosAccount />
+      {account && <SonosAccount />}
+    </>
+  )
+}
+
+// Signing in to Sonos as a Settings page of its own, under the page's heading.
+export function AccountPage() {
+  const { t } = useI18n()
+  return (
+    <>
+      <h3>{t('account.title')}</h3>
+      <SonosAccount showTitle={false} />
     </>
   )
 }

@@ -4,7 +4,7 @@ import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { api } from '../../frontend/src/lib/api.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
-import { Window, BasicPage, StereoPairField } from './Dialogs.jsx'
+import { Window, BasicPage, AccountPage, StereoPairField } from './Dialogs.jsx'
 import { IconCombo, Row, RoomBasic, DateTime91, Advanced91 } from './Classic.jsx'
 import WinLibrary from './Library.jsx'
 import WinServices from './Services.jsx'
@@ -50,6 +50,7 @@ export default function Settings({ initial, initialTab, activeRoom = '', onClose
     ['-'],
     ['datetime', t('w91.settings.dateTime')],
     ['advanced', t('w91.settings.advanced')],
+    ['account', t('account.title')],
     ['basic', t('win.settings.sonora')],
   ].map((p, n) => (p[0] === '-' ? ['-' + n] : p))
   const pageIds = pages.filter(([id]) => !id.startsWith('-')).map(([id]) => id)
@@ -109,7 +110,8 @@ export default function Settings({ initial, initialTab, activeRoom = '', onClose
         {page === 'parental' && <WinParental households={households} />}
         {page === 'datetime' && <DateTime91 households={households} />}
         {page === 'advanced' && <Advanced91 households={households} />}
-        {page === 'basic' && <BasicPage title={t('win.settings.sonora')} />}
+        {page === 'account' && <AccountPage />}
+        {page === 'basic' && <BasicPage title={t('win.settings.sonora')} account={false} />}
       </div>
     </Window>
   )

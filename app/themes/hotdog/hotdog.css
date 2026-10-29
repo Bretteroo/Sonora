@@ -136,12 +136,11 @@
 .hd-root .win-settings .dk-prefs-page label, .hd-root .win-settings .dk-prefs-page legend { color: #000000; }
 .hd-root .win-settings .dk-prefs-page, .hd-root .win-settings .win-settings-panel, .hd-root .win-settings .win-lib-table, .hd-root .win-settings .win-lib-indexing { background: #c0c0c0; color: #000000; }
 .hd-root .win-settings .dk-tabs button { background: #c0c0c0; color: #000000; border-color: #000000; }
+/* The Settings side column is the window's red from top to foot, ruled off
+   from the gray page in black, so the list stands in a column of its own
+   rather than a red block over gray; the note at its foot writes in white. */
+.hd-root .win-settings .dk-prefs-toc { background: #ff0000; border-right: 1px solid #000000; }
 .hd-root .win-settings .win-settings-foot, .hd-root .win-settings .win-settings-foot p { color: #ffffff; }
-/* the footer note sits in the gray dialog column, so it is black there */
-.hd-root .win-settings .win-settings-foot, .hd-root .win-settings .win-settings-foot p { color: #000000; }
-
-/* the Settings side column follows the dialog ground */
-.hd-root .win-settings .dk-prefs-toc { background: #c0c0c0; }
 
 /* The About card is red here, and a translucent coral wash on red reads as a
    smudge. Windows 3.1's own control is a gray face with a hard bevel, so the

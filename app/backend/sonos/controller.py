@@ -424,6 +424,7 @@ class SonosController:
         #: own VanishedDevices entry names only its model number and MAC.
         self._known_path = settings.data_dir / "known_players.json"
         self._known: dict[str, dict] = self._read_known()
+        self.registry.known_hosts = [f["host"] for f in self._known.values() if f.get("host")]
         self.contentsvc = ContentService(session)
         self.smapi.on_token_refresh = self._refresh_service_token
         # Optional, and the only cloud-dependent part of the app.
@@ -2470,7 +2471,7 @@ class SonosController:
             for p in household.players.values():
                 if p.online:
                     self.remember_player(p.uuid, {"name": p.name, "model_number": p.model_number,
-                                                  "serial": p.serial})
+                                                  "serial": p.serial, "host": p.host})
         return {
             "households": [
                 {
@@ -2731,6 +2732,11 @@ class SonosController:
         if merged == known.get(uuid):
             return
         known[uuid] = merged
+        # The addresses last seen are what an SSDP round that nothing
+        # answers asks directly, from the first round after a restart.
+        registry = getattr(self, "registry", None)
+        if registry is not None:
+            registry.known_hosts = [f["host"] for f in known.values() if f.get("host")]
         try:
             self._known_path.parent.mkdir(parents=True, exist_ok=True)
             self._known_path.write_text(json.dumps(self._known, indent=1, ensure_ascii=False), encoding="utf-8")
@@ -2826,7 +2832,7 @@ class SonosController:
         self.remember_player(uuid, {"name": player.name, "model": model,
                                     "model_number": player.model_number,
                                     "series_id": getattr(player, "series_id", ""),
-                                    "color": color,
+                                    "color": color, "host": player.host,
                                     "serial": device.get("serialNumber") or player.serial})
         return {
             "uuid": uuid,

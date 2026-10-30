@@ -601,3 +601,64 @@ def test_an_empty_household_id_means_no_household():
 
     registry._soap = SimpleNamespace(call=call)
     assert asyncio.run(registry._household_id("192.168.1.45")) == ""
+
+
+# --- a round nothing answers ----------------------------------------------------------------
+
+def _quiet_network(monkeypatch, discovery, answering):
+    """SSDP and DNS-SD find nothing; of the addresses asked directly, those
+    in ``answering`` answer as players."""
+    import asyncio as _asyncio
+    asked = []
+
+    async def ssdp(timeout):
+        return {}
+
+    async def probe(session, hosts):
+        asked.extend(hosts)
+        return [h for h in hosts if h in answering]
+
+    async def no_hosts(*a, **k):
+        return []
+
+    monkeypatch.setattr(discovery, "ssdp_search", ssdp)
+    monkeypatch.setattr(discovery, "probe_players", probe)
+    monkeypatch.setattr(discovery.dnssd, "sonos_hosts", no_hosts)
+    return asked
+
+
+def test_an_empty_ssdp_round_asks_the_known_players_directly(monkeypatch):
+    """Speakers idle on Wi-Fi miss multicast behind some access points
+    (issue 24: no rooms until a stream woke them); asked at their own
+    address they answer."""
+    import asyncio
+    registry, discovery = _registry_for_discovery({"192.168.1.11": lambda: _household("Sonos_A", "RINCON_11")})
+    registry.households = {"Sonos_A": _household("Sonos_A", "RINCON_11")}
+    registry.households["Sonos_A"].players["RINCON_11"].host = "192.168.1.11"
+    asked = _quiet_network(monkeypatch, discovery, answering={"192.168.1.11"})
+    assert list(asyncio.run(registry.discover())) == ["Sonos_A"]
+    assert asked == ["192.168.1.11"]
+
+
+def test_a_round_nothing_answers_keeps_the_rooms(monkeypatch):
+    import asyncio
+    registry, discovery = _registry_for_discovery({})
+    held = _household("Sonos_A", "RINCON_11")
+    held.players["RINCON_11"].host = "192.168.1.11"
+    registry.households = {"Sonos_A": held}
+    _quiet_network(monkeypatch, discovery, answering=set())
+    found = asyncio.run(registry.discover())
+    assert found is registry.households and list(found) == ["Sonos_A"]
+
+
+def test_after_a_restart_the_remembered_addresses_are_asked(monkeypatch):
+    import asyncio
+    registry, discovery = _registry_for_discovery({"192.168.1.45": lambda: _household("Sonos_A", "RINCON_45")})
+    registry.known_hosts = ["192.168.1.45", "192.168.1.46"]
+    asked = _quiet_network(monkeypatch, discovery, answering={"192.168.1.45"})
+    assert list(asyncio.run(registry.discover())) == ["Sonos_A"]
+    assert asked == ["192.168.1.45", "192.168.1.46"]
+    # With nothing held and nothing answering, there is nothing to keep.
+    registry.households = {}
+    _quiet_network(monkeypatch, discovery, answering=set())
+    assert asyncio.run(registry.discover()) == {}

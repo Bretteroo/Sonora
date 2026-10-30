@@ -153,6 +153,37 @@ SWEEP_TIMEOUT_S = 2.0
 SWEEP_AT_ONCE = 128
 
 
+#: How long a speaker asked at its own address is given. A speaker asleep on
+#: Wi-Fi gets a unicast packet at its next wake, well within this.
+PROBE_TIMEOUT_S = 4.0
+
+
+async def probe_players(session: aiohttp.ClientSession, hosts: list[str]) -> list[str]:
+    """Those of ``hosts`` that answer as a Sonos player, asked one by one at
+    their own address. Multicast is what SSDP relies on, and a speaker idle
+    on Wi-Fi may not get it: an access point holds or drops multicast for
+    a client in power save, while a unicast request reaches it at its next
+    wake. So the addresses Sonora knows are asked directly before the
+    network is given up on."""
+    limit = asyncio.Semaphore(SWEEP_AT_ONCE)
+
+    async def ask(ip: str) -> str | None:
+        async with limit:
+            try:
+                async with session.get(
+                    f"http://{ip}:{SONOS_PORT}/xml/device_description.xml",
+                    timeout=aiohttp.ClientTimeout(total=PROBE_TIMEOUT_S),
+                ) as resp:
+                    if resp.status == 200 and "<manufacturer>Sonos" in await resp.text():
+                        return ip
+            except Exception:
+                pass
+            return None
+
+    found = await asyncio.gather(*(ask(ip) for ip in dict.fromkeys(hosts)))
+    return [ip for ip in found if ip]
+
+
 async def sweep_for_players(session: aiohttp.ClientSession, seeds: list[str]) -> list[str]:
     """Every address on the seeds' /24s that answers as a Sonos player.
 
@@ -203,15 +234,36 @@ class HouseholdRegistry:
         self.households: dict[str, Household] = {}
         #: Hosts that failed both description asks last time; see _enrich.
         self._down: set[str] = set()
+        #: Addresses players were last seen at, from earlier runs: what an
+        #: empty SSDP round asks directly, before any household is held.
+        self.known_hosts: list[str] = []
 
     async def discover(self, *, timeout: float = 3.0) -> dict[str, Household]:
         replies = await ssdp_search(timeout=timeout)
+        if not replies:
+            # Nothing answered multicast. Speakers asleep on Wi-Fi behind an
+            # access point that drops multicast for them do that, and so
+            # does a network that never carries it; a unicast ask reaches
+            # them all the same. The players held, then the addresses
+            # remembered from before, are asked at their own address.
+            known = [p.host for household in self.households.values() for p in household.players.values()]
+            known += [host for host in self.known_hosts if host not in known]
+            direct = await probe_players(self._session, known) if known else []
+            if direct:
+                log.info("SSDP unanswered; %d of %d known speaker(s) answered directly", len(direct), len(known))
+            replies = {host: SsdpReply(host=host, server="", usn="", location="") for host in direct}
         if not replies:
             seeds = await dnssd.sonos_hosts()
             swept = await sweep_for_players(self._session, seeds) if seeds else []
             replies = {host: SsdpReply(host=host, server="", usn="", location="")
                        for host in [*seeds, *swept]}
         if not replies:
+            if self.households:
+                # One round in which nothing answers must not empty the
+                # rooms: the picture held stands until a round does better.
+                log.warning("no ZonePlayers answered SSDP or a direct ask; keeping the last "
+                            "picture of %d household(s)", len(self.households))
+                return self.households
             log.warning("no ZonePlayers answered SSDP")
             return {}
 

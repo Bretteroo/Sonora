@@ -45,6 +45,7 @@ import { editState, editActions } from '../../frontend/src/lib/editMenu.js'
 import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
 import { lyricsSong, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
 import bloom from './bloom.svg'
+import lcBloom from './lc-bloom.svg'
 
 // A replication of the Sonos S1 desktop controller as shipped for Windows.
 //
@@ -378,7 +379,7 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
   return (
     // The music pane's corner art, handed to the stylesheet as a variable:
     // a theme's stylesheet may load nothing itself.
-    <div className={`dk-root win-root ${rootClass}`.trim()} style={{ '--w91-bloom': `url(${bloom})` }}>
+    <div className={`dk-root win-root ${rootClass}`.trim()} style={{ '--w91-bloom': `url(${bloom})`, '--w91-lc-bloom': `url(${lcBloom})` }}>
       {frame ? frame({ goHome, openAbout, fullScreen, title, t, connected, households, systemFilter }) : (
       <div className="win-titlebar">
         <div className="win-titlebar-id">

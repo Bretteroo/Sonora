@@ -762,8 +762,15 @@
 /* While the speakers cannot be reached 9.1 covers the panes with a navy
    ramp, #020c1e under the transport to #022a3c at the foot, its words
    #b8c3cc under a white wordmark. */
-:root[data-theme='windows91'] .dk-lc { background: linear-gradient(#020c1e, #022a3c); color: #b8c3cc; }
+:root[data-theme='windows91'] .dk-lc { color: #b8c3cc; }
 :root[data-theme='windows91'] .dk-lc-mark { color: #ffffff; }
+/* Over the ramp hangs a 520x148 ornament from the pane's top edge, with the
+   wordmark standing on its foot, 145px down, and the 290px band that centers
+   the words under it: the overlay's first row is the ornament's height. */
+:root[data-theme='windows91'] .dk-lc {
+  background: var(--w91-lc-bloom) center top / 520px 148px no-repeat, linear-gradient(#020c1e, #022a3c);
+}
+:root[data-theme='windows91'] .dk-lc-mark { margin: 112px 0 -4px; }
 :root[data-theme='windows91'] .dk-lc-body p { color: #b8c3cc; text-shadow: 0 -1px 1px #000000; }
 
 /* ---- Mini Controller ------------------------------------------------- */

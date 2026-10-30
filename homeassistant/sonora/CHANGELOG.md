@@ -1,5 +1,44 @@
 # Changelog
 
+## 1.1.0
+
+### What’s new
+
+* Sonora can be installed on Unraid from the Apps tab. Search for Sonora.
+* Long lists now load 100 rows at a time as you scroll.
+* Adds a vertical alphabet bar for long lists in ten themes, with magnification, instant jumps back to loaded sections, and a loading indicator. Hello, big local libraries!
+* Sonora silently checks GitHub for a new release once a week, and every theme shows a simple notification when one is out with a link to the changelog.  If this is annoying, let me know.
+* Now-playing text that’s too long to fit scrolls in every theme’s player, bar, and room cards.
+* Podcast episodes name their show under them in every bar and card. Sonos Web and Hi-Fi also show a podcast’s release date, an audiobook’s narrator and book, and a broadcast’s show or what’s on air.
+* Stations that announce the song on air in their stream text now show that song and artist (#19). Thanks to @v1nc3lx for reporting it.
+* Modals fade in and out, and modals with a title bar can be dragged.
+* TV rooms, Sonos Favorites, and Recently Played follow the official apps more closely. Recently Played fills in missing art from your Favorites and leaves out announcements, chimes, and alerts from things like Home Assistant.
+* Sonos Web: Manage and “+” on Your Services open Content Services pages. Removing a service asks whether to remove it from Sonos, Sonora, or both.
+* Liquid Glass and Sonofuture: a reworked big player. A group shows one volume slider, the whole player fits a phone screen, and the queue slides in from the right. Optimizations to Liquid Glass mean it now runs a full 60 frames a second instead of about 18.
+* Material Girl: time and date pickers match Material Design 3.
+* A user's Sonos account login has its own page in Settings.
+* Removing a music folder shows it being removed, and a folder being added survives a Sonora restart.
+* The upgrade advisor’s answer folds shut and open when you choose a different plan.
+* When the “This browser” room is selected, the search box switches to whatever service it’s playing, and Alarms opens for it.
+* Easter egg added
+
+### Fixes
+
+* A stereo pair no longer vanishes when both speakers report the channel map (#15). Thanks to @prasta1 for the fix.
+* Group volume keeps up with the slider, and in Sonos Web the room sliders inside a group can be reached again.
+* The seek bar no longer jumps back after a seek, and Sonos Web’s seek bar takes clicks reliably.
+* Two rooms with the same name stay two rooms, and a room’s new icon arrives with its new name.
+* Services found only on S2 (like TuneIn (New)) keep their icons, and Sonos Web shows each system’s own service icons.
+* Station text with escaped commas reads cleanly. A stream station that names no song reads as On Now in the Windows theme.
+* The sleep timer in the Windows and macOS themes behaves like the apps’, and its countdown shows in the header and the button row.
+* The "Clear queue?" and "Save queue?" dialogs no longer appear layered behind the music sources.
+* Phone tab bars stay tappable and visible when the page is slightly zoomed.  You're welcome, fellow fat finger fellows.
+* Settings now fit short windows in Hi-Fi and Material Girl, and settings pages no longer cut off shadows and focus rings.
+* Menus near the window’s right edge no longer squeeze, and dropdown arrows no longer jump on hover.
+* The “lost its connection” screen is spaced out in the desktop themes, and its text is now legible in Hot Dog Stand.
+* Severed’s dropdowns had missing scanlines, and Severed's text sizes match in the Upgrade Advisor and Network Check.
+* Material Girl’s group and queue counts no longer look like warnings.
+
 ## 1.0.5
 
 ### What’s new

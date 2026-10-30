@@ -997,11 +997,11 @@ export default function Browse({
       }
     } else if (how === 'now' || how === 'replace') {
       await actions.setSource(into(item.hzone), { ...bodyFor(group[0]), ...from(item.hzone), ...(how === 'replace' ? { replace: true } : {}) })
-      for (const i of group.slice(1)) await actions.setSource(into(item.hzone), { ...bodyFor(i), enqueue: true })
+      for (const i of group.slice(1)) await actions.setSource(into(item.hzone), { ...bodyFor(i), ...from(item.hzone), enqueue: true })
     } else if (how === 'next') {
-      for (const i of [...group].reverse()) await actions.setSource(into(item.hzone), { ...bodyFor(i), enqueue: true, next: true })
+      for (const i of [...group].reverse()) await actions.setSource(into(item.hzone), { ...bodyFor(i), ...from(item.hzone), enqueue: true, next: true })
     } else {
-      for (const i of group) await actions.setSource(into(item.hzone), { ...bodyFor(i), enqueue: true })
+      for (const i of group) await actions.setSource(into(item.hzone), { ...bodyFor(i), ...from(item.hzone), enqueue: true })
     }
     setChecked(new Set())
     onDone?.()

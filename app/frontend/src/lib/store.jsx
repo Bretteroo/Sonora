@@ -736,22 +736,50 @@ export function SystemProvider({ children }) {
         const answer = await local.setSource({ uri: url, title })
         return answer ? { title: title || url } : null
       },
+      // Why the room cannot take a source, in the words the backend uses.
+      refuseSource: (answer) => {
+        const why = { 'needs-speaker': 'local.cannotPlay.needsSpeaker',
+                      'needs-queue': 'local.cannotPlay.needsQueue',
+                      'needs-link': 'local.cannotPlay.needsLink',
+                      'service-refused': 'local.cannotPlay.serviceRefused',
+                      'protected': 'local.cannotPlay.protected' }[answer.reason]
+        notify({ kind: 'warning', titleKey: 'local.cannotPlay.title',
+                 detailKey: why || 'local.cannotPlay.unknown',
+                 detailParams: { service: answer.service || '' } })
+        return null
+      },
+      // Add to Queue and Play Next: the track goes into the room's list where
+      // a speaker's queue would take it. A room holding no list (a single
+      // track or a station playing, or nothing) starts one, headed by the
+      // track playing; a station playing keeps playing beside the list.
+      enqueueTrack: async (body) => {
+        const held = localOut.state
+        const zone = body.from_zone || held.fromZone || ''
+        const listed = Boolean(held.session && Array.isArray(held.queue))
+        const track = held.url && !held.queue && !held.station ? held.mediaUri : ''
+        const answer = await run(() => (listed
+          ? api.streamQueueEdit(held.session, { action: 'add', uri: body.uri, zone, next: Boolean(body.next) })
+          : api.streamQueueStart({ uri: body.uri, zone, now_uri: track, now_zone: held.fromZone || '' })),
+          { describe: 'notice.conflict.title' })
+        if (!answer) return null
+        if (answer.reason) return local.refuseSource(answer)
+        const asked = { uri: body.uri, from_zone: zone }
+        const session = answer.session || held.session
+        const follow = answer.session ? {
+          next: async () => { const more = await api.streamNext(session).catch(() => null); return more && more.url ? fromAnswer(more, asked) : null },
+          jump: async (index) => { const more = await api.streamJump(session, index).catch(() => null); return more && more.url ? fromAnswer(more, asked) : null },
+        } : {}
+        localOut.adopt({ session, queue: answer.queue, queueIndex: answer.playing ? answer.index : -1,
+                         playing: Boolean(answer.playing), ...follow })
+        return answer
+      },
       setSource: async (body) => {
+        if (body.enqueue && !body.replace) return local.enqueueTrack(body)
         // `start`: a track of the album to begin at (a restored queue).
         const { start = '', ...asked } = body
         const answer = await run(() => api.streamUrl(asked.uri, asked.from_zone || '', start), { describe: 'notice.error.title' })
         if (!answer) return null
-        if (!answer.url) {
-          const why = { 'needs-speaker': 'local.cannotPlay.needsSpeaker',
-                        'needs-queue': 'local.cannotPlay.needsQueue',
-                        'needs-link': 'local.cannotPlay.needsLink',
-                        'service-refused': 'local.cannotPlay.serviceRefused',
-                        'protected': 'local.cannotPlay.protected' }[answer.reason]
-          notify({ kind: 'warning', titleKey: 'local.cannotPlay.title',
-                   detailKey: why || 'local.cannotPlay.unknown',
-                   detailParams: { service: answer.service || '' } })
-          return null
-        }
+        if (!answer.url) return local.refuseSource(answer)
         // A new source: a station or a single track brings no list, so the
         // one from before goes.
         const loaded = { ...fromAnswer(answer, asked), ...(Array.isArray(answer.queue) ? {} : { queue: null, jump: null }) }

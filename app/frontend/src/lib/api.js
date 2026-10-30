@@ -91,6 +91,9 @@ export const api = {
   // Its list edited (remove / move / clear, places from 0), or saved as a
   // Sonos playlist through a speaker of its household.
   streamQueueEdit: (session, body) => request(`/api/stream/${encodeURIComponent(session)}/queue`, { method: 'POST', body }),
+  // Add to Queue when the room holds no list: one is started, headed by
+  // the track playing if there is one, and the answer names its session.
+  streamQueueStart: (body) => request('/api/stream/queue', { method: 'POST', body }),
   streamSave: (session, body) => request(`/api/stream/${encodeURIComponent(session)}/save`, { method: 'POST', body }),
   // What a radio stream says is on now (its ICY StreamTitle), read by Sonora.
   streamTitle: (url, station = '') => request(`/api/stream/title?url=${encodeURIComponent(url)}&station=${encodeURIComponent(station)}`),

@@ -503,6 +503,23 @@ export const localOut = {
     return answer
   },
 
+  /**
+   * Hold a list the room was handed (Add to Queue, Play Next): shown as its
+   * queue, with a double-click following it. `playing` says the track
+   * playing heads the list, so Next follows it too; a station playing keeps
+   * its own Next, and a room playing nothing starts the list from Play.
+   */
+  adopt({ session, queue, queueIndex = -1, playing = false, next = null, jump = null }) {
+    if (jump) jumpTrack = jump
+    if (playing && next) {
+      nextTrack = next
+      if (lastLoad) lastLoad = { ...lastLoad, next, queue, queueIndex, jump: jumpTrack, session }
+    }
+    if (!current.url) replay = async () => { await localOut.jump(0); return Boolean(current.url) }
+    current = { ...current, queue, queueIndex, session, restored: false, hasNext: Boolean(nextTrack) }
+    emit()
+  },
+
   /** Clear Queue: the room stops and holds nothing, as a speaker does. */
   async clearQueue() {
     if (current.session) await api.streamQueueEdit(current.session, { action: 'clear' }).catch(() => null)

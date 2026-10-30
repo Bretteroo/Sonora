@@ -49,7 +49,7 @@ from .sonos.network import room_health
 from .sonos import icy
 from .sonos import hhsettings
 from .sonos.cloud import CloudError, NotSignedIn, service_categories
-from .sonos.smapi import SmapiError
+from .sonos.smapi import SmapiError, SmapiItem
 from .sonos.smapi import smapi_item_id as _smapi_item_id
 from .sonos.smapi import (smapi_account_serial, smapi_container_ref,
                           smapi_media_ref, smapi_sid)
@@ -1550,7 +1550,7 @@ async def _album_track(session: dict) -> dict | None:
         session["pos"] += 1
         item = session["tracks"][session["pos"]]
         try:
-            answer = await ctl.smapi.get_media_uri(item_id=item.id, **session["smapi"])
+            answer = await ctl.smapi.get_media_uri(item_id=item.id, **_track_context(session, item))
         except Exception as exc:
             log.info("no URL for %s: %s", item.id, exc)
             continue
@@ -1624,6 +1624,93 @@ def _sweep_radio_sessions() -> None:
     for key, session in list(_RADIO_SESSIONS.items()):
         if now - session["at"] > _RADIO_SESSION_LIFE:
             del _RADIO_SESSIONS[key]
+
+
+#: A Sonos playlist as a speaker names it: the saved-queues file and the
+#: playlist's number, which is its ``SQ:`` id in the content directory.
+_SAVED_QUEUE = re.compile(r"^file:///jffs/settings/savedqueues\.rsq#(\d+)$", re.IGNORECASE)
+
+
+def _didl_seconds(duration: str) -> int:
+    """``0:03:23``, as a speaker writes a length, in seconds."""
+    try:
+        return int(sum(float(part) * 60 ** n
+                       for n, part in enumerate(reversed((duration or "").split(":")))))
+    except ValueError:
+        return 0
+
+
+async def _speaker_list_stream(uri: str, zone: str | None, start: str = "") -> dict | None:
+    """A Sonos playlist, read off the speakers and played here a track at a time.
+
+    To the speakers a Sonos playlist is one thing: a list of URIs they keep
+    themselves. To the browser room it is what a service's album is, a list
+    whose tracks are each fetched from their own service with the household's
+    login, so it is opened the same way (``tracks``, ``pos``, a ``queue`` in
+    the answer). A track only a speaker can fetch, a music library file say,
+    is left out of the list; a playlist of nothing else says so.
+    """
+    found = _SAVED_QUEUE.match(uri or "")
+    if not found or not zone:
+        return None
+    ctl = controller()
+    household = ctl.household_of(zone)
+    if household is None:
+        return None
+    host = _host_for(zone)
+    object_id = f"SQ:{found.group(1)}"
+    try:
+        rows = await ctl.content.browse_all(host, object_id, limit=_ALBUM_LIMIT)
+    except Exception as exc:                          # noqa: BLE001 - a quiet speaker
+        log.info("could not read %s from %s: %s", object_id, host, exc)
+        return None
+    tracks, contexts, sids = [], {}, {}
+    services: dict[int, tuple] = {}
+    unlinked = ""
+    for row in rows:
+        sid, item_id = smapi_media_ref(row.uri)
+        if not sid or not item_id:
+            continue
+        if sid not in services:
+            service = await _cached_service(ctl, household, sid)
+            context = None
+            if service is not None:
+                creds = ctl.credentials_for(household.id, sid, "", single_account=True) or {}
+                if service.auth == "Anonymous" or creds.get("token"):
+                    context = await _service_context(household, service, ctl)
+                else:
+                    unlinked = unlinked or service.name
+            services[sid] = (service, context)
+        service, context = services[sid]
+        if context is None:
+            continue
+        art = row.art_uri
+        if art and not art.startswith(("http://", "https://")):
+            art = f"http://{host}:{const.SONOS_PORT}{art}"
+        item = SmapiItem(id=item_id, title=row.title, item_type="track", art=art, can_play=True,
+                         artist=row.artist or row.creator, album=row.album,
+                         duration=_didl_seconds(row.duration))
+        tracks.append(item)
+        contexts[item_id], sids[item_id] = context, sid
+    if not tracks:
+        if unlinked:
+            return {"url": "", "reason": "needs-link", "service": unlinked}
+        return {"url": "", "reason": "needs-speaker"} if rows else None
+    _sweep_radio_sessions()
+    name = services[sids[tracks[0].id]][0].name
+    session = {"station": object_id, "smapi": {}, "queue": [], "index": 0,
+               "service": name, "household": household.id, "uri": uri, "at": time.time(),
+               "tracks": tracks, "pos": -1, "contexts": contexts, "sids": sids}
+    if start:
+        at = next((n for n, t in enumerate(tracks) if t.id == start), None)
+        if at is not None:
+            session["pos"] = at - 1
+    first = await _radio_track(session)
+    if first is None:
+        return {"url": "", "reason": "service-refused", "service": name}
+    key = secrets.token_urlsafe(18)
+    _RADIO_SESSIONS[key] = session
+    return {**first, **_album_listing(session), "reason": "", "service": name, "session": key}
 
 
 async def _service_stream(uri: str, zone: str | None, start: str = "") -> dict | None:
@@ -1795,6 +1882,12 @@ async def stream_for_browser(uri: str, zone: str | None = None, start: str = "")
         resolved = await _service_stream(uri, zone, start)
         if resolved is not None:
             answer = resolved
+    # A Sonos playlist is kept by the speakers, who name its tracks; each one
+    # is then fetched from its own service like the tracks of an album.
+    if not answer["url"] and _SAVED_QUEUE.match(uri):
+        listed = await _speaker_list_stream(uri, zone, start)
+        if listed is not None:
+            answer = listed
     # Whatever the source, what goes to the page has to be audio and not a
     # list of places to find it. A proxied stream is followed at the proxy.
     if answer["url"] and not answer.get("upstream"):
@@ -1849,7 +1942,7 @@ async def stream_jump(session: str, index: int) -> dict:
 
 
 class BrowserQueueEdit(BaseModel):
-    #: remove | move | clear
+    #: remove | move | clear | add
     action: str
     #: remove: the track's place, from 0.
     index: int = 0
@@ -1858,6 +1951,98 @@ class BrowserQueueEdit(BaseModel):
     start: int = 0
     count: int = 1
     insert_before: int = 0
+    #: add: the track's Sonos URI, the room it was browsed through (whose
+    #: service login fetches it), and whether it goes right after the track
+    #: playing rather than at the end.
+    uri: str = ""
+    zone: str = ""
+    next: bool = False
+
+
+async def _browser_track(uri: str, zone: str) -> dict:
+    """A service track as the browser room's list holds one: the service's
+    own item for it and the SMAPI context it is fetched with, or ``reason``
+    why there is none, in the words ``/api/stream`` uses. The same questions
+    ``_service_stream`` asks, short of asking for the stream itself."""
+    ctl = controller()
+    sid, item_id = smapi_media_ref(uri)
+    if not sid or not item_id:
+        return {"reason": "needs-speaker"}
+    household = ctl.household_of(zone) if zone else None
+    if household is None:
+        household = next(iter(ctl.ordered_households()), None)
+    if household is None:
+        return {"reason": "needs-speaker"}
+    service = await _cached_service(ctl, household, sid)
+    if service is None:
+        return {"reason": "needs-speaker"}
+    creds = ctl.credentials_for(household.id, sid, "", single_account=True) or {}
+    if service.auth != "Anonymous" and not creds.get("token"):
+        return {"reason": "needs-link", "service": service.name}
+    context = await _service_context(household, service, ctl)
+    try:
+        found = await ctl.smapi.get_media_metadata(item_id=item_id, **context)
+    except Exception as exc:
+        log.info("no metadata from %s for %s: %s", service.name, item_id, exc)
+        found = None
+    if found is None or found.is_container:
+        return {"reason": "service-refused", "service": service.name}
+    return {"item": found, "context": context, "sid": sid, "service": service, "household": household}
+
+
+def _hold_track(session: dict, got: dict, at: int) -> None:
+    """Put a resolved track into a session's list at ``at``, with the
+    context and service it is fetched by, which may not be the list's own:
+    a queue mixes services as a speaker's does."""
+    item = got["item"]
+    session["tracks"].insert(at, item)
+    session.setdefault("contexts", {})[item.id] = got["context"]
+    session.setdefault("sids", {})[item.id] = got["sid"]
+
+
+def _track_context(session: dict, item) -> dict:
+    """The SMAPI arguments a track of the list is fetched with."""
+    return session.get("contexts", {}).get(item.id) or session["smapi"]
+
+
+class BrowserQueueStart(BaseModel):
+    #: The track added, and the room it was browsed through.
+    uri: str
+    zone: str = ""
+    #: The track playing in the browser room, if one is, and its room: it
+    #: heads the list, so Next goes on to what was added.
+    now_uri: str = ""
+    now_zone: str = ""
+
+
+@app.post("/api/stream/queue")
+async def stream_queue_start(body: BrowserQueueStart) -> dict:
+    """Add to the browser room's queue when it holds no list.
+
+    A single track or a station playing there brings no list, and an empty
+    room has none. "Add to Queue" then starts one: the track playing, if
+    one is, and the one added. The answer is the list and a session for it,
+    which later adds, edits, Next and a double-click go by. A refusal
+    comes back as ``reason`` (needs-speaker, needs-link, service-refused),
+    never as an error: nothing was playing that could be hurt.
+    """
+    _sweep_radio_sessions()
+    got = await _browser_track(body.uri, body.zone)
+    if "item" not in got:
+        return {"reason": got["reason"], "service": got.get("service", "")}
+    session = {"station": got["item"].id, "smapi": got["context"], "queue": [], "index": 0,
+               "service": got["service"].name, "household": got["household"].id,
+               "uri": body.now_uri or body.uri, "at": time.time(),
+               "tracks": [], "pos": -1, "playing": False}
+    _hold_track(session, got, 0)
+    if body.now_uri:
+        now = await _browser_track(body.now_uri, body.now_zone or body.zone)
+        if "item" in now:
+            _hold_track(session, now, 0)
+            session["pos"], session["playing"] = 0, True
+    key = secrets.token_urlsafe(18)
+    _RADIO_SESSIONS[key] = session
+    return {**_album_listing(session), "session": key, "service": got["service"].name, "reason": ""}
 
 
 def _album_listing(session: dict) -> dict:
@@ -1872,18 +2057,24 @@ def _album_listing(session: dict) -> dict:
 
 @app.post("/api/stream/{session}/queue")
 async def stream_queue_edit(session: str, body: BrowserQueueEdit) -> dict:
-    """Remove, move, or clear tracks of the album the browser room plays.
+    """Remove, move, clear, or add to the list the browser room plays.
 
     The same edits a speaker's queue takes, applied to the session's own list
     so that Next and a double-click go where the list now says. The place of
-    the playing track moves with it.
+    the playing track moves with it. An add that the service refuses comes
+    back as ``reason`` with the list as it stands.
     """
     held = _RADIO_SESSIONS.get(session)
     if held is None or held.get("tracks") is None:
         raise HTTPException(404, "that album is no longer playing here")
     tracks, pos = held["tracks"], held["pos"]
     playing = held.get("playing", True)
-    if body.action == "clear":
+    if body.action == "add":
+        got = await _browser_track(body.uri, body.zone)
+        if "item" not in got:
+            return {**_album_listing(held), "reason": got["reason"], "service": got.get("service", "")}
+        _hold_track(held, got, pos + 1 if body.next else len(tracks))
+    elif body.action == "clear":
         held["tracks"], held["pos"], held["playing"] = [], -1, False
     elif body.action == "remove":
         if not 0 <= body.index < len(tracks):
@@ -1943,10 +2134,17 @@ async def stream_queue_save(session: str, body: BrowserQueueSave) -> dict:
         zone = next((u for u in household.zones if ctl.zones.get(u) and ctl.zones[u].online), "")
     if not zone:
         raise HTTPException(409, "no speaker of that system is reachable to save on")
-    sid = smapi_container_ref(held["uri"])[0]
-    sn = (await _household_serials(zone)).get(sid) or "0"
-    udn = ctl.account_udn(household.id, sid, sn)
-    entries = [built for built in (playable(t, sid, sn, udn=udn) for t in held["tracks"]) if built]
+    # Each track by the service it came from: a list started by Add to
+    # Queue names no container, and may hold more than one service.
+    own = smapi_container_ref(held["uri"])[0] or smapi_media_ref(held["uri"])[0]
+    serials = await _household_serials(zone)
+    entries = []
+    for t in held["tracks"]:
+        sid = held.get("sids", {}).get(t.id) or own
+        sn = serials.get(sid) or "0"
+        built = playable(t, sid, sn, udn=ctl.account_udn(household.id, sid, sn))
+        if built:
+            entries.append(built)
     if not entries:
         raise HTTPException(409, "the speakers cannot be told to play these tracks")
     new_id = await commands().create_playlist(zone, title)

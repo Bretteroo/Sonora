@@ -541,3 +541,63 @@ def test_a_new_room_icon_shows_with_the_new_name():
     # The topology event that follows has nothing left to bring.
     after = before.replace('ZoneName="Lab"', 'ZoneName="Lab" Icon="x-rincon-roomicon:den"')
     assert asyncio.run(ctl._apply_topology("192.168.1.A1", after)) is True
+
+
+def test_a_speaker_in_no_household_is_not_shown(monkeypatch):
+    """A Play:1 factory-reset to move it to S2 answered SSDP and topology
+    but had no household id while the app set it up, and was shown as a
+    second S2 system until a refresh after the move."""
+    import asyncio
+    from backend.sonos.discovery import NoHousehold
+
+    def unplaced():
+        raise NoHousehold("192.168.1.45")
+
+    registry, discovery = _registry_for_discovery({"192.168.1.11": lambda: _household("Sonos_A", "RINCON_11"),
+                                                   "192.168.1.45": unplaced})
+
+    async def ssdp(timeout):
+        return ["192.168.1.45", "192.168.1.11"]
+
+    monkeypatch.setattr(discovery, "ssdp_search", ssdp)
+    assert list(asyncio.run(registry.discover())) == ["Sonos_A"]
+
+
+def test_a_stand_in_household_that_answers_nothing_is_dropped(monkeypatch):
+    """A real household that misses a round keeps its last picture; a
+    stand-in, filed for a speaker that could not say its household, does
+    not: the speaker is restarting into one."""
+    import asyncio
+
+    def down():
+        raise OSError("no route")
+
+    registry, discovery = _registry_for_discovery({"192.168.1.11": lambda: _household("Sonos_A", "RINCON_11"),
+                                                   "192.168.1.45": down})
+    registry.households = {"Sonos_A": _household("Sonos_A", "RINCON_11"),
+                           "unknown-192.168.1.45": _household("unknown-192.168.1.45", "RINCON_45"),
+                           "Sonos_B": _household("Sonos_B", "RINCON_21")}
+    registry.households["unknown-192.168.1.45"].players["RINCON_45"].host = "192.168.1.45"
+    registry.households["Sonos_B"].players["RINCON_21"].host = "192.168.1.21"
+    registry.households["Sonos_A"].players["RINCON_11"].host = "192.168.1.11"
+
+    async def ssdp(timeout):
+        return ["192.168.1.11"]
+
+    monkeypatch.setattr(discovery, "ssdp_search", ssdp)
+    found = asyncio.run(registry.discover())
+    assert sorted(found) == ["Sonos_A", "Sonos_B"]       # B kept, the stand-in gone
+
+
+def test_an_empty_household_id_means_no_household():
+    import asyncio
+    from types import SimpleNamespace
+    from backend.sonos.discovery import HouseholdRegistry
+
+    registry = HouseholdRegistry(soap=None, session=None)
+
+    async def call(host, service, action, args=None, **kw):
+        return {"CurrentHouseholdID": ""}
+
+    registry._soap = SimpleNamespace(call=call)
+    assert asyncio.run(registry._household_id("192.168.1.45")) == ""

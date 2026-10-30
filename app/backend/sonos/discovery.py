@@ -185,6 +185,15 @@ async def sweep_for_players(session: aiohttp.ClientSession, seeds: list[str]) ->
     return hosts
 
 
+class NoHousehold(Exception):
+    """A speaker that answers but belongs to no household: one being set
+    up, or just factory-reset. Not a system, so not shown as one."""
+
+    def __init__(self, host: str) -> None:
+        super().__init__(f"{host} is in no household")
+        self.host = host
+
+
 class HouseholdRegistry:
     """Discovers and holds every household visible on the network."""
 
@@ -216,6 +225,10 @@ class HouseholdRegistry:
                 continue
             try:
                 household = await self.load_from(host)
+            except NoHousehold:
+                log.info("%s is in no household yet (being set up?); not shown", host)
+                asked.add(host)
+                continue
             except Exception as exc:
                 log.warning("topology fetch from %s failed: %s", host, exc)
                 continue
@@ -241,9 +254,19 @@ class HouseholdRegistry:
                 log.info("household %s: its players all belong to another household now; "
                          "dropping it", household_id)
                 continue
+            # A stand-in has no identity to keep: a speaker filed under one
+            # because it could not say which household it was in, now not
+            # answering at all, is most likely restarting into a real one.
+            if household_id.startswith("unknown-"):
+                log.info("stand-in household %s answered nothing this round; dropping it", household_id)
+                continue
             for host in sorted({p.host for p in previous.players.values()} - asked):
                 try:
                     household = await self.load_from(host)
+                except NoHousehold:
+                    log.info("%s is in no household now (being set up?)", host)
+                    asked.add(host)
+                    continue
                 except Exception as exc:
                     log.warning("topology fetch from %s failed: %s", host, exc)
                     asked.add(host)
@@ -321,6 +344,8 @@ class HouseholdRegistry:
         await self._enrich(players)
 
         household_id = await self._household_id(host)
+        if not household_id:
+            raise NoHousehold(host)
         if household_id.startswith("unknown-"):
             household_id = self._known_household(players) or household_id
         control_id = await self._household_control_id(host)
@@ -365,7 +390,11 @@ class HouseholdRegistry:
         except Exception as exc:
             log.warning("GetHouseholdID from %s failed: %s", host, exc)
             return f"unknown-{host}"
-        return result.get("CurrentHouseholdID") or f"unknown-{host}"
+        # An empty answer is an answer: the speaker is in no household. A
+        # Play:1 factory-reset to move it from S1 to S2 said so while the
+        # Sonos app was setting it up, and under a stand-in id it was shown
+        # as a second S2 system for the quarter hour the move took.
+        return result.get("CurrentHouseholdID") or ""
 
     async def _household_control_id(self, host: str) -> str:
         """Read the full household identifier from the support page.

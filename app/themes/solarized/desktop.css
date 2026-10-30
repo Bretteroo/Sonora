@@ -1519,6 +1519,9 @@
    364px column of 14px white text; the transport strip above stays drawn. */
 :where(:root[data-theme='solarized']) .dk-lc {
   position: absolute; inset: 0; z-index: 30;
+  /* It is the panes' first child, so the outer panes' side margins
+     (window-chrome.css) would land on it and let them show at its edge. */
+  margin: 0 !important;
   display: grid; grid-template-rows: auto 290px 1fr; justify-items: center;
   background: var(--t-bg); color: var(--t-fg);
 }

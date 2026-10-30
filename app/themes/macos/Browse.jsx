@@ -7,7 +7,7 @@ import { useMyRadioStations } from '../../frontend/src/lib/myRadio.js'
 import { api } from '../../frontend/src/lib/api.js'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
-import { playTarget } from '../../frontend/src/lib/browserRoom.js'
+import { homeZone, playTarget } from '../../frontend/src/lib/browserRoom.js'
 import { CautionBadge, serviceCaution } from '../../frontend/src/components/CautionBadge.jsx'
 import { readLibraryPrefs, libraryRows } from '../../frontend/src/lib/libraryPrefs.js'
 import { libraryScope, searchLibrary } from '../../frontend/src/lib/librarySearch.js'
@@ -224,7 +224,7 @@ export default function Browse({
       ? top.id === '__info-item' && top.item && (top.item.id || top.item.uri) === (infoItem.id || infoItem.uri)
       : top.id === '__info' && top.hzone === activeZone.uuid)) return
     const transport = activeZone.transport || {}
-    const hh = households.find((h) => h.zone_uuids.includes(activeZone.uuid))
+    const hh = households.find((h) => h.zone_uuids.includes(homeZone(activeZone)))
     const sid = infoItem ? Number((/[?&]sid=(\d+)/.exec(infoItem.uri || '') || [])[1]) || transport.service_id : transport.service_id
     const service = (servicesByHh[hh?.id] || []).find((svc) => svc.id === sid)
     // Slides in like any other page, as the app's does. A queue row's Info &
@@ -545,7 +545,7 @@ export default function Browse({
   useEffect(() => {
     if (!playingSid || !onScope || !activeZone) return
     if (followed.current === `${activeZone.uuid}:${playingSid}`) return
-    const hh = households.find((h) => h.zone_uuids.includes(activeZone.uuid))
+    const hh = households.find((h) => h.zone_uuids.includes(homeZone(activeZone)))
     const match = (servicesByHh[hh?.id] || []).find((svc) => svc.id === playingSid)
     if (!match) return
     const hzone = zoneForHousehold(hh.id)

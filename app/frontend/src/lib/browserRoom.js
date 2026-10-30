@@ -30,6 +30,15 @@ export function withoutBrowserRoom(list) {
 }
 
 /**
+ * The speaker that places a room in a household. A speaker is its own; this
+ * browser belongs to none, so what it plays is placed by the speaker it was
+ * browsed through, which is the household whose service it came from.
+ */
+export function homeZone(zone) {
+  return zone?.local ? zone.transport?.from_zone || '' : zone?.uuid
+}
+
+/**
  * Where a play should land.
  *
  * Browsing and playing are not the same room. A service listing is fetched
@@ -159,6 +168,8 @@ export function browserTransport(out) {
     // where nothing a service serves is playing, as on a speaker.
     service_id: out.url && out.serviceId ? out.serviceId : null,
     item_id: out.url ? out.itemId || '' : '',
+    // The speaker the item was browsed through, which homeZone reads.
+    from_zone: out.url ? out.fromZone || '' : '',
     // Radio does not fill a queue, here or on a speaker; an album does.
     queue_length: out.queue ? out.queue.length : 0,
     // A station or a book has a next track to ask the service for; a live

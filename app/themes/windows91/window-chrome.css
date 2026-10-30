@@ -308,9 +308,12 @@
    the pill and in its scope menu (checked against Sonos Radio's, 2026-09-06),
    even though searchboxspecialized.xaml's Image element is square. Its
    2px top margin, in a 20px stack centered in the 25px field, puts it 1px
-   below the field's middle line; a round logo that nearly fills the field
-   reads as sitting low there, so it is centered instead. */
-:where(:root[data-theme='windows91']) .win-root .dk-strip-scope img, :where(:root[data-theme='windows91']) .win-root .dk-strip-scope > svg:first-child { width: 18px; height: 18px; border-radius: 50%; box-shadow: none; }
+   below the field's middle line, and a round logo that nearly fills the
+   field reads as sitting low there. Centered on the box it reads as high:
+   the field's frame starts 1px down, under a 1px rim, so the frame's middle
+   is half a pixel below the box's, and that is where it goes. The white
+   inside is no guide: the inset shadow over its top makes it look low. */
+:where(:root[data-theme='windows91']) .win-root .dk-strip-scope img, :where(:root[data-theme='windows91']) .win-root .dk-strip-scope > svg:first-child { width: 18px; height: 18px; border-radius: 50%; box-shadow: none; position: relative; top: 0.5px; }
 /* The caret sits below the middle line, not on it. Its 3px top margin in
    the same 20px stack puts its top 11.5px down the 25px field, and the app's
    ink runs 12..15 down from the field's top (measured 2026-09-06: pill

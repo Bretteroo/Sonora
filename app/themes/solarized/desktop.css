@@ -1529,8 +1529,10 @@
    panes' #1A1A1A on the Mac, whose lines are 13px (both apps seen with
    their VM's link cut, 2026-09-22) -- and Sonora's skins their theme's. */
 :where(:root[data-theme='solarized']) .mac-root .dk-lc-body p { font-size: 13px; letter-spacing: 0; }
+/* Set out as 9.1 sets its own: the wordmark's foot 145px below the panes'
+   top, which puts the words' band where 9.1's is. */
 :where(:root[data-theme='solarized']) .dk-lc-mark {
-  margin: -9px 0 0; font-size: 36px; line-height: 40px; font-weight: 500;
+  margin: 112px 0 -4px; font-size: 36px; line-height: 40px; font-weight: 500;
   letter-spacing: 0.12em; padding-left: 0.12em;
 }
 :where(:root[data-theme='solarized']) .dk-lc-body { width: 615px; max-width: 100%; display: grid; place-items: center; padding-top: 16px; }

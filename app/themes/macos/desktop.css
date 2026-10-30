@@ -1529,8 +1529,11 @@
    their VM's link cut, 2026-09-22) -- and Sonora's skins their theme's. */
 :root[data-theme='macos'] .dk-lc { background: #1a1a1a; color: #ffffff; }
 :where(:root[data-theme='macos']) .mac-root .dk-lc-body p { font-size: 13px; letter-spacing: 0; }
+/* The Mac app stands its wordmark clear of the transport, as 9.1 does: the
+   glyphs 120-146pt below the overlay's top and the words' band centered at
+   294pt (S1 Mac app, measured 2026-10-29). */
 :where(:root[data-theme='macos']) .dk-lc-mark {
-  margin: -9px 0 0; font-size: 36px; line-height: 40px; font-weight: 500;
+  margin: 112px 0 -4px; font-size: 36px; line-height: 40px; font-weight: 500;
   letter-spacing: 0.12em; padding-left: 0.12em;
 }
 :where(:root[data-theme='macos']) .dk-lc-body { width: 615px; max-width: 100%; display: grid; place-items: center; padding-top: 16px; }

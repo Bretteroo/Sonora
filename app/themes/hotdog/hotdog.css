@@ -351,3 +351,7 @@
 /* The words a search matched, in mustard yellow on the red: the Windows build's pale blue and
    white are made for its dark panes. */
 .hd-root.win-root .dk-browse-title em, .hd-root.win-root .dk-search-results .dk-browse-sub em { color: #ffff00; }
+
+/* The connection overlay is the panes' yellow, so its words are black as
+   theirs are: the theme's white text vanished into it. */
+.hd-root .dk-lc, .hd-root .dk-lc-mark, .hd-root .dk-lc-body p { color: #000000; }

@@ -32,6 +32,8 @@ OWN_PICTURES = {
     # A half-size copy of it, for the start-up and crash screens, the Sonos Web settings and the
     # Sedona header.
     "app/frontend/src/assets/wordmark-readme.png",
+    # Generated art behind the connection screen's wordmark (drawn by a script, not traced).
+    "app/themes/windows91/lc-bloom.svg",
     # The Home Assistant app store's icon and logo: the touch icon at 128px and the wordmark cropped.
     "homeassistant/sonora/icon.png",
     "homeassistant/sonora/logo.png",

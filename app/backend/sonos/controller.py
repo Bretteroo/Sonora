@@ -156,7 +156,76 @@ def parse_update_item(xml: str) -> dict:
         return {}
     attrs = dict(re.findall(r'(\w+)="([^"]*)"', match.group(1)))
     return {"type": attrs.get("Type", ""), "version": attrs.get("Version", ""),
-            "url": attrs.get("UpdateURL", ""), "display": attrs.get("DisplayVersion", "")}
+            "url": attrs.get("UpdateURL", ""), "display": attrs.get("DisplayVersion", ""),
+            "manifest": attrs.get("ManifestURL", "")}
+
+
+def version_key(version: str) -> tuple[int, ...]:
+    """``86.10-81100`` as (86, 10, 81100), so builds compare as the speakers
+    order them; anything unreadable sorts first."""
+    return tuple(int(n) for n in re.findall(r"\d+", version or ""))
+
+
+def parse_update_manifest(xml: str) -> dict:
+    """The update manifest an UpdateItem names (ManifestURL), which is what
+    each speaker reads to find its own image. Since S2 split into two lines,
+    one household can hold players that are current at different builds:
+    a Port on 97.2-81220 beside a Play:1 that can go no further than
+    86.10-81100. The manifest says so: ``default_version`` is the system's,
+    and an ``<image>`` per model (and submodel or current-version range)
+    overrides it for the models that run something else.
+    """
+    try:
+        root = DET.fromstring(xml.encode() if isinstance(xml, str) else xml)
+    except Exception:
+        return {}
+    if root.tag != "update_manifest":
+        return {}
+    images = []
+    for image in root.iter("image"):
+        if not image.get("model") or not image.get("version"):
+            continue
+        images.append({"model": image.get("model", ""),
+                       "submodel_min": image.get("submodel_min"), "submodel_max": image.get("submodel_max"),
+                       "fromver_min": image.get("fromver_min", ""), "fromver_max": image.get("fromver_max", ""),
+                       "version": image.get("version", ""), "url": (image.text or "").strip()})
+    return {"revision": root.get("revision", ""), "default": root.get("default_version", "") or root.get("system_version", ""),
+            "url": root.get("base_url", ""), "images": images}
+
+
+def player_update_target(manifest: dict, hardware_version: str, software_version: str) -> tuple[str, str]:
+    """What a player should run, and where it fetches it, by the manifest.
+
+    A player's model in the manifest is the second field of its hardware
+    version and its submodel the third (``1.20.1.6-1.1`` is model 20,
+    submodel 1: a Play:1 S12 and a SYMFONISK Gen 1 both; a Ray, 1.36.1.8,
+    is model 36). An image applies when its model matches, its submodel
+    range (if any) holds, and the player's current build lies in its
+    ``fromver`` range (if any). Several applying is a chain of milestones,
+    and the lowest is the next step. No image: the system's default.
+    """
+    match = re.match(r"\d+\.(\d+)\.(\d+)", hardware_version or "")
+    if not match:
+        return manifest.get("default", ""), manifest.get("url", "")
+    model, submodel = match.group(1), int(match.group(2))
+    current = version_key(software_version)
+    found = []
+    for image in manifest.get("images", []):
+        if image["model"] != model:
+            continue
+        if image["submodel_min"] is not None and submodel < int(image["submodel_min"]):
+            continue
+        if image["submodel_max"] is not None and submodel > int(image["submodel_max"]):
+            continue
+        if image["fromver_min"] and current < version_key(image["fromver_min"]):
+            continue
+        if image["fromver_max"] and current > version_key(image["fromver_max"]):
+            continue
+        found.append(image)
+    if not found:
+        return manifest.get("default", ""), manifest.get("url", "")
+    step = min(found, key=lambda image: version_key(image["version"]))
+    return step["version"], step["url"]
 
 
 
@@ -321,6 +390,7 @@ class SonosController:
         # ``outward`` is fetchguard's session, as provider art is a URL a
         # service chose and may redirect anywhere.
         self.art_cache = ArtCache(outward or session)
+        self._outward = outward or session
         self.soundcloud_art = SoundCloudArt(session)
         self._art_prefetch: dict[str, asyncio.Task] = {}
         # One provider-art lookup per zone at a time, and the service
@@ -430,6 +500,9 @@ class SonosController:
         self._radio_locations: dict[str, tuple[float, dict]] = {}
         #: household id -> (when, the software_update answer)
         self._software_updates: dict[str, tuple[float, dict]] = {}
+        #: manifest URL -> the parsed update manifest; a revision has a URL
+        #: of its own, so one is read once
+        self._update_manifests: dict[str, dict] = {}
         #: household id -> (the update the players announce, what each runs),
         #: from the last topology event; a change is passed straight on
         self._update_seen: dict[str, tuple[str, tuple]] = {}
@@ -2777,10 +2850,20 @@ class SonosController:
         topology event carries as AvailableSoftwareUpdate): its Version is
         what the players should run and its UpdateURL where each fetches its
         own model's image (the trailing ``^version`` is theirs to expand).
-        An update is pending when a player that answers runs something
-        else. The Sonos app's own update is a separate matter -- the S1 Mac
-        app showed "Update Now" for itself on 2026-09-23 while every player
+        The Sonos app's own update is a separate matter -- the S1 Mac app
+        showed "Update Now" for itself on 2026-09-23 while every player
         was current -- and is never counted here.
+
+        The item's Version is not every player's: S2 runs in two lines,
+        and a legacy player (Play:1, Play:3, SYMFONISK Gen 1) is current at
+        86.10-81100 while the item, from any player of the household, says
+        97.2-81220. Each player asked answers with the same item (measured
+        2026-10-30, a Play:1 on 86.10-81100 included). So the manifest the
+        item names is read, once per revision, and each player is compared
+        with the build it names for that player's model; a player is
+        behind when it runs something else. Without the manifest (Sonora
+        cut off from update.sonos.com) the item's Version stands for every
+        player, as before, and the read is tried again next time.
         """
         cached = self._software_updates.get(household.id)
         if cached and not fresh and monotonic() - cached[0] < self.SOFTWARE_UPDATE_TTL:
@@ -2800,19 +2883,59 @@ class SonosController:
                 item = {}
             version = item.get("version", "")
             if item.get("type") == "Software" and version and item.get("url"):
-                behind = [p for p in household.players.values()
-                          if p.online and p.software_version and p.software_version != version]
-                answer = {"pending": bool(behind), "version": version, "url": item["url"],
-                          "display": item.get("display", ""),
-                          "players": [{"uuid": p.uuid, "name": p.name, "host": p.host,
-                                       "from": p.software_version} for p in behind]}
+                manifest = await self._update_manifest(item.get("manifest", ""))
+                behind = []
+                for p in household.players.values():
+                    if not (p.online and p.software_version):
+                        continue
+                    to, url = (player_update_target(manifest, p.hardware_version, p.software_version)
+                               if manifest else (version, item["url"]))
+                    if to and url and version_key(p.software_version) != version_key(to):
+                        behind.append({"uuid": p.uuid, "name": p.name, "host": p.host,
+                                       "from": p.software_version, "to": to, "url": url})
+                # The row names one version: the item's, unless every player
+                # behind is going somewhere else (the legacy line's build).
+                targets = {b["to"] for b in behind}
+                named = targets.pop() if len(targets) == 1 and version not in targets else version
+                answer = {"pending": bool(behind), "version": named, "url": item["url"],
+                          "display": item.get("display", "") if named == version else "",
+                          "players": behind}
         self._software_updates[household.id] = (monotonic(), answer)
         return answer
 
+    #: Seconds allowed for reading an update manifest from Sonos.
+    UPDATE_MANIFEST_TIMEOUT = 10.0
+
+    async def _update_manifest(self, url: str) -> dict:
+        """The update manifest at ``url``, read once per revision (a
+        revision has a URL of its own) from update.sonos.com, as the
+        speakers read it. Empty when there is none or it cannot be read."""
+        if not url or not url.startswith(("http://", "https://")):
+            return {}
+        known = self._update_manifests.get(url)
+        if known is not None:
+            return known
+        manifest: dict = {}
+        try:
+            async with self._outward.get(url, timeout=aiohttp.ClientTimeout(total=self.UPDATE_MANIFEST_TIMEOUT)) as response:
+                if response.status == 200:
+                    manifest = parse_update_manifest(await response.text())
+        except Exception as exc:
+            log.info("update manifest not read from %s: %s", url, exc)
+        if manifest:
+            # A handful at most: one per revision seen while running.
+            while len(self._update_manifests) >= 8:
+                self._update_manifests.pop(next(iter(self._update_manifests)))
+            self._update_manifests[url] = manifest
+            log.info("update manifest %s read: default %s, %d images",
+                     manifest.get("revision", "")[:8], manifest.get("default"), len(manifest.get("images", [])))
+        return manifest
+
     async def begin_software_update(self, household: "Household") -> dict:
         """Start the speaker update the household has waiting: each player
-        that is behind is told to fetch and install it
-        (ZoneGroupTopology#BeginSoftwareUpdate with the item's UpdateURL)."""
+        that is behind is told to fetch and install the build the manifest
+        names for its model (ZoneGroupTopology#BeginSoftwareUpdate with
+        that image's URL, or the item's UpdateURL without a manifest)."""
         status = await self.software_update(household, fresh=True)
         if not status["pending"]:
             return {"started": [], "pending": False}
@@ -2821,7 +2944,7 @@ class SonosController:
             try:
                 await self.soap.call(
                     player["host"], const.ZONE_GROUP_TOPOLOGY, "BeginSoftwareUpdate",
-                    {"UpdateURL": status["url"], "Flags": 0, "ExtraOptions": ""})
+                    {"UpdateURL": player.get("url") or status["url"], "Flags": 0, "ExtraOptions": ""})
                 started.append(player["name"])
             except Exception as exc:
                 log.warning("update did not start on %s: %s", player["name"], exc)

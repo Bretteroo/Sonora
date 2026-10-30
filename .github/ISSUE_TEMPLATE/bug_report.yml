@@ -32,7 +32,26 @@ body:
         - Hot Dog Stand
         - Solarized
         - Hi-Fi
+        - Severed
         - An installed theme (name it below)
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Installed on
+      description: How Sonora is installed, and what it runs on.
+      options:
+        - Docker on Linux
+        - Docker on a NAS (Synology, QNAP, TrueNAS, ...)
+        - Docker Desktop on macOS
+        - Docker Desktop on Windows
+        - Home Assistant app
+        - Unraid app
+        - Without Docker, on Linux
+        - Without Docker, on macOS
+        - Without Docker, on Windows
+        - Something else (say what below)
     validations:
       required: true
   - type: dropdown

@@ -57,6 +57,25 @@ def parse_zone_group_state(xml: str) -> tuple[dict[str, Player], dict[str, Group
                 zone_uuids=member_uuids,
             )
 
+    # A player belongs to one group. While a group's lead is handed over,
+    # an S1 player's document can list the room leaving in its old group
+    # and in the new group of its own for a moment, and a page drew it
+    # twice. It stays where it leads; a player leading nowhere stays in the
+    # last group that names it.
+    where: dict[str, list[str]] = {}
+    for gid, group in groups.items():
+        for uuid in group.zone_uuids:
+            where.setdefault(uuid, []).append(gid)
+    for uuid, gids in where.items():
+        if len(gids) < 2:
+            continue
+        keep = next((g for g in gids if groups[g].coordinator_uuid == uuid), gids[-1])
+        for gid in gids:
+            if gid != keep:
+                groups[gid].zone_uuids.remove(uuid)
+    for gid in [g for g, group in groups.items() if not group.zone_uuids]:
+        del groups[gid]
+
     vanished: list[VanishedZone] = []
     for el in root.iter("VanishedDevices"):
         for dev in el.findall("Device"):

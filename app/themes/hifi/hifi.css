@@ -672,10 +672,10 @@
 
 :root[data-theme='hifi'] .hf-volume { grid-area: volume; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 :root[data-theme='hifi'] .hf-volume-keys { display: flex; gap: 8px; }
-:root[data-theme='hifi'] .hf-trim { display: flex; flex-direction: column; gap: 6px; padding: 4px 6px 6px; }
-:root[data-theme='hifi'] .hf-trim-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 110px 2.5em; align-items: center; gap: 8px; }
-:root[data-theme='hifi'] .hf-trim-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
-:root[data-theme='hifi'] .hf-trim-level { font-family: var(--t-mono); font-size: 12px; text-align: right; }
+/* The group's rooms as a row of dials, wrapping onto another row in a big group. */
+:root[data-theme='hifi'] .hf-trim { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 14px; padding: 4px 10px 10px; }
+:root[data-theme='hifi'] .hf-trim-dial { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 84px; }
+:root[data-theme='hifi'] .hf-trim-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; text-align: center; }
 
 :root[data-theme='hifi'] .hf-preamp-right { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 /* The column down the amplifier's right, behind a hairline: the volume

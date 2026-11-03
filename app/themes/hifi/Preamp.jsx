@@ -9,7 +9,7 @@ import Art, { nowPlayingArt, cachedArt } from '../../frontend/src/components/Art
 import { ratingGlyph } from '../../frontend/src/lib/ratingGlyph.js'
 import { useOptimisticRatings } from '../../frontend/src/lib/optimisticRatings.js'
 import * as G from './glyphs.jsx'
-import { Unit, Display, Key, IconKey, Knob, Fader, Menu, MenuItem, Led, Select, SlideSwitch } from './controls.jsx'
+import { Unit, Display, Key, IconKey, Knob, Menu, MenuItem, Led, Select, SlideSwitch } from './controls.jsx'
 import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, canAct, nowSummary, nowLines, groupTitle, useProviderMetadata } from './house.js'
 import { useSeekDrag } from '../../frontend/src/lib/useSeekDrag.js'
 import { isConnectSession } from '../../frontend/src/lib/transport.js'
@@ -422,10 +422,27 @@ export function VolumeSection({ zone, group, zones, size = 'lg', mute = true }) 
   const { actions } = useSystem()
   const { t } = useI18n()
   const [trim, setTrim] = useState(null)
+  // A room's mute key latches the moment it is pressed: the speaker's word comes a moment later, and waiting for it
+  // let the key spring back up and then drop again. The latch gives way to what the speaker reports, or after 3 s.
+  const [muting, setMuting] = useState({})
+  const drop = (uuid, latch) => setMuting((was) => {
+    if (was[uuid] !== latch) return was
+    const { [uuid]: _, ...rest } = was
+    return rest
+  })
+  const muteRoom = (m) => {
+    const latch = { muted: !(muting[m.uuid]?.muted ?? m.muted) }
+    setMuting((was) => ({ ...was, [m.uuid]: latch }))
+    setTimeout(() => drop(m.uuid, latch), 3000)
+    actions.setMute(m.uuid, latch.muted)
+  }
   const grouped = Boolean(group && group.members.length > 1)
   useEffect(() => { setTrim(null) }, [group?.coordinator])
   const members = grouped ? group.members.map((u) => zones[u]).filter(Boolean) : []
   const muted = Boolean(zone?.group_muted)
+  useEffect(() => {
+    for (const m of members) if (muting[m.uuid] && muting[m.uuid].muted === Boolean(m.muted)) drop(m.uuid, muting[m.uuid])
+  }, [members.map((m) => `${m.uuid}:${m.muted}`).join()]) // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="hf-volume">
       <Knob value={zone?.group_volume ?? 0} onCommit={(level) => actions.setGroupVolume(zone.uuid, level)}
@@ -442,15 +459,18 @@ export function VolumeSection({ zone, group, zones, size = 'lg', mute = true }) 
         )}
       </div>
       {trim && grouped && (
-        <Menu anchor={trim} align="right" width={320} onClose={() => setTrim(null)} title={t('desk.transport.groupVolume')}>
+        <Menu anchor={trim} align="right" width={200} fit onClose={() => setTrim(null)} title={t('desk.transport.groupVolume')}>
+          {/* Each room's own volume as a dial, side by side, its level under it and its mute key below. */}
           <div className="hf-trim">
             {members.map((m) => (
-              <div key={m.uuid} className="hf-trim-row">
-                <span className="hf-trim-name">{m.name}</span>
-                <IconKey label={m.muted ? t('common.unmute') : t('common.mute')} active={m.muted}
-                         onClick={() => actions.setMute(m.uuid, !m.muted)}>{m.muted ? <G.Muted /> : <G.Volume />}</IconKey>
-                <Fader wheelStep={2} value={m.volume ?? 0} label={m.name} onCommit={(level) => actions.setVolume(m.uuid, level)} />
-                <output className="hf-trim-level">{m.volume ?? 0}</output>
+              <div key={m.uuid} className="hf-trim-dial">
+                <span className="hf-trim-name" title={m.name}>{m.name}</span>
+                <Knob value={m.volume ?? 0} label={m.name} onCommit={(level) => actions.setVolume(m.uuid, level)} size="sm" showValue />
+                {(() => {
+                  const muted = muting[m.uuid]?.muted ?? m.muted
+                  return <Key label={muted ? t('common.unmute') : t('common.mute')} icon={muted ? <G.Muted /> : <G.Volume />}
+                              led={muted} tone="danger" onClick={() => muteRoom(m)} size="xs" />
+                })()}
               </div>
             ))}
           </div>

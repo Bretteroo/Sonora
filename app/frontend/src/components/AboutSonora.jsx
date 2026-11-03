@@ -87,6 +87,18 @@ export default function AboutSonora({ onClose }) {
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [])
+  // Five taps on the icon within a few seconds do the same, for a phone
+  // with no arrow keys to type the code on.
+  const taps = useRef([])
+  const tapIcon = () => {
+    const now = Date.now()
+    taps.current = [...taps.current.filter((at) => now - at < 3000), now]
+    if (taps.current.length < 5) return
+    taps.current = []
+    playUnlockChime()
+    onClose()
+    unlockHidden()
+  }
 
   return (
     <div
@@ -102,7 +114,7 @@ export default function AboutSonora({ onClose }) {
           </svg>
         </button>
 
-        <img className="about-icon" src={icon} width="88" height="88" alt="" />
+        <img className="about-icon" src={icon} width="88" height="88" alt="" draggable="false" onClick={tapIcon} />
         <h1 className="about-name" data-about-text>{APP.name}</h1>
         <p className="about-version" data-about-text>{t('about.version', { version: APP.version })}</p>
         {latest && (

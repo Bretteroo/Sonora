@@ -5,7 +5,7 @@ import React, {
 import { ApiError, api } from './api.js'
 import { localOut } from './localOut.js'
 import { socketUrl } from './base.js'
-import { BROWSER_UUID, browserGroup, browserZone, isBrowserRoom } from './browserRoom.js'
+import { BROWSER_UUID, browserGroup, browserZone, isBrowserRoom, noteHouseholds } from './browserRoom.js'
 import { browserSleep } from './browserSleep.js'
 import { forgetLast, readLast, saveLast } from './browserRecall.js'
 import { useI18n } from '../i18n/index.jsx'
@@ -615,7 +615,7 @@ export function SystemProvider({ children }) {
     // from, or any speaker found, since the page has no host of its own.
     const artFrom = (body) => {
       const raw = fieldFrom(body.metadata, 'upnp:albumArtURI')
-        .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+        .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&')
       if (!raw) return ''
       if (/^https?:\/\//.test(raw)) return raw
       const zones = stateRef.current.zones || {}
@@ -838,6 +838,8 @@ export function SystemProvider({ children }) {
     return merged
   }, [actions, localActions])
 
+  // Where a play lands depends on which household each room is in.
+  useEffect(() => { noteHouseholds(state.households) }, [state.households])
   const browserName = t('local.room')
   // Whether the browser room is offered: the theme has to want it (one that
   // sets localOutput false does not), and there has to be a system for it to

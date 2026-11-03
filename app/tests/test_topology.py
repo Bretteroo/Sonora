@@ -662,3 +662,19 @@ def test_after_a_restart_the_remembered_addresses_are_asked(monkeypatch):
     registry.households = {}
     _quiet_network(monkeypatch, discovery, answering=set())
     assert asyncio.run(registry.discover()) == {}
+
+
+def test_a_room_listed_in_two_groups_during_a_handover_is_drawn_once():
+    # An S1 player's document while the lead passes from the Office to the
+    # Living Room: the Office still in the old group, and leading one of its own.
+    from backend.sonos.topology import parse_zone_group_state
+    xml = _zgs([("RINCON_LR", [("RINCON_LR", "Living Room"), ("RINCON_OF", "Office")]),
+                ("RINCON_OF", [("RINCON_OF", "Office")])])
+    _, groups, _ = parse_zone_group_state(xml)
+    assert {g.coordinator_uuid: g.zone_uuids for g in groups.values()} == {"RINCON_LR": ["RINCON_LR"], "RINCON_OF": ["RINCON_OF"]}
+    # A player leading nowhere stays in the last group that names it, and
+    # a group left empty goes.
+    xml = _zgs([("RINCON_A", [("RINCON_A", "Den"), ("RINCON_B", "Hall")]),
+                ("RINCON_C", [("RINCON_C", "Loft"), ("RINCON_B", "Hall")])])
+    _, groups, _ = parse_zone_group_state(xml)
+    assert {g.coordinator_uuid: g.zone_uuids for g in groups.values()} == {"RINCON_A": ["RINCON_A"], "RINCON_C": ["RINCON_C", "RINCON_B"]}

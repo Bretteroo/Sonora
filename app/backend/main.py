@@ -2542,7 +2542,7 @@ async def service_action(sid: int, body: ServiceActionBody) -> dict:
             status = resp.status
     except Exception as exc:
         log.info("service action failed for %s: %s", sid, exc)
-        return {"ok": False, "status": 0, "detail": str(exc)}
+        return {"ok": False, "status": 0, "detail": "could not reach the service"}
     if status >= 300:
         log.info("service action refused for %s (%s): %s", sid, status, text)
     return {"ok": status < 300, "status": status, "detail": "" if status < 300 else text}
@@ -5815,19 +5815,19 @@ if _DIST.is_dir():
     # web app manifest with its icons). The SPA mounts hashed bundles under
     # /assets, but these are referenced at the site root, so they are served
     # by name here.
-    _ROOT_FILES = {
+    # The paths are built from these fixed names, never from the request.
+    _ROOT_FILES = {name: (_DIST / name, media) for name, media in {
         "favicon.ico": "image/x-icon",
         "apple-touch-icon.png": "image/png",
         "manifest.webmanifest": "application/manifest+json",
         "icon-192.png": "image/png",
         "icon-512.png": "image/png",
-    }
+    }.items()}
 
     @app.get("/{filename}")
     async def root_file(filename: str) -> Response:
-        media = _ROOT_FILES.get(filename)
-        target = _DIST / filename
-        if media is None or not target.is_file():
+        target, media = _ROOT_FILES.get(filename, (None, None))
+        if target is None or not target.is_file():
             raise HTTPException(404, "not found")
         return Response(target.read_bytes(), media_type=media)
 else:

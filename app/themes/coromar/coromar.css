@@ -299,8 +299,9 @@
 .co-root .dk-scopebar-tabs button[aria-selected='true'] { background: #fbfbf8; color: var(--t-fg); box-shadow: inset 0 -2px 0 var(--t-glass-lit); }
 .co-root .dk-footer { border-top: 1px solid var(--t-border); }
 .co-root .dk-footer button + button { border-left: 1px solid var(--t-border); }
-.co-root .dk-group-volume { background: var(--co-panel); border: 1px solid var(--t-border-strong); box-shadow: var(--t-shadow); }
-.co-root .dk-group-volume::before { border-bottom-color: #fdfdfb; }
+/* The group volume popover is the sleep timer's sibling: the same dark glass, which its pale lettering and keys are drawn for. */
+.co-root .dk-group-volume { background: var(--co-glass); color: #e9f3f6; border: 1px solid var(--t-reveal-deep); box-shadow: var(--t-shadow); }
+.co-root .dk-group-volume::before { border-bottom-color: #082e3f; }
 .co-root .dk-group-volume-row + .dk-group-volume-row { border-top: 1px solid var(--t-border); }
 .co-root .win-menu-item:hover:not(:disabled) kbd { color: rgba(255, 255, 255, 0.8); }
 .co-root .win-menubar-title:hover, .co-root .win-menubar-title[aria-expanded='true'] { color: var(--t-fg); }
@@ -446,13 +447,13 @@
 .co-root.win-root .dk-window .dk-tabs button { background: var(--co-d-panel); color: var(--co-d-fg); border-color: var(--co-d-line); }
 .co-root.win-root .dk-window .dk-tabs button[aria-selected='true'] { background: var(--co-d-ground); color: var(--co-d-strong); }
 /* buttons, every corner */
-.co-root.win-root .win-dialog-foot .dk-win-btn, .co-root.win-root .win-settings .dk-win-btn, .co-root.win-root .win-grouping .dk-grouping-all, .co-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn, .co-root.win-root .dk-musicpicker .dk-grouping-actions .dk-win-btn, .co-root.win-root .dk-window .theme-pill button {
+.co-root.win-root .win-dialog-foot .dk-win-btn, .co-root.win-root .win-settings .dk-win-btn, .co-root.win-root .win-grouping .dk-grouping-all, .co-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn, .co-root.win-root .dk-musicpicker .dk-grouping-actions .dk-win-btn, .co-root.win-root .dk-window .theme-pill button, .co-root.win-root .dk-confirm-foot .dk-win-btn {
   background: var(--co-d-btn); color: var(--co-d-fg); border: 1px solid var(--co-d-line); box-shadow: none;
 }
-.co-root.win-root .win-dialog-foot .dk-win-btn:hover:not(:disabled), .co-root.win-root .win-settings .dk-win-btn:hover:not(:disabled), .co-root.win-root .win-grouping .dk-grouping-all:hover, .co-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn:hover { background: var(--co-d-btn-hover); border-color: var(--t-glass-lit); }
-.co-root.win-root .win-dialog-foot .dk-win-btn[data-default='true'], .co-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn[data-default='true'] { border-color: var(--co-d-accent); box-shadow: inset 0 0 0 1px var(--co-d-accent); }
-.co-root.win-root .dk-win-btn:disabled, .co-root.win-root .win-dialog-foot .dk-win-btn:disabled, .co-root.win-root .win-settings .dk-win-btn:disabled { background: var(--co-d-panel); color: var(--co-d-dim); border-color: var(--co-d-rule); }
-.co-root.win-root .win-dialog-foot, .co-root.win-root .win-grouping .dk-grouping-actions, .co-root.win-root .dk-musicpicker .dk-grouping-actions { background: var(--co-d-panel); border-top: 1px solid var(--co-d-rule); box-shadow: none; }
+.co-root.win-root .win-dialog-foot .dk-win-btn:hover:not(:disabled), .co-root.win-root .win-settings .dk-win-btn:hover:not(:disabled), .co-root.win-root .win-grouping .dk-grouping-all:hover, .co-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn:hover, .co-root.win-root .dk-confirm-foot .dk-win-btn:hover:not(:disabled) { background: var(--co-d-btn-hover); border-color: var(--t-glass-lit); }
+.co-root.win-root .win-dialog-foot .dk-win-btn[data-default='true'], .co-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn[data-default='true'], .co-root.win-root .dk-confirm-foot .dk-win-btn[data-default='true'] { border-color: var(--co-d-accent); box-shadow: inset 0 0 0 1px var(--co-d-accent); }
+.co-root.win-root .dk-win-btn:disabled, .co-root.win-root .win-dialog-foot .dk-win-btn:disabled, .co-root.win-root .win-settings .dk-win-btn:disabled, .co-root.win-root .dk-confirm-foot .dk-win-btn:disabled { background: var(--co-d-panel); color: var(--co-d-dim); border-color: var(--co-d-rule); }
+.co-root.win-root .win-dialog-foot, .co-root.win-root .win-grouping .dk-grouping-actions, .co-root.win-root .dk-musicpicker .dk-grouping-actions, .co-root.win-root .dk-confirm-foot { background: var(--co-d-panel); border-top: 1px solid var(--co-d-rule); box-shadow: none; }
 /* Add Music Services */
 .co-root .dk-window .dk-add-row { color: var(--co-d-fg); }
 .co-root .dk-window .dk-add-row:hover { background: var(--t-glass-lit); color: #fff; }
@@ -464,6 +465,12 @@
 .co-root.win-root .win-titlebar select { background: var(--co-d-well); color: var(--co-d-fg); border: 1px solid var(--co-d-line); }
 .co-root.win-root .dk-browse-art.dk-browse-glyph { background: var(--co-d-panel); color: var(--co-d-strong); }
 .co-root.win-root .dk-browse-glyph svg { background: transparent; color: var(--co-d-strong); }
+/* Add Music Services wears its plus as the other source glyphs wear theirs,
+   navy on the light disc. The Windows sheet cuts the plus out of a white
+   disc, which made sense on its dark rows; with the disc made transparent
+   here, the cut-out plus was the only thing left and it showed nothing. */
+.co-root.win-root .dk-browse-add .dk-browse-glyph svg { width: 20px; height: 20px; -webkit-mask: none; mask: none; }
+.co-root.win-root .dk-browse-add .dk-browse-glyph svg > * { display: inline; }
 .co-root.win-root .dk-browse-disclosure, .co-root.win-root .dk-browse-chevron { background-color: var(--co-d-dim); }
 /* the Sleep Timer popover is glass: the dialogs' concrete ground must not cover it */
 .co-root.win-root .dk-sleep-window .dk-sleep, .co-root.win-root .dk-sleep-window .dk-window-body { background: transparent; }

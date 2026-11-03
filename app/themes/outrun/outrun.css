@@ -219,6 +219,10 @@
 .or-root .dk-now-art { background: #0b0621; border: 1px solid rgba(25, 230, 255, 0.4); border-radius: 4px; box-shadow: var(--or-glow-cyan); }
 .or-root .dk-empty p { color: var(--t-fg-muted); }
 .or-root .dk-empty svg { color: rgba(255, 43, 214, 0.6); filter: drop-shadow(0 0 8px rgba(255, 43, 214, 0.6)); }
+/* The group volume popover in Outrun's ink, as its menus are: it had kept the Windows app's #262626. */
+.or-root.win-root .dk-group-volume { background: #160a33; border: 1px solid var(--t-cyan); box-shadow: var(--or-glow-cyan), 0 12px 30px rgba(0, 0, 0, 0.6); }
+.or-root.win-root .dk-group-volume::before { border-bottom-color: var(--t-cyan); }
+.or-root.win-root .dk-group-volume-row + .dk-group-volume-row { border-top-color: rgba(123, 44, 255, 0.4); }
 .or-root .dk-popover, .or-root .dk-action-menu, .or-root .dk-account-menu { background: #160a33; color: var(--t-fg); border: 1px solid var(--t-cyan); border-radius: 6px; box-shadow: var(--or-glow-cyan), 0 12px 30px rgba(0, 0, 0, 0.6); }
 .or-root .dk-action-menu button, .or-root .dk-popover button { color: var(--t-fg); }
 .or-root .dk-action-menu button:hover:not(:disabled), .or-root .dk-popover button:hover:not(:disabled) { background: var(--t-magenta); color: #fff; }
@@ -247,7 +251,7 @@
    is near-white, so both read as gray on gray (on the music library's
    Add). They take the same indigo as the dialog around
    them, with a violet rule where the Windows one had a gray one. */
-.or-root .win-dialog-foot { background: #120832; border-top-color: rgba(123, 44, 255, 0.4); box-shadow: none; }
+.or-root .win-dialog-foot, .or-root.win-root .dk-confirm-foot { background: #120832; border-top-color: rgba(123, 44, 255, 0.4); box-shadow: none; }
 .or-root .win-wizard-body { background: #160a33; color: var(--t-fg); }
 .or-root .win-wizard-body h3 { color: #fff; }
 .or-root .win-wizard-error { background: #1d0f42; border-color: rgba(123, 44, 255, 0.5); }
@@ -972,13 +976,13 @@
 .or-root .win-savequeue-list button[aria-selected='true'] { background: rgba(255, 43, 214, 0.35); color: #ffffff; }
 /* The dialogs' foot buttons took the Windows gradient over Outrun's ink:
    they are Outrun's tube buttons, like Add and Edit beside them. */
-.or-root .win-dialog-foot .dk-win-btn {
+.or-root .win-dialog-foot .dk-win-btn, .or-root.win-root .dk-confirm-foot .dk-win-btn {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12));
   color: var(--t-cyan); border: 1px solid var(--t-cyan); border-radius: 4px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
-.or-root .win-dialog-foot .dk-win-btn:hover:not(:disabled) { background: rgba(25, 230, 255, 0.14); border-color: var(--t-cyan); box-shadow: var(--or-tube-cyan); }
-.or-root .win-dialog-foot .dk-win-btn[data-default='true'] { color: var(--t-magenta); border-color: var(--t-magenta); box-shadow: var(--or-tube-magenta); }
-.or-root .win-dialog-foot .dk-win-btn:disabled { background: transparent; color: rgba(233, 230, 255, 0.35); border-color: rgba(233, 230, 255, 0.2); }
+.or-root .win-dialog-foot .dk-win-btn:hover:not(:disabled), .or-root.win-root .dk-confirm-foot .dk-win-btn:hover:not(:disabled) { background: rgba(25, 230, 255, 0.14); border-color: var(--t-cyan); box-shadow: var(--or-tube-cyan); }
+.or-root .win-dialog-foot .dk-win-btn[data-default='true'], .or-root.win-root .dk-confirm-foot .dk-win-btn[data-default='true'] { color: var(--t-magenta); border-color: var(--t-magenta); box-shadow: var(--or-tube-magenta); }
+.or-root .win-dialog-foot .dk-win-btn:disabled, .or-root.win-root .dk-confirm-foot .dk-win-btn:disabled { background: transparent; color: rgba(233, 230, 255, 0.35); border-color: rgba(233, 230, 255, 0.2); }
 /* A disabled button is a dim outline, not the Windows #CCCCCC slab. */
 .or-root .dk-win-btn:disabled, .or-root .win-settings .dk-win-btn:disabled, .or-root.win-root .win-settings .dk-win-btn:disabled {
   background: transparent; color: rgba(233, 230, 255, 0.35); border-color: rgba(233, 230, 255, 0.2); box-shadow: none;
@@ -1019,6 +1023,10 @@
 .or-root.win-root .win-settings .dk-win-btn { background: transparent; color: var(--t-cyan); border-color: var(--t-cyan); }
 .or-root.win-root .win-settings .dk-win-btn:hover:not(:disabled) { background: rgba(25, 230, 255, 0.14); border-color: var(--t-cyan); box-shadow: var(--or-tube-cyan); }
 .or-root.win-root .win-titlebar select { background: #0b0621; color: var(--t-fg); border-color: rgba(25, 230, 255, 0.45); }
+/* The list a pop-up opens is the browser's white by default, under the
+   skin's light type: it takes the well's colors, as the systems picker in
+   the Rooms pane showed. */
+.or-root select option { background: #0b0621; color: var(--t-fg); }
 .or-root.win-root .win-titlebar select:hover { color: #fff; border-color: var(--t-cyan); }
 .or-root.win-root .dk-browse-disclosure, .or-root.win-root .dk-browse-chevron { background-color: var(--t-cyan); }
 .or-root.win-root select:not(.win-settings select):not(.dk-strip-select select) {

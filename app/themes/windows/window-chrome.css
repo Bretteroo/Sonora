@@ -1118,6 +1118,8 @@
 :where(:root[data-theme='windows']) .win-root .win-alarms-help { margin: 24px 0 0; line-height: 15px; }
 /* Add a service in the app's 515x520 frame with its wizard footer. */
 :where(:root[data-theme='windows']) .win-root .dk-window:has(.dk-add) { width: 515px; height: 520px; }
+/* One service's sign-in step fits its words; the full frame is for the catalog. */
+:where(:root[data-theme='windows']) .win-root .dk-window:has(.dk-add-flow) { height: auto; }
 :where(:root[data-theme='windows']) .win-root .dk-add { flex: 1; min-height: 0; width: auto; display: flex; flex-direction: column; padding: 20px 20px 0; }
 :where(:root[data-theme='windows']) .win-root .dk-add-intro { font-size: 12px; margin: 0 0 12px; }
 /* The wizard (Settings > Services > Add) is white above its footer, as the

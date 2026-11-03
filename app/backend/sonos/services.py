@@ -165,10 +165,14 @@ class ServiceReader:
     #: controller also drops it the moment a player reports its account list
     #: changed, so this only bounds the case where no event arrived.
     ANONYMOUS_TTL = 900.0
+    #: A provider an S1 player has to ask before it answers can be slow (CBC
+    #: took 12s); the second try behind the read waits this long for it.
+    SLOW_PROBE_TIMEOUT = 30.0
 
     def __init__(self, soap: SoapClient) -> None:
         self._soap = soap
         self._anonymous: dict[str, tuple[float, set[int]]] = {}
+        self._settling: set[asyncio.Task] = set()
 
     def forget_anonymous(self) -> None:
         """Drop the cached probe results, after the household's accounts changed."""
@@ -267,32 +271,76 @@ class ServiceReader:
         if cached is not None and monotonic() - cached[0] < self.ANONYMOUS_TTL:
             return cached[1]
         found: set[int] = set()
-        unanswered: list[Exception] = []
+        unanswered: list[tuple[MusicService, Exception]] = []
+        answered = 0
         gate = asyncio.Semaphore(6)
 
         async def probe(service: MusicService) -> None:
+            nonlocal answered
             async with gate:
                 try:
                     await self._soap.call(
                         host, MUSIC_SERVICES, "GetSessionId",
                         {"ServiceId": service.id, "Username": ""}, **(opts or {}))
                 except SoapFault as exc:
+                    answered += 1
                     if exc.code == "1000":
                         found.add(service.id)
                 except Exception as exc:
                     log.info("anonymous probe of %s failed: %s", service.name, exc)
-                    unanswered.append(exc)
+                    unanswered.append((service, exc))
                 else:  # a session back means it is there as well
+                    answered += 1
                     found.add(service.id)
 
         await asyncio.gather(*(probe(s) for s in services if s.auth == "Anonymous"))
         # A probe the player never answered says nothing either way, so an
         # answer with one missing is not kept for fifteen minutes as if it
         # were whole, and a strict caller is told to ask someone else.
+        # But an S1 player asks the provider itself before it answers, so one
+        # slow provider (CBC took 12s) times out on every player alike; when
+        # the player answered the others, the gap is that provider's, and
+        # failing the read over it left the whole catalog empty. Those keep
+        # what the last answer said about them, and are asked again behind
+        # the read with the time a slow provider needs.
         if unanswered:
-            if strict:
-                raise unanswered[0]
+            if not answered:
+                if strict:
+                    raise unanswered[0][1]
+                return found
+            slow = [service for service, _ in unanswered]
+            prior = [entry[1] for entry in self._anonymous.values()]
+            found |= {svc.id for svc in slow if any(svc.id in ids for ids in prior)}
+            self._anonymous[host] = (monotonic(), found)
+            log.info("anonymous services on %s: %s (%s unanswered)", host,
+                     sorted(found), ", ".join(svc.name for svc in slow))
+            task = asyncio.create_task(self._settle_slow(host, slow),
+                                       name=f"slow anonymous probes on {host}")
+            self._settling.add(task)
+            task.add_done_callback(self._settling.discard)
             return found
         self._anonymous[host] = (monotonic(), found)
         log.info("anonymous services on %s: %s", host, sorted(found))
         return found
+
+    async def _settle_slow(self, host: str, services: list[MusicService]) -> None:
+        """Ask the probes a slow provider timed out on again, patiently."""
+        for service in services:
+            try:
+                await self._soap.call(host, MUSIC_SERVICES, "GetSessionId",
+                                      {"ServiceId": service.id, "Username": ""},
+                                      timeout=self.SLOW_PROBE_TIMEOUT, retries=0)
+                there = True
+            except SoapFault as exc:
+                there = exc.code == "1000"
+            except Exception as exc:
+                log.info("anonymous probe of %s still unanswered: %s", service.name, exc)
+                continue
+            cached = self._anonymous.get(host)
+            if cached is None:
+                continue
+            ids = set(cached[1])
+            (ids.add if there else ids.discard)(service.id)
+            self._anonymous[host] = (cached[0], ids)
+            log.info("anonymous probe of %s settled: %s", service.name,
+                     "added" if there else "not added")

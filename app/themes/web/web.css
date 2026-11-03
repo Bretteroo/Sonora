@@ -487,7 +487,9 @@ button.wb-tile span.wb-tile-sub {
    60px block, and each source is a full-width 44px transparent row holding a
    44px circle with a 1px rgb(29,40,58) border around a 24px glyph, then a 14px
    label 16px to its right (x=88 in the column). Hover dims the row to opacity
-   0.8. An earlier version drew pill-shaped chips, which was invention. */
+   0.8. An earlier version drew pill-shaped chips, which was invention. The
+   rows are 60px apart, so 16px of black separates the circles (a capture of
+   the product, 2026-11-02); 44px rows had them touching. */
 
 .wb-sources-head {
   margin-bottom: 0;
@@ -507,7 +509,7 @@ button.wb-tile span.wb-tile-sub {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 44px;
+  height: 60px;
   padding: 0;
   color: var(--t-fg);
   background: transparent;

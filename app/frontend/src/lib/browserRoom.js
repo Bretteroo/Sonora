@@ -47,7 +47,32 @@ export function homeZone(zone) {
  * room they have selected, and that can be this browser.
  */
 export function playTarget(activeZone, hzone) {
-  return activeZone?.local ? BROWSER_UUID : hzone
+  if (activeZone?.local) return BROWSER_UUID
+  // The room a listing was opened from is kept with it, and the reader may
+  // have chosen another room since: browsed while this browser was selected,
+  // Apple Music's listing held East Bedroom (the household's first room), and
+  // Play still went there after Office + Kitchen was chosen (2026-11-02). The
+  // room selected now takes it whenever it is in the same household, whose
+  // account the content belongs to.
+  if (activeZone?.uuid && hzone && sameHousehold(activeZone.uuid, hzone)) return activeZone.uuid
+  return hzone
+}
+
+// Which household each speaker is in, from the store's latest picture.
+let householdByZone = new Map()
+
+/** Called by the store whenever the households change. */
+export function noteHouseholds(households) {
+  const next = new Map()
+  for (const household of households || []) {
+    for (const uuid of household.zone_uuids || []) next.set(uuid, household.id)
+  }
+  householdByZone = next
+}
+
+function sameHousehold(a, b) {
+  const one = householdByZone.get(a)
+  return Boolean(one) && one === householdByZone.get(b)
 }
 
 /**

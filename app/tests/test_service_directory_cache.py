@@ -301,3 +301,17 @@ def test_a_sign_in_uses_the_dropped_copy_while_the_next_is_read():
     quick, fresh = asyncio.run(main())
     assert quick == "held"
     assert fresh == "fresh"
+
+
+def test_a_held_catalog_is_answered_now_and_a_cold_one_starts_a_read():
+    ctl, built = _counting()
+
+    async def go():
+        directory, read = ctl.held_service_directory(HOUSEHOLD)
+        assert directory is None and read is not None
+        assert ctl.held_service_directory(HOUSEHOLD)[1] is read
+        await read
+        directory, read = ctl.held_service_directory(HOUSEHOLD)
+        assert directory is not None and read is None
+    asyncio.run(go())
+    assert built == ["HH"]

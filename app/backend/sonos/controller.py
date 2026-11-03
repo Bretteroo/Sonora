@@ -1167,6 +1167,16 @@ class SonosController:
             return self._stale_directories[household.id]
         return await self._directory_read(household)
 
+    def held_service_directory(self, household: Household) -> tuple[object | None, asyncio.Task | None]:
+        """The household's catalog if one is held, for a caller that has to
+        answer now. With none held, the copy an account change dropped if
+        there is one, and a read under way either way: ``(copy, task)``,
+        the task finishing when the fresh catalog is there."""
+        hit = self._directories.get(household.id)
+        if hit is not None:
+            return hit[1], None
+        return self._stale_directories.get(household.id), self._directory_read(household)
+
     def _directory_read(self, household: Household) -> asyncio.Task:
         """The household's directory read, started if none is in flight."""
         task = self._directory_reads.get(household.id)
@@ -1389,6 +1399,13 @@ class SonosController:
         status = event.properties.get("TransportStatus", "")
         if not status or status == "OK":
             return
+        # A room that has just left its group, or whose queue ran out, says
+        # it has nothing to play, naming no source: not a failure of anything
+        # asked for, and the page already shows the room empty. The Office
+        # raised one four seconds after it handed its group to another room.
+        if status == "ERROR_NO_CONTENT" and not event.properties.get("TransportErrorURI"):
+            log.info("%s reports nothing to play (%s)", state.name, status)
+            return
         # The speakers repeat an event now and then, and a group reports one
         # fault from more than one player, so the same failure arriving twice
         # in a moment is told once. A fresh attempt at the same thing is a
@@ -1432,6 +1449,11 @@ class SonosController:
 
     #: How long a speaker gets to carry on by itself after a failure.
     PLAYBACK_RECOVERY = 4.0
+    #: How much longer one still opening the next item gets before the
+    #: failure counts: a station just started whose first item fails (an
+    #: ad the ad server never serves) can sit in TRANSITIONING well past
+    #: the four seconds while the player fetches the item after it.
+    PLAYBACK_SETTLING = 20.0
 
     async def _report_playback_error(self, lead: ZoneState, message: dict, item: str) -> None:
         """Tell the pages about a failure, unless the speaker got past it.
@@ -1448,7 +1470,14 @@ class SonosController:
         await asyncio.sleep(self.PLAYBACK_RECOVERY)
         where, reason = message["room"], message["status"]
         # TRANSITIONING does not count: a source that cannot open sits there
-        # before it drops to STOPPED.
+        # before it drops to STOPPED. It is given a while longer to turn
+        # into one or the other, since a player still fetching the next
+        # item has neither failed nor recovered yet.
+        waited = 0.0
+        while lead.transport.state == "TRANSITIONING" and waited < self.PLAYBACK_SETTLING:
+            step = min(1.0, self.PLAYBACK_SETTLING / 10)
+            await asyncio.sleep(step)
+            waited += step
         carried_on = lead.transport.state == "PLAYING"
         await self.dropouts.failed(lead, carried_on=carried_on, item=item,
                                    service=message["service"], reason=reason)
@@ -4596,7 +4625,7 @@ class Commands:
         household = self._c.household_of(zone_uuid)
         elements = self.share_elements(uri, username, password, variant,
                                        household_id=household.id if household else "")
-        redacted = re.sub(r"<(r:password[X]?)>.*?</\1>", r"<\1>***</\1>", elements)
+        redacted = re.sub(r"<(r:password[X]?)>.*?</\1>", r"<\1>***</\1>", elements, flags=re.S)
         hosts = [self._c.zone(zone_uuid).host]
         if household is not None:
             # Bonded satellites are skipped: Sonora has no event subscription

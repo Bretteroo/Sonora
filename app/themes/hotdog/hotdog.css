@@ -98,6 +98,13 @@
 .hd-root .dk-empty p { color: #ffffff; }
 .hd-root .dk-empty svg { color: #ffd0d0; }
 .hd-root .dk-popover, .hd-root .dk-action-menu, .hd-root .dk-account-menu { background: #ffffff; color: #000000; border: 1px solid #000000; }
+/* The group volume popover as its menus are, white with a black rule: it had kept the Windows app's #262626. */
+.hd-root.win-root .dk-group-volume { background: #ffffff; color: #000000; border: 1px solid #000000; border-radius: 0; box-shadow: 2px 2px 0 #000000; }
+.hd-root.win-root .dk-group-volume::before { border-bottom-color: #000000; }
+.hd-root.win-root .dk-group-volume-row strong, .hd-root.win-root .dk-group-volume .dk-strip-mute, .hd-root.win-root .dk-group-volume .dk-strip-mute svg { color: #000000; }
+.hd-root.win-root .dk-group-volume-row + .dk-group-volume-row { border-top-color: #000000; }
+.hd-root.win-root .dk-group-volume .dk-slider-track { background: #808080; }
+.hd-root.win-root .dk-group-volume .dk-slider input[type='range']::-moz-range-thumb { box-sizing: border-box; border: 1px solid #000000; box-shadow: none; }
 .hd-root .dk-action-menu button, .hd-root .dk-popover button { color: #000000; }
 .hd-root .dk-action-menu button:hover:not(:disabled), .hd-root .dk-popover button:hover:not(:disabled) { background: #000000; color: #ffffff; }
 .hd-root .dk-action-menu button:disabled { color: #808080; }
@@ -174,15 +181,15 @@
 /* The dialogs' 58px foot and its buttons kept the Windows grays and blue
    ring; Hotdog's are its #C0C0C0 strip and bevelled buttons, as Add and
    Edit already were. Group Rooms' body is the red of every other window. */
-.hd-root.win-root .win-dialog-foot, .hd-root.win-root .win-grouping .dk-grouping-actions {
+.hd-root.win-root .win-dialog-foot, .hd-root.win-root .win-grouping .dk-grouping-actions, .hd-root.win-root .dk-confirm-foot {
   background: #c0c0c0; border-top: 1px solid #000000; box-shadow: inset 0 1px 0 #ffffff;
 }
-.hd-root.win-root .win-dialog-foot .dk-win-btn, .hd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn, .hd-root.win-root .win-grouping .dk-grouping-all {
+.hd-root.win-root .win-dialog-foot .dk-win-btn, .hd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn, .hd-root.win-root .win-grouping .dk-grouping-all, .hd-root.win-root .dk-confirm-foot .dk-win-btn {
   background: #c0c0c0; color: #000000; border: 1px solid #000000; border-radius: 0; box-shadow: inset -2px -2px #808080, inset 2px 2px #ffffff;
 }
-.hd-root.win-root .win-dialog-foot .dk-win-btn[data-default='true'], .hd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn[data-default='true'] { outline: 1px dotted #000000; outline-offset: -5px; }
-.hd-root.win-root .win-dialog-foot .dk-win-btn:hover:not(:disabled), .hd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn:hover, .hd-root.win-root .win-grouping .dk-grouping-all:hover { background: #d4d4d4; border-color: #000000; }
-.hd-root.win-root .win-dialog-foot .dk-win-btn:disabled { color: #808080; text-shadow: none; }
+.hd-root.win-root .win-dialog-foot .dk-win-btn[data-default='true'], .hd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn[data-default='true'], .hd-root.win-root .dk-confirm-foot .dk-win-btn[data-default='true'] { outline: 1px dotted #000000; outline-offset: -5px; }
+.hd-root.win-root .win-dialog-foot .dk-win-btn:hover:not(:disabled), .hd-root.win-root .win-grouping .dk-grouping-actions .dk-win-btn:hover, .hd-root.win-root .win-grouping .dk-grouping-all:hover, .hd-root.win-root .dk-confirm-foot .dk-win-btn:hover:not(:disabled) { background: #d4d4d4; border-color: #000000; }
+.hd-root.win-root .win-dialog-foot .dk-win-btn:disabled, .hd-root.win-root .dk-confirm-foot .dk-win-btn:disabled { color: #808080; text-shadow: none; }
 .hd-root.win-root .win-grouping { background: #ff0000; }
 .hd-root.win-root .win-shortcuts-note, .hd-root.win-root .win-shortcuts p { color: #ffffff; }
 /* The last of the Windows grays, each traded for the Windows 3.1 scheme's own:

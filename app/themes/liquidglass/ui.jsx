@@ -73,7 +73,7 @@ export function SheetHeader({ title, sub = '', onClose, children, back = null })
 }
 
 // A menu anchored at a point (a right-click) or under an element.
-export function Menu({ x, y, anchor = null, align = 'left', onClose, children, title = '', width = 240 }) {
+export function Menu({ x, y, anchor = null, align = 'left', onClose, children, title = '', width = 240, minWidth = undefined }) {
   const ref = useRef(null)
   const [pos, setPos] = useState({ left: x || 0, top: y || 0 })
   useDismiss(ref, onClose)
@@ -94,7 +94,7 @@ export function Menu({ x, y, anchor = null, align = 'left', onClose, children, t
     setPos({ left, top })
   }, [x, y, anchor, align])
   return createPortal(
-    <div className="sf-menu" ref={ref} role="menu" style={{ left: pos.left, top: pos.top, width }}
+    <div className="sf-menu" ref={ref} role="menu" style={{ left: pos.left, top: pos.top, width, minWidth }}
          onContextMenu={(event) => event.preventDefault()}>
       {title && <p className="sf-menu-title">{title}</p>}
       {children}

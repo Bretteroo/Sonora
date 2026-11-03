@@ -45,9 +45,9 @@
      to be keyed or remounted (user request). */
   html:where([data-theme='windows']) .dk-root .dk-panes { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); overflow: hidden; }
   html:where([data-theme='windows']) .dk-root .dk-panes[data-slide='forward'] > .dk-pane,
-  html:where([data-theme='windows']) .dk-root .dk-panes[data-slide='forward'] > .dk-center { animation: dk-pane-from-right--windows 260ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+  html:where([data-theme='windows']) .dk-root .dk-panes[data-slide='forward'] > .dk-center { animation: dk-pane-from-right--windows 260ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards; }
   html:where([data-theme='windows']) .dk-root .dk-panes[data-slide='back'] > .dk-pane,
-  html:where([data-theme='windows']) .dk-root .dk-panes[data-slide='back'] > .dk-center { animation: dk-pane-from-left--windows 260ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+  html:where([data-theme='windows']) .dk-root .dk-panes[data-slide='back'] > .dk-center { animation: dk-pane-from-left--windows 260ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards; }
   html:where([data-theme='windows']) .dk-root .dk-panes > .dk-divider { display: none; }
   html:where([data-theme='windows']) .dk-root .dk-panes > .dk-pane { display: none; }
   html:where([data-theme='windows']) .dk-root .dk-panes[data-pane='rooms'] > .dk-pane:first-child { display: flex; }

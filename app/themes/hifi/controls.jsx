@@ -392,7 +392,7 @@ export function PanelHead({ title, sub = '', onClose, children, back = null }) {
 }
 
 // A menu at a point (a right-click) or hanging from an element.
-export function Menu({ x, y, anchor = null, align = 'left', onClose, children, title = '', width = 250, className = '' }) {
+export function Menu({ x, y, anchor = null, align = 'left', onClose, children, title = '', width = 250, className = '', fit = false }) {
   const ref = useRef(null)
   const [pos, setPos] = useState({ left: x || 0, top: y || 0 })
   useDismiss(ref, onClose)
@@ -424,7 +424,9 @@ export function Menu({ x, y, anchor = null, align = 'left', onClose, children, t
     next?.focus()
   }
   return createPortal(
-    <div className={`hf-menu ${className}`.trim()} ref={ref} role="menu" style={{ left: pos.left, top: pos.top, width: Math.min(width, window.innerWidth - 16) }}
+    <div className={`hf-menu ${className}`.trim()} ref={ref} role="menu"
+         style={fit ? { left: pos.left, top: pos.top, minWidth: Math.min(width, window.innerWidth - 16), width: 'max-content', maxWidth: window.innerWidth - 16 }
+                    : { left: pos.left, top: pos.top, width: Math.min(width, window.innerWidth - 16) }}
          onKeyDown={onKeyDown} onContextMenu={(event) => event.preventDefault()}>
       {title && <p className="hf-menu-title">{title}</p>}
       {children}
@@ -477,7 +479,7 @@ export function Select({ value, onChange, disabled = false, children, className 
         <span className="hf-select-cell" aria-hidden="true"><G.ChevronDown className="hf-select-chev" /></span>
       </button>
       {open && (
-        <Menu anchor={open} width={Math.max(180, rectOf(open).width)} onClose={() => setOpen(null)} className="hf-menu-amber">
+        <Menu anchor={open} width={Math.max(180, rectOf(open).width)} fit onClose={() => setOpen(null)} className="hf-menu-amber">
           {options.map((o) => (
             <MenuItem key={o.value} checked={o.value === current?.value} disabled={o.disabled} onSelect={() => pick(o.value)}>{o.label}</MenuItem>
           ))}

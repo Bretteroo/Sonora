@@ -39,6 +39,7 @@ from .sonos.accounts import account_udn
 from .sonos.soundcloud_art import soundcloud_ref
 from .sonos.artcache import upsized
 from .sonos import const
+from .sonos import scenes
 from .sonos import smb
 from . import ingress, origin
 from . import release
@@ -105,6 +106,7 @@ async def lifespan(app: FastAPI):
     state["colors"] = ColorChoices(settings.data_dir)
 
     controller.on_state(_fan_out)
+    controller.on_state(_watch_scenes)
     try:
         await controller.start()
     except Exception:
@@ -126,6 +128,7 @@ async def lifespan(app: FastAPI):
         except Exception as exc:
             log.info("service list warm-up failed: %s", exc)
     warming = asyncio.create_task(warm_services())
+    _resume_scene_ends()
     release.start()
     try:
         yield
@@ -316,6 +319,10 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     await websocket.accept()
     clients = state.setdefault("clients", set())
     clients.add(websocket)  # type: ignore[union-attr]
+    # The page's own id, which a test it sets from the scene editor is held to.
+    page = websocket.query_params.get("page", "")[:64]
+    if page:
+        _PAGES[page] = _PAGES.get(page, 0) + 1
     try:
         await websocket.send_json({"type": "snapshot",
                                    "data": controller().snapshot()})
@@ -329,6 +336,12 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
         log.debug("websocket closed", exc_info=True)
     finally:
         clients.discard(websocket)  # type: ignore[union-attr]
+        if page:
+            _PAGES[page] -= 1
+            if not _PAGES[page]:
+                del _PAGES[page]
+                if (_ACTIVE.get("try") or {}).get("page") == page:
+                    _check_test_later(TEST_GRACE)
 
 
 # -- zone control -------------------------------------------------------------
@@ -5669,6 +5682,474 @@ async def set_alarm(alarm_id: str, body: AlarmBody) -> dict:
 async def delete_alarm(alarm_id: str, zone: str) -> dict:
     await commands().destroy_alarm(zone, alarm_id)
     return {"alarms": await _named_alarms(zone)}
+
+
+# -- scenes --------------------------------------------------------------------
+#
+# A scene is Sonora's own: a set of rooms, their levels and a source, saved
+# per household (backend/sonos/scenes.py) and set on the speakers in one go.
+
+_SCENES = scenes.Scenes(settings.data_dir / "scenes.json")
+#: What the rooms were before each scene now on, so an End can put them back.
+_ACTIVE = scenes.Active(settings.data_dir / "scene_state.json")
+
+
+async def _scene_rooms(household) -> list[dict]:
+    """The household's rooms as the scene editor offers them: name, whether
+    the room is a soundbar (so it can start the television and has Night
+    Mode and Speech Enhancement), and whether it has a line-in socket."""
+    ctl = controller()
+    out = []
+    for zone in household.visible_zones:
+        try:
+            capabilities = await ctl.device_capabilities(zone.uuid)
+        except Exception:                             # noqa: BLE001 - a quiet player
+            capabilities = set()
+        state = ctl.zones.get(zone.uuid)
+        out.append({"uuid": zone.uuid, "name": zone.name,
+                    "soundbar": "HT_PLAYBACK" in capabilities,
+                    "line_in": bool(state and state.supports_line_in),
+                    "online": bool(state and state.online)})
+    return out
+
+
+async def _scene_metadata(zone: str, uri: str, title: str) -> str:
+    """DIDL for a stored source that came without any, as set_source makes it."""
+    ctl = controller()
+    household = ctl.household_of(zone)
+    return station_didl(uri, title, ctl.account_udn(
+        household.id if household else "", smapi_sid(uri), smapi_account_serial(uri)))
+
+
+async def _scenes_changed() -> None:
+    await _fan_out({"type": "scenes"})
+
+
+#: The groups waiting on their delay, by the scene's key.
+_PENDING: dict[str, list[asyncio.Task]] = {}
+
+
+async def _run_scene(scene: dict, key: str, page: str = "") -> dict:
+    """Set the scene and keep what the rooms were under ``key``, unless the
+    scene is on already: then the record of before it stays the first one.
+    A group with a delay starts when its time comes, counted from now and
+    on its own, under the same key, so End takes it back with the rest;
+    setting the scene again starts its delays over."""
+    _cancel_pending(key)
+    _HEARD.discard(key)
+    _QUIET.pop(key, None)
+    async with _scene_work():
+        report = await scenes.apply(controller(), commands(), scene, _scene_metadata)
+    before = report.pop("before", None)
+    later = report.pop("later_groups", [])
+    if (before and before.get("rooms") or later) and _ACTIVE.get(key) is None:
+        _ACTIVE.set(key, before if before and before.get("rooms") else {"name": scene.get("name", ""), "at": time.time(), "rooms": {}})
+        await _scenes_changed()
+    # Each waiting group is kept with the scene's record, with when it is due,
+    # so a restart of Sonora sets it on time rather than losing it.
+    now = time.time()
+    waiting = [{"id": n, "due": now + group["delay"] * 60, "group": group} for n, group in enumerate(later)]
+    _ACTIVE.set_later(key, waiting)
+    for entry in waiting:
+        _wait_later(scene.get("name", ""), key, entry)
+    if _ACTIVE.get(key) is not None:
+        if key == "try":
+            # A scene being tried is in no saved scene, so its groups go
+            # with it, and the page trying it, which it ends with.
+            _ACTIVE.describe(key, scene.get("name", ""), scene.get("groups", []), page)
+        after, now = scenes.ends_after(scene), time.time()
+        _ACTIVE.set_end(key, now + after if after else None, now)
+        _end_on_time(key)
+    report["active"] = key
+    return report
+
+
+#: The scenes that end on their own, each waiting on its time, by key.
+_TIMED: dict[str, asyncio.Task] = {}
+
+
+def _end_on_time(key: str) -> None:
+    """Wait out the scene's end time, if it has one, and then end it as its
+    End would. A setting again starts the wait over."""
+    waiting = _TIMED.pop(key, None)
+    if waiting is not None and waiting is not asyncio.current_task():
+        waiting.cancel()
+    ends = _ACTIVE.ending().get(key)
+    if ends is None:
+        return
+
+    async def wait() -> None:
+        await asyncio.sleep(max(0.0, ends - time.time()))
+        if _TIMED.get(key) is asyncio.current_task():
+            del _TIMED[key]
+        try:
+            report = await _end(key)
+        except Exception as exc:                      # noqa: BLE001
+            log.info("scene %s could not be ended on time: %s", key, exc)
+            return
+        if report is not None:
+            log.info("scene %r ended on its own", report.get("name"))
+    _TIMED[key] = asyncio.create_task(wait(), name=f"scene {key} end")
+
+
+# -- a scene gone quiet, and a test whose page is gone --------------------------
+#
+# A scene whose rooms have all been stopped or paused by hand (by Sonora, the
+# Sonos apps, or the speaker's own buttons) is still on, and its End still
+# waits. The pages are told, once, so they can ask whether to end it.
+
+#: The scenes with a room heard playing since they were set; only these are asked about.
+_HEARD: set[str] = set()
+#: The quiet each scene is in: the check that waits it out, then True once the pages are asked.
+_QUIET: dict[str, asyncio.Task | bool] = {}
+#: How long every room must stay quiet before the question goes out, past a gap between tracks.
+QUIET_FOR = 3.0
+_PLAYING = ("PLAYING", "TRANSITIONING")
+#: How long after Sonora sets or ends a scene before quiet is judged: while
+#: it regroups rooms and puts sources back, music stops for a few seconds
+#: and starts again, which is no one silencing it.
+SCENE_SETTLE = 8.0
+_scene_busy = {"working": 0, "until": 0.0}
+
+
+@asynccontextmanager
+async def _scene_work():
+    """Around Sonora's own setting or ending of a scene: no scene is asked
+    about while it runs or for SCENE_SETTLE after, and once that is over
+    every scene is looked at again."""
+    _scene_busy["working"] += 1
+    try:
+        yield
+    finally:
+        _scene_busy["working"] -= 1
+        _scene_busy["until"] = time.monotonic() + SCENE_SETTLE
+        asyncio.get_running_loop().call_later(
+            SCENE_SETTLE + 0.1, lambda: asyncio.ensure_future(_watch_scenes({"type": "zone"})))
+
+
+def _scenes_settling() -> bool:
+    return bool(_scene_busy["working"]) or time.monotonic() < _scene_busy["until"]
+
+
+def _scene_groups(key: str) -> list[dict]:
+    saved = _SCENES.get(key)
+    if saved is not None:
+        return saved.get("groups", [])
+    return (_ACTIVE.get(key) or {}).get("groups", [])
+
+
+def _scene_playing(key: str) -> bool | None:
+    """Whether any room of the scene that plays something is playing; None
+    while there is nothing to judge: no such room is on the network and
+    not taken over by a scene set later, or a delayed group has still to
+    start."""
+    if _PENDING.get(key):
+        return None
+    ctl = controller()
+    # A room a scene set later has is that scene's now: it is judged there.
+    listing = _ACTIVE.listing()
+    at = listing.get(key, {}).get("at") or 0
+    taken = {room.get("uuid") for other, on in listing.items() if other != key and (on.get("at") or 0) > at
+             for group in _scene_groups(other) for room in group.get("rooms", [])}
+    rooms = [room["uuid"] for group in _scene_groups(key) if (group.get("play") or {}).get("kind") != "silence"
+             for room in group.get("rooms", []) if room.get("uuid") in ctl.zones and ctl.zones[room["uuid"]].online
+             and room.get("uuid") not in taken]
+    if not rooms:
+        return None
+    return any(ctl.coordinator_of(uuid).transport.state in _PLAYING for uuid in rooms)
+
+
+async def _watch_scenes(message: dict) -> None:
+    """After every room's change, look again at each scene that is on."""
+    if message.get("type") != "zone":
+        return
+    listing = _ACTIVE.listing()
+    for key, on in listing.items():
+        playing = _scene_playing(key)
+        if playing is None:
+            continue
+        if playing:
+            _HEARD.add(key)
+            await _unask(key)
+        elif key in _HEARD and key not in _QUIET and not _scenes_settling() \
+                and not (on.get("ends") and on["ends"] - time.time() < 10):
+            _QUIET[key] = asyncio.create_task(_ask_after_quiet(key, on.get("name", "")), name=f"scene {key} quiet")
+
+
+async def _ask_after_quiet(key: str, name: str) -> None:
+    await asyncio.sleep(QUIET_FOR)
+    if _ACTIVE.get(key) is None or _scenes_settling() or _scene_playing(key) is not False:
+        _QUIET.pop(key, None)
+        return
+    _QUIET[key] = True
+    await _fan_out({"type": "sceneQuiet", "key": key, "name": name})
+
+
+async def _unask(key: str) -> None:
+    """Forget a scene's quiet; a question the pages hold is taken back."""
+    held = _QUIET.pop(key, None)
+    if isinstance(held, asyncio.Task):
+        held.cancel()
+    elif held:
+        await _fan_out({"type": "sceneQuiet", "key": key, "over": True})
+
+
+#: The pages open now, by the id each gives its socket, with how many sockets each holds.
+_PAGES: dict[str, int] = {}
+#: How long a page may be out of touch before a test it set is ended: past a socket's reconnect.
+TEST_GRACE = 30.0
+_TEST_CHECK: list[asyncio.Task] = []
+
+
+def _check_test_later(delay: float) -> None:
+    """End the test from the editor if, ``delay`` from now, the page that
+    set it is not connected. A page that is closed or reloaded ends its
+    test itself; this is for one that went without saying (a crash, a
+    phone putting the browser away)."""
+    for task in _TEST_CHECK:
+        task.cancel()
+    _TEST_CHECK.clear()
+
+    async def check() -> None:
+        await asyncio.sleep(delay)
+        held = _ACTIVE.get("try")
+        if held is None or _PAGES.get(held.get("page") or ""):
+            return
+        report = await _end("try")
+        if report is not None:
+            log.info("scene test %r ended: its page is gone", report.get("name"))
+    _TEST_CHECK.append(asyncio.create_task(check(), name="scene test page"))
+
+
+def _resume_scene_ends() -> None:
+    """After a restart, wait again on the scenes that end on their own and on
+    their groups still waiting to start; one whose time passed while Sonora
+    was down ends, or starts, now."""
+    for key in _ACTIVE.ending():
+        _end_on_time(key)
+    for key, (name, waiting) in _ACTIVE.waiting().items():
+        for entry in waiting:
+            _wait_later(name, key, entry)
+    # A test left on when Sonora stopped ends unless its page comes back.
+    _check_test_later(60.0)
+
+
+def _wait_later(name: str, key: str, entry: dict) -> None:
+    """Wait on one of a scene's delayed groups, under the scene's key."""
+    task = asyncio.create_task(_set_later(name, key, entry), name=f"scene {key} later")
+    _PENDING.setdefault(key, []).append(task)
+    task.add_done_callback(lambda t, key=key: _PENDING.get(key, []).remove(t) if t in _PENDING.get(key, []) else None)
+
+
+async def _set_later(name: str, key: str, entry: dict) -> None:
+    """Set one of a scene's groups when it is due, if the scene is still on.
+
+    One whose time passed while Sonora was down is set at once."""
+    await asyncio.sleep(max(0.0, entry["due"] - time.time()))
+    if _ACTIVE.get(key) is None:
+        return
+    part = {"name": name, "groups": [{**entry["group"], "delay": None}], "pause_others": False}
+    try:
+        async with _scene_work():
+            report = await scenes.apply(controller(), commands(), part, _scene_metadata)
+    except Exception as exc:                          # noqa: BLE001
+        log.info("scene %r: the delayed group could not be set: %s", name, exc)
+        return
+    finally:
+        _ACTIVE.drop_later(key, entry["id"])
+    before = report.get("before")
+    if before and before.get("rooms"):
+        _ACTIVE.merge(key, before)
+    await _scenes_changed()
+
+
+def _cancel_pending(key: str) -> None:
+    for task in _PENDING.pop(key, []):
+        task.cancel()
+
+
+def _cancel_end(key: str) -> None:
+    waiting = _TIMED.pop(key, None)
+    if waiting is not None and waiting is not asyncio.current_task():
+        waiting.cancel()
+
+
+@app.get("/api/scenes")
+async def list_scenes() -> dict:
+    """Every scene, the systems and rooms a scene can be built from (a
+    group names the system its rooms are on), and which scenes are on now."""
+    households = [{"id": household.id, "generation": household.generation,
+                   "rooms": await _scene_rooms(household)}
+                  for household in controller().ordered_households()]
+    # ``now`` is this machine's clock, which a scene's ``ends`` is on, so a
+    # page can count down to it whatever its own clock says.
+    return {"households": households, "scenes": await _scenes_with_services(_SCENES.items()),
+            "active": _ACTIVE.listing(), "now": time.time()}
+
+
+#: The announcement waiting on each catalog read the scene list found under way.
+_SCENE_LIST_WAITS: dict[asyncio.Task, asyncio.Task] = {}
+
+
+async def _scenes_with_services(items: list[dict]) -> list[dict]:
+    """The scenes with every service item's service named, from the
+    household's catalog where a scene saved without the name is listed.
+
+    The list answers at once: a catalog not held yet (the first minute
+    after a start, while every player is asked) leaves those titles bare,
+    and the pages are told to ask again when it arrives."""
+    names: dict[str, dict[int, str]] = {}
+    ctl = controller()
+    out = []
+    for scene in items:
+        groups = []
+        for group in scene.get("groups", []):
+            play = group.get("play")
+            if play and play.get("kind") == "item" and not play.get("service"):
+                sid = smapi_sid(play.get("uri", ""))
+                household = ctl.households.get(group.get("household", ""))
+                if sid and household is not None:
+                    if household.id not in names:
+                        directory, pending = ctl.held_service_directory(household)
+                        names[household.id] = {svc.id: svc.name for svc in directory.services} if directory else {}
+                        if pending is not None:
+                            _announce_scenes_after(pending)
+                    play = {**play, "service": names[household.id].get(sid, "")}
+            groups.append({**group, "play": play})
+        out.append({**scene, "groups": groups})
+    return out
+
+
+def _announce_scenes_after(read: asyncio.Task) -> None:
+    """Push a scenes change once ``read`` (a catalog read) is done, so the
+    pages list the scenes with their services named."""
+    if read in _SCENE_LIST_WAITS:
+        return
+
+    async def announce() -> None:
+        try:
+            await read
+        except Exception:                             # noqa: BLE001 - the read's failure is logged by its own callback
+            return
+        await _scenes_changed()
+    task = asyncio.create_task(announce())
+    _SCENE_LIST_WAITS[read] = task
+    task.add_done_callback(lambda _: _SCENE_LIST_WAITS.pop(read, None))
+
+
+class SceneBody(BaseModel):
+    name: str = ""
+    groups: list[dict] = Field(default_factory=list)
+    sleep: int | None = None
+    pause_others: bool = False
+
+
+@app.post("/api/scenes")
+async def add_scene(body: SceneBody) -> dict:
+    try:
+        scene = _SCENES.add(body.model_dump())
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from None
+    await _scenes_changed()
+    return scene
+
+
+@app.put("/api/scenes/{scene_id}")
+async def update_scene(scene_id: str, body: SceneBody) -> dict:
+    try:
+        scene = _SCENES.update(scene_id, body.model_dump())
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from None
+    if scene is None:
+        raise HTTPException(404, f"unknown scene {scene_id}")
+    await _scenes_changed()
+    return scene
+
+
+@app.delete("/api/scenes/{scene_id}")
+async def remove_scene(scene_id: str) -> dict:
+    """Delete a scene, ending it first if it is on: its rooms are put back
+    as its End would, then it is gone. ``ended`` is that End's report."""
+    if _SCENES.get(scene_id) is None:
+        raise HTTPException(404, f"unknown scene {scene_id}")
+    ended = None
+    if _ACTIVE.get(scene_id) is not None:
+        try:
+            ended = await _end(scene_id)
+        except Exception as exc:                      # noqa: BLE001 - the delete goes ahead
+            log.info("scene %s could not be ended before its delete: %s", scene_id, exc)
+    _SCENES.remove(scene_id)
+    # Whatever is left of it (an End that failed part way) goes too.
+    _cancel_pending(scene_id)
+    _cancel_end(scene_id)
+    await _unask(scene_id)
+    _ACTIVE.release(scene_id)
+    await _scenes_changed()
+    return {"ok": True, "ended": ended}
+
+
+@app.post("/api/scenes/{scene_id}/apply")
+async def apply_scene(scene_id: str) -> dict:
+    """Set a saved scene. The answer says what was set, which rooms were
+    not found and what a speaker refused; ``active`` is the key its End
+    goes by (``POST /api/scenes/{active}/end``)."""
+    scene = _SCENES.get(scene_id)
+    if scene is None:
+        raise HTTPException(404, f"unknown scene {scene_id}")
+    return await _run_scene(scene, scene_id)
+
+
+@app.post("/api/scenes/apply")
+async def apply_unsaved_scene(body: SceneBody, page: str = "") -> dict:
+    """Set a scene that is not saved: one being edited.
+
+    A test is for hearing the scene, not for waiting on it: every group starts
+    now, whatever its start delay, and plays until the test is ended, whatever
+    its play duration (no sleep timer is set, and the test does not end on its
+    own). The saved scene keeps both."""
+    try:
+        scene = scenes.normalize({**body.model_dump(), "name": body.name or "scene"})
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from None
+    scene = {**scene, "groups": [{**group, "delay": None, "sleep": None} for group in scene["groups"]]}
+    return await _run_scene(scene, "try", page[:64])
+
+
+@app.post("/api/scenes/{key}/end")
+async def end_scene(key: str, page: str = "") -> dict:
+    """End a scene that is on: put every room it touched back as it was,
+    except a room a later scene still has, which that scene puts back when
+    it ends. ``page``, from a page going away, ends a test only if that
+    page set it."""
+    if page and (_ACTIVE.get(key) or {}).get("page") != page:
+        raise HTTPException(404, f"scene {key} is not on from that page")
+    report = await _end(key)
+    if report is None:
+        raise HTTPException(404, f"scene {key} is not on")
+    return report
+
+
+async def _end(key: str) -> dict | None:
+    before = _ACTIVE.release(key)
+    if before is None:
+        return None
+    _cancel_pending(key)
+    _cancel_end(key)
+    await _unask(key)
+    async with _scene_work():
+        report = await scenes.revert(controller(), commands(), before)
+    await _scenes_changed()
+    return report
+
+
+class CaptureBody(BaseModel):
+    groups: list[list[str]]
+
+
+@app.post("/api/scenes/capture")
+async def capture_scene(body: CaptureBody) -> dict:
+    """A scene body drawn from how the rooms stand now, for the editor."""
+    return scenes.capture(controller(), body.groups)
 
 
 # -- diagnostics --------------------------------------------------------------

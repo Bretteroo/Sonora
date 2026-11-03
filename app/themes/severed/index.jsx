@@ -24,6 +24,8 @@ import { QueueProgram } from './Queue.jsx'
 import Library, { AddToPlaylistWindow, AddRadioWindow } from './Library.jsx'
 import RoomsProgram, { RoomSettings, GroupWindow, useJoin } from './Rooms.jsx'
 import ClockProgram, { SleepWindow } from './Clock.jsx'
+import ScenesProgram, { SceneQuietAsk } from './Scenes.jsx'
+import { useScenes } from '../../frontend/src/lib/scenes.js'
 import SetupProgram, { LinkServiceWindow, ShortcutsWindow } from './Setup.jsx'
 import InfoWindow, { ProseWindow } from './Info.jsx'
 import Command from './Command.jsx'
@@ -56,8 +58,8 @@ import strings from './strings.js'
 // Narrower, the wings fold into the deck; on a phone the console becomes a
 // handheld terminal, its screen above and a short deck below.
 
-const PROGRAMS = ['player', 'queue', 'library', 'rooms', 'clock', 'setup']
-const PROGRAM_GLYPHS = { player: L.Play, queue: L.Queue, library: L.Folder, rooms: L.Rooms, clock: L.Alarm, setup: L.Settings }
+const PROGRAMS = ['player', 'queue', 'library', 'rooms', 'scenes', 'clock', 'setup']
+const PROGRAM_GLYPHS = { player: L.Play, queue: L.Queue, library: L.Folder, rooms: L.Rooms, scenes: L.Scenes, clock: L.Alarm, setup: L.Settings }
 
 // The screen's scroller, which the trackball and the cursor keys move.
 // The control nearest `from` in a direction: ahead of it on that axis, scored by the distance
@@ -125,13 +127,17 @@ function focusables(root) {
 }
 
 export function Shell() {
-  const { zones, groups, households, connected, actions, notices, dismiss, servicesEpoch, recentEpoch, favoritesEpoch: savedEpoch, playlistsEpoch } = useSystem()
+  const { zones, groups, households, connected, actions, notices, dismiss, servicesEpoch, recentEpoch, favoritesEpoch: savedEpoch, playlistsEpoch, scenesEpoch } = useSystem()
+  // The Scenes key's second lamp: lit while any scene is on.
+  const scenesOn = Object.keys(useScenes(scenesEpoch).active).length > 0
   const { t } = useI18n()
   const size = useSize()
   const compact = size === 'compact'
   const wide = size === 'wide'
   const prefs = usePrefs()
   const [program, setProgramState] = useState(() => (PROGRAMS.includes(readStored(PROGRAM_KEY)) ? readStored(PROGRAM_KEY) : 'player'))
+  // Each tap of the phone's Setup gear turns it once round; counting the taps restarts the turn.
+  const [gearTurns, setGearTurns] = useState(0)
   const setProgram = useCallback((id) => { setProgramState(id); writeStored(PROGRAM_KEY, id) }, [])
   const { activeId, activeGroup, activeZone, visibleGroups: shownGroups, visibleZones, systemFilter, chooseSystem, select } =
     useShellSelection({ byMember: true, preferAllWhenMany: true })
@@ -587,7 +593,7 @@ export function Shell() {
       if (typing || anyLayer) return
       if (event.key === '?') { event.preventDefault(); setShortcuts(true); return }
       // The program keys answer to the digits alone, as a terminal's function keys would.
-      if (!cmd && !event.altKey && /^[1-6]$/.test(event.key)) { event.preventDefault(); pressProgram(PROGRAMS[Number(event.key) - 1], event); return }
+      if (!cmd && !event.altKey && /^[1-7]$/.test(event.key)) { event.preventDefault(); pressProgram(PROGRAMS[Number(event.key) - 1], event); return }
       if (!activeZone) return
       const mode = activeZone.transport?.play_mode || 'NORMAL'
       // Space plays and pauses unless a key or button has the focus, which Space presses instead.
@@ -665,6 +671,8 @@ export function Shell() {
                   onGroup={setGroupWindow} onRoomSettings={setRoomSettings} onPlayer={() => setProgram('player')}
                   onPauseAll={() => pauseEverything(actions, groups, zones)} pauseDisabled={!anyPlaying}
                   onParty={partyMode} partyDisabled={!activeZone || activeZone.local || (activeHousehold?.zone_uuids?.length || 0) < 2} />
+  ) : program === 'scenes' ? (
+    <ScenesProgram zones={zones} onMessage={say} />
   ) : program === 'clock' ? (
     <ClockProgram {...common} />
   ) : (
@@ -674,12 +682,15 @@ export function Shell() {
   )
 
   // --- the console's parts ------------------------------------------------------------
-  const programKeys = PROGRAMS.map((id, i) => {
+  // On a phone Setup is a key in the header, which leaves the program keys
+  // one row: six fit across a phone where seven wrapped onto a second row.
+  const programKeys = PROGRAMS.filter((id) => !(compact && id === 'setup')).map((id) => {
+    const i = PROGRAMS.indexOf(id)
     const Glyph = PROGRAM_GLYPHS[id]
     return (
       <Key key={id} tone="teal" size={compact ? 's' : 'm'} className="sv-fkey" legend={t(`sv.prog.${id}`)} sub={compact ? '' : String(i + 1)}
            glyph={<Glyph size={compact ? 14 : 20} />} lit={program === id} pressed={program === id} held={heldProgram === id}
-           label={`${t(`sv.prog.${id}`)} (${i + 1})`} lamp={id === 'queue' ? { tone: 'amber', on: Boolean(queue.total || queue.items.length) } : null}
+           label={`${t(`sv.prog.${id}`)} (${i + 1})`} lamp={id === 'queue' ? { tone: 'amber', on: Boolean(queue.total || queue.items.length) } : id === 'scenes' ? { tone: 'amber', on: scenesOn } : null}
            onPress={() => setProgram(id)} />
     )
   })
@@ -754,7 +765,26 @@ export function Shell() {
   return (
     <div className={cx('sv-root', `sv-size-${size}`)} data-program={program} data-connected={connected || undefined}>
       <header className="sv-head">
-        <span className="sv-brand-rule" aria-hidden="true" />
+        {/* On a phone Setup is the gear alone here, printed in the maker's
+            ink at the start of the left-hand rule, the same gear as its
+            program key; while Setup shows it sits reversed on an ink disc.
+            A tap turns it once round to the sound of a key. */}
+        <span className="sv-head-start">
+          {compact && (
+            <button type="button" className="sv-head-setup" aria-pressed={program === 'setup'} aria-label={t('sv.prog.setup')}
+                    title={t('sv.prog.setup')}
+                    onPointerDown={() => keySound('down', 0.7)} onPointerUp={() => keySound('up', 0.7)}
+                    onClick={(event) => {
+                      // Enter or Space brings only the click: the key is heard both ways here.
+                      if (event.detail === 0) { keySound('down', 0.7); setTimeout(() => keySound('up', 0.7), 90) }
+                      setGearTurns((n) => n + 1)
+                      setProgram('setup')
+                    }}>
+              <span key={gearTurns} className="sv-head-gear" data-turn={gearTurns > 0 || undefined}><L.Settings size={18} /></span>
+            </button>
+          )}
+          <span className="sv-brand-rule" aria-hidden="true" />
+        </span>
         <button type="button" className="sv-brand" onClick={() => setAbout(true)} title={t('about.menu')}>
           <span className="sv-brand-name">Sonora</span>
           <span className="sv-brand-model">{t('sv.model')}</span>
@@ -895,6 +925,7 @@ export function Shell() {
       )}
       {about && <AboutSonora onClose={() => setAbout(false)} />}
       <UpdateNotice />
+      <SceneQuietAsk onMessage={say} />
       {shortcuts && <ShortcutsWindow onClose={() => setShortcuts(false)} />}
       {quickMenu && (
         <Menu x={quickMenu.x} y={quickMenu.y} onClose={() => setQuickMenu(null)} title={quickMenu.item.title}>

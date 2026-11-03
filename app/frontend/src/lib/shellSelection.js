@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSystem } from './store.jsx'
 import { orderedHouseholds, systemChoiceMatters } from './format.js'
+import { SCENE_ROOM_EVENT } from './scenes.js'
 
 // Which room a shell is looking at, and which system it is filtered to.
 //
@@ -105,6 +106,31 @@ export function useShellSelection({ onSelect = null, byMember = false,
       households.find((h) => h.id === systemFilter)?.zone_uuids || [])
     return zoneList.filter((z) => grouped.has(z.uuid) || remembered.has(z.uuid))
   }, [zoneList, visibleGroups, households, systemFilter])
+
+  // A scene that has just started names the rooms it plays in; the first
+  // of them found in a group becomes the room in view, its system chosen if
+  // the picker had another. The page in view stays (no onSelect), and the
+  // group is looked up again for a few seconds, as the regrouping the scene
+  // made reaches Sonora and may give the room a different lead.
+  const [landing, setLanding] = useState(null)
+  useEffect(() => {
+    const on = (event) => setLanding(event.detail)
+    window.addEventListener(SCENE_ROOM_EVENT, on)
+    return () => window.removeEventListener(SCENE_ROOM_EVENT, on)
+  }, [])
+  useEffect(() => {
+    if (!landing) return undefined
+    const done = setTimeout(() => setLanding(null), 6000)
+    return () => clearTimeout(done)
+  }, [landing])
+  useEffect(() => {
+    if (!landing) return
+    const group = landing.map((uuid) => groups.find((g) => g.members.includes(uuid))).find(Boolean)
+    if (!group) return
+    setActiveId(group.coordinator)
+    writeStored(GROUP_KEY, group.coordinator)
+    if (group.household && systemFilter && systemFilter !== 'all' && systemFilter !== group.household) chooseSystem(group.household)
+  }, [landing, groups]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const activeGroup = useMemo(() => (
     visibleGroups.find((g) => g.coordinator === activeId)

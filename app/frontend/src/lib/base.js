@@ -25,6 +25,13 @@ export function withBase(url) {
   return BASE + url
 }
 
+/** This page's own id, for as long as it is open: its socket carries it,
+ * and a scene it tests from the editor is held to it, so the test ends
+ * when the page goes. */
+export const PAGE_ID = (() => {
+  try { return crypto.randomUUID() } catch { return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}` }
+})()
+
 /** The WebSocket URL for a path on Sonora, under the base. */
 export function socketUrl(path) {
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'

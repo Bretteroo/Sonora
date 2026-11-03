@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react'
 // not queue hundreds of calls, with a final send when the drag ends.
 const LIVE_MS = 90
 
-export default function Slider({ value, onCommit, label, max = 100, disabled = false }) {
+export default function Slider({ value, onCommit, label, min = 0, max = 100, wheelStep = 2, disabled = false, center = false }) {
   const [local, setLocal] = useState(value)
   const [dragging, setDragging] = useState(false)
   const sent = useRef({ at: 0, value, timer: null })
@@ -34,16 +34,17 @@ export default function Slider({ value, onCommit, label, max = 100, disabled = f
   const finish = (next) => { if (next !== sent.current.value) send(next) }
 
   const shown = dragging ? local : value
-  const pct = Math.max(0, Math.min(100, (shown / max) * 100))
+  const pct = Math.max(0, Math.min(100, ((shown - min) / (max - min)) * 100))
 
   return (
     <div className="dk-slider">
       <div className="dk-slider-track" />
-      <div className="dk-slider-fill" style={{ width: `${pct}%` }} />
+      {/* Centered, the fill runs from the middle to the thumb, either way. */}
+      <div className="dk-slider-fill" style={center ? { left: `${Math.min(pct, 50)}%`, width: `${Math.abs(pct - 50)}%` } : { width: `${pct}%` }} />
       <input
         type="range"
-        data-wheel-step="2"
-        min={0}
+        data-wheel-step={wheelStep}
+        min={min}
         max={max}
         value={shown}
         aria-label={label}

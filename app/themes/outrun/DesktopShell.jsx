@@ -25,6 +25,7 @@ import { NowPlaying, Queue } from './Center.jsx'
 import Browse from './Browse.jsx'
 import PaneSwitch, { isNarrowShell, usePaneDirection } from './PaneSwitch.jsx'
 import { AddServices, Confirm, GroupRooms, TrackInfo, SleepTimer, AddRadioStation } from './Dialogs.jsx'
+import { SceneWindow, SceneQuietAsk } from './Scenes.jsx'
 import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
 import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
 import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
@@ -452,6 +453,7 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
                 onAddServices={() => setDialog({ kind: 'addService' })} addServicesAsPage icons={winBrowseIcons}
                 onLinkService={(info) => setDialog({ kind: 'addService', preset: info })}
                 onSleepTimer={(anchor) => setDialog({ kind: 'sleep', anchor })} onAlarms={() => setDialog({ kind: 'alarms' })} onMessage={setTransient}
+                onSceneEditor={(scene, households) => setDialog({ kind: 'scene', scene, households })}
                 onAddRadio={() => setDialog({ kind: 'radio' })}
                 queueEdited={queueEdited} onQueueReplaced={() => setQueueEdited(false)} />
       </div>
@@ -478,11 +480,13 @@ export function Shell({ rootClass = '', frame = null, extraHelpItems = null, ext
       {dialog?.kind === 's2' && <S2Upgrade onClose={() => setDialog(null)} />}
       {dialog?.kind === 'aboutSonora' && <AboutSonora onClose={() => setDialog(null)} />}
       <UpdateNotice />
+      <SceneQuietAsk onMessage={setTransient} />
       {dialog?.kind === 'shortcuts' && <WinShortcuts onClose={() => setDialog(null)} />}
       {dialog?.kind === 'info' && <TrackInfo zone={activeZone} onClose={() => setDialog(null)} />}
       {dialog?.kind === 'sleep' && <SleepTimer zone={activeZone} anchor={dialog.anchor}
                                               groupLabel={activeGroup?.name || ''} onClose={() => setDialog(null)} />}
       {dialog?.kind === 'alarms' && <WinAlarms zone={activeZone} onClose={() => setDialog(null)} />}
+      {dialog?.kind === 'scene' && <SceneWindow scene={dialog.scene} households={dialog.households} onClose={() => setDialog(null)} onMessage={setTransient} />}
       {dialog?.kind === 'group' && (
         <GroupRooms windows group={dialog.group} zones={zones} households={households} onClose={() => setDialog(null)} />
       )}

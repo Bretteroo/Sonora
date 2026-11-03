@@ -18,6 +18,7 @@ import ZonesUnit, { ToneControl, SpeakerSelector } from './Zones.jsx'
 import TunerUnit, { AddToPlaylistSheet, AddRadioSheet } from './Tuner.jsx'
 import TapeUnit from './Tape.jsx'
 import TimerUnit, { SleepPanel } from './Timer.jsx'
+import ScenesUnit, { SceneQuietAsk } from './Scenes.jsx'
 import SetupUnit, { LinkServiceSheet, ShortcutsSheet } from './Setup.jsx'
 import InfoPanel, { ProsePanel } from './Info.jsx'
 import { tokens, lightTokens } from './tokens.js'
@@ -189,7 +190,7 @@ export function Shell() {
       if (cmd && key === 'f') { event.preventDefault(); setFn('tuner'); setTunerRequest({ n: Date.now(), kind: 'focus' }); return }
       if (cmd && key === 'g') { event.preventDefault(); setFn('tape'); return }
       if (cmd && (key === '*' || (event.shiftKey && key === '8'))) { event.preventDefault(); browseSource('FV:2'); return }
-      if (cmd && /^[1-5]$/.test(key)) { event.preventDefault(); setFn(FUNCTIONS[Number(key) - 1]); return }
+      if (cmd && /^[1-6]$/.test(key)) { event.preventDefault(); setFn(FUNCTIONS[Number(key) - 1]); return }
       if (cmd && event.shiftKey && key === 'x') { event.preventDefault(); if (activeZone) actions.setCrossfade(activeZone.uuid, !activeZone.transport?.crossfade); return }
       if (typing || anyLayer) return
       if (event.key === '?') { event.preventDefault(); setShortcuts(true); return }
@@ -249,6 +250,8 @@ export function Shell() {
   ) : fn === 'tape' ? (
     <TapeUnit zone={activeZone} name={groupLabel} queue={queue} onMessage={toast} onEdited={() => setQueueEdited(true)}
               onInfo={(item) => openInfoForItem(item, { hzone: activeZone?.uuid })} />
+  ) : fn === 'scenes' ? (
+    <ScenesUnit zones={zones} onMessage={toast} />
   ) : fn === 'timer' ? (
     <TimerUnit households={households} zones={zones} activeZone={activeZone} activeGroup={activeGroup} systemFilter={systemFilter} />
   ) : (
@@ -291,10 +294,11 @@ export function Shell() {
   return (
     <div className="hf-root" data-remote={remote || undefined} data-fn={fn}>
       <div className="hf-rack">
-        {remote ? <RemoteHead {...head} collapsed={headFolded} onExpand={() => setHeadFolded(false)} />
+        {remote ? <RemoteHead {...head} collapsed={headFolded} onExpand={() => setHeadFolded(false)}
+                              onSetup={() => setFn('setup')} setupOn={fn === 'setup'} />
           : <Preamp {...head} fn={fn} onFunction={setFn} />}
         <main className="hf-bay" key={fn} ref={bayRef} aria-label={t(`hifi.fn.${fn}`)}>{Bay}</main>
-        {remote && <FunctionKeys value={fn} onChange={setFn} />}
+        {remote && <FunctionKeys value={fn} onChange={setFn} omit={['setup']} />}
       </div>
 
       {linkSheet && <SpeakerSelector group={groups.find((g) => g.id === linkSheet.id) || linkSheet} zones={zones} households={households} onClose={() => setLinkSheet(null)} />}
@@ -313,6 +317,7 @@ export function Shell() {
       {linking && <LinkServiceSheet households={households} preset={linking} onClose={() => setLinking(null)} onLinked={() => setServicesVersion((v) => v + 1)} />}
       {about && <AboutSonora onClose={() => setAbout(false)} />}
       <UpdateNotice />
+      <SceneQuietAsk onMessage={toast} />
       {shortcuts && <ShortcutsSheet onClose={() => setShortcuts(false)} />}
       {confirm && <Confirm title={confirm.title} body={confirm.body} action={confirm.action} onConfirm={() => { setConfirm(null); confirm.onConfirm() }} onClose={() => setConfirm(null)} />}
       {quickMenu && (

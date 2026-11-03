@@ -21,8 +21,8 @@ import { rectOf, zoom } from './scale.js'
 // the display, the transport keys, the volume knob and the
 // function selector that decides which component sits in the bay below.
 
-export const FUNCTIONS = ['zones', 'tuner', 'tape', 'timer', 'setup']
-export const FUNCTION_GLYPHS = { zones: G.Zones, tuner: G.Tuner, tape: G.Tape, timer: G.Timer, setup: G.Setup }
+export const FUNCTIONS = ['zones', 'tuner', 'tape', 'scenes', 'timer', 'setup']
+export const FUNCTION_GLYPHS = { zones: G.Zones, tuner: G.Tuner, tape: G.Tape, scenes: G.ScenesOutline, timer: G.Timer, setup: G.Setup }
 
 function hms(seconds) {
   const total = Math.floor(seconds)
@@ -484,11 +484,11 @@ export function VolumeSection({ zone, group, zones, size = 'lg', mute = true }) 
 // the function selector, and the system switch. Pressing a legend turns the
 // switch there; the knob can be dragged, and on it the wheel and the arrow
 // keys step it. The stops are 35 degrees apart, or 50 when there are fewer
-// than five, spread either side of straight up.
-export function RotarySwitch({ stops, value, onChange, label, title, className = '' }) {
+// than five, spread either side of straight up, unless `angles` places them.
+export function RotarySwitch({ stops, value, onChange, label, title, className = '', angles: placed = null }) {
   const index = Math.max(0, stops.findIndex((s) => s.id === value))
   const step = stops.length >= 5 ? 35 : 50
-  const angles = stops.map((_, i) => (i - (stops.length - 1) / 2) * step)
+  const angles = placed?.length === stops.length ? placed : stops.map((_, i) => (i - (stops.length - 1) / 2) * step)
   const last = stops.length - 1
   const turn = (by) => onChange(stops[Math.max(0, Math.min(last, index + by))].id)
   // Dragging the knob turns it as the volume knob turns: up or right is
@@ -558,11 +558,17 @@ export function RotarySwitch({ stops, value, onChange, label, title, className =
   )
 }
 
-// The function selector: five stops, one for each unit the rack can show.
+// The function selector: six stops, one for each unit the rack can show.
+// They sweep 200 degrees, wider apart across the top, where the names lie
+// side by side, than down the sides, where they stack; every lamp is the
+// same distance from the knob (hifi.css, .hf-function-selector).
+const FUNCTION_ANGLES = [-100, -62, -24, 24, 62, 100]
+
 export function FunctionSelector({ value, onChange }) {
   const { t } = useI18n()
   const stops = FUNCTIONS.map((id, i) => ({ id, label: t(`hifi.fn.${id}`), title: `${t(`hifi.fn.${id}`)} (Ctrl ${i + 1})` }))
-  return <RotarySwitch stops={stops} value={value} onChange={onChange} label={t('hifi.function')} title={t('hifi.function')} />
+  return <RotarySwitch stops={stops} value={value} onChange={onChange} label={t('hifi.function')} title={t('hifi.function')}
+                       className="hf-function-selector" angles={FUNCTION_ANGLES} />
 }
 
 // The brand plate along the amplifier's top left, over the turntable: the
@@ -671,14 +677,23 @@ function RemoteMini({ zone, group, zones, onExpand }) {
   )
 }
 
-export function RemoteHead({ zone, group, zones, groups, onSelect, sleepRemaining, onSleep, onInfo, onLink, connected, onAbout, rooms, systemSwitch, generation = '', onMessage = null, collapsed = false, onExpand = null }) {
+export function RemoteHead({ zone, group, zones, groups, onSelect, sleepRemaining, onSleep, onInfo, onLink, connected, onAbout, rooms, systemSwitch, generation = '', onMessage = null, collapsed = false, onExpand = null, onSetup = null, setupOn = false }) {
   const lyrics = useDisplayLyrics(zone)
+  const { t } = useI18n()
   return (
     <Unit className="hf-remote-head" as="header" aria-label="Sonora" data-collapsed={collapsed || undefined}>
       {collapsed && <RemoteMini zone={zone} group={group} zones={zones} onExpand={onExpand} />}
       <div className="hf-remote-top">
         <BrandPlate connected={connected} onAbout={onAbout} rooms={rooms} generation={generation} />
-        <Reactions zone={zone} onMessage={onMessage} />
+        {/* Setup lives up here on a phone, a plain key that says so, which
+            leaves the function keys at the foot one row: five fit across
+            a phone where six wrapped onto a second row. While any Setup pane
+            shows it is held down with its lamp lit, top right, as the
+            function keys at the foot are. */}
+        <span className="hf-remote-top-end">
+          <Reactions zone={zone} onMessage={onMessage} />
+          {onSetup && <Key size="sm" className="hf-remote-setup" led={setupOn} pressed={setupOn} label={t('hifi.fn.setup')} onClick={onSetup}>{t('hifi.fn.setup')}</Key>}
+        </span>
       </div>
       {/* No system dial here: on a phone it is in the zone amplifier's
           toolbar, where the rooms it chooses between are, and the head
@@ -724,11 +739,11 @@ function RemoteModes({ zone, onSleep, sleepOn, onInfo, onLink, lyrics = null }) 
 }
 
 // The remote's foot: the function keys, one per component.
-export function FunctionKeys({ value, onChange }) {
+export function FunctionKeys({ value, onChange, omit = [] }) {
   const { t } = useI18n()
   return (
     <nav className="hf-fnkeys" aria-label={t('hifi.function')}>
-      {FUNCTIONS.map((id) => {
+      {FUNCTIONS.filter((id) => !omit.includes(id)).map((id) => {
         const Glyph = FUNCTION_GLYPHS[id]
         return (
           <button key={id} type="button" className="hf-fnkey" aria-current={value === id ? 'page' : undefined} onClick={() => onChange(id)}>

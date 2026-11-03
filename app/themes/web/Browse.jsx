@@ -18,6 +18,7 @@ import SearchResults from './SearchResults.jsx'
 import SettingsPage from './SettingsPage.jsx'
 import RoomSoundPage from './RoomSoundPage.jsx'
 import TroubleshootingPage from './TroubleshootingPage.jsx'
+import { ScenesRow, ScenesPage } from './Scenes.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
 import useEdgeFade from './useEdgeFade.js'
@@ -343,6 +344,15 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
     )
   }
 
+  // Scenes' Manage: every scene as a row (Scenes.jsx).
+  if (nav.view.kind === 'scenes') {
+    return (
+      <div className="wb-content wb-content-panel">
+        <ScenesPage zones={zones} onClose={nav.home} />
+      </div>
+    )
+  }
+
   if (nav.view.kind === 'troubleshooting') {
     return (
       <div className="wb-content wb-content-panel">
@@ -639,6 +649,11 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
 
       {nav.view.kind === 'home' && !homeHidden && (
         <PinnedRows zone={browseUuid} nav={nav} onPlay={play} refresh={servicesVersion} />
+      )}
+
+      {/* Sonora's scenes, which the product has nowhere: their own row, above Sonos Favorites. */}
+      {nav.view.kind === 'home' && !homeHidden && (
+        <ScenesRow zones={zones} onManage={() => nav.push({ kind: 'scenes' })} />
       )}
 
       {SECTIONS.filter((section) => !section.above).map(renderSection)}

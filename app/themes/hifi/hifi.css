@@ -736,6 +736,14 @@
   transform: translate(-50%, -50%) rotate(var(--hf-angle)) translateY(calc(-1 * var(--hf-sel-r))) rotate(calc(-1 * var(--hf-angle)));
   font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hf-engrave-dim); text-shadow: var(--hf-engrave-shadow);
 }
+/* The function selector's lamps ring the knob at one distance: each stop is
+   placed by its lamp's center (2px padding and half the 6px lamp down from
+   its top), not by its middle, so a name under a lamp at the top does not
+   push that lamp further out than the ones at the sides. */
+:root[data-theme='hifi'] .hf-function-selector { --hf-sel-r: 66px; }
+:root[data-theme='hifi'] .hf-function-selector .hf-selector-stop {
+  transform: translate(-50%, -5px) rotate(var(--hf-angle)) translateY(calc(-1 * var(--hf-sel-r))) rotate(calc(-1 * var(--hf-angle)));
+}
 :root[data-theme='hifi'] .hf-selector-stop[aria-checked='true'] { color: var(--hf-engrave); }
 :root[data-theme='hifi'] .hf-selector-stop:hover { color: var(--hf-engrave); }
 :root[data-theme='hifi'] .hf-selector-knob {
@@ -768,6 +776,13 @@
 :root[data-theme='hifi'] .hf-remote-head .hf-screw-tl, :root[data-theme='hifi'] .hf-remote-head .hf-screw-tr { top: 5px; }
 :root[data-theme='hifi'] .hf-remote-head .hf-screw-bl, :root[data-theme='hifi'] .hf-remote-head .hf-screw-br { bottom: 5px; }
 :root[data-theme='hifi'] .hf-remote-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+:root[data-theme='hifi'] .hf-remote-top-end { display: flex; align-items: center; gap: 8px; }
+:root[data-theme='hifi'] .hf-remote-setup .hf-key { min-width: 0; padding: 0 12px; }
+:root[data-theme='hifi'] .hf-remote-setup .hf-key-text { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
+:root[data-theme='hifi'] .hf-remote-setup .hf-key .hf-led { left: auto; right: 5px; }
+/* Held down while Setup shows, as the function keys at the foot are while theirs does. */
+:root[data-theme='hifi'] .hf-remote-setup .hf-key[aria-pressed='true'] { box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55); transform: translateY(1px); }
+:root[data-theme='hifi'] .hf-remote-setup .hf-key { padding: 0 16px; }
 :root[data-theme='hifi'] .hf-remote-top .hf-brand { flex-direction: row; align-items: baseline; gap: 10px; }
 :root[data-theme='hifi'] .hf-remote-top .hf-brand-name { font-size: 20px; }
 :root[data-theme='hifi'] .hf-remote-top .hf-brand-unit { display: none; }
@@ -880,6 +895,7 @@
 
 :root[data-theme='hifi'] .hf-bay > .hf-tuner-unit,
 :root[data-theme='hifi'] .hf-bay > .hf-tape-unit,
+:root[data-theme='hifi'] .hf-bay > .hf-scenes-unit,
 :root[data-theme='hifi'] .hf-bay > .hf-setup-unit { flex: 1; min-height: 520px; display: flex; flex-direction: column; }
 /* The rear panel's settings fit the window, so its two columns, the page list and the page, each
    scroll on their own instead of the panel scrolling them together. */
@@ -1595,8 +1611,10 @@
     repeating-linear-gradient(90deg, var(--hf-amber) 0 1px, transparent 1px 6px) bottom / 100% 3px no-repeat;
 }
 /* Room around the lettering for its glow, which the ellipsis' clip would
-   otherwise cut into a box; the margins give the room back. */
-:root[data-theme='hifi'] .hf-select .hf-select-label { position: relative; z-index: 1; padding: 6px 8px; margin: -9px -8px -6px; }
+   otherwise cut into a box; the margins give the room back. The line is
+   trimmed to its capitals, so the lettering centers in the window by its
+   own shapes whatever room the font reserves above and below them. */
+:root[data-theme='hifi'] .hf-select .hf-select-label { position: relative; z-index: 1; padding: 6px 8px; margin: -6px -8px; text-box: trim-both cap alphabetic; }
 :root[data-theme='hifi'] .hf-select .hf-select-cell {
   position: relative; z-index: 1; flex: none; align-self: stretch; display: grid; place-items: center;
   width: 29px; margin-right: -8px;
@@ -1944,7 +1962,7 @@
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-unit .hf-screw-tl, :root[data-theme='hifi']:not([data-desktop-mode]) .hf-unit .hf-screw-tr { top: 4px; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-unit .hf-screw-bl, :root[data-theme='hifi']:not([data-desktop-mode]) .hf-unit .hf-screw-br { bottom: 4px; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-unit .hf-screw::after { top: 3.5px; }
-  :root[data-theme='hifi']:not([data-desktop-mode]) .hf-bay > .hf-tuner-unit, :root[data-theme='hifi']:not([data-desktop-mode]) .hf-bay > .hf-tape-unit, :root[data-theme='hifi']:not([data-desktop-mode]) .hf-bay > .hf-setup-unit { min-height: 100%; }
+  :root[data-theme='hifi']:not([data-desktop-mode]) .hf-bay > .hf-tuner-unit, :root[data-theme='hifi']:not([data-desktop-mode]) .hf-bay > .hf-tape-unit, :root[data-theme='hifi']:not([data-desktop-mode]) .hf-bay > .hf-scenes-unit, :root[data-theme='hifi']:not([data-desktop-mode]) .hf-bay > .hf-setup-unit { min-height: 100%; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-zone-grid { grid-template-columns: minmax(0, 1fr); }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-zone-face { grid-template-columns: minmax(0, 1fr); }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-zone-controls { justify-content: space-between; }
@@ -1982,6 +2000,7 @@
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-program-num { display: none; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-program-display { grid-area: display; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-program > .hf-lever { grid-area: lever; }
+  :root[data-theme='hifi']:not([data-desktop-mode]) .hf-scene > .hf-scene-key { grid-area: lever; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-program-text { grid-area: text; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-program-tools { grid-area: tools; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-setup-page { padding: 12px; }
@@ -2233,3 +2252,184 @@
 @keyframes hf-svc-leave-hifi-fade { to { opacity: 0; } }
 /* A second line under the address (the news of an add or a removal) wraps. */
 :root[data-theme='hifi'] .hf-svc-state + .hf-svc-state { white-space: normal; }
+
+/* The scene memory: preset lines with their displays, and a Recall key each. */
+/* The unit fills the bay below the amplifier, as the tape deck does; its list scrolls inside it. */
+:root[data-theme='hifi'] .hf-scenes-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 22px; }
+:root[data-theme='hifi'] .hf-scenes-body .hf-scene-presets { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+:root[data-theme='hifi'] .hf-scenes-body .hf-programs { flex: 1; min-height: 0; overflow: auto; scrollbar-width: thin; }
+:root[data-theme='hifi'] .hf-scene { grid-template-columns: auto minmax(0, 1fr) 0 auto; }
+:root[data-theme='hifi'] .hf-scene-display .hf-display-inner { min-width: 0; }
+/* The key leads the line, its top on the display's, with the preset number as its legend. */
+:root[data-theme='hifi'] .hf-scene > .hf-scene-key { align-self: start; }
+/* The keys' 2px lower edge makes them read a pixel low beside the glass; they sit a pixel higher to center on it. */
+:root[data-theme='hifi'] .hf-scene > .hf-program-tools { position: relative; top: -1px; }
+:root[data-theme='hifi'] .hf-scene > .hf-scene-key .hf-key { min-width: 64px; height: 40px; }
+:root[data-theme='hifi'] .hf-scene > .hf-scene-key .hf-glyph { width: 20px; height: 20px; }
+/* A scene's display is lit while the scene is on and dim otherwise, as a
+   timer program's is; the name is set in the main display's title face at
+   its compact size, and a scene that is on says so in the display's corner
+   as well as on its key's lamp. */
+:root[data-theme='hifi'] .hf-scene-name { font-size: 17px; margin: 0; line-height: 1.15; padding-right: 3em; }
+/* A scene's room names, bold on the display. */
+:root[data-theme='hifi'] .hf-scene-room { font-weight: 700; }
+:root[data-theme='hifi'] .hf-scene-on {
+  position: absolute; top: 7px; right: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--hf-vfd); text-shadow: var(--hf-vfd-glow);
+}
+:root[data-theme='hifi'] .hf-scene .hf-vfd-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* How long it plays, under ON in the corner and lit as it is: the infinity, or the time left. */
+:root[data-theme='hifi'] .hf-scene-time {
+  position: absolute; right: 12px; bottom: 7px; font-size: 13px; font-weight: 700; line-height: 1;
+  color: var(--hf-vfd); text-shadow: var(--hf-vfd-glow);
+}
+:root[data-theme='hifi'] .hf-scene-time > svg { width: 18px; height: 18px; filter: drop-shadow(0 0 2px var(--hf-vfd)); }
+:root[data-theme='hifi'] .hf-scene[data-active] .hf-vfd-sub { padding-right: 4.5em; }
+/* The scene editor grows as groups and rooms are added. Its top is pinned so it grows downward only, and its body keeps room for a typical scene so the usual additions do not resize it at all. */
+/* The scene editor's layer dims the deck without blurring it: the blur was
+   re-rendered on every change inside the editor, and a room's volume line
+   popped in rather than sliding while the page caught up. */
+:root[data-theme='hifi'] .hf-layer-center:has(> .hf-scene-editor) { align-items: start; padding-top: 6vh; backdrop-filter: none; }
+:root[data-theme='hifi'] .hf-scene-editor .hf-panel-body { min-height: min(680px, 76vh); max-height: min(80vh, 760px); overflow: auto; }
+:root[data-theme='hifi'] .hf-scene-presets + .hf-scene-presets { margin-top: 6px; }
+/* The shared scene editor in this unit's own idiom: engraved labels, inset fields, every pill and
+   button a metal key, the chosen one lit amber, and each card a recessed well. */
+:root[data-theme='hifi'] .hf-scene-editor .scene-form { gap: 14px; padding: 4px 0 2px; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-eyebrow, :root[data-theme='hifi'] .hf-scene-editor .scene-label { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--hf-engrave-dim); text-shadow: var(--hf-engrave-shadow); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-name { height: 32px; padding: 0 10px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.7); font-size: 13px; font-weight: 600; background: rgba(0, 0, 0, 0.35); color: var(--hf-engrave); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.55); }
+:root[data-theme='hifi'][data-variant='light'] .hf-scene-editor .scene-name { background: rgba(255, 255, 255, 0.6); color: var(--t-fg); border-color: rgba(0, 0, 0, 0.35); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-name:focus { outline: none; border-color: var(--t-accent); }
+/* The play duration reads off a dial window like the dropdowns beside it: the same smoked glass
+   in the same bezel, lit amber, the minutes in its lettering with the dial's ticks at its foot. */
+:root[data-theme='hifi'] .hf-scene-editor .scene-duration-box {
+  position: relative; overflow: hidden; height: 32px; width: 86px; border: 3px solid var(--hf-bezel); border-radius: 6px;
+  background: var(--hf-amber-glass);
+  box-shadow: 0 1px 0 var(--hf-edge-hi), inset 0 2px 5px rgba(0, 0, 0, 0.85), inset 0 0 14px rgba(255, 140, 30, 0.08);
+}
+:root[data-theme='hifi'][data-variant='light'] .hf-scene-editor .scene-duration-box { box-shadow: 0 1px 0 var(--hf-edge-hi), inset 0 2px 4px rgba(20, 30, 10, 0.45); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-duration-box::before {
+  content: ''; position: absolute; inset: 0 0 50% 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.02));
+}
+:root[data-theme='hifi'][data-variant='light'] .hf-scene-editor .scene-duration-box::before { background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.04)); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-duration-box::after {
+  content: ''; position: absolute; left: 8px; right: 8px; bottom: 2px; height: 5px; pointer-events: none; opacity: 0.38;
+  background:
+    repeating-linear-gradient(90deg, var(--hf-amber) 0 1px, transparent 1px 24px) bottom / 100% 5px no-repeat,
+    repeating-linear-gradient(90deg, var(--hf-amber) 0 1px, transparent 1px 6px) bottom / 100% 3px no-repeat;
+}
+:root[data-theme='hifi'][data-variant='light'] .hf-scene-editor .scene-duration-box::after { opacity: 0.45; }
+:root[data-theme='hifi'] .hf-layer .hf-scene-editor input.scene-duration {
+  position: relative; z-index: 1; width: 100%; height: 100%; padding: 0 10px 2px; border: 0; border-radius: 0; background: none; box-shadow: none;
+  color: var(--hf-amber); text-shadow: var(--hf-amber-glow); font: inherit; font-size: 14px; font-weight: 600; letter-spacing: 0.05em; text-align: right;
+}
+:root[data-theme='hifi'][data-variant='light'] .hf-layer .hf-scene-editor input.scene-duration { text-shadow: none; background: none; box-shadow: none; }
+:root[data-theme='hifi'] .hf-layer .hf-scene-editor input.scene-duration:focus { outline: none; color: var(--hf-amber-hot); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-duration-box:focus-within { outline: 2px solid var(--hf-amber); outline-offset: 3px; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-note.scene-duration-note { font-size: 11.5px; color: var(--hf-engrave-dim); text-shadow: var(--hf-engrave-shadow); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-duration-unit { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--hf-engrave-dim); text-shadow: var(--hf-engrave-shadow); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-card { border: 0; border-radius: 5px; padding: 0 14px 6px; background: rgba(0, 0, 0, 0.18); box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.45); }
+/* A card with no header, like Other rooms, has its row centered: no extra room at the bottom. */
+:root[data-theme='hifi'] .hf-scene-editor .scene-card:not(:has(> .scene-card-head)) { padding-bottom: 0; }
+:root[data-theme='hifi'][data-variant='light'] .hf-scene-editor .scene-card { background: rgba(255, 255, 255, 0.28); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.18); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-card-head { margin: 0 -14px 2px; padding: 6px 14px; border-bottom: 1px solid rgba(0, 0, 0, 0.25); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-row + .scene-row { border-top: 1px solid rgba(0, 0, 0, 0.18); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-level-slot + .scene-level-slot[data-open] > .scene-slide-inner > .scene-level { border-top: 1px solid rgba(0, 0, 0, 0.18); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-tabs + .scene-card { border-top-left-radius: 5px; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-tabs { gap: 6px; border: 0; margin: 0; padding: 0; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-tab, :root[data-theme='hifi'] .hf-scene-editor .scene-pill, :root[data-theme='hifi'] .hf-scene-editor .scene-btn {
+  border: 1px solid rgba(0, 0, 0, 0.72); border-radius: 4px; color: var(--hf-key-fg);
+  background: linear-gradient(180deg, var(--hf-key-top), var(--hf-key-low));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 2px 0 rgba(0, 0, 0, 0.55), 0 3px 6px rgba(0, 0, 0, 0.35);
+  text-shadow: var(--hf-engrave-shadow); font-weight: 600; font-size: 12.5px; transition: transform 60ms, box-shadow 60ms, filter 120ms;
+}
+/* A key's words are trimmed to their capitals, so they center on the key's face whatever room the font leaves above
+   and below its letters. */
+:root[data-theme='hifi'] .hf-scene-editor .scene-key-text { text-box: trim-both cap alphabetic; }
+:root[data-theme='hifi'] .hf-scene-editor :is(.scene-tab, .scene-pill, .scene-btn):hover:not(:disabled) { filter: brightness(1.06); }
+:root[data-theme='hifi'] .hf-scene-editor :is(.scene-tab, .scene-pill, .scene-btn):active:not(:disabled) { transform: translateY(1px); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.55); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-tab { height: 30px; padding: 0 12px 0 17px; margin: 0; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-tab .scene-badge, :root[data-theme='hifi'] .hf-scene-editor .scene-badge { width: 16px; height: 16px; font-size: 10px; background: rgba(0, 0, 0, 0.35); color: var(--hf-key-fg); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-tab small { background: rgba(0, 0, 0, 0.25); border: 0; color: inherit; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-tab-add { color: var(--hf-key-fg); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-pill { height: 28px; padding: 0 12px 0 17px; white-space: nowrap; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-pill-small { height: 24px; padding: 0 9px 0 15px; font-size: 11.5px; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-btn-primary { color: #1b1206; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35); background: linear-gradient(180deg, #ffd081, #f39b28); }
+:root[data-theme='hifi'][data-variant='light'] .hf-scene-editor .scene-btn-primary { color: #fff; text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3); background: linear-gradient(180deg, #d06e2b, #9c4613); }
+/* A key never changes its finish when it is on. A toggle, a choice, a system, or a group's tab
+   carries a lamp in its top left corner instead, lit when it is the one in force, as the keys on the deck do;
+   the legend keeps clear of it. */
+:root[data-theme='hifi'] .hf-scene-editor :is(.scene-pill, .scene-tab:not(.scene-tab-add)) { position: relative; }
+:root[data-theme='hifi'] .hf-scene-editor :is(.scene-pill, .scene-tab:not(.scene-tab-add))::before {
+  content: ''; position: absolute; top: 4px; left: 5px; width: 5px; height: 5px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, rgba(255, 255, 255, 0.25), transparent 60%), var(--hf-led-off);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: background 140ms, box-shadow 140ms;
+}
+:root[data-theme='hifi'] .hf-scene-editor :is(.scene-pill[aria-pressed='true'], .scene-pill[aria-checked='true'], .scene-tab[aria-selected='true'])::before {
+  background: radial-gradient(circle at 40% 35%, #fff4d8, #ffb23e 45%, #d97a0e 100%);
+  box-shadow: 0 0 5px 1px rgba(255, 170, 50, 0.85), 0 0 12px rgba(255, 150, 30, 0.45);
+}
+:root[data-theme='hifi'] .hf-scene-editor .scene-pill-check { display: none; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-pill:disabled { opacity: 0.42; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-link { color: var(--t-accent); font-weight: 600; text-decoration: none; }
+/* The S1/S2 window beside the Rooms label: a small dial window, not a full field. */
+:root[data-theme='hifi'] .hf-scene-editor .scene-row { grid-template-columns: 128px minmax(0, 1fr); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-label-system { flex-wrap: nowrap; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-label-system .hf-select { min-width: 0; height: 26px; padding: 0 6px 0 8px; gap: 6px; font-size: 12px; }
+/* The lettering centers in this short window, as in every other; the dial's ticks are cut down to fit the room left under it. */
+:root[data-theme='hifi'] .hf-scene-editor .scene-label-system .hf-select .hf-select-label { padding: 4px 6px; margin: -4px -6px; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-label-system .hf-select::after {
+  bottom: 1px; height: 2px;
+  background: repeating-linear-gradient(90deg, var(--hf-amber) 0 1px, transparent 1px 6px) bottom / 100% 2px no-repeat;
+}
+:root[data-theme='hifi'] .hf-scene-editor .scene-label-system .hf-select { margin-top: 1px; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-link:hover { text-decoration: underline; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-btn { display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 14px; font-size: 13px; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-btn-quiet { background: transparent; box-shadow: none; border-color: var(--t-border-strong); color: var(--t-fg); text-shadow: none; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-level-extra { border-left-color: var(--t-accent); gap: 6px 12px; align-items: flex-start; }
+/* The tone keys in equal cells, each key centered over its legend, so the keys sit evenly however long the legends run. */
+:root[data-theme='hifi'] .hf-scene-editor .hf-scene-tone-key { width: 150px; justify-content: center; }
+/* The editor is wider than the other panels, and a room's name column narrower, so the faders have travel once the bass and treble share the line. */
+:root[data-theme='hifi'] .hf-scene-editor.hf-panel-wide { width: min(980px, 100%); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-level { grid-template-columns: minmax(80px, 118px) minmax(140px, 1fr) auto; }
+/* On a phone each label sits over its field, as the shared editor lays it out, so the keys and wells get the panel's whole width. */
+@media (max-width: 600px) {
+  :root[data-theme='hifi'] .hf-scene-editor .scene-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  :root[data-theme='hifi'] .hf-scene-editor .scene-level { grid-template-columns: minmax(0, 1fr) auto; }
+}
+:root[data-theme='hifi'] .hf-scene-editor .scene-slider .hf-fader { min-width: 0; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-level-tone { grid-template-columns: auto minmax(0, 1fr) 2em auto minmax(0, 1fr) 2em; }
+@container scene-sliders (width < 400px) { :root[data-theme='hifi'] .hf-scene-editor .scene-level-tone { grid-template-columns: auto minmax(0, 1fr) 2em; } }
+/* The fader's cap is taller than a round knob; the midpoint mark stands clear of it. */
+:root[data-theme='hifi'] .hf-scene-editor .scene-slider-track { --scene-knob-h: 28px; --scene-tick-h: 40px; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-value { color: var(--hf-engrave); font-weight: 600; }
+/* Choosing music reads off a display: the list in the amber of the main one (the gray-green of
+   the light finish), its glass over the rows as they scroll, and a cursor beside the one chosen. */
+:root[data-theme='hifi'] .hf-scene-editor .scene-form > h3 { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--hf-engrave-dim); text-shadow: var(--hf-engrave-shadow); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-music-btn { max-width: 100%; height: 32px; padding: 0 8px 0 10px; gap: 8px; font-size: 13px; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-music-btn .scene-music-chev { width: 14px; height: 14px; }
+/* The music button's lettering as the other dial windows have it: room for its glow, centered by its capitals. The
+   window shows only the lettering; the service's mark stays on the rows of the open list. */
+:root[data-theme='hifi'] .hf-scene-editor .scene-music-btn .scene-music-label { position: relative; z-index: 1; padding: 6px 8px; margin: -6px -8px; text-box: trim-both cap alphabetic; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-music-btn .scene-source-mark { display: none; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker { position: relative; border: 0; border-radius: 6px; padding: 3px; background: var(--hf-bezel); box-shadow: 0 1px 0 var(--hf-edge-hi), inset 0 1px 2px rgba(0, 0, 0, 0.8); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker-list { border-radius: 4px; padding: 6px 8px 8px; background: var(--hf-display-bg); color: var(--hf-vfd-soft); text-shadow: var(--hf-vfd-glow); box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.75); }
+:root[data-theme='hifi'][data-variant='light'] .hf-scene-editor .scene-picker-list { box-shadow: inset 0 2px 6px rgba(20, 30, 10, 0.35); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker::after {
+  content: ''; position: absolute; inset: 3px; pointer-events: none; border-radius: 4px;
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.07) 0%, transparent 38%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px);
+}
+:root[data-theme='hifi'][data-variant='light'] .hf-scene-editor .scene-picker::after { background: linear-gradient(165deg, rgba(255, 255, 255, 0.35) 0%, transparent 42%); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker-group { padding: 8px 6px 3px; font-size: 10px; letter-spacing: 0.14em; color: var(--hf-vfd-soft); opacity: 0.7; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker-row { position: relative; padding: 5px 8px 5px 22px; border-radius: 3px; font-size: 14px; font-weight: 600; letter-spacing: 0.01em; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker-row::before { content: ''; position: absolute; left: 8px; top: 50%; width: 0; height: 0; border: 4px solid transparent; border-left: 6px solid currentColor; transform: translateY(-50%); opacity: 0; transition: opacity 120ms; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker-row:hover { background: var(--hf-vfd-off); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker-row[aria-selected='true'] { background: none; color: var(--hf-vfd); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker-row[aria-selected='true']::before { opacity: 1; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker-row svg { color: var(--hf-vfd); }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker-from { font-size: 11px; letter-spacing: 0.04em; color: var(--hf-vfd); opacity: 0.7; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-picker-row[aria-selected='true'] .scene-picker-from { color: var(--hf-vfd); opacity: 1; }
+:root[data-theme='hifi'] .hf-scene-editor .scene-note { color: var(--hf-vfd-soft); }

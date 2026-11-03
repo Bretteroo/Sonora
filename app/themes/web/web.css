@@ -5530,3 +5530,165 @@ button.wb-cs-chip { cursor: pointer; }
 .wb-cs-sides input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: #ffffff; }
 .wb-cs-sides span { display: flex; flex-direction: column; color: var(--t-fg-muted); }
 .wb-cs-sides strong { font-weight: 500; color: var(--t-fg); }
+
+/* Scenes, which the product has nowhere, built from its own parts (Scenes.jsx).
+   A scene's tile is a home tile with a "…" at the top right of its picture,
+   shown while the pointer is on the tile or the tile has focus, and always on
+   a touch screen. A scene that is on wears a 48px white disc with the stop
+   square over its picture, which ends it, and the play mark and time left
+   under its name. "New Scene" is a tile whose picture is the plus. */
+/* The scenes' line is the services row (scrollbar, room under it, edge fade) holding tiles as wide as the home's tile grids make theirs. */
+.wb-scene-line { gap: 16px; margin-left: 0; }
+.wb-scene-line > * { width: var(--wb-scene-w, 160px); }
+.wb-scene-tile { position: relative; min-width: 0; }
+.wb-scene-tile .wb-tile-art > .wb-scene-art { grid-area: 1 / 1; width: 100%; height: 100%; }
+.wb-scene-tile > .wb-tile { width: 100%; }
+.wb-scene-tile[aria-busy='true'] { opacity: 0.7; }
+.wb-scene-more {
+  position: absolute; top: 8px; right: 8px; width: 32px; height: 32px;
+  display: grid; place-items: center; border: 0; border-radius: 9999px;
+  color: #ffffff; background: rgba(0, 0, 0, 0.6); cursor: pointer;
+  opacity: 0; transition: opacity 120ms;
+}
+.wb-scene-tile:hover .wb-scene-more, .wb-scene-tile:focus-within .wb-scene-more, .wb-scene-more[aria-expanded='true'] { opacity: 1; }
+@media (hover: none) { .wb-scene-more { opacity: 1; } }
+.wb-scene-more:hover { background: rgba(0, 0, 0, 0.8); }
+.wb-scene-end {
+  position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 8px;
+  background: rgba(0, 0, 0, 0.5);
+}
+.wb-scene-end-disc {
+  width: 56px; height: 56px; display: grid; place-items: center; border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.7); box-shadow: inset 0 0 0 2px #ffffff, 0 4px 14px rgba(0, 0, 0, 0.45);
+  transition: background 120ms, transform 120ms;
+}
+.wb-scene-end-disc i { display: block; width: 16px; height: 16px; border-radius: 3px; background: #ffffff; }
+.wb-scene-end-word { font-size: 13px; font-weight: 500; line-height: 16px; color: #ffffff; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
+.wb-scene-tile .wb-tile:hover .wb-scene-end-disc { background: rgba(0, 0, 0, 0.85); transform: scale(1.06); }
+.wb-scene-tile .wb-tile:active .wb-scene-end-disc { transform: scale(0.97); }
+.wb-scene-state { flex: none; width: 8px; height: 9px; color: var(--t-fg); }
+.wb-scene-time { color: var(--t-fg-muted); }
+.wb-tile-sub .wb-scene-time { display: inline-flex; align-items: center; gap: 4px; }
+.wb-tile-sub .wb-scene-time svg { width: 14px; height: 14px; }
+.wb-scene-add .wb-tile-art { color: var(--t-fg); background: var(--t-surface-panel); box-shadow: inset 0 0 0 1px var(--t-surface-raised); }
+.wb-scene-add .wb-tile-art > svg { width: 32%; height: 32%; }
+
+/* Manage: Content Services' card, a row per scene. Its picture is the round
+   service icon's place, square-cornered for the scene's art; the time left and the
+   "…" sit at the right, the "…" always shown here, as a row's chevron is. */
+/* No subheading comes between the title and the card here, so the title keeps the 24px Content Services leaves above its own. */
+.wb-scenes-page > h1 { margin-bottom: 24px; }
+.wb-scene-row { cursor: pointer; }
+/* A scene that is on: its row takes the ground of its own picture, mixed into the card's gray, as the room sidebar tints the playing room's card from its cover. */
+.wb-scene-row[data-on='true'] { position: relative; z-index: 1; background: color-mix(in srgb, var(--wb-scene-ground, #4f5052) 55%, var(--t-surface-raised, #36393a)); }
+.wb-scene-row[aria-busy='true'] { opacity: 0.7; }
+.wb-scene-icon { border-radius: 8px; }
+.wb-scene-icon .wb-scene-art { width: 100%; height: 100%; }
+.wb-scene-row .wb-cs-sub { display: flex; align-items: center; gap: 6px; }
+.wb-scene-row > .wb-scene-time { flex: none; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
+.wb-scene-row > .wb-scene-time svg { width: 16px; height: 16px; }
+.wb-scene-row .wb-scene-more { position: static; opacity: 1; flex: none; background: none; }
+.wb-scene-row .wb-scene-more:hover { background: rgba(255, 255, 255, 0.08); }
+.wb-scene-menu button:disabled { opacity: 0.4; cursor: default; }
+
+/* The scene toast leaves on its own after a few seconds, so it carries no Dismiss. */
+.wb-scene-toasts .wb-toast p { margin: 0; }
+
+/* The editor, in the dialog panel's gray: the title in 18px over the shared
+   editor, which wears the product's parts. Labels in 14px muted, fields with
+   the dialog's 1px white rule, cards on the raised gray with 16px corners as
+   Content Services' are, rooms and choices as pills that go white when on
+   (the theme chooser's pressed pill), groups as the product's tabs, and the
+   dialog's 40px pills to finish, Save a step lighter. */
+.wb-overlay:has(> .wb-panel[data-variant='scene']) { background: rgba(0, 0, 0, 0.5); place-items: start center; padding-top: 6vh; }
+.wb-panel[data-variant='scene'] {
+  position: relative; width: min(820px, 100%); max-height: 86vh; padding: 24px 24px 20px;
+  background: var(--t-surface-panel, #222426); box-shadow: none;
+}
+.wb-panel[data-variant='scene'] > h2 { margin: 0 0 16px; font-size: 18px; font-weight: 500; line-height: 26px; }
+.wb-scene-editor .scene-form { --sc-radius: 12px; gap: 14px; padding: 0; font-size: 14px; color: var(--t-fg); }
+.wb-scene-editor :is(.scene-eyebrow, .scene-label) { font-size: 14px; font-weight: 500; letter-spacing: normal; text-transform: none; color: var(--t-fg-muted); }
+.wb-scene-editor :is(.scene-name, .scene-duration) {
+  height: 38px; box-sizing: border-box; padding: 0 10px; border: 1px solid #ffffff; border-radius: 2px;
+  background: transparent; color: var(--t-fg); font-size: 14px;
+}
+.wb-scene-editor .scene-duration { height: 32px; }
+.wb-scene-editor :is(.scene-name, .scene-duration)::placeholder { color: var(--t-fg-muted); }
+.wb-scene-editor :is(.scene-name, .scene-duration):focus { outline: 2px solid #a1c7fc; outline-offset: 1px; }
+.wb-scene-editor .scene-card { border: 0; border-radius: 16px; background: var(--t-surface-raised, #36393a); padding: 0 16px 6px; }
+.wb-scene-editor .scene-card:not(:has(> .scene-card-head)) { padding-bottom: 0; }
+.wb-scene-editor .scene-card-head { margin: 0 -16px 2px; padding: 8px 16px; background: transparent; border-bottom: 1px solid var(--t-surface-panel, #222426); }
+.wb-scene-editor .scene-row { grid-template-columns: 136px minmax(0, 1fr); padding: 10px 0; }
+.wb-scene-editor .scene-row + .scene-row,
+.wb-scene-editor .scene-level-slot + .scene-level-slot[data-open] > .scene-slide-inner > .scene-level { border-top: 1px solid var(--t-surface-panel, #222426); }
+.wb-scene-editor .scene-tabs { gap: 8px; margin: 0; padding: 0; border: 0; background: none; align-self: flex-start; }
+.wb-scene-editor .scene-tab { margin: 0; padding: 6px 14px; border: 0; border-radius: 9999px; font-size: 13px; font-weight: 400; color: var(--t-fg); background: var(--t-surface-raised, #36393a); }
+.wb-scene-editor .scene-tab[aria-selected='true'] { color: var(--t-accent-fg, #16181a); background: var(--t-fg, #ffffff); }
+.wb-scene-editor :is(.scene-badge, .scene-tab small) { display: none; }
+.wb-scene-editor .scene-tab-add { color: var(--t-fg); }
+.wb-scene-editor .scene-pill {
+  padding: 6px 14px; border: 0; border-radius: 9999px; font-size: 13px; font-weight: 400;
+  color: var(--t-fg); background: #4f5052; box-shadow: none;
+}
+.wb-scene-editor .scene-pill:hover:not(:disabled):not([aria-pressed='true'], [aria-checked='true']) { background: #5c5d5f; }
+.wb-scene-editor .scene-pill:is([aria-pressed='true'], [aria-checked='true']) { color: #16181a; background: #f4f5f6; }
+.wb-scene-editor .scene-pill-small { padding: 3px 10px; }
+.wb-scene-editor .scene-link { color: var(--t-fg); text-decoration: underline; }
+.wb-scene-editor :is(.scene-level-name, .scene-value, .scene-slider-label, .scene-note, .scene-level-foot, .scene-duration-unit) { color: var(--t-fg); }
+.wb-scene-editor .scene-note { color: var(--t-fg-muted); }
+.wb-scene-editor .scene-caret { background: none; color: var(--t-fg-muted); }
+.wb-scene-editor .scene-caret[aria-expanded='true'] { color: var(--t-fg); }
+.wb-scene-editor .scene-level-extra { border-left-color: #4f5052; }
+.wb-scene-editor .scene-slider-track > .wb-slider { min-width: 0; width: 100%; }
+.wb-scene-editor .wb-slider input:disabled { cursor: default; }
+.wb-scene-editor .wb-slider[data-disabled] { opacity: 0.4; }
+/* The pop-ups: the raised gray, a 1px rim, 8px corners and a chevron, as one
+   pop-up and the music button beside it alike. */
+.wb-scene-editor :is(.scene-form select, .scene-form .scene-music-btn) {
+  appearance: none; -moz-appearance: none; height: 36px; box-sizing: border-box; padding: 0 32px 0 12px;
+  border: 1px solid #4f5052; border-radius: 8px; color: var(--t-fg); font-size: 14px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center / 12px 8px, var(--t-surface-panel, #222426);
+}
+.wb-scene-editor .scene-form select option { background: var(--t-surface-raised, #36393a); color: var(--t-fg); }
+.wb-scene-editor .scene-music-btn .scene-music-chev { display: none; }
+.wb-scene-editor :is(.scene-form select, .scene-form .scene-music-btn):hover:not(:disabled) { border-color: #9ca0a5; }
+/* The music list is the player menu's panel: the raised gray, 12px corners, 38px rows. */
+.wb-scene-editor .scene-menu .scene-picker { border: 0; border-radius: 12px; background: #36393a; color: #ffffff; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45); }
+.wb-scene-editor .scene-menu .scene-picker-list { padding: 8px 0; }
+.wb-scene-editor .scene-menu .scene-picker-row { min-height: 38px; padding: 6px 24px; font-size: 15px; }
+.wb-scene-editor .scene-menu :is(.scene-picker-row:hover, .scene-picker-row[data-cursor]) { background: rgba(255, 255, 255, 0.08); }
+.wb-scene-editor .scene-menu .scene-picker-row[aria-selected='true'] { background: none; color: inherit; font-weight: 500; }
+.wb-scene-editor .scene-menu .scene-picker-row[aria-selected='true']:is(:hover, [data-cursor]),
+.wb-scene-editor .scene-menu .scene-picker-list:not(:has(.scene-picker-row:hover, .scene-picker-row[data-cursor])) .scene-picker-row[aria-selected='true'] { background: rgba(255, 255, 255, 0.08); }
+.wb-scene-editor .scene-picker-from { color: var(--t-fg-muted); }
+.wb-scene-editor .scene-actions { padding-top: 16px; border-top: 0; gap: 14px; }
+.wb-scene-editor .scene-btn { height: 40px; min-width: 112px; padding: 0 20px; border: 0; border-radius: 9999px; font-size: 14px; font-weight: 500; color: #ffffff; background: var(--t-surface-raised, #36393a); box-shadow: none; }
+.wb-scene-editor .scene-btn:hover:not(:disabled) { opacity: 0.9; }
+.wb-scene-editor .scene-btn-primary { background: #4f5052; }
+.wb-scene-editor .scene-btn:disabled { color: #6b6d70; cursor: default; }
+
+/* On a phone the editor fills the screen and each label stands over its
+   field. Its title bar stays at the top with the close button, and its three
+   buttons stay along the bottom on one line, so neither scrolls out of
+   reach; Test scene now takes a little more of the line than the others for
+   its longer word. The music list's service column narrows so titles keep
+   their room. */
+@media (max-width: 600px) {
+  .wb-overlay:has(> .wb-panel[data-variant='scene']) { padding: 0; place-items: stretch; }
+  .wb-panel[data-variant='scene'] { width: 100%; max-height: none; height: 100%; border-radius: 0; padding: 0 16px; }
+  .wb-panel[data-variant='scene'] > h2 {
+    position: sticky; top: 0; z-index: 3; margin: 0 -16px 8px; padding: 16px 56px 12px 16px;
+    background: var(--t-surface-panel, #222426);
+  }
+  .wb-panel[data-variant='scene'] > .wb-dialog-close { position: fixed; top: 16px; right: 12px; z-index: 4; width: 32px; height: 32px; }
+  .wb-scene-editor .scene-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .wb-scene-editor .scene-actions {
+    position: sticky; bottom: 0; z-index: 3; display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 10px;
+    margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: var(--t-surface-panel, #222426); box-shadow: 0 -1px 0 #36393a;
+  }
+  .wb-scene-editor .scene-actions > :not(.scene-btn) { display: none; }
+  .wb-scene-editor .scene-btn { min-width: 0; height: 44px; padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wb-scene-editor .scene-menu .scene-picker-from { width: 7.5em; font-size: 12px; }
+  .wb-scene-editor .scene-menu .scene-picker-row { padding: 6px 14px; }
+}

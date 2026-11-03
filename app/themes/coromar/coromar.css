@@ -161,6 +161,9 @@
 .co-root .dk-progress-track, .co-root .dk-slider-track { background: rgba(5, 26, 36, 0.45); }
 .co-root .dk-progress-fill, .co-root .dk-slider-fill { background: linear-gradient(90deg, var(--t-sky), var(--t-sky-low)); box-shadow: none; }
 .co-root .dk-progress-thumb { background: var(--t-mullion-bright); box-shadow: var(--co-cast); }
+/* The volume and scene sliders' handle wears the EQ sliders' rim, so on the light concrete it is a knob and not a blank white disc. */
+.co-root .dk-slider input[type='range']::-moz-range-thumb { box-sizing: border-box; border: 1px solid #8a8a8a; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
+.co-root .dk-slider input[type='range']::-webkit-slider-thumb { box-sizing: border-box; border: 1px solid #8a8a8a; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
 .co-root .dk-time-elapsed, .co-root .dk-time-total, .co-root .dk-time-remaining { color: rgba(233, 243, 246, 0.7); }
 .co-root .dk-strip-search { background: #fff; border: 1px solid rgba(201, 209, 210, 0.8); color: var(--t-fg); }
 .co-root .dk-strip-search:focus-within { border-color: var(--t-sky); box-shadow: 0 0 0 3px rgba(91, 143, 212, 0.3); }
@@ -430,12 +433,13 @@
 .co-root.win-root .win-grouping .dk-grouping-right::after { background: var(--co-d-rule); }
 .co-root.win-root .win-grouping .dk-grouping-art { background: var(--t-concrete-shade); }
 /* fields, pop-ups, checkboxes, radios */
-.co-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']), textarea) { background-color: var(--co-d-well); color: var(--co-d-fg); border-color: var(--co-d-line); }
-.co-root.win-root select:not(.win-settings select):not(.dk-strip-select select) {
+.co-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']):not([type='range']), textarea) { background-color: var(--co-d-well); color: var(--co-d-fg); border-color: var(--co-d-line); }
+.co-root.win-root select:not(.win-settings select):not(.dk-strip-select select), .co-root.win-root .scene-form .scene-music-btn {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23556670' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--co-d-well);
   color: var(--co-d-fg); border-color: var(--co-d-line); box-shadow: none;
 }
-.co-root.win-root select:not(.win-settings select):not(.dk-strip-select select):hover:not(:disabled) { border-color: var(--co-d-accent); }
+/* The Windows skin's hover repaints the face light blue; restate the well so the text stays readable. */
+.co-root.win-root select:not(.win-settings select):not(.dk-strip-select select):hover:not(:disabled), .co-root.win-root .scene-form .scene-music-btn:hover:not(:disabled) { border-color: var(--co-d-accent); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23556670' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--co-d-well); }
 .co-root.win-root input[type='checkbox'], .co-root.win-root input[type='radio'] { background-color: var(--co-d-well); border-color: var(--co-d-line); }
 .co-root.win-root input[type='checkbox']:hover:not(:disabled), .co-root.win-root input[type='radio']:hover:not(:disabled) { background-color: var(--co-d-panel); border-color: var(--co-d-accent); }
 .co-root.win-root input[type='checkbox']:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 9.1'%3E%3Cpath fill='%230f5f7f' d='M9.975 1.223 4.698 9.098H4.522L0 5.193 1.277 3.522 4.255 6.088 8.333 0Z'/%3E%3C/svg%3E"); }

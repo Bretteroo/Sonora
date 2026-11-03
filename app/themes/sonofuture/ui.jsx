@@ -13,16 +13,17 @@ export function useDismiss(ref, onClose, enabled = true) {
   useEffect(() => {
     if (!enabled) return undefined
     const down = (event) => { if (ref.current && !ref.current.contains(event.target)) onClose() }
+    // Escape is taken before anything else hears it, so a menu over a sheet or panel closes alone.
     const key = (event) => { if (event.key === 'Escape') { event.stopPropagation(); onClose() } }
     // Deferred by a tick so the press that opened the menu does not close it.
     const id = setTimeout(() => {
       document.addEventListener('pointerdown', down)
-      document.addEventListener('keydown', key)
+      window.addEventListener('keydown', key, true)
     }, 0)
     return () => {
       clearTimeout(id)
       document.removeEventListener('pointerdown', down)
-      document.removeEventListener('keydown', key)
+      window.removeEventListener('keydown', key, true)
     }
   }, [ref, onClose, enabled])
 }
@@ -149,7 +150,9 @@ export function Select({ value, onChange, disabled = false, children, className 
         <I.ChevronDown className="sf-select-chev" />
       </button>
       {open && (
-        <Menu anchor={open} width={open.getBoundingClientRect().width} onClose={() => setOpen(null)}>
+        // As wide as its choices need beside the check column, and never narrower than the field:
+        // sized to the field alone, a short one (the scene editor's S1/S2) left them no room at all.
+        <Menu anchor={open} width="max-content" minWidth={open.getBoundingClientRect().width} onClose={() => setOpen(null)}>
           {options.map((o) => (
             <MenuItem key={o.value} checked={o.value === current?.value} disabled={o.disabled} onSelect={() => pick(o.value)}>
               {o.label}

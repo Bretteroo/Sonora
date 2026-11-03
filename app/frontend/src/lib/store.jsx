@@ -4,7 +4,7 @@ import React, {
 } from 'react'
 import { ApiError, api } from './api.js'
 import { localOut } from './localOut.js'
-import { socketUrl } from './base.js'
+import { PAGE_ID, socketUrl } from './base.js'
 import { BROWSER_UUID, browserGroup, browserZone, isBrowserRoom, noteHouseholds } from './browserRoom.js'
 import { browserSleep } from './browserSleep.js'
 import { forgetLast, readLast, saveLast } from './browserRecall.js'
@@ -44,6 +44,10 @@ const initialState = {
   radioEpoch: 0,
   libraryEpoch: 0,
   alarmsEpoch: 0,
+  scenesEpoch: 0,
+  // A scene that is on with every room it plays in stopped or paused, as the
+  // server says: { key, name }, for the theme to ask whether to end it.
+  sceneQuiet: null,
   // Bumped when the speakers announce a change in their software update (one
   // found, or the players now running it), so "Update Now" asks again.
   updatesEpoch: 0,
@@ -168,6 +172,13 @@ function reducer(state, action) {
       return { ...state, libraryEpoch: state.libraryEpoch + 1 }
     case 'alarms':
       return { ...state, alarmsEpoch: state.alarmsEpoch + 1 }
+    case 'scenes':
+      return { ...state, scenesEpoch: state.scenesEpoch + 1 }
+    case 'sceneQuiet':
+      if (action.over) return state.sceneQuiet?.key === action.key ? { ...state, sceneQuiet: null } : state
+      return { ...state, sceneQuiet: { key: action.key, name: action.name || '' } }
+    case 'sceneQuietSeen':
+      return { ...state, sceneQuiet: null }
     case 'softwareUpdate':
       return { ...state, updatesEpoch: state.updatesEpoch + 1 }
 
@@ -334,7 +345,7 @@ export function SystemProvider({ children }) {
     let timer = null
 
     const connect = () => {
-      const socket = new WebSocket(socketUrl('/ws'))
+      const socket = new WebSocket(socketUrl(`/ws?page=${PAGE_ID}`))
       socketRef.current = socket
 
       socket.onopen = () => {
@@ -354,6 +365,11 @@ export function SystemProvider({ children }) {
           dispatch({ type: 'services' })
         } else if (message.type === 'alarms') {
           dispatch({ type: 'alarms' })
+        } else if (message.type === 'sceneQuiet') {
+          dispatch({ type: 'sceneQuiet', key: message.key, name: message.name, over: Boolean(message.over) })
+        } else if (message.type === 'scenes') {
+          // Sonora's own scenes changed, here or in another window.
+          dispatch({ type: 'scenes' })
         } else if (message.type === 'playbackError') {
           // The speaker's own account of a source it could not open, whatever
           // service it came from and however playback was started. This is the
@@ -446,6 +462,11 @@ export function SystemProvider({ children }) {
   }, [])
 
   const actions = useMemo(() => ({
+    // A scene was saved, removed, set or ended from this page: every list
+    // of scenes reads again now, without waiting on the server's push (which
+    // does not arrive while the socket is between connections).
+    scenesChanged: () => dispatch({ type: 'scenes' }),
+    sceneQuietSeen: () => dispatch({ type: 'sceneQuietSeen' }),
     refresh: async () => {
       dispatch({ type: 'scanning', value: true })
       const result = await run(() => api.refresh(), { describe: 'notice.error.title' })

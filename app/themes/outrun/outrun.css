@@ -245,6 +245,9 @@
 .or-root .dk-win-btn[data-default='true'] { border-color: var(--t-magenta); color: var(--t-magenta); box-shadow: inset 0 0 0 1px var(--t-magenta); }
 .or-root .win-settings input, .or-root .win-settings select, .or-root .win-alarm-editor input, .or-root .win-alarm-editor select, .or-root .win-savequeue-field input, .or-root .dk-addradio input { background: #0b0621; color: var(--t-fg); border-color: rgba(25, 230, 255, 0.45); }
 .or-root .win-savequeue-field input:focus { border-color: var(--t-magenta); }
+/* The scene editor's name and time boxes are this theme's fields: the deep well, cyan edge, and magenta when focused. */
+.or-root .dk-scene-window :is(.scene-name, .scene-duration) { background: #0b0621; color: var(--t-fg); border-color: rgba(25, 230, 255, 0.45); }
+.or-root .dk-scene-window :is(.scene-name, .scene-duration):focus { border-color: var(--t-magenta); box-shadow: none; }
 .or-root .dk-addradio-mark, .or-root .win-wizard-mark, .or-root a { color: var(--t-cyan); }
 /* The Windows sheet paints a dialog's footer strip #d6d6d6 and the setup
    wizard's body white, both with dark text of their own. This theme's text
@@ -1029,11 +1032,12 @@
 .or-root select option { background: #0b0621; color: var(--t-fg); }
 .or-root.win-root .win-titlebar select:hover { color: #fff; border-color: var(--t-cyan); }
 .or-root.win-root .dk-browse-disclosure, .or-root.win-root .dk-browse-chevron { background-color: var(--t-cyan); }
-.or-root.win-root select:not(.win-settings select):not(.dk-strip-select select) {
+.or-root.win-root select:not(.win-settings select):not(.dk-strip-select select), .or-root.win-root .scene-form .scene-music-btn {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%2319e6ff' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, #0b0621;
   color: var(--t-fg); border-color: rgba(25, 230, 255, 0.55); box-shadow: none;
 }
-.or-root.win-root select:not(.win-settings select):not(.dk-strip-select select):hover:not(:disabled) { border-color: var(--t-cyan); }
+/* The Windows skin's hover repaints the face light blue; restate the well so the text stays readable. */
+.or-root.win-root select:not(.win-settings select):not(.dk-strip-select select):hover:not(:disabled), .or-root.win-root .scene-form .scene-music-btn:hover:not(:disabled) { border-color: var(--t-cyan); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%2319e6ff' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, #1d0f42; }
 .or-root.win-root .dk-window .win-shortcuts-note { color: rgba(233, 230, 255, 0.6); }
 .or-root.win-root .win-grouping .dk-grouping-art { background: #0e0624; box-shadow: inset 0 0 0 1px rgba(123, 44, 255, 0.45); }
 /* Radios match the checkboxes: a dark ring, a cyan dot when chosen. */

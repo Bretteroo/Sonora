@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
+import { SceneToast, SceneQuietAsk } from './Scenes.jsx'
 import { roomRows } from '../../frontend/src/lib/rooms.js'
 import { orderedHouseholds, systemChoiceMatters } from '../../frontend/src/lib/format.js'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
@@ -378,6 +379,8 @@ function Shell() {
                           onLinked={() => setServicesVersion((v) => v + 1)} />
       )}
 
+      <SceneToast />
+      <SceneQuietAsk />
       <div className="wb-toasts">
         {alerts.map((notice) => (
           <div className="wb-toast" key={notice.id} data-leaving={notice.leaving || undefined} aria-hidden={notice.leaving || undefined}>

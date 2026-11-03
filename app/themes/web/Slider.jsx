@@ -8,12 +8,13 @@ import React, { useEffect, useRef, useState } from 'react'
 // the desktop replicas' slider already worked this way.
 const LIVE_MS = 90
 
-export default function Slider({ value, onCommit, label, max = 100 }) {
+export default function Slider({ value, onCommit, label, min = 0, max = 100, wheelStep = 2, disabled = false, center = false }) {
   const [dragging, setDragging] = useState(null)
   // `latest` is the thumb's own last value, read on release: the state can
   // be a render behind when the release lands in the same frame as the move.
   const sent = useRef({ at: 0, value, timer: null, latest: null })
   const shown = dragging ?? value
+  const pct = Math.max(0, Math.min(100, ((shown - min) / (max - min)) * 100))
 
   useEffect(() => () => clearTimeout(sent.current.timer), [])
 
@@ -39,14 +40,16 @@ export default function Slider({ value, onCommit, label, max = 100 }) {
   }
 
   return (
-    <div className="wb-slider">
+    <div className="wb-slider" data-disabled={disabled || undefined}>
       <div className="wb-slider-rail" />
-      <div className="wb-slider-fill" style={{ width: `${(shown / max) * 100}%` }} />
+      {/* Centered, the fill runs from the middle to the knob, either way. */}
+      <div className="wb-slider-fill" style={center ? { left: `${Math.min(pct, 50)}%`, width: `${Math.abs(pct - 50)}%` } : { width: `${pct}%` }} />
       <input
         type="range"
-        data-wheel-step="2"
-        min="0"
+        data-wheel-step={wheelStep}
+        min={min}
         max={max}
+        disabled={disabled}
         value={shown}
         aria-label={label}
         onChange={(event) => {

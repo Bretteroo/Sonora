@@ -32,6 +32,9 @@
 .sz-root .dk-progress-track, .sz-root .dk-slider-track { background: rgba(147, 161, 161, 0.2); }
 .sz-root .dk-progress-fill, .sz-root .dk-slider-fill { background: #268bd2; }
 .sz-root .dk-progress-thumb { background: #eee8d5; }
+/* The volume and scene sliders' handle wears the EQ sliders' rim, so on the light ground it is a knob and not a blank white disc. */
+.sz-root .dk-slider input[type='range']::-moz-range-thumb { box-sizing: border-box; border: 1px solid #8a8a8a; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
+.sz-root .dk-slider input[type='range']::-webkit-slider-thumb { box-sizing: border-box; border: 1px solid #8a8a8a; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
 .sz-root .dk-time-elapsed, .sz-root .dk-time-total, .sz-root .dk-time-remaining { color: #839496; }
 .sz-root .dk-strip-search { background: #073642; border: 1px solid #586e75; }
 .sz-root .dk-strip-search input { color: #93a1a1; }
@@ -127,7 +130,7 @@
 .sz-root.win-root .win-grouping::after { background: var(--sz-panel); border-top-color: var(--sz-rule); }
 .sz-root.win-root .win-grouping .dk-grouping-right::after { background: var(--sz-rule); }
 .sz-root.win-root .win-grouping .dk-grouping-art { background: var(--sz-panel); }
-.sz-root .dk-window input, .sz-root .dk-window select, .sz-root .dk-window textarea { background-color: var(--sz-well); color: var(--sz-strong); border-color: var(--sz-line); }
+.sz-root .dk-window input:not([type='range']), .sz-root .dk-window select, .sz-root .dk-window textarea { background-color: var(--sz-well); color: var(--sz-strong); border-color: var(--sz-line); }
 .sz-root .dk-window input:focus, .sz-root .dk-window select:focus { border-color: #268bd2; }
 /* Checkboxes and radios: the well and its line, the mark in the strong ink. */
 .sz-root.win-root input[type='checkbox'], .sz-root.win-root input[type='radio'] { background-color: var(--sz-well); border-color: var(--sz-line); }
@@ -185,14 +188,15 @@
 .sz-root.win-root .dk-window :is(h3, h4, th, .win-lib-title) { color: var(--sz-strong); }
 .sz-root.win-root .dk-window :is(.win-about-rule, .win-shortcuts-note, .win-lib-note, .win-parental-note, .dk-theme-version, .dk-theme-version span) { color: var(--sz-quiet); }
 .sz-root.win-root .dk-window .win-shortcuts-table td { color: #268bd2; }
-.sz-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']), textarea) { background-color: var(--sz-well); color: var(--sz-strong); border-color: var(--sz-line); }
+.sz-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']):not([type='range']), textarea) { background-color: var(--sz-well); color: var(--sz-strong); border-color: var(--sz-line); }
 /* The pop-ups (a closed combo box, Add Alarm's Room): the Windows skin's two-tone gray face and
    black arrow, outranked at its own strength by the well and a base0 arrow. */
-.sz-root.win-root select:not(.win-settings select):not(.dk-strip-select select) {
+.sz-root.win-root select:not(.win-settings select):not(.dk-strip-select select), .sz-root.win-root .scene-form .scene-music-btn {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23839496' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--sz-well);
   color: var(--sz-strong); border-color: var(--sz-line); box-shadow: none;
 }
-.sz-root.win-root select:not(.win-settings select):not(.dk-strip-select select):hover:not(:disabled) { border-color: #268bd2; }
+/* The Windows skin's hover repaints the face light blue; restate the well so the text stays readable. */
+.sz-root.win-root select:not(.win-settings select):not(.dk-strip-select select):hover:not(:disabled), .sz-root.win-root .scene-form .scene-music-btn:hover:not(:disabled) { border-color: #268bd2; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%23839496' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--sz-well); }
 /* Add a service's S1 / S2 strip. */
 .sz-root.win-root .dk-window .dk-add .dk-tabs, .sz-root .dk-window .dk-tabs { background: var(--sz-panel); border-color: var(--sz-line); }
 /* Add Music Services' rows and the Services table's names, in the palette. */

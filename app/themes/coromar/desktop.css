@@ -1609,3 +1609,76 @@
   :where(:root[data-theme='coromar']) .dk-letter-hud::after { animation: none; opacity: 0.6; }
   :where(:root[data-theme='coromar']) .dk-letters button[data-loading] { animation: none; }
 }
+
+/* Scenes in the music pane: a row's second line, with its room names in bold, and the intro. */
+:where(:root[data-theme='coromar']) .dk-scene-row .dk-browse-text { min-width: 0; }
+:where(:root[data-theme='coromar']) .dk-scene-row[aria-busy='true'] { opacity: .7; }
+/* A scene has no check box and no disclosure arrow, so its row gives their space at the right to its text, keeping only its menu caret. */
+:where(:root[data-theme='coromar']) .dk-browse-row.dk-scene-row { padding-right: 8px; }
+/* Only the scrollbar's strip is kept, so a thumb riding over the list never covers the caret. */
+:where(:root[data-theme='coromar']) .win-root .dk-scroll .dk-browse-row.dk-scene-row, :where(:root[data-theme='coromar']) .win-root .dk-browse-row.dk-scene-row { padding-right: 11px; }
+:where(:root[data-theme='coromar']) .win-root .dk-scene-row .dk-browse-actions { margin-right: 0; }
+:where(:root[data-theme='coromar']) .dk-scene-room { font-weight: 700; }
+/* A scene that is on: the skin's playing-row tint, which outranks the music pane's hover-colored mark for a playing station, and the room tiles' play mark at the start of its second line, which the Scenes source row also wears before the scenes that are on. */
+:where(:root[data-theme='coromar']) .win-root .dk-browse-row.dk-scene-row[aria-current='true'] { background: var(--t-row-playing); }
+:where(:root[data-theme='coromar']) .dk-browse-sub:has(> .dk-scene-state) { display: flex; align-items: center; min-width: 0; }
+:where(:root[data-theme='coromar']) .dk-browse-sub > .dk-scene-state { flex: none; width: 8px; height: 9px; margin-right: 6px; opacity: 0.8; }
+:where(:root[data-theme='coromar']) .dk-browse-sub > .dk-browse-sub-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:where(:root[data-theme='coromar']) .dk-scene-row .dk-browse-sub > .dk-marquee { min-width: 0; }
+:where(:root[data-theme='coromar']) .dk-scenes-intro { flex: none; padding: 10px 16px 6px; font-size: 12px; line-height: 1.4; color: var(--t-fg-muted); }
+/* The scene editor grows as groups and rooms are added. Its top is pinned so it grows downward only, and its body keeps room for a typical scene so the usual additions do not resize it at all. */
+:where(:root[data-theme='coromar']) .dk-modal-backdrop:has(> .dk-scene-window) { place-items: start center; padding-top: 6vh; }
+:where(:root[data-theme='coromar']) .dk-scene-window { width: min(880px, 100vw - 32px); }
+:where(:root[data-theme='coromar']) .dk-scene-window .dk-window-body { display: flex; flex-direction: column; min-height: min(640px, 72vh); max-height: min(78vh, 720px); overflow: auto; }
+@media (pointer: coarse) {
+  }
+/* The shared scene editor in this skin's own idiom: the app's plain bold labels, square fields and
+   buttons, tabs as a bordered strip, and chosen things in the accent, as its alarm window has them. */
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-form { --sc-radius: var(--t-radius-sm, 3px); gap: 12px; padding: 12px 16px 14px; width: 100%; flex: 1 0 auto; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-eyebrow, :where(:root[data-theme='coromar']) .dk-scene-window .scene-label { font-size: 13px; font-weight: 700; letter-spacing: normal; text-transform: none; color: var(--t-fg); }
+:where(:root[data-theme='coromar']) .dk-scene-window :is(.scene-name, .scene-duration) { padding: 4px 8px; border: 1px solid var(--t-border-strong); border-radius: var(--t-radius-sm, 3px); background: var(--t-bg); font-size: 13px; font-weight: 400; }
+:where(:root[data-theme='coromar']) .dk-scene-window :is(.scene-name, .scene-duration):focus { outline: none; border-color: var(--t-accent); box-shadow: 0 0 0 2px var(--t-focus, transparent); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-card { border: 1px solid var(--t-border-strong); border-radius: var(--t-radius-sm, 3px); background: var(--t-bg); padding: 0 12px 4px; }
+/* A card with no header, like Other rooms, has its row centered: no extra room at the bottom. */
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-card:not(:has(> .scene-card-head)) { padding-bottom: 0; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-card-head { min-height: 34px; margin: 0 -12px 2px; padding: 4px 12px; background: var(--t-surface); border-bottom: 1px solid var(--t-border); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-row { grid-template-columns: 120px minmax(0, 1fr); padding: 7px 0; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-row + .scene-row { border-top: 1px solid var(--t-border); }
+/* The lines between rooms' volumes are solid hairlines like the rows' dividers: the shared dotted line broke into blue and green specks on the dark skin. */
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-level-slot + .scene-level-slot[data-open] > .scene-slide-inner > .scene-level { border-top: 1px solid var(--t-border); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-tabs { gap: 0; margin: 0; padding: 0; border: 1px solid var(--t-border-strong); border-radius: var(--t-radius-sm, 3px); background: var(--t-bg); align-self: flex-start; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-tab { margin: 0; padding: 3px 12px; border: 0; border-left: 1px solid var(--t-border-strong); border-radius: 0; font-weight: 400; line-height: 1.5; color: var(--t-fg); }
+/* The end tabs round themselves to the strip's corners; the strip clips nothing, so a font with tall glyphs is not cut off. */
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-tab:first-child { border-left: 0; border-radius: calc(var(--t-radius-sm, 3px) - 1px) 0 0 calc(var(--t-radius-sm, 3px) - 1px); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-tab:last-child { border-radius: 0 calc(var(--t-radius-sm, 3px) - 1px) calc(var(--t-radius-sm, 3px) - 1px) 0; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-tab[aria-selected='true'] { background: var(--t-accent); color: var(--t-accent-fg, #fff); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-tab .scene-badge, :where(:root[data-theme='coromar']) .dk-scene-window .scene-tab small { display: none; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-tab-add { color: var(--t-accent); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-tabs + .scene-card { border-top-left-radius: var(--t-radius-sm, 3px); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-badge { display: none; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-pill { padding: 3px 10px; border: 1px solid var(--t-border-strong); border-radius: var(--t-radius-sm, 3px); background: var(--t-surface); color: var(--t-fg); font-weight: 400; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-pill:hover:not(:disabled) { border-color: var(--t-accent); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-pill[aria-pressed='true'], :where(:root[data-theme='coromar']) .dk-scene-window .scene-pill[aria-checked='true'] { background: var(--t-accent); border-color: var(--t-accent); color: var(--t-accent-fg, #fff); box-shadow: none; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-pill-small { padding: 1px 8px; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-link { color: var(--t-accent); text-decoration: underline; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-music-btn .scene-music-chev { display: none; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-form select, :where(:root[data-theme='coromar']) .dk-scene-window .scene-form .scene-music-btn { padding: 2px 6px; border: 1px solid var(--t-border-strong); border-radius: var(--t-radius-sm, 3px); background: var(--t-bg); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-level-extra { border-left-color: var(--t-border-strong); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-slider-track > .dk-slider { min-width: 0; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-actions { padding-top: 10px; border-top: 1px solid var(--t-border); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-btn { min-width: 72px; padding: 4px 14px; border: 1px solid var(--t-border-strong); border-radius: var(--t-radius-sm, 3px); background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0)) var(--t-surface); color: var(--t-fg); font-weight: 400; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-btn:hover:not(:disabled) { border-color: var(--t-accent); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-btn-primary { border-color: var(--t-accent); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 0 1px var(--t-accent); color: var(--t-fg); background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0)) var(--t-surface); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-btn-quiet { background: var(--t-surface); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-picker { border-color: var(--t-border-strong); border-radius: var(--t-radius-sm, 3px); background: var(--t-bg); }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-menu .scene-picker { background: #f7f7f3; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-picker-row[aria-selected='true'] { background: var(--t-accent); color: var(--t-accent-fg, #fff); }
+/* The music menu stands in for a native dropdown, so it takes the rounded popup and inset, rounded row highlight Firefox draws for one. */
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-menu .scene-picker { border-radius: 6px; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-menu .scene-picker-list { padding: 5px; }
+:where(:root[data-theme='coromar']) .dk-scene-window .scene-menu .scene-picker-row { border-radius: 4px; }
+
+/* The scene editor on a phone: each label over its field, as the shared editor lays it out, so the fields get the window's whole width. */
+@media (max-width: 600px) {
+  :where(:root[data-theme='coromar']) .dk-scene-window .scene-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}

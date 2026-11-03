@@ -14,6 +14,8 @@ import { libraryScope, searchLibrary } from '../../frontend/src/lib/librarySearc
 import { canEnqueue, isPlayableLeaf, providerIdOf } from '../../frontend/src/lib/items.js'
 import Art, { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
 import { Confirm } from './Dialogs.jsx'
+import { ScenesPage } from './Scenes.jsx'
+import { useScenes } from '../../frontend/src/lib/scenes.js'
 import { itemAccount } from '../../frontend/src/lib/itemAccount.js'
 import { versionLabel, updateBody } from '../../frontend/src/lib/version.js'
 
@@ -36,7 +38,7 @@ export default function Browse({
   households, zones, groups, systemFilter, activeZone,
   query, onDone, onAddServices, onLinkService, servicesVersion = 0, homeSignal = 0, favoritesSignal = 0,
   selectionCommand = null, addServicesAsPage = false, roomChosen = true,
-  onSleepTimer, onAlarms, infoSignal = 0, infoItem = null, scope = null, onScope, onScopes, onMessage, onAddRadio,
+  onSleepTimer, onAlarms, onSceneEditor, infoSignal = 0, infoItem = null, scope = null, onScope, onScopes, onMessage, onAddRadio,
   queueEdited = false, onQueueReplaced, icons = null, onLibrarySettings = null,
   // The Mac app shows each library song's cover in its Songs list; the
   // Windows app leaves the slot empty (both S2 apps, 2026-09-29).
@@ -368,7 +370,9 @@ export default function Browse({
   // Whether each system's speakers have an update waiting; read with the
   // page, again whenever the speakers announce a change, and every ten
   // minutes behind that.
-  const { updatesEpoch } = useSystem()
+  const { updatesEpoch, scenesEpoch } = useSystem()
+  // The scenes on now, named under the Scenes row.
+  const activeSceneNames = Object.values(useScenes(scenesEpoch).active).map((a) => a.name).filter(Boolean).join(', ')
   const [updatesByHh, setUpdatesByHh] = useState({})
   const [updateAsk, setUpdateAsk] = useState(null)
   const householdIds = households.map((h) => h.id).join(',')
@@ -400,6 +404,11 @@ export default function Browse({
         // here, which is nothing Sonora has (2026-09-23).
         ...(updatesByHh[h.id]?.pending
           ? [{ id: 'update', title: t('desk.browse.updateNow'), Glyph: Icon.Update, action: true }] : []),
+        // Scenes head the list: Sonora's own, a saved set of rooms, levels
+        // and a source for the system. Under it, the scenes that are on,
+        // after the play mark a scene row and a playing room's tile carry.
+        { id: '__scenes', title: t('scenes.title'), Glyph: Icon.Scenes, container: true,
+          sub: activeSceneNames || '', subPlaying: Boolean(activeSceneNames) },
         { id: 'FV:2', title: t('desk.browse.favorites'), Glyph: Icon.Star, container: true },
       ]
       // The room's own television input, directly under Sonos Favorites and
@@ -669,6 +678,11 @@ export default function Browse({
       if (item.playable) { setLastRoot({ id: item.id, hh: item.hh }); return }
       // The saved-stations list is "My Radio Stations" inside TuneIn, as the
       // app titles it.
+      if (item.id === '__scenes') {
+        navigate([...stack, { id: '__scenes', scenes: true, title: item.title, Glyph: Icon.Scenes,
+                              hzone: item.hzone, hh: item.hh }], 'forward')
+        return
+      }
       if (item.id === 'linein') {
         navigate([...stack, { id: 'linein', lineIn: true, title: item.title, Glyph: G.LineIn,
                               hzone: item.hzone, hh: item.hh }], 'forward')
@@ -1164,6 +1178,9 @@ export default function Browse({
               </div>
             ))}
           </div>
+        ) : node.scenes ? (
+          <ScenesPage node={node} zones={zones} onMessage={onMessage}
+                      onEdit={(scene, households) => onSceneEditor?.(scene, households)} />
         ) : node.lineIn ? (
           <LineInPage node={node} zones={zones} households={households} Glyph={G.LineIn} onPlay={(zone) => (
             actions.setSource(zone.uuid, { uri: `x-rincon-stream:${zone.uuid}`, metadata: '' })
@@ -1884,7 +1901,9 @@ function Row({ item, root, displayTypes = {}, library = '', songArt = false, und
                               role="img" aria-label={t('common.explicit')} />
           )}
         </p>
-        {sub && <p className="dk-browse-sub">{match ? leaned(sub, match) : sub}</p>}
+        {sub && (item.subPlaying
+          ? <p className="dk-browse-sub"><Icon.WinTilePlay className="dk-scene-state" aria-hidden="true" /><span className="dk-browse-sub-text">{sub}</span></p>
+          : <p className="dk-browse-sub">{match ? leaned(sub, match) : sub}</p>)}
       </span>
       {/* The caret the app shows on hover. Deeper rows all have one; at the
           root only a playable row does -- TV, where the app's own row grows a

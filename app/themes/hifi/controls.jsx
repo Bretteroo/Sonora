@@ -15,16 +15,17 @@ export function useDismiss(ref, onClose, enabled = true) {
   useEffect(() => {
     if (!enabled) return undefined
     const down = (event) => { if (ref.current && !ref.current.contains(event.target)) onClose() }
+    // Escape is taken before anything else hears it, so a menu over a sheet or panel closes alone.
     const key = (event) => { if (event.key === 'Escape') { event.stopPropagation(); onClose() } }
     // A tick later, so the press that opened it does not close it again.
     const id = setTimeout(() => {
       document.addEventListener('pointerdown', down)
-      document.addEventListener('keydown', key)
+      window.addEventListener('keydown', key, true)
     }, 0)
     return () => {
       clearTimeout(id)
       document.removeEventListener('pointerdown', down)
-      document.removeEventListener('keydown', key)
+      window.removeEventListener('keydown', key, true)
     }
   }, [ref, onClose, enabled])
 }

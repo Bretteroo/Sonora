@@ -28,6 +28,11 @@ const STYLES = {
   windows: { speed: 50, first: 2000, pause: 2000, endGap: 25, restGap: 5, background: false, click: false },
   mac: { speed: 40, first: 3000, pause: 3000, endGap: 0, restGap: 0, background: true, click: true, prepare: 300, gap: 0.4 },
   sonora: { speed: 40, first: 3000, pause: 3000, endGap: 0, restGap: 0, background: true, click: true, prepare: 300, gap: 0.4 },
+  // To and fro: the line slides left until its end is in view, holds, slides
+  // back to where it rests, and holds again. Nothing follows it in, so a
+  // list that is read along, such as a scene's rooms, is never shown twice.
+  // Every long line goes at once: a list is read for itself, not in turn.
+  bounce: { speed: 40, first: 3000, pause: 3000, endGap: 0, restGap: 0, background: true, click: true, hold: 1500, bounce: true, together: true },
 }
 
 const MarqueeContext = createContext(null)
@@ -60,6 +65,10 @@ export function MarqueeProvider({ enabled, style = 'windows', children }) {
         if (!active()) continue
         const scrolling = ordered().filter((line) => line.willScroll())
         if (!scrolling.length) continue
+        if (look.together) {
+          await Promise.all(scrolling.map((line) => line.run(look)))
+          continue
+        }
         const line = current.current || scrolling[index % scrolling.length]
         index += 1
         current.current = line
@@ -68,13 +77,14 @@ export function MarqueeProvider({ enabled, style = 'windows', children }) {
       }
     }
     loop()
-    const halt = () => { if (!active()) current.current?.reset() }
+    const halt = () => { if (!active()) { current.current?.reset(); if (look.together) ordered().forEach((line) => line.reset()) } }
     window.addEventListener('blur', halt)
     document.addEventListener('visibilitychange', halt)
     return () => {
       stopped = true
       clearTimeout(timer)
       current.current?.reset()
+      if (look.together) ordered().forEach((line) => line.reset())
       window.removeEventListener('blur', halt)
       document.removeEventListener('visibilitychange', halt)
     }
@@ -124,6 +134,28 @@ export const MarqueeText = forwardRef(function MarqueeText({ children, className
         const text = full.current.scrollWidth - look.endGap
         full.current.style.visibility = 'visible'
         rest.current.style.visibility = 'hidden'
+        if (look.bounce) {
+          const distance = Math.max(0, text - width)
+          const seconds = distance / look.speed
+          const back = () => {
+            const home = full.current.animate(
+              [{ transform: `translateX(${-distance}px)` }, { transform: 'translateX(0)' }],
+              { duration: seconds * 1000, easing: 'linear', fill: 'forwards' })
+            running.current = [home]
+            home.onfinish = () => { reset(); resolve() }
+            home.oncancel = () => resolve()
+          }
+          const out = full.current.animate(
+            [{ transform: 'translateX(0)' }, { transform: `translateX(${-distance}px)` }],
+            { duration: seconds * 1000, easing: 'linear', fill: 'forwards' })
+          running.current = [out]
+          out.onfinish = () => {
+            const wait = setTimeout(back, look.hold)
+            running.current = [{ cancel: () => { clearTimeout(wait); resolve() } }]
+          }
+          out.oncancel = () => resolve()
+          return
+        }
         if (look.gap != null) {
           // The Mac's single pass: the whole text from where it starts, the
           // cut copy a gap of 0.4 of the width after its end, both moving

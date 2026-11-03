@@ -6,6 +6,7 @@
 // fault. Callers get a typed
 // error rather than having to re-parse the response.
 
+import { PAGE_ID } from './base.js'
 import { browserSleep } from './browserSleep.js'
 import { browserQueue } from './browserQueue.js'
 import { browserItem } from './browserItem.js'
@@ -196,6 +197,16 @@ export const api = {
   errorLog: () => request('/api/log'),
   dropouts: () => request('/api/dropouts'),
   alarms: (zone) => request(`/api/alarms?zone=${encodeURIComponent(zone)}`),
+  // Scenes are Sonora's own (backend/sonos/scenes.py): every household's,
+  // with the rooms a scene is built from and which are on.
+  scenes: () => request('/api/scenes'),
+  addScene: (body) => request('/api/scenes', { method: 'POST', body }),
+  updateScene: (id, body) => request(`/api/scenes/${encodeURIComponent(id)}`, { method: 'PUT', body }),
+  removeScene: (id) => request(`/api/scenes/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+  applyScene: (id) => request(`/api/scenes/${encodeURIComponent(id)}/apply`, { method: 'POST' }),
+  applySceneBody: (body) => request(`/api/scenes/apply?page=${PAGE_ID}`, { method: 'POST', body }),
+  endScene: (key) => request(`/api/scenes/${encodeURIComponent(key)}/end`, { method: 'POST' }),
+  captureScene: (body) => request('/api/scenes/capture', { method: 'POST', body }),
   createAlarm: (body) => request('/api/alarms', { method: 'POST', body }),
   updateAlarm: (id, body) => request(`/api/alarms/${encodeURIComponent(id)}`, { method: 'PUT', body }),
   setAlarm: (id, body) => request(`/api/alarms/${encodeURIComponent(id)}`, { method: 'POST', body }),

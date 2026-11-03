@@ -21,6 +21,7 @@ import Listen from './Listen.jsx'
 import Browse, { AddToPlaylistSheet, AddRadioSheet } from './Browse.jsx'
 import RoomsPage, { RoomSettings, GroupDialog } from './Rooms.jsx'
 import ClockPage, { SleepSheet } from './Clock.jsx'
+import ScenesPage, { SceneQuietAsk } from './Scenes.jsx'
 import SettingsPage, { LinkServiceSheet, ShortcutsSheet } from './Settings.jsx'
 import { NowToolbar, PlayerView } from './Player.jsx'
 import { QueueSheet, QueuePane } from './Queue.jsx'
@@ -43,11 +44,12 @@ import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
 // The house-wide actions stand in the Rooms page's header. Everything the
 // desktop themes can do is here, on Material's own paths.
 
-const SECTIONS = ['listen', 'browse', 'rooms', 'clock', 'settings']
+const SECTIONS = ['listen', 'browse', 'rooms', 'scenes', 'clock', 'settings']
 const NAV = {
   listen: [I.Home, I.HomeLine],
   browse: [I.Browse, I.BrowseLine],
   rooms: [I.Rooms, I.RoomsLine],
+  scenes: [I.Clapper, I.Clapper],
   clock: [I.Alarm, I.AlarmLine],
   settings: [I.Settings, I.SettingsLine],
 }
@@ -307,6 +309,8 @@ export function Shell() {
   ) : section === 'rooms' ? (
     <RoomsPage {...common} groups={visibleGroups} activeId={activeGroup?.coordinator} onSelect={select}
                onGroup={setGroupDialog} onRoomSettings={setRoomSettings} onPlayer={() => setPlayerOpen(true)} {...houseActions} />
+  ) : section === 'scenes' ? (
+    <ScenesPage zones={zones} onMessage={toast} />
   ) : section === 'clock' ? (
     <ClockPage {...common} />
   ) : (
@@ -399,8 +403,9 @@ export function Shell() {
 
       <main className="mg-main" key={section} ref={mainRef}>
         {/* On a phone the system selector sits at the far right of the page's header row, beside
-            the title rather than above it; the stylesheet places it there. */}
-        {compact && systemChoiceMatters(households) && section !== 'settings' && (
+            the title rather than above it; the stylesheet places it there. Scenes span systems,
+            so that page has no use for it. */}
+        {compact && systemChoiceMatters(households) && section !== 'settings' && section !== 'scenes' && (
           <div className="mg-compact-systems">
             <SystemPicker households={households} value={systemFilter} onChange={chooseSystem} />
           </div>
@@ -457,6 +462,7 @@ export function Shell() {
       )}
       {about && <AboutSonora onClose={() => setAbout(false)} />}
       <UpdateNotice />
+      <SceneQuietAsk onMessage={toast} />
       {shortcuts && <ShortcutsSheet onClose={() => setShortcuts(false)} />}
       {confirm && <Confirm title={confirm.title} body={confirm.body} action={confirm.action} onConfirm={() => { setConfirm(null); confirm.onConfirm() }} onClose={() => setConfirm(null)} />}
       {quickMenu && (

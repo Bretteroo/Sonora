@@ -762,7 +762,7 @@
   & .mg-layer-bottom { align-items: end; justify-items: center; }
   & .mg-sheet-bottom { width: min(640px, 100%); max-height: 86vh; border-radius: 28px 28px 0 0; box-shadow: var(--mg-elev-1); animation: mg-rise 500ms var(--mg-spring) both; background: var(--mg-surface-container-low); }
   & .mg-layer-full { place-items: stretch; background: transparent; }
-  & .mg-sheet-full { width: 100%; height: 100%; border-radius: 0; background: var(--mg-surface); animation: mg-rise 500ms var(--mg-spring) both; }
+  & .mg-sheet-full { width: 100%; min-width: 0; height: 100%; border-radius: 0; background: var(--mg-surface); animation: mg-rise 500ms var(--mg-spring) both; }
   & .mg-handle { display: none; width: 32px; height: 4px; margin: 22px auto 6px; border-radius: 2px; background: var(--mg-on-surface-variant); flex: none; }
   & .mg-sheet-bottom .mg-handle { display: block; }
   & .mg-sheet-bar { display: flex; align-items: center; gap: 8px; min-height: 64px; padding: 8px 12px 8px 12px; flex: none; }
@@ -1814,4 +1814,159 @@
    screens only, where the bar can hide. */
 @media (pointer: coarse) {
   :root[data-theme='materialgirl'] .mg-root { will-change: transform; }
+}
+
+/* Scenes: cards in the alarm grid's lattice, each a tap to set. */
+:root[data-theme='materialgirl'] .mg-scene { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 18px 20px; border-radius: 28px; cursor: pointer; background: var(--mg-primary-container); color: var(--mg-on-primary-container); transition: background 250ms var(--mg-effects), border-radius 500ms var(--mg-spring); }
+:root[data-theme='materialgirl'] .mg-scene[data-starter] { background: var(--mg-surface-container-low); color: var(--mg-on-surface-variant); }
+:root[data-theme='materialgirl'] .mg-scene:hover { border-radius: 32px; }
+:root[data-theme='materialgirl'] .mg-scene[data-busy] { opacity: .7; }
+:root[data-theme='materialgirl'] .mg-scene-top { display: flex; align-items: center; justify-content: space-between; }
+:root[data-theme='materialgirl'] .mg-scene-glyph { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--mg-primary); color: var(--mg-on-primary); }
+:root[data-theme='materialgirl'] .mg-scene[data-starter] .mg-scene-glyph { background: var(--mg-surface-container-highest); color: var(--mg-on-surface-variant); }
+:root[data-theme='materialgirl'] .mg-scene-glyph svg { width: 22px; height: 22px; }
+:root[data-theme='materialgirl'] .mg-scene-glyph[data-busy]::before { opacity: 0; }
+/* Material 3 Expressive for a scene that is on: the glyph's circle springs
+   into a twelve-pointed cookie and turns slowly while the scene plays, the
+   card rises and takes the tertiary container on the same spring, and the
+   On badge pops in. The shape is a clip path the circle and the cookie share
+   point for point, so the one can spring into the other. */
+:root[data-theme='materialgirl'] .mg-scene { transition: background-color 300ms var(--mg-emph), color 300ms var(--mg-emph), box-shadow 600ms var(--mg-spring), transform 600ms var(--mg-spring), border-radius 200ms var(--mg-effects); }
+:root[data-theme='materialgirl'] .mg-scene[data-on] { background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); box-shadow: var(--mg-elev-2, 0 6px 16px rgba(0, 0, 0, .18)); transform: translateY(-2px); }
+:root[data-theme='materialgirl'] .mg-scene-glyph { position: relative; isolation: isolate; background: none; }
+:root[data-theme='materialgirl'] .mg-scene-glyph::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--mg-primary); clip-path: polygon(100.0% 50.0%, 99.8% 54.4%, 99.2% 58.7%, 98.3% 62.9%, 97.0% 67.1%, 95.3% 71.1%, 93.3% 75.0%, 91.0% 78.7%, 88.3% 82.1%, 85.4% 85.4%, 82.1% 88.3%, 78.7% 91.0%, 75.0% 93.3%, 71.1% 95.3%, 67.1% 97.0%, 62.9% 98.3%, 58.7% 99.2%, 54.4% 99.8%, 50.0% 100.0%, 45.6% 99.8%, 41.3% 99.2%, 37.1% 98.3%, 32.9% 97.0%, 28.9% 95.3%, 25.0% 93.3%, 21.3% 91.0%, 17.9% 88.3%, 14.6% 85.4%, 11.7% 82.1%, 9.0% 78.7%, 6.7% 75.0%, 4.7% 71.1%, 3.0% 67.1%, 1.7% 62.9%, 0.8% 58.7%, 0.2% 54.4%, 0.0% 50.0%, 0.2% 45.6%, 0.8% 41.3%, 1.7% 37.1%, 3.0% 32.9%, 4.7% 28.9%, 6.7% 25.0%, 9.0% 21.3%, 11.7% 17.9%, 14.6% 14.6%, 17.9% 11.7%, 21.3% 9.0%, 25.0% 6.7%, 28.9% 4.7%, 32.9% 3.0%, 37.1% 1.7%, 41.3% 0.8%, 45.6% 0.2%, 50.0% 0.0%, 54.4% 0.2%, 58.7% 0.8%, 62.9% 1.7%, 67.1% 3.0%, 71.1% 4.7%, 75.0% 6.7%, 78.7% 9.0%, 82.1% 11.7%, 85.4% 14.6%, 88.3% 17.9%, 91.0% 21.3%, 93.3% 25.0%, 95.3% 28.9%, 97.0% 32.9%, 98.3% 37.1%, 99.2% 41.3%, 99.8% 45.6%); transition: clip-path 700ms var(--mg-spring), background-color 300ms var(--mg-emph); }
+:root[data-theme='materialgirl'] .mg-scene[data-starter] .mg-scene-glyph::before { background: var(--mg-surface-container-highest); }
+:root[data-theme='materialgirl'] .mg-scene[data-on] .mg-scene-glyph { color: var(--mg-on-tertiary, var(--mg-on-primary)); }
+:root[data-theme='materialgirl'] .mg-scene[data-on] .mg-scene-glyph::before { background: var(--mg-tertiary, var(--mg-primary)); clip-path: polygon(100.0% 50.0%, 97.8% 54.2%, 93.3% 57.6%, 90.6% 60.9%, 91.3% 65.0%, 93.5% 70.3%, 93.3% 75.0%, 89.3% 77.5%, 83.7% 78.3%, 79.7% 79.7%, 78.3% 83.7%, 77.5% 89.3%, 75.0% 93.3%, 70.3% 93.5%, 65.0% 91.3%, 60.9% 90.6%, 57.6% 93.3%, 54.2% 97.8%, 50.0% 100.0%, 45.8% 97.8%, 42.4% 93.3%, 39.1% 90.6%, 35.0% 91.3%, 29.7% 93.5%, 25.0% 93.3%, 22.5% 89.3%, 21.7% 83.7%, 20.3% 79.7%, 16.3% 78.3%, 10.7% 77.5%, 6.7% 75.0%, 6.5% 70.3%, 8.7% 65.0%, 9.4% 60.9%, 6.7% 57.6%, 2.2% 54.2%, 0.0% 50.0%, 2.2% 45.8%, 6.7% 42.4%, 9.4% 39.1%, 8.7% 35.0%, 6.5% 29.7%, 6.7% 25.0%, 10.7% 22.5%, 16.3% 21.7%, 20.3% 20.3%, 21.7% 16.3%, 22.5% 10.7%, 25.0% 6.7%, 29.7% 6.5%, 35.0% 8.7%, 39.1% 9.4%, 42.4% 6.7%, 45.8% 2.2%, 50.0% 0.0%, 54.2% 2.2%, 57.6% 6.7%, 60.9% 9.4%, 65.0% 8.7%, 70.3% 6.5%, 75.0% 6.7%, 77.5% 10.7%, 78.3% 16.3%, 79.7% 20.3%, 83.7% 21.7%, 89.3% 22.5%, 93.3% 25.0%, 93.5% 29.7%, 91.3% 35.0%, 90.6% 39.1%, 93.3% 42.4%, 97.8% 45.8%); animation: mg-scene-turn 9s linear infinite; }
+@keyframes mg-scene-turn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme='materialgirl'] .mg-scene, :root[data-theme='materialgirl'] .mg-scene-glyph::before { transition: none; }
+  :root[data-theme='materialgirl'] .mg-scene[data-on] .mg-scene-glyph::before { animation: none; }
+}
+:root[data-theme='materialgirl'] .mg-scene-name { font-size: 22px; line-height: 28px; font-weight: 400; }
+/* The rooms and music wrap onto as many lines as they need, each group from a new line; the room names are bold. */
+:root[data-theme='materialgirl'] .mg-scene-sub { font-size: 14px; overflow-wrap: anywhere; }
+:root[data-theme='materialgirl'] .mg-scene-room { font-weight: 700; }
+:root[data-theme='materialgirl'] .mg-scene-line { display: block; }
+/* Every card is as tall as the tallest, which grows to hold its lines; the corner action keeps to the bottom. */
+:root[data-theme='materialgirl'] .mg-scene-grid { grid-auto-rows: 1fr; }
+:root[data-theme='materialgirl'] .mg-scene-more { color: inherit; }
+:root[data-theme='materialgirl'] .mg-scene-editor .mg-sheet-body { max-width: 1120px; width: 100%; margin: 0 auto; }
+:root[data-theme='materialgirl'] .mg-scene-editor { accent-color: var(--mg-primary); }
+:root[data-theme='materialgirl'] .mg-scene-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: auto; padding-top: 4px; }
+
+/* --- The shared scene editor, dressed in this theme's fields, chips, sliders and buttons ---------- */
+:root[data-theme='materialgirl'] {
+  /* Wider than the alarm editor's 760: a scene's room chips and volume lines use the room. */
+  & .mg-scene-editor .mg-sheet-body { max-width: 1120px; width: 100%; margin: 0 auto; }
+  & .mg-scene-editor .scene-form { font-size: 16px; gap: 24px; padding: 8px 0 24px; }
+  /* The name, as an outlined text field: 56 tall, 4dp corners, 1dp outline, 2dp primary focused. */
+  & .mg-scene-editor .scene-eyebrow, & .mg-scene-editor .scene-label { font-size: 14px; font-weight: 500; letter-spacing: normal; text-transform: none; color: var(--mg-on-surface-variant); }
+  & .mg-scene-editor :is(.scene-name, .scene-duration) { min-height: 56px; padding: 0 16px; border: 0; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--mg-outline); background: transparent; color: var(--mg-on-surface); font-size: 16px; font-weight: 400; }
+  & .mg-scene-editor :is(.scene-name, .scene-duration):hover { box-shadow: inset 0 0 0 1px var(--mg-on-surface); }
+  & .mg-scene-editor :is(.scene-name, .scene-duration):focus { outline: none; box-shadow: inset 0 0 0 2px var(--mg-primary); }
+  /* Cards: 16dp corners on surface-container-low, with outline-variant dividers. */
+  & .mg-scene-editor .scene-card { border: 0; border-radius: 16px; background: var(--mg-surface-container-low); padding: 0 20px 8px; }
+  & .mg-scene-editor .scene-card:not(:has(> .scene-card-head)) { padding-bottom: 0; }
+  & .mg-scene-editor .scene-card-head { min-height: 56px; margin: 0 -20px 4px; padding: 8px 20px; border-bottom: 1px solid var(--mg-outline-variant); }
+  & .mg-scene-editor .scene-badge { width: 28px; height: 28px; background: var(--mg-primary); color: var(--mg-on-primary); font-size: 14px; }
+  & .mg-scene-editor .scene-card-title { font-size: 16px; font-weight: 500; }
+  & .mg-scene-editor .scene-row { grid-template-columns: 140px minmax(0, 1fr); padding: 12px 0; gap: 8px 16px; }
+  & .mg-scene-editor .scene-row:has(> .scene-levels) { row-gap: 0; }
+  & .mg-scene-editor .scene-row + .scene-row { border-top: 1px solid var(--mg-outline-variant); }
+  /* Pills as filter chips: 32 tall, 8dp corners, an outline-variant ring; secondary-container when
+     selected, with the 18dp check (chip tokens). */
+  & .mg-scene-editor .scene-pill { height: 32px; padding: 0 16px; border: 0; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--mg-outline-variant); color: var(--mg-on-surface-variant); font-size: 14px; font-weight: 500; transition: background 200ms var(--mg-effects), box-shadow 150ms var(--mg-effects-fast); }
+  & .mg-scene-editor .scene-pill:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--mg-outline-variant); background: color-mix(in oklab, var(--mg-on-surface-variant) 8%, transparent); }
+  & .mg-scene-editor .scene-pill[aria-pressed='true'], & .mg-scene-editor .scene-pill[aria-checked='true'] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); box-shadow: none; }
+  & .mg-scene-editor .scene-pill[aria-pressed='true']:hover, & .mg-scene-editor .scene-pill[aria-checked='true']:hover { background: color-mix(in oklab, var(--mg-on-secondary-container) 8%, var(--mg-secondary-container)); }
+  & .mg-scene-editor .scene-pill:disabled { opacity: 1; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--mg-on-surface) 12%, transparent); color: color-mix(in oklab, var(--mg-on-surface) 38%, transparent); }
+  & .mg-scene-editor .scene-pill-small { height: 32px; font-size: 14px; }
+  & .mg-scene-editor .scene-pills { gap: 8px; }
+  /* Sliders as Material's: a 16dp track, primary to the value, a 4 x 44dp handle (slider tokens). */
+  & .mg-scene-editor .scene-level { --scene-level-gap: 16px; grid-template-columns: minmax(80px, 150px) minmax(140px, 1fr) auto; gap: 8px 16px; padding: 4px 0; }
+  & .mg-scene-editor .scene-level-slot + .scene-level-slot[data-open] > .scene-slide-inner > .scene-level { border-top: 0; }
+  & .mg-scene-editor .scene-level-name { font-weight: 400; }
+  & .mg-scene-editor .scene-level-extra-slot { margin-left: 0; }
+  & .mg-scene-editor .scene-level-extra { border-left: 0; margin: 0; padding: 0 0 8px; gap: 8px 24px; }
+  & .mg-scene-editor .scene-slider, & .mg-scene-editor .scene-tone { gap: 12px; }
+  & .mg-scene-editor .scene-slider-label { font-size: 14px; }
+  & .mg-scene-editor .scene-value { font-size: 14px; font-weight: 500; }
+  & .mg-scene-editor .scene-form input[type='range'] { appearance: none; height: 48px; margin: 0; background: transparent; cursor: pointer; }
+  /* The midpoint ticks stand clear of the 44px handle, in the outline color. */
+  & .mg-scene-editor .scene-slider-track { --scene-knob-h: 48px; --scene-tick-h: 62px; --scene-tick-c: var(--mg-outline); }
+  & .mg-scene-editor .scene-form input[type='range']::-moz-range-track { height: 16px; border-radius: 8px; background: var(--mg-secondary-container); }
+  & .mg-scene-editor .scene-form input[type='range']::-moz-range-progress { height: 16px; border-radius: 8px 2px 2px 8px; background: var(--mg-primary); }
+  & .mg-scene-editor .scene-form input[type='range']::-moz-range-thumb { width: 4px; height: 44px; border: 0; border-radius: 2px; background: var(--mg-primary); box-shadow: 0 0 0 6px var(--mg-surface-container-low); transition: width 200ms var(--mg-spring-fast); }
+  & .mg-scene-editor .scene-form input[type='range']:is(:active, :focus-visible)::-moz-range-thumb { width: 2px; }
+  & .mg-scene-editor .scene-form input[type='range']::-webkit-slider-runnable-track { height: 16px; border-radius: 8px; background: var(--mg-secondary-container); }
+  & .mg-scene-editor .scene-form input[type='range']::-webkit-slider-thumb { appearance: none; width: 4px; height: 44px; margin-top: -14px; border-radius: 2px; background: var(--mg-primary); }
+  & .mg-scene-editor .scene-form input[type='range']:focus-visible { outline: none; }
+  & .mg-scene-editor .scene-form input[type='range']:focus-visible::-moz-range-thumb { outline: 3px solid var(--mg-secondary); outline-offset: 3px; }
+  /* Menus as outlined fields, text links as text buttons, the foot's buttons as Material's. */
+  & .mg-scene-editor .scene-form select, & .mg-scene-editor .scene-form .scene-music-btn { box-sizing: border-box; width: min(280px, 100%); min-height: 56px; padding: 0 16px; border: 0; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--mg-outline); background: transparent; color: var(--mg-on-surface); font-size: 16px; }
+  & .mg-scene-editor .scene-form select:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--mg-primary); }
+  /* The music menu is as wide as its longest entry; capped so it sits beside the kind of music. */
+  & .mg-scene-editor .scene-music-row { display: flex; flex-wrap: nowrap; width: 100%; }
+  & .mg-scene-editor .scene-music-wrap { flex: 0 1 auto; min-width: 0; }
+  & .mg-scene-editor .scene-music-row .scene-music-btn { width: auto; max-width: 100%; border-radius: 4px; border: 0; }
+  & .mg-scene-editor .scene-menu .scene-picker { border-radius: 16px; background: var(--mg-surface-container-low); box-shadow: var(--mg-elev-2); }
+  /* The S1/S2 menu beside the Rooms label: a 40dp menu button, not a 56dp field. */
+  & .mg-scene-editor .scene-label-system .mg-select { min-width: 0; height: 40px; padding: 0 8px 0 12px; font-size: 14px; }
+  /* The label's menu is 40 tall and the chips 32: the chips' first line drops 4 to center on it. */
+  & .mg-scene-editor .scene-label-system { padding-top: 0; }
+  & .mg-scene-editor .scene-label-system + .scene-pills { padding-top: 4px; }
+  & .mg-scene-editor .scene-link { height: 40px; padding: 0 12px; border-radius: 999px; font-size: 14px; font-weight: 500; text-decoration: none; color: var(--mg-primary); }
+  & .mg-scene-editor .scene-link:hover { background: color-mix(in oklab, var(--mg-primary) 8%, transparent); }
+  & .mg-scene-editor .scene-pill-extra { margin-top: 12px; }
+  /* The groups as primary tabs: 48 tall, a 3dp rounded primary indicator under the active one. */
+  & .mg-scene-editor .scene-tabs { gap: 0; padding: 0; margin-bottom: 0; border-bottom: 1px solid var(--mg-outline-variant); }
+  & .mg-scene-editor .scene-tab { position: relative; height: 48px; padding: 0 16px; border: 0; margin: 0; font-size: 14px; font-weight: 500; color: var(--mg-on-surface-variant); transition: color 200ms var(--mg-effects); }
+  & .mg-scene-editor .scene-tab::before { content: ''; position: absolute; left: 12px; right: 12px; bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: var(--mg-primary); transform: scaleX(0); transition: transform 250ms var(--mg-spring-fast); }
+  & .mg-scene-editor .scene-tab[aria-selected='true'] { color: var(--mg-primary); }
+  & .mg-scene-editor .scene-tab[aria-selected='true']::before { transform: scaleX(1); }
+  & .mg-scene-editor .scene-tab:hover { background: color-mix(in oklab, var(--mg-on-surface) 8%, transparent); }
+  & .mg-scene-editor .scene-tab .scene-badge { width: 24px; height: 24px; font-size: 12px; background: var(--mg-surface-container-highest); color: var(--mg-on-surface-variant); }
+  & .mg-scene-editor .scene-tab[aria-selected='true'] .scene-badge { background: var(--mg-primary); color: var(--mg-on-primary); }
+  & .mg-scene-editor .scene-tab small { border: 0; background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); font-size: 11px; line-height: 16px; }
+  & .mg-scene-editor .scene-tabs + .scene-card { border-radius: 0 0 16px 16px; }
+  & .mg-scene-editor .scene-btn { position: relative; height: 40px; padding: 0 24px; border: 0; border-radius: 999px; font-weight: 500; font-size: 14px; background: transparent; color: var(--mg-primary); box-shadow: inset 0 0 0 1px var(--mg-outline-variant); transition: border-radius 350ms var(--mg-spring-fast); }
+  & .mg-scene-editor .scene-btn:hover:not(:disabled) { background: color-mix(in oklab, var(--mg-primary) 8%, transparent); }
+  & .mg-scene-editor .scene-btn:active:not(:disabled) { border-radius: 12px; }
+  & .mg-scene-editor .scene-btn-quiet { box-shadow: none; padding: 0 12px; }
+  & .mg-scene-editor .scene-btn-primary { background: var(--mg-primary); color: var(--mg-on-primary); box-shadow: none; }
+  & .mg-scene-editor .scene-btn:disabled { opacity: 0.38; cursor: default; }
+  /* Save and Cancel are in the top bar of this full-screen dialog; the foot keeps what it alone offers. */
+  & .mg-scene-editor .scene-form > .scene-actions > .scene-btn-primary, & .mg-scene-editor .scene-form > .scene-actions > .scene-grow + .scene-btn { display: none; }
+  & .mg-scene-editor .scene-picker { border: 0; }
+  & .mg-scene-editor .scene-picker-list { border-radius: 16px; background: var(--mg-surface-container-low); }
+  /* The music menu's rows as the theme's menu items: the state layer's 8% on hover, inset from the menu's edge by its 4px padding, 4px corners with 12px at the ends. */
+  & .mg-scene-editor .scene-menu .scene-picker-list { padding: 4px; }
+  & .mg-scene-editor .scene-menu .scene-picker-row { min-height: 48px; border-radius: 4px; }
+  & .mg-scene-editor .scene-menu .scene-picker-row:first-of-type { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+  & .mg-scene-editor .scene-menu .scene-picker-row:last-of-type { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+  /* The chosen row rounds fully, as a checked .mg-menu-item does. */
+  & .mg-scene-editor .scene-menu .scene-picker-row[aria-selected='true'] { border-radius: 12px; }
+  & .mg-scene-editor .scene-picker-row:hover, & .mg-scene-editor .scene-picker-row[data-cursor] { background: var(--mg-hover); }
+  & .mg-scene-editor .scene-picker-row { min-height: 48px; border-radius: 12px; }
+  /* The chosen row as the theme's checked menu item: the tertiary container. */
+  & .mg-scene-editor .scene-picker-row[aria-selected='true'] { background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
+}
+/* On a phone the editor's rows stack: label above field, the room's name above its slider. */
+@media (max-width: 600px) {
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-row { grid-template-columns: 1fr; gap: 6px; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-label { padding-top: 0; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-levels { display: flex; flex-direction: column; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-row > .scene-levels > .scene-level-lines, :root[data-theme='materialgirl'] .mg-scene-editor .scene-row > .scene-levels > .scene-level-foot { grid-column: auto; grid-row: auto; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-row:has(> .scene-levels) > .scene-label { grid-row: auto; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-level { grid-template-columns: minmax(0, 1fr) auto; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-level > .scene-level-name { grid-column: 1; grid-row: 1; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-level > .scene-caret { grid-column: 2; grid-row: 1; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-level > .scene-level-sliders { grid-column: 1 / -1; grid-row: 2; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-level > .scene-level-extra-slot { grid-column: 1 / -1; margin-left: 0; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-tone { grid-template-columns: auto 1fr 2.6em; width: 100%; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-music-row { flex-wrap: wrap; row-gap: 8px; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-card { padding: 0 16px 8px; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-card:not(:has(> .scene-card-head)) { padding-bottom: 0; }
+  :root[data-theme='materialgirl'] .mg-scene-editor .scene-card-head { margin: 0 -16px 4px; padding: 8px 16px; }
 }

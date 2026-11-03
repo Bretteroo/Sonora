@@ -785,3 +785,108 @@
 @media (pointer: coarse) {
   :root[data-theme='liquidglass'] :is(.sf-root, .sf-rail) { will-change: transform; }
 }
+
+/* --- the scene editor: panes of glass, capsules for every choice --------- */
+/* The shared editor (frontend/src/components/scene.css) in this skin's
+   material: each card a lensed pane with the rim highlight, every pill and
+   button a capsule, the chosen one lit in the accent, sliders as liquid
+   capsules with a glass bead, and corners concentric (24 outside, 14 within). */
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-form { gap: 16px; }
+:root[data-theme='liquidglass'] .sf-scene-editor :is(.scene-name, .scene-duration) {
+  border: 0; border-radius: 14px; padding: 10px 14px; font-weight: 650;
+  background-color: var(--lg-fill-thin);
+  box-shadow: inset 0 0 0 1px var(--lg-hairline), inset 0 1px 2px rgba(16, 24, 40, 0.06);
+}
+:root[data-theme='liquidglass'] .sf-scene-editor :is(.scene-name, .scene-duration):focus { outline: none; box-shadow: var(--sf-ring), inset 0 0 0 1px var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-card {
+  border: 0; border-radius: 24px; padding: 0 16px 8px;
+  background-color: var(--lg-fill-thin); background-image: var(--lg-lens);
+  -webkit-backdrop-filter: var(--lg-blur-thin); backdrop-filter: var(--lg-blur-thin);
+  box-shadow: var(--lg-rim), var(--lg-cast);
+}
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-tabs + .scene-card { border-top-left-radius: 24px; }
+/* A card with no header, like Other rooms, has its row centered: no extra room at the bottom. */
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-card:not(:has(> .scene-card-head)) { padding-bottom: 0; }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-card-head { margin: 0 -16px 4px; padding: 8px 16px; border-bottom: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-row + .scene-row { border-top: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-level-slot + .scene-level-slot[data-open] > .scene-slide-inner > .scene-level { border-top: 1px solid var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-badge { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 6px rgba(0, 122, 255, 0.34); }
+/* The groups' tabs as a stadium of capsules, the open one a lit pane of glass. */
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-tabs { gap: 2px; margin: 0; padding: 3px; border: 0; border-radius: 999px; background: var(--lg-neutral-soft); box-shadow: inset 0 0 0 1px var(--lg-hairline); align-self: flex-start; max-width: 100%; }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-tab { margin: 0; padding: 6px 12px; border: 0; border-radius: 999px; font-weight: 590; color: var(--t-fg-muted); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-tab:hover { background: var(--lg-neutral); color: var(--t-fg); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-tab[aria-selected='true'] {
+  color: var(--t-fg); background-color: var(--lg-fill-strong); background-image: var(--lg-lens);
+  box-shadow: var(--lg-rim), 0 1px 3px rgba(16, 24, 40, 0.16);
+}
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-tab .scene-badge { background: var(--lg-neutral); box-shadow: none; }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-tab[aria-selected='true'] .scene-badge { background: var(--t-accent); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 6px rgba(0, 122, 255, 0.34); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-tab small { border: 0; background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-tab-add { color: var(--t-accent); }
+/* Every pill a capsule, the chosen one lit. */
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-pill { border: 0; font-weight: 590; background: var(--lg-neutral-soft); box-shadow: inset 0 0 0 1px var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-pill:hover:not(:disabled):not([aria-pressed='true']):not([aria-checked='true']) { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-pill[aria-pressed='true'],
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-pill[aria-checked='true'] {
+  color: #fff; background: var(--t-accent); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-link { color: var(--t-accent); font-weight: 590; text-decoration: none; }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+/* Menus as glass fields, each opening the theme's own glass menu: the browser draws an open select's list itself, flat and opaque. */
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-form .sf-select-btn { width: auto; max-width: 100%; }
+/* The S1/S2 field rides beside the Rooms label, never under it: small, as the label column is. */
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-row .scene-label-system { flex-wrap: nowrap; }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-row .scene-label-system .sf-select-btn { gap: 4px; padding: 3px 8px; font-size: 13px; }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-row .scene-label-system .sf-select-chev { width: 12px; height: 12px; }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-form select, :root[data-theme='liquidglass'] .sf-scene-editor .scene-form .sf-select-btn, :root[data-theme='liquidglass'] .sf-scene-editor .scene-form .scene-music-btn {
+  border: 0; border-radius: 14px; padding: 6px 12px;
+  background-color: var(--lg-fill-thin);
+  box-shadow: inset 0 0 0 1px var(--lg-hairline), inset 0 1px 2px rgba(16, 24, 40, 0.06);
+}
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-form select:focus, :root[data-theme='liquidglass'] .sf-scene-editor .scene-form .sf-select-btn:focus-visible { outline: none; box-shadow: var(--sf-ring), inset 0 0 0 1px var(--t-accent); }
+/* The pop-up's own caret, the music button's chevron, set in from the end; the browser's sits on the edge. */
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-form select { appearance: none; padding-right: 32px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23181c26' stroke-opacity='0.62' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 12px; }
+:root[data-theme='liquidglass'][data-variant='dark'] .sf-scene-editor .scene-form select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23f2f3f7' stroke-opacity='0.66' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+/* Sliders: a capsule of liquid, the filled part in the accent, and a glass bead. */
+:root[data-theme='liquidglass'] .sf-scene-editor input[type='range'] { appearance: none; height: 22px; background: transparent; cursor: pointer; }
+:root[data-theme='liquidglass'] .sf-scene-editor input[type='range']::-moz-range-track { height: 6px; border-radius: 999px; background: var(--lg-neutral); box-shadow: inset 0 0 0 1px var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-scene-editor input[type='range']::-moz-range-progress { height: 6px; border-radius: 999px; background: var(--sf-accent-grad, var(--t-accent)); box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3); }
+:root[data-theme='liquidglass'] .sf-scene-editor input[type='range']::-moz-range-thumb { width: 18px; height: 18px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(16, 24, 40, 0.34), 0 0 0 0.5px rgba(0, 0, 0, 0.06); }
+:root[data-theme='liquidglass'] .sf-scene-editor input[type='range']::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: var(--lg-neutral); box-shadow: inset 0 0 0 1px var(--lg-hairline); }
+:root[data-theme='liquidglass'] .sf-scene-editor input[type='range']::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; margin-top: -6px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(16, 24, 40, 0.34), 0 0 0 0.5px rgba(0, 0, 0, 0.06); }
+:root[data-theme='liquidglass'] .sf-scene-editor input[type='range']:focus-visible { outline: none; }
+:root[data-theme='liquidglass'] .sf-scene-editor input[type='range']:focus-visible::-moz-range-thumb { box-shadow: var(--sf-ring), 0 1px 4px rgba(16, 24, 40, 0.34); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-level-extra { border-left-color: var(--lg-hairline); }
+/* The foot's buttons as capsules of glass, Save lit. */
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-btn {
+  border: 0; border-radius: 999px; padding: 7px 16px; font-weight: 590;
+  background-color: var(--lg-fill-thin); background-image: var(--lg-lens);
+  -webkit-backdrop-filter: var(--lg-blur-thin); backdrop-filter: var(--lg-blur-thin);
+  box-shadow: var(--lg-rim), 0 1px 3px rgba(16, 24, 40, 0.12);
+}
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-btn:hover:not(:disabled) { background-color: var(--lg-fill-strong); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-btn-primary {
+  color: #fff; background-color: var(--t-accent);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 62%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 6px 18px rgba(0, 122, 255, 0.34);
+}
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-btn-primary:hover:not(:disabled) { filter: brightness(1.06); background-color: var(--t-accent); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-btn-quiet { background-color: transparent; background-image: none; box-shadow: inset 0 0 0 1px var(--lg-hairline); -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-btn-quiet:hover:not(:disabled) { background-color: var(--lg-neutral); }
+/* The music picker's list as a pane, the chosen row lit. */
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-picker { border: 0; border-radius: 20px; background-color: var(--lg-fill-thin); box-shadow: inset 0 0 0 1px var(--lg-hairline); }
+/* The scene editor's music list floats as the theme's other menus do (.sf-menu), the same glass, blurred and raised. The glass is on the pop-up itself, the box in the top layer, so what it blurs is the page under it. */
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-menu {
+  border-radius: 20px;
+  background-color: var(--lg-fill);
+  background-image: var(--lg-lens);
+  -webkit-backdrop-filter: var(--lg-blur);
+  backdrop-filter: var(--lg-blur);
+  box-shadow: var(--lg-rim), var(--lg-cast-high);
+}
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-menu .scene-picker { background: transparent; box-shadow: none; }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-picker-row { border-radius: 14px; margin: 0 4px; width: calc(100% - 8px); }
+/* The rows sit in from every edge of the floating list, top and bottom as well as the sides. */
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-menu .scene-picker-list { padding: 4px 0; }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-picker-row:hover { background: var(--lg-neutral); }
+:root[data-theme='liquidglass'] .sf-scene-editor .scene-picker-row[aria-selected='true'] { background-color: var(--lg-tint); background-image: var(--lg-lens); box-shadow: var(--lg-rim); color: var(--t-accent); }

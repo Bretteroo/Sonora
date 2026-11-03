@@ -164,6 +164,20 @@
   /* Two equal outer columns keep the name at the middle of the console, whatever stands to its right. */
   & .sv-head { grid-area: head; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 18px; min-height: 46px; }
   & .sv-head-end { display: flex; align-items: center; gap: 18px; min-width: 0; }
+  & .sv-head-start { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  & .sv-head-start .sv-brand-rule { flex: 1; min-width: 0; }
+  & .sv-head-setup { flex: none; display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%;
+                     background: transparent; color: var(--sv-print); cursor: pointer; }
+  & .sv-head-setup svg { width: 18px; height: 18px; }
+  & .sv-head-gear { display: grid; place-items: center; }
+  & .sv-head-gear[data-turn] { animation: sv-gear-turn 600ms cubic-bezier(0.4, 0, 0.2, 1); }
+  @media (prefers-reduced-motion: reduce) { & .sv-head-gear[data-turn] { animation: none; } }
+  /* Pressed, it wears the system switch's open track: the same well and the same ink as an unchosen label. */
+  & .sv-head-setup[aria-pressed='true'] {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--sv-navy-side) 80%, black), var(--sv-navy-side));
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.55);
+    color: color-mix(in srgb, var(--sv-navy-ink) 55%, transparent);
+  }
   & .sv-head-end .sv-brand-rule { flex: 1; min-width: 12px; }
   & .sv-brand {
     display: grid; justify-items: center;
@@ -2043,6 +2057,7 @@
 }
 
 @keyframes sv-blink { 50% { opacity: 0; } }
+@keyframes sv-gear-turn { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes sv-reaction-in { from { opacity: 0; } }
 @keyframes sv-reaction-out { to { opacity: 0; } }
 @keyframes sv-refresh-roll { from { transform: translateY(840%); } to { transform: translateY(-100%); } }
@@ -2092,3 +2107,100 @@
 @media (prefers-reduced-motion: reduce) {
   :root[data-theme='severed'] .sv-li[data-removing='leaving'] { animation: none; opacity: 0; }
 }
+
+/* The Scenes program: a table of scenes, a Set key on each line, End in its place while the scene is on. */
+/* The rows share their columns, so the names line up and the room lists start together, right after the longest name. */
+:root[data-theme='severed'] .sv-scene-table { display: grid; grid-template-columns: auto auto minmax(0, max-content) minmax(0, 1fr) auto; }
+:root[data-theme='severed'] .sv-scene { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; gap: 18px; min-height: 52px; padding: 4px 8px; border-bottom: 1px dashed var(--sv-ph-faint); }
+:root[data-theme='severed'] .sv-scene:hover { background: var(--sv-ph-wash); }
+:root[data-theme='severed'] .sv-scene[data-on] > :not(.sv-alarm-tools) { animation: sv-blink 1s steps(2) infinite; }
+/* The Set or End key leads the line, the same width whichever word it carries. */
+:root[data-theme='severed'] .sv-scene-key { display: grid; }
+:root[data-theme='severed'] .sv-scene-key > .sv-btn { min-width: 5.5ch; justify-content: center; }
+:root[data-theme='severed'] .sv-scene-glyph { display: grid; place-items: center; width: 28px; }
+:root[data-theme='severed'] .sv-scene-name { font-weight: 400; font-size: 22px; max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root[data-theme='severed'] .sv-scene-sub { color: var(--sv-ph-dim); text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root[data-theme='severed'] .sv-scene-room { font-weight: 700; }
+@keyframes sv-blink { 50% { opacity: .5; } }
+/* Edit and Delete stand flush right on every line, the time left (where a scene is on) before them, whatever its width. */
+:root[data-theme='severed'] .sv-crt .sv-scene-table > .sv-scene > .sv-alarm-tools { justify-content: flex-end; }
+:root[data-theme='severed'] .sv-scene-time { margin-right: 10px; }
+/* On a phone the name has the line to itself after its key, the rooms run under it, and Edit and Delete sit under them at the right. */
+@media (max-width: 700px) {
+  :root[data-theme='severed'] .sv-scene-table { grid-template-columns: auto auto minmax(0, 1fr); }
+  :root[data-theme='severed'] .sv-scene { row-gap: 6px; padding-block: 8px; }
+  :root[data-theme='severed'] .sv-scene-name { max-width: none; }
+  :root[data-theme='severed'] .sv-scene-sub { grid-area: 2 / 3 / 3 / 4; }
+  :root[data-theme='severed'] .sv-crt .sv-scene-table > .sv-scene > .sv-alarm-tools { grid-area: 3 / 1 / 4 / 4; justify-self: end; }
+}
+:root[data-theme='severed'] .sv-scene[data-active] .sv-scene-glyph { color: var(--sv-ph); }
+/* The shared scene editor on this terminal: the screen's phosphor type at the alarm editor's size,
+   square fields with the two-pixel rule, every pill and key a bordered capital, the chosen one lit. */
+:root[data-theme='severed'] .sv-scene-editor .scene-form { gap: 16px; padding: 10px 6px 4px; color: var(--sv-ph); font-family: var(--sv-screen-font); font-size: 19px; accent-color: rgb(var(--sv-ph-rgb)); }
+:root[data-theme='severed'] .sv-scene-editor .scene-eyebrow, :root[data-theme='severed'] .sv-scene-editor .scene-label { font-size: 17px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sv-ph-dim); }
+:root[data-theme='severed'] .sv-scene-editor :is(.scene-name, .scene-duration) { min-height: 38px; padding: 0 10px; border: 2px solid var(--sv-ph-line); border-radius: 0; background: transparent; color: var(--sv-ph); font: inherit; font-size: 21px; }
+:root[data-theme='severed'] .sv-scene-editor :is(.scene-name, .scene-duration):focus { outline: none; border-color: var(--sv-ph); box-shadow: var(--sv-glow-soft); }
+:root[data-theme='severed'] .sv-scene-editor .scene-card { border: 2px solid var(--sv-ph-line); border-radius: 0; background: var(--sv-ph-wash); padding: 0 14px 6px; }
+/* A card with no header, like Other rooms, has its row centered: no extra room at the bottom. */
+:root[data-theme='severed'] .sv-scene-editor .scene-card:not(:has(> .scene-card-head)) { padding-bottom: 0; }
+:root[data-theme='severed'] .sv-scene-editor .scene-card-head { margin: 0 -14px 2px; padding: 6px 14px; border-bottom: 2px solid var(--sv-ph-line); }
+:root[data-theme='severed'] .sv-scene-editor .scene-row + .scene-row { border-top: 1px dashed var(--sv-ph-faint); }
+/* Wide enough for ROOMS and the S1/S2 pop-up on one line in the screen's letter-spaced type. */
+:root[data-theme='severed'] .sv-scene-editor .scene-row { padding: 10px 0; grid-template-columns: 148px minmax(0, 1fr); }
+/* On a phone each label sits over its field, as the shared editor lays it out. */
+@media (max-width: 700px) {
+  :root[data-theme='severed'] .sv-scene-editor .scene-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+}
+:root[data-theme='severed'] .sv-scene-editor .scene-label-system { flex-wrap: nowrap; padding-top: 0; }
+:root[data-theme='severed'] .sv-scene-editor .scene-label-system + .scene-pills { padding-top: 2px; }
+:root[data-theme='severed'] .sv-scene-editor .scene-tabs { gap: 2px; margin: 0; padding: 2px; border: 2px solid var(--sv-ph); border-radius: 0; background: var(--sv-ph-line); box-shadow: var(--sv-glow-soft); align-self: flex-start; }
+:root[data-theme='severed'] .sv-scene-editor .scene-tabs + .scene-card { border-top-left-radius: 0; }
+:root[data-theme='severed'] .sv-scene-editor .scene-tab { margin: 0; padding: 2px 12px; border: 0; border-radius: 0; color: var(--sv-ph); font: inherit; font-size: 18px; text-transform: uppercase; letter-spacing: 0.04em; }
+:root[data-theme='severed'] .sv-scene-editor .scene-tab:hover { background: var(--sv-ph-wash-strong); color: var(--sv-ph); }
+:root[data-theme='severed'] .sv-scene-editor .scene-tab[aria-selected='true'] { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
+:root[data-theme='severed'] .sv-scene-editor .scene-badge { width: 20px; height: 20px; border-radius: 0; background: var(--sv-ph); color: var(--sv-scr); font-size: 14px; }
+:root[data-theme='severed'] .sv-scene-editor .scene-tab .scene-badge { background: var(--sv-ph-line); color: var(--sv-ph); }
+:root[data-theme='severed'] .sv-scene-editor .scene-tab[aria-selected='true'] .scene-badge { background: var(--sv-scr); color: var(--sv-ph); }
+:root[data-theme='severed'] .sv-scene-editor .scene-tab small { border: 1px solid currentColor; border-radius: 0; background: none; font-size: 13px; }
+:root[data-theme='severed'] .sv-scene-editor .scene-pill, :root[data-theme='severed'] .sv-scene-editor .scene-btn {
+  min-height: 30px; padding: 1px 10px; border: 2px solid var(--sv-ph); border-radius: 0; background: transparent; color: var(--sv-ph);
+  font: inherit; font-size: 18px; line-height: 1; text-transform: uppercase; letter-spacing: 0.04em; box-shadow: var(--sv-glow-soft);
+}
+:root[data-theme='severed'] .sv-scene-editor :is(.scene-pill, .scene-btn):hover:not(:disabled) { background: var(--sv-ph-wash-strong); border-color: var(--sv-ph); }
+:root[data-theme='severed'] .sv-scene-editor :is(.scene-pill, .scene-btn):active:not(:disabled) { transform: translateY(1px); }
+:root[data-theme='severed'] .sv-scene-editor .scene-pill[aria-pressed='true'], :root[data-theme='severed'] .sv-scene-editor .scene-pill[aria-checked='true'] {
+  background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; box-shadow: 0 0 10px rgb(var(--sv-ph-rgb) / 0.4);
+}
+:root[data-theme='severed'] .sv-scene-editor :is(.scene-pill[aria-pressed='true'], .scene-pill[aria-checked='true'], .scene-btn-primary):hover:not(:disabled) { background: rgb(var(--sv-ph-rgb) / 0.86); }
+:root[data-theme='severed'] .sv-scene-editor .scene-pill:disabled, :root[data-theme='severed'] .sv-scene-editor .scene-btn:disabled { opacity: 0.4; border-style: dashed; box-shadow: none; }
+:root[data-theme='severed'] .sv-scene-editor .scene-pill-small { min-height: 26px; font-size: 16px; }
+/* The bitmap gear turns in quarter steps, the only turns a pixel drawing survives whole. */
+:root[data-theme='severed'] .sv-scene-editor .scene-link { color: var(--sv-ph); font: inherit; font-size: 17px; text-transform: uppercase; letter-spacing: 0.08em; text-decoration: underline dashed; text-underline-offset: 4px; }
+:root[data-theme='severed'] .sv-scene-editor .scene-slider-label, :root[data-theme='severed'] .sv-scene-editor .scene-value { color: var(--sv-ph); font-size: 18px; }
+/* The bar carries its own value, so a slider is two columns: label and bar. */
+:root[data-theme='severed'] .sv-scene-editor .scene-slider { grid-template-columns: auto 1fr; }
+:root[data-theme='severed'] .sv-scene-editor .scene-tone { grid-template-columns: auto minmax(150px, 1fr); }
+:root[data-theme='severed'] .sv-scene-editor .scene-level-tone { grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); }
+:root[data-theme='severed'] .sv-scene-editor .scene-level-tone > .scene-slider { grid-column: span 2; grid-template-columns: subgrid; }
+@container scene-sliders (width < 400px) { :root[data-theme='severed'] .sv-scene-editor .scene-level-tone { grid-template-columns: auto minmax(0, 1fr); } }
+:root[data-theme='severed'] .sv-scene-editor .scene-level .sv-bar { min-width: 0; }
+/* The bars' values are set left in their column, right of the bars. */
+:root[data-theme='severed'] .sv-scene-editor .scene-level .sv-bar-value { text-align: left; }
+/* A volume bar has no label of its own: it spans both columns, not the label's sized-to-content one. */
+:root[data-theme='severed'] .sv-scene-editor .scene-slider > .sv-bar:first-child { grid-column: 1 / -1; }
+:root[data-theme='severed'] .sv-scene-editor .scene-level-extra { border-left: 2px solid var(--sv-ph-line); }
+:root[data-theme='severed'] .sv-scene-editor .scene-level-slot + .scene-level-slot[data-open] > .scene-slide-inner > .scene-level { border-top: 1px dashed var(--sv-ph-faint); }
+:root[data-theme='severed'] .sv-scene-editor .scene-btn-quiet { border-color: var(--sv-ph-line); box-shadow: none; }
+:root[data-theme='severed'] .sv-scene-editor .scene-music-btn { width: auto; max-width: 100%; border: 2px solid var(--sv-ph); border-radius: 0; padding: 1px 10px; }
+/* Scanned like the theme's own menus, the lines fixed to the viewport so a lit row, which paints its own, stays in phase. */
+:root[data-theme='severed'] .sv-scene-editor .scene-menu .scene-picker { background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px) fixed, var(--sv-scr); box-shadow: 0 0 0 6px var(--sv-face), 0 16px 40px rgba(0, 0, 0, .6); }
+:root[data-theme='severed'] .sv-scene-editor .scene-picker { border: 2px solid var(--sv-ph-line); border-radius: 0; }
+:root[data-theme='severed'] .sv-scene-editor .scene-picker-group { color: var(--sv-ph-dim); font-size: 15px; }
+:root[data-theme='severed'] .sv-scene-editor .scene-picker-row { font: inherit; }
+:root[data-theme='severed'] .sv-scene-editor .scene-picker-row:hover { background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px) fixed, var(--sv-ph-wash-strong); }
+:root[data-theme='severed'] .sv-scene-editor .scene-picker-row[aria-selected='true'] { background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px) fixed, var(--sv-ph); color: var(--sv-scr); }
+:root[data-theme='severed'] .sv-scene-editor .scene-picker-from { font-size: 15px; color: var(--sv-ph-dim); }
+/* A logo on the screen: multiplied into a phosphor tile, so its light parts take the phosphor and its dark parts stay dark. */
+:root[data-theme='severed'] .sv-scene-editor span.scene-source-mark { border-radius: 0; background: var(--sv-ph); }
+:root[data-theme='severed']:not([data-sv-art='color']) .sv-scene-editor .scene-source-mark img { filter: grayscale(1) contrast(1.15); mix-blend-mode: multiply; }
+:root[data-theme='severed'] .sv-scene-editor .scene-picker-row[aria-selected='true'] .scene-picker-from { color: var(--sv-scr); }

@@ -23,6 +23,7 @@ import { isTyping, isCommand, keyOf, shuffleToggled, repeatCycled } from '../../
 import InfoPanel, { ProsePanel } from './Info.jsx'
 import RoomsSection, { RoomSettings, GroupSheet } from './Rooms.jsx'
 import AlarmsSection, { SleepSheet } from './Alarms.jsx'
+import ScenesSection, { SceneQuietAsk } from './Scenes.jsx'
 import SettingsSection, { LinkServiceSheet, ShortcutsSheet } from './Settings.jsx'
 import Palette from './Palette.jsx'
 import Mini, { isMiniWindow, openMiniPip, openMiniWindow } from './Mini.jsx'
@@ -42,8 +43,8 @@ import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
 // reaches everything by keyboard. Every capability of the Windows theme is
 // here; the paths to them are shorter.
 
-const SECTIONS = ['home', 'library', 'rooms', 'alarms', 'settings']
-const SECTION_ICONS = { home: I.Home, library: I.Grid, rooms: I.Rooms, alarms: I.Bell, settings: I.Sliders }
+const SECTIONS = ['home', 'library', 'rooms', 'scenes', 'alarms', 'settings']
+const SECTION_ICONS = { home: I.Home, library: I.Grid, rooms: I.Rooms, scenes: I.Clapper, alarms: I.Bell, settings: I.Sliders }
 
 export function Shell() {
   const { zones, groups, households, connected, actions, notices, dismiss, servicesEpoch, recentEpoch, favoritesEpoch: savedEpoch, playlistsEpoch } = useSystem()
@@ -212,7 +213,7 @@ export function Shell() {
       if (cmd && key === 'g') { event.preventDefault(); setQueueOpen((v) => !v); return }
       if (cmd && key === 'd') { event.preventDefault(); toggleMini(); return }
       if (cmd && (key === '*' || (event.shiftKey && key === '8'))) { event.preventDefault(); browseSource('FV:2'); return }
-      if (cmd && /^[1-5]$/.test(key)) { event.preventDefault(); setSection(SECTIONS[Number(key) - 1]); return }
+      if (cmd && /^[1-6]$/.test(key)) { event.preventDefault(); setSection(SECTIONS[Number(key) - 1]); return }
       if (cmd && event.shiftKey && key === 'x') { event.preventDefault(); if (activeZone) actions.setCrossfade(activeZone.uuid, !activeZone.transport?.crossfade); return }
       if (typing || anyLayer) return
       if (event.key === '?' ) { event.preventDefault(); setShortcuts(true); return }
@@ -288,6 +289,8 @@ export function Shell() {
   ) : section === 'rooms' ? (
     <RoomsSection groups={visibleGroups} zones={zones} households={households} systemFilter={systemFilter} onSystem={chooseSystem} activeId={activeGroup?.coordinator} onMessage={toast}
                   onSelect={select} onGroupSheet={setGroupSheet} onRoomSettings={setRoomSettings} onStage={() => setStageOpen(true)} />
+  ) : section === 'scenes' ? (
+    <ScenesSection zones={zones} onMessage={toast} />
   ) : section === 'alarms' ? (
     <AlarmsSection households={households} zones={zones} activeZone={activeZone} activeGroup={activeGroup} systemFilter={systemFilter} />
   ) : (
@@ -377,6 +380,7 @@ export function Shell() {
       )}
       {about && <AboutSonora onClose={() => setAbout(false)} />}
       <UpdateNotice />
+      <SceneQuietAsk onMessage={toast} />
       {shortcuts && <ShortcutsSheet onClose={() => setShortcuts(false)} />}
       {confirm && <Confirm title={confirm.title} body={confirm.body} action={confirm.action} onConfirm={() => { setConfirm(null); confirm.onConfirm() }} onClose={() => setConfirm(null)} />}
       {quickMenu && (

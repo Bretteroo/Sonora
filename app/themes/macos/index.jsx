@@ -16,6 +16,7 @@ import { Window, About, AddServices, Confirm, GroupRooms, Preferences, Shortcuts
 import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
 import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
 import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
+import { SceneWindow, SceneQuietAsk } from './Scenes.jsx'
 import ErrorLog from '../../frontend/src/components/ErrorLog.jsx'
 import TransientMessage from '../../frontend/src/components/TransientMessage.jsx'
 import { tokens } from './tokens.js'
@@ -413,6 +414,7 @@ function Shell() {
                 onLinkService={(info) => setDialog({ kind: 'addService', preset: info })}
                 infoSignal={infoSignal} infoItem={infoItem}
                 onSleepTimer={(rect) => setDialog({ kind: 'sleep', anchor: rect })} onAlarms={() => setDialog({ kind: 'alarms' })} onMessage={setTransient}
+                onSceneEditor={(scene, households) => setDialog({ kind: 'scene', scene, households })}
                 onAddRadio={() => setDialog({ kind: 'radio' })}
                 onLibrarySettings={() => setDialog({ kind: 'prefs', page: 'library' })} />
       </div>
@@ -443,12 +445,14 @@ function Shell() {
       {dialog?.kind === 's2' && <S2Upgrade onClose={() => setDialog(null)} />}
       {dialog?.kind === 'aboutSonora' && <AboutSonora onClose={() => setDialog(null)} />}
       <UpdateNotice />
+      <SceneQuietAsk onMessage={setTransient} />
       {dialog?.kind === 'shortcuts' && <Shortcuts onClose={() => setDialog(null)} />}
       {dialog?.kind === 'sleep' && (
         <SleepTimer zone={activeZone} anchor={dialog.anchor} placement="left" chooseKey="desk.sleep.setFor"
                     groupLabel={activeZone && activeGroup && activeGroup.members.length > 1 ? `${activeZone.name} + ${activeGroup.members.length - 1}` : ''} onClose={() => setDialog(null)} />
       )}
       {dialog?.kind === 'alarms' && <Alarms zone={activeZone} onClose={() => setDialog(null)} />}
+      {dialog?.kind === 'scene' && <SceneWindow scene={dialog.scene} households={dialog.households} onClose={() => setDialog(null)} onMessage={setTransient} />}
       {dialog?.kind === 'group' && (
         <GroupRooms group={dialog.group} zones={zones} households={households} onClose={() => setDialog(null)} />
       )}

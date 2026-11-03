@@ -90,6 +90,9 @@
 .sd-root .dk-slider-track { background: rgba(70, 48, 31, 0.22); }
 .sd-root .dk-slider-fill { background: var(--t-rust); }
 .sd-root .dk-slider-thumb, .sd-root .dk-slider [class*='thumb'] { background: var(--t-sand-light); border: 1.5px solid var(--t-rust); }
+/* The slider's handle is the range input's own: the rule above never reached it, and it showed as a blank white disc on the sand. */
+.sd-root .dk-slider input[type='range']::-moz-range-thumb { box-sizing: border-box; background: var(--t-sand-light); border: 1.5px solid var(--t-rust); }
+.sd-root .dk-slider input[type='range']::-webkit-slider-thumb { box-sizing: border-box; background: var(--t-sand-light); border: 1.5px solid var(--t-rust); }
 .sd-root .dk-strip-search { background: var(--t-sand-light); border: 1px solid var(--t-border-strong); border-radius: 999px; }
 .sd-root .dk-strip-search input { color: var(--t-ink); }
 .sd-root .dk-strip-search input::placeholder { color: var(--t-ink-faint); }
@@ -315,12 +318,13 @@
 .sd-root.win-root .win-grouping .dk-grouping-right::after { background: var(--sd-rule); }
 .sd-root.win-root .win-grouping .dk-grouping-art { background: var(--t-dirt); }
 /* fields, pop-ups, checkboxes, radios */
-.sd-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']), textarea) { background-color: var(--sd-well); color: var(--sd-fg); border-color: var(--sd-line); }
-.sd-root.win-root select:not(.win-settings select):not(.dk-strip-select select) {
+.sd-root.win-root .dk-window :is(select, input:not([type='checkbox']):not([type='radio']):not([type='range']), textarea) { background-color: var(--sd-well); color: var(--sd-fg); border-color: var(--sd-line); }
+.sd-root.win-root select:not(.win-settings select):not(.dk-strip-select select), .sd-root.win-root .scene-form .scene-music-btn {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%236b5340' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--sd-well);
   color: var(--sd-fg); border-color: var(--sd-line); box-shadow: none;
 }
-.sd-root.win-root select:not(.win-settings select):not(.dk-strip-select select):hover:not(:disabled) { border-color: var(--sd-accent); }
+/* The Windows skin's hover repaints the face light blue; restate the well so the text stays readable. */
+.sd-root.win-root select:not(.win-settings select):not(.dk-strip-select select):hover:not(:disabled), .sd-root.win-root .scene-form .scene-music-btn:hover:not(:disabled) { border-color: var(--sd-accent); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4'%3E%3Cpath fill='%236b5340' d='M0 0h7L3.5 4Z'/%3E%3C/svg%3E") no-repeat right 5.5px center / 7px 4px, var(--sd-well); }
 .sd-root.win-root input[type='checkbox'], .sd-root.win-root input[type='radio'] { background-color: var(--sd-well); border-color: var(--sd-line); }
 .sd-root.win-root input[type='checkbox']:hover:not(:disabled), .sd-root.win-root input[type='radio']:hover:not(:disabled) { background-color: var(--sd-panel); border-color: var(--sd-accent); }
 .sd-root.win-root input[type='checkbox']:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 9.1'%3E%3Cpath fill='%23a83f2c' d='M9.975 1.223 4.698 9.098H4.522L0 5.193 1.277 3.522 4.255 6.088 8.333 0Z'/%3E%3C/svg%3E"); }

@@ -1,0 +1,245 @@
+/* The shared scene editor, drawn with the theme's tokens, as alarm.css is.
+   Cards with one label column, so every row lines up; pills for anything
+   that is on or off; the theme's accent for anything chosen. */
+.scene-form { --sc-border: var(--t-border, rgba(127,127,127,.3)); --sc-surface: var(--t-surface, rgba(127,127,127,.06)); --sc-accent: var(--t-accent, #3b82f6); --sc-accent-fg: var(--t-accent-fg, #fff); --sc-muted: var(--t-fg-muted, inherit); --sc-radius: var(--t-radius, 12px);
+              display: flex; flex-direction: column; gap: 14px; padding: 14px 16px 16px; color: var(--t-fg, inherit); font-size: 13px; accent-color: var(--sc-accent); }
+.scene-form h3 { margin: 0; font-size: 15px; }
+.scene-grow { flex: 1; }
+
+/* The name, large, on its own. */
+.scene-name-field { display: flex; flex-direction: column; gap: 4px; }
+.scene-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--sc-muted); }
+:is(.scene-name, .scene-duration) { width: 100%; box-sizing: border-box; padding: 8px 12px; border: 1px solid var(--sc-border); border-radius: 8px; background: var(--sc-surface); color: inherit; font: inherit; font-size: 17px; font-weight: 600; }
+:is(.scene-name, .scene-duration):focus { outline: 2px solid var(--sc-accent); outline-offset: -1px; }
+:is(.scene-name, .scene-duration)::placeholder { font-weight: 400; opacity: .5; }
+
+/* Cards and their rows. */
+.scene-card { border: 1px solid var(--sc-border); border-radius: var(--sc-radius); background: var(--sc-surface); padding: 0 14px 6px; min-width: 0; }
+/* A card with no header, like Other rooms, has its row centered: no extra room at the bottom. */
+.scene-card:not(:has(> .scene-card-head)) { padding-bottom: 0; }
+.scene-card-head { display: flex; align-items: center; gap: 10px; min-height: 40px; margin: 0 -14px 4px; padding: 6px 14px; border-bottom: 1px solid var(--sc-border); }
+.scene-badge { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--sc-accent); color: var(--sc-accent-fg); font-size: 12px; font-weight: 700; }
+.scene-card-title { font-weight: 600; }
+/* The label is level with the first line of text in its field, whatever the theme makes of the field's height; with the room lines tucked in that is the switch, the last line, which they follow up as the lines go. */
+.scene-row { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 8px 14px; align-items: baseline; padding: 8px 0; }
+.scene-row + .scene-row { border-top: 1px dashed var(--sc-border); }
+.scene-label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--sc-muted); }
+/* The Rooms label carries the S1/S2 pop-up on a household of both generations. */
+.scene-label-system { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-top: 0; min-height: 0; }
+/* The pop-up's own margins, and a theme's padding on the label, would pad the box and sink the word beside the pills. */
+.scene-label-system > * { margin-top: 0; margin-bottom: 0; }
+.scene-row > .scene-label.scene-label-system { padding-top: 0; padding-bottom: 0; }
+.scene-form .scene-system { padding: 2px 4px; font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.scene-field { min-width: 0; }
+.scene-form select { font: inherit; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--sc-border); background: var(--sc-surface); color: inherit; }
+
+/* Pills: rooms, music, tone and soundbar switches. */
+.scene-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.scene-pill { display: inline-flex; align-items: center; gap: 0; padding: 4px 12px; border: 1px solid var(--sc-border); border-radius: 999px; background: transparent; color: inherit; font: inherit; line-height: 1.3; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+.scene-pill:hover:not(:disabled) { border-color: var(--sc-accent); }
+.scene-pill:disabled { opacity: .45; cursor: default; }
+.scene-pill[aria-pressed='true'], .scene-pill[aria-checked='true'] { background: var(--sc-accent); border-color: var(--sc-accent); color: var(--sc-accent-fg); }
+.scene-pill-check { display: none; }
+.scene-pill-small { padding: 2px 9px; font-size: 12px; }
+.scene-pill-extra { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+/* One line, always: the kind of music keeps its width and whatever comes after it is cut short to fit; the full name is in the opened list. */
+.scene-music-row { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; width: 100%; min-width: 0; }
+.scene-music-row > :first-child { flex: none; }
+.scene-source-fade { display: inline-flex; flex: 0 1 auto; align-items: center; gap: 10px; min-width: 0; opacity: 0; transition: opacity 180ms ease; }
+.scene-source-fade[data-show] { opacity: 1; }
+.scene-source-fade[data-enter] { animation: scene-fade-in 180ms ease; }
+@keyframes scene-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .scene-source-fade { transition: none; animation: none; } }
+.scene-source-arrow { width: 16px; height: 16px; flex: none; color: var(--sc-muted); }
+.scene-source-name { font-weight: 600; }
+/* The music pop-up: its button is drawn as the form's pop-ups are, capped
+   so a long playlist name keeps it beside the kind of music; its list is
+   the picker's, laid under the button. */
+.scene-music-wrap { position: relative; display: inline-flex; flex: 0 1 auto; min-width: 0; max-width: 100%; }
+.scene-source-fade > :not(.scene-source-arrow) { min-width: 0; max-width: 100%; }
+.scene-form .scene-music-btn { display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; font: inherit; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--sc-border); background: var(--sc-surface); color: inherit; text-align: left; cursor: pointer; }
+.scene-form .scene-music-btn:disabled { opacity: .55; cursor: default; }
+.scene-music-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.scene-music-btn .scene-music-chev { width: 12px; height: 12px; flex: none; }
+/* As a popover it is positioned by script and the browser's popover styling is cleared, its clipping too, so the list's shadow shows. */
+.scene-menu { position: fixed; z-index: 30; inset: auto; margin: 0; padding: 0; border: 0; background: transparent; width: max-content; max-width: calc(100vw - 16px); color: inherit; overflow: visible; }
+.scene-menu:not(:popover-open) { display: none; }
+/* Without popover support the menu stays in flow, under its button. */
+.scene-menu[data-inflow='yes'] { display: block; position: absolute; top: calc(100% + 4px); left: 0; z-index: 30; }
+.scene-menu .scene-picker-list { max-height: min(440px, 60vh); }
+.scene-menu .scene-picker { background: var(--t-bg-raised, var(--t-bg, #fff)); box-shadow: 0 10px 28px rgba(0, 0, 0, .28); }
+.scene-picker-row[data-cursor] { background: var(--t-row-hover, rgba(127,127,127,.15)); }
+.scene-chosen { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.scene-link { padding: 0; border: 0; background: none; color: var(--sc-accent); font: inherit; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+/* One line per room: name, slider, value, switches; tone and soundbar open under it. */
+/* The lines and the switch are the row's own grid items, the lines above the switch, and the label shares a row with one of them: the lines, so it is level with the first line, or, while the lines are shut or on their way, the switch, which it follows. The room between lines and switch slides away with the lines, and the switch's line is as tall as the Music row's control (measured by script) so the two rows match. */
+.scene-levels { display: contents; }
+.scene-row > .scene-levels > .scene-level-lines { grid-column: 2; grid-row: 1; min-width: 0; }
+.scene-row > .scene-levels > .scene-level-foot { grid-column: 2; grid-row: 2; }
+.scene-row:has(> .scene-levels) { row-gap: 0; }
+.scene-row:has(> .scene-levels) > .scene-label { grid-row: 1; }
+.scene-row:has(> .scene-levels > .scene-level-lines:is([data-kept], [data-away])) > .scene-label { grid-row: 2; }
+.scene-level-lines > .scene-slide-inner { padding-bottom: 8px; }
+.scene-level { --scene-level-gap: 12px; display: grid; grid-template-columns: minmax(80px, 150px) minmax(140px, 1fr) auto; align-items: center; gap: 6px var(--scene-level-gap); padding: 5px 0; }
+.scene-level + .scene-level { border-top: 1px dotted var(--sc-border); }
+.scene-level-foot { display: flex; align-items: center; min-height: var(--sc-control-h, 0px); }
+/* With the rooms' own settings kept, their lines slide shut; they slide open again when the switch goes off. */
+/* The lines slide shut (a Slide) while the rooms keep their own settings, and are off the page once shut. */
+.scene-level-lines[data-away] { display: none; }
+/* A block that slides open and shut: the grid row goes from nothing to its content's height. */
+/* A block that slides open and shut; its height is the script's alone, animated from wherever it is. */
+/* Never a flex item that gives way: in a capped editor the block keeps its height and the editor scrolls. */
+.scene-slide { overflow: hidden; flex-shrink: 0; }
+/* Settled open, nothing is clipped: a card's rounded shadow shows whole. */
+.scene-slide[data-open]:not([data-moving]) { overflow: visible; }
+.scene-slide-inner { min-height: 0; }
+.scene-level-slot + .scene-level-slot[data-open] > .scene-slide-inner > .scene-level { border-top: 1px dotted var(--sc-border); }
+/* The sliders on a room's line: the volume alone, or with the bass and treble beside it, half and a quarter each of the width. */
+.scene-level-sliders { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.scene-level-sliders > .scene-slider { flex: 2 1 0; min-width: 0; }
+/* Clipped only sideways, so the midpoint ticks above and below a knob are never cut. */
+/* Opening: the tone pair takes its share of the line first, pulling the volume's right edge in, and its sliders fade in once the room is made. Closing: they fade, then the volume takes the line back. */
+.scene-level-tone { flex: 2 1 0; min-width: 0; overflow: clip visible; transition: flex-grow 220ms ease 120ms, opacity 150ms ease; }
+.scene-level-tone:not([data-show]) { flex-grow: 0; opacity: 0; }
+.scene-level-tone[data-enter] { animation: scene-tone-in 400ms ease; }
+@keyframes scene-tone-in { 0% { flex-grow: 0; opacity: 0; } 55% { flex-grow: 2; opacity: 0; } 100% { flex-grow: 2; opacity: 1; } }
+/* Bass and treble share one grid, each slider a span of its columns: side by side the two tracks split what the labels and numbers leave, and stacked the labels share a column, so either way the tracks are the same length whatever the words. */
+.scene-level-tone { display: grid; grid-template-columns: auto minmax(0, 1fr) 2.2em auto minmax(0, 1fr) 2.2em; column-gap: 10px; row-gap: 8px; }
+.scene-level-tone > .scene-slider { grid-column: span 3; grid-template-columns: subgrid; min-width: 0; }
+@media (prefers-reduced-motion: reduce) { .scene-level-tone { transition: none; } .scene-level-tone[data-enter] { animation: none; } }
+/* A line too narrow for three usable tracks side by side: the volume keeps the whole width and the bass and treble go on a row of their own under it, half each. */
+.scene-level-sliders { container: scene-sliders / inline-size; flex-wrap: wrap; row-gap: 8px; }
+@container scene-sliders (width < 560px) {
+  .scene-level-sliders > .scene-slider, .scene-level-tone { flex-basis: 100%; }
+  .scene-level-tone:not([data-show]) { flex-basis: 0; height: 0; }
+}
+/* Narrower still, as on a phone, the bass and treble take a line each. */
+@container scene-sliders (width < 400px) {
+  .scene-level-tone { grid-template-columns: auto minmax(0, 1fr) 2.2em; }
+}
+.scene-level-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+/* The name and the gear stand level with the volume's row, however tall the line grows beneath it. */
+.scene-level > .scene-level-name, .scene-level > .scene-caret { align-self: start; min-height: var(--sc-volume-h, auto); }
+.scene-level > .scene-level-name { display: flex; align-items: center; }
+.scene-level > .scene-level-sliders { align-self: start; }
+.scene-slider { display: grid; grid-template-columns: auto 1fr 2.6em; align-items: center; gap: 8px; min-width: 0; }
+.scene-slider-label { color: var(--sc-muted); font-size: 12px; }
+.scene-slider[data-disabled] { opacity: .5; }
+.scene-slider input[type='range'] { width: 100%; min-width: 0; margin: 0; box-sizing: border-box; }
+/* A slider without a label: its control takes the label's column too, not the label's sized-to-content one. */
+.scene-slider > :first-child:not(.scene-slider-label) { grid-column: 1 / span 2; }
+/* The control's own box. Bass and treble, which run either side of nothing, get a mark at the middle of the track: a short tick above the knob and one below, drawn in front with a gap the knob's height, so at 0 both still show. A theme sets --scene-knob-h to its knob's height and --scene-tick-h to the mark's whole height. */
+.scene-slider-track { position: relative; isolation: isolate; display: block; min-width: 0; }
+.scene-slider-track > * { width: 100%; }
+/* A bare range input is laid out as text, with room for a descender under it; as a block the box is the slider's own height, so the ticks center on the knob. */
+.scene-slider-track > input { display: block; }
+.scene-slider-track[data-center]::before { --c: var(--scene-tick-c, var(--sc-muted)); --gap: var(--scene-knob-h, 20px); content: ''; position: absolute; z-index: 1; left: 50%; top: 50%; width: 2px; height: var(--scene-tick-h, 32px); transform: translate(-50%, -50%); background: linear-gradient(to bottom, var(--c) 0 calc(50% - var(--gap) / 2), transparent 0 calc(50% + var(--gap) / 2), var(--c) 0); opacity: .8; pointer-events: none; }
+.scene-value { text-align: right; font-variant-numeric: tabular-nums; }
+/* The tone and soundbar controls start under the volume bar's left edge, their accent rule standing in the gap before it; they sit on one line, the switches to the right of the sliders. */
+.scene-level-extra-slot { grid-column: 2 / -1; margin-left: calc(-1 * var(--scene-level-gap) - 2px); }
+.scene-level-extra { display: flex; flex-wrap: nowrap; gap: 6px 14px; align-items: center; padding: 2px 0 4px 12px; border-left: 2px solid var(--sc-accent); }
+.scene-level-extra .scene-pill { white-space: nowrap; flex: none; }
+/* Bass and treble share one grid, so their labels take one column and their tracks come out the same length whatever the words. */
+.scene-tone { display: inline-grid; grid-template-columns: auto 110px 2.6em; gap: 6px 8px; align-items: center; min-width: 0; }
+.scene-tone .scene-slider { display: contents; }
+
+/* The groups as tabs, the last one adding a group; the open tab's card follows. */
+.scene-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: -8px; padding: 0 4px; border-bottom: 1px solid var(--sc-border); }
+.scene-tab { display: inline-flex; align-items: center; gap: 8px; margin-bottom: -1px; padding: 8px 12px 9px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--sc-muted); font: inherit; font-weight: 500; cursor: pointer; }
+.scene-tab:hover { color: var(--t-fg, inherit); }
+.scene-tab[aria-selected='true'] { color: var(--t-fg, inherit); border-bottom-color: var(--sc-accent); }
+.scene-tab .scene-badge { width: 20px; height: 20px; font-size: 11px; background: var(--sc-border); color: inherit; transition: background .15s, color .15s; }
+.scene-tab[aria-selected='true'] .scene-badge { background: var(--sc-accent); color: var(--sc-accent-fg); }
+.scene-tab small { padding: 0 6px; border-radius: 999px; background: var(--sc-surface); border: 1px solid var(--sc-border); font-size: 11px; }
+.scene-tab-add { color: var(--sc-accent); }
+.scene-tab-add svg { width: 12px; height: 12px; }
+.scene-tabs + .scene-card { border-top-left-radius: 0; }
+
+/* The actions. */
+.scene-actions { display: flex; align-items: center; gap: 8px; padding-top: 4px; }
+.scene-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--sc-border); background: var(--sc-surface); color: inherit; font: inherit; cursor: pointer; }
+.scene-btn:hover:not(:disabled) { border-color: var(--sc-accent); }
+.scene-btn-primary { background: var(--sc-accent); border-color: var(--sc-accent); color: var(--sc-accent-fg); font-weight: 600; }
+.scene-btn-quiet { background: none; }
+.scene-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* The music picker. */
+.scene-picker { border: 1px solid var(--sc-border); border-radius: 8px; overflow: hidden; }
+.scene-picker-list { max-height: 320px; overflow: auto; }
+.scene-picker-group { padding: 6px 10px 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--sc-muted); }
+/* The rows share one column for where the item comes from, as wide as the
+   longest service name (to a cap), so the titles line up down the list. */
+.scene-picker-list { position: relative; display: grid; grid-template-columns: fit-content(16em) minmax(0, 1fr) auto; align-content: start; }
+.scene-picker-list > :not(.scene-picker-row) { grid-column: 1 / -1; }
+.scene-picker-row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; column-gap: 8px; align-items: center; width: 100%; padding: 7px 10px; background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+@supports not (grid-template-columns: subgrid) {
+  .scene-picker-list { display: block; }
+  .scene-picker-row { display: flex; }
+  .scene-picker-from { width: 12em; }
+}
+.scene-picker-row:hover { background: var(--t-row-hover, rgba(127,127,127,.15)); }
+.scene-picker-row[aria-selected='true'] { background: var(--t-row-selected, rgba(127,127,127,.3)); }
+.scene-picker-row svg { width: 12px; height: 12px; }
+.scene-picker-text { display: contents; }
+.scene-picker-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Where the item comes from: the service's mark and name before the title. */
+.scene-picker-from { display: inline-flex; align-items: center; gap: 5px; min-width: 0; font-size: 12px; color: var(--sc-muted); white-space: nowrap; }
+.scene-picker-from > span { overflow: hidden; text-overflow: ellipsis; }
+.scene-picker-row > svg { grid-column: 3; }
+/* A mark drawn dark on nothing (Pandora's P) vanishes on a dark skin: every
+   logo sits on a white tile of its own, which a theme may tint. */
+.scene-source-mark { display: inline-flex; width: 16px; height: 16px; border-radius: 3px; flex: none; overflow: hidden; isolation: isolate; }
+span.scene-source-mark { background: #fff; }
+.scene-source-mark img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.scene-picker-row .scene-picker-from svg.scene-source-mark { width: 16px; height: 16px; }
+.scene-picker-row[aria-selected='true'] .scene-picker-from { color: inherit; opacity: .85; }
+.scene-note { margin: 8px 10px; color: var(--sc-muted); }
+
+@media (max-width: 600px) {
+  .scene-row { grid-template-columns: 1fr; gap: 4px; }
+  .scene-label { padding-top: 0; }
+  /* One column: the lines and switch stack under the label as one field again. */
+  .scene-levels { display: flex; flex-direction: column; }
+  .scene-row > .scene-levels > .scene-level-lines, .scene-row > .scene-levels > .scene-level-foot { grid-column: auto; grid-row: auto; }
+  .scene-row:has(> .scene-levels) > .scene-label,
+  .scene-row:has(> .scene-levels > .scene-level-lines:is([data-kept], [data-away])) > .scene-label { grid-row: auto; }
+  /* A room's line: its name with the gear at the end, then the sliders across the whole width under them, then the switches. */
+  .scene-level { grid-template-columns: minmax(0, 1fr) auto; }
+  .scene-level > .scene-level-name { grid-column: 1; grid-row: 1; }
+  .scene-level > .scene-caret { grid-column: 2; grid-row: 1; }
+  .scene-level > .scene-level-sliders { grid-column: 1 / -1; grid-row: 2; }
+  .scene-level > .scene-level-extra-slot { grid-column: 1 / -1; margin-left: 0; }
+  .scene-actions { flex-wrap: wrap; }
+  /* A soundbar's three switches outrun a phone's width on one line. */
+  .scene-level-extra { flex-wrap: wrap; }
+  /* Hours and minutes stay side by side while they fit, and the minutes drop to a line of their own when they do not. */
+  .scene-duration-wrap { flex-wrap: wrap; }
+  /* The music menu takes a line of its own under the kind of music, with the width to show what it holds. */
+  .scene-music-row { flex-wrap: wrap; row-gap: 8px; }
+  .scene-music-row > .scene-source-fade { flex: 1 1 100%; }
+}
+/* The play duration: a short box of minutes, dressed as the name box is, with its unit beside it. */
+.scene-duration-wrap { display: inline-flex; align-items: center; gap: 8px; }
+/* A box and its unit, which wrap as one when the two pairs do not fit on a line. */
+.scene-duration-part { display: inline-flex; align-items: center; gap: 8px; }
+.scene-duration-box { display: inline-flex; }
+.scene-duration-note { margin: 6px 0 0; white-space: normal; }
+.scene-duration { width: 6.5em; text-align: right; -moz-appearance: textfield; appearance: textfield; }
+.scene-duration::-webkit-outer-spin-button, .scene-duration::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+/* Two digits need no more than this, which keeps hours and minutes on one line on a phone. */
+@media (max-width: 600px) { .scene-duration { width: 4.5em; } }
+/* The caret on a room's line: turned down while the room's tone and soundbar settings are open beneath. */
+.scene-caret { display: inline-grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 4px; background: none; color: inherit; cursor: pointer; }
+.scene-caret svg { display: block; width: 16px; height: 16px; }
+.scene-gear { display: block; will-change: transform; transition: transform 450ms cubic-bezier(.4, 0, .2, 1); }
+/* Half a turn clockwise to open, back the other way to shut; the gear rests in the accent while the tone is open. */
+.scene-caret { transition: color 200ms; }
+.scene-caret[aria-expanded='true'] { color: var(--sc-accent); }
+.scene-caret[aria-expanded='true'] .scene-gear { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .scene-gear { transition: none; } }
+.scene-caret:hover { background: var(--t-row-hover, rgba(127, 127, 127, 0.15)); }
+
+/* A scene's time left in its row or card: the infinity, or the countdown's figures, which keep their width as they change. */
+.scene-time { display: inline-flex; flex: none; align-items: center; gap: 4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.scene-time > svg { width: 1.3em; height: 1.3em; }

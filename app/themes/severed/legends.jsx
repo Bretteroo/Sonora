@@ -63,5 +63,6 @@ export const Info = legend('Info', <><circle cx="12" cy="12" r="9" /><path d="M1
 export const Queue = legend('Queue', <><path d="M4 6h11M4 11h11M4 16h7" /><path {...solid} d="M15 13.5v6.3a.6.6 0 0 0 .9.5l5-3.2a.6.6 0 0 0 0-1l-5-3.1a.6.6 0 0 0-.9.5z" /></>)
 export const Folder = legend('Folder', <path d="M3 7.5V18a1.5 1.5 0 0 0 1.5 1.5h15A1.5 1.5 0 0 0 21 18V9.5A1.5 1.5 0 0 0 19.5 8h-8l-2-2.5h-5A1.5 1.5 0 0 0 3 7z" />)
 export const Rooms = legend('Rooms', <><rect x="3.5" y="3.5" width="7" height="7" rx="1.2" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.2" /><rect x="3.5" y="13.5" width="7" height="7" rx="1.2" /><rect x="13.5" y="13.5" width="7" height="7" rx="1.2" /></>)
+export const Scenes = legend('Scenes', <><rect x="3" y="11.5" width="18" height="8.5" rx="1" /><path d="M3.5 11.5l13.6-6.4 1.9 4" /><path d="M8.6 9.1l-1.1-2.3M12.7 7.2l-1.1-2.3M16.8 5.3l-1.1-2.3" /></>)
 export const Alarm = legend('Alarm', <><circle cx="12" cy="13" r="7.5" /><path d="M12 9v4l2.5 2M4 5.5L6.5 3M20 5.5L17.5 3" /></>)
 export const Settings = legend('Settings', <><circle cx="12" cy="12" r="3" /><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7" /><circle cx="12" cy="12" r="6.6" /></>)

@@ -12,7 +12,7 @@ const LIVE_MS = 90
 // dark too; at the top the right cap lights.
 const END_CAP = 12
 
-export default function Slider({ value, onCommit, label, max = 100, disabled = false, muted = false }) {
+export default function Slider({ value, onCommit, label, min = 0, max = 100, wheelStep = 2, disabled = false, center = false, muted = false }) {
   const [local, setLocal] = useState(value)
   const [dragging, setDragging] = useState(false)
   const sent = useRef({ at: 0, value, timer: null })
@@ -39,17 +39,19 @@ export default function Slider({ value, onCommit, label, max = 100, disabled = f
   const finish = (next) => { if (next !== sent.current.value) send(next) }
 
   const shown = dragging ? local : value
-  const pct = Math.max(0, Math.min(100, (shown / max) * 100))
+  const pct = Math.max(0, Math.min(100, ((shown - min) / (max - min)) * 100))
 
   return (
     <div className="dk-slider" data-muted={muted || undefined}>
       <div className="dk-slider-track" />
-      <div className="dk-slider-fill" data-full={pct >= 100 || undefined}
-           style={{ width: pct > 0 ? `calc(${END_CAP}px + (100% - ${2 * END_CAP}px) * ${pct / 100})` : 0 }} />
+      {/* Centered, the fill runs from the middle to the thumb, either way, with no end caps to light. */}
+      <div className="dk-slider-fill" data-full={(!center && pct >= 100) || undefined}
+           style={center ? { left: `${Math.min(pct, 50)}%`, width: `${Math.abs(pct - 50)}%` }
+             : { width: pct > 0 ? `calc(${END_CAP}px + (100% - ${2 * END_CAP}px) * ${pct / 100})` : 0 }} />
       <input
         type="range"
-        data-wheel-step="2"
-        min={0}
+        data-wheel-step={wheelStep}
+        min={min}
         max={max}
         value={shown}
         aria-label={label}

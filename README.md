@@ -60,6 +60,8 @@ Sonora is not affiliated with Sonos, Inc. and was created by an enthusiastic end
   - Follow along with the words to whatever's playing, timed to the music where possible,
 - 🏠 **Every room**
   - Grouping, volume, EQ, sleep timers, and alarms are all included.
+- 🎬 **Scenes**
+  - One tap sets up a whole listening session: which devices or groups play, volumes for each, and what plays where.
 - 📱 **A new virtual speaker: "This browser"**
   - Play audio through your browser as if it were one more room.
 - 🧭 **S2 upgrade advisor**
@@ -486,6 +488,10 @@ Anonymous services that don't require logins (like Audacy) only need step 2.
 You'll see a room called "This browser".  That's just what it sounds like - a virtual speaker for streaming audio to your browser.
 
 This is experimental; many services will only permit streaming to a Sonos device.
+
+### Scenes
+
+One tap sets up a whole listening session: which devices or groups play, volumes for each, and what plays where. Because your Dinner Party might have cocktail music in the dining room, jazz in the living room, and EDM in the backyard while your bedrooms are silent.
 
 ## 💙 Contributions
 

@@ -3,6 +3,7 @@ import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
 import { useAlarms, recurrenceKey, recurrenceDays } from '../../frontend/src/lib/useAlarms.js'
+import { useListMotion } from '../../frontend/src/lib/listMotion.js'
 import { useSleepTimers, SLEEP_CHOICES, sleepLabel, clockText } from '../../frontend/src/lib/useSleepTimer.js'
 import AlarmEditorPanel from '../../frontend/src/components/AlarmEditorPanel.jsx'
 import * as I from './icons.jsx'
@@ -36,6 +37,8 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
     : (activeZone && ordered.find((h) => h.zone_uuids.includes(activeZone.uuid))?.id) || ordered[0]?.id
   const zoneUuid = ordered.find((h) => h.id === activeHh)?.zone_uuids?.find((u) => zones[u]) || ''
   const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zoneUuid)
+  // The cards make room first, then the new ones come into it.
+  const motion = useListMotion(alarms, (a) => a.ID, { moveMs: 350, enterAfterMove: true })
   const rooms = zoneList.filter((z) => households.find((h) => h.id === activeHh)?.zone_uuids.includes(z.uuid)).sort((a, b) => a.name.localeCompare(b.name))
   const [editing, setEditing] = useState(null)
   const [refused, setRefused] = useState('')
@@ -60,14 +63,14 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
         </div>
         {alarms === null && !error && <Skeleton label={t('desk.browse.loading')} kind="cards" rows={4} />}
         {error && <p className="mg-error">{error}</p>}
-        {alarms && alarms.length === 0 && <Empty icon={<I.Alarm />} title={t('desk.alarms.none')} />}
+        {alarms && alarms.length === 0 && !motion.rows.length && <Empty icon={<I.Alarm />} title={t('desk.alarms.none')} />}
         <div className="mg-alarm-grid">
-          {alarms && alarms.map((a) => {
+          {motion.rows.map(({ item: a, ...row }) => {
             const on = a.Enabled === '1'
             const key = recurrenceKey(a.Recurrence)
             const set = new Set(recurrenceDays(a.Recurrence))
             return (
-              <article key={a.ID} className="mg-card mg-alarm" data-on={on || undefined} role="button" tabIndex={0}
+              <article key={a.ID} {...motion.bind(row)} className="mg-card mg-alarm" data-on={on || undefined} role="button" tabIndex={0}
                        onClick={() => !busy && setEditing(a)} onKeyDown={(event) => { if (event.key === 'Enter' && !busy) setEditing(a) }}
                        onContextMenu={(event) => { event.preventDefault(); setMenu({ a, x: event.clientX, y: event.clientY }) }}>
                 <span className="mg-state" aria-hidden="true" />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { useAlarms, recurrenceKey, recurrenceDays } from '../../frontend/src/lib/useAlarms.js'
+import { useListMotion } from '../../frontend/src/lib/listMotion.js'
 import { Window, Confirm } from './Dialogs.jsx'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import AlarmEditor from './AlarmEditor.jsx'
@@ -25,6 +26,7 @@ function zoneTime(now) {
 export default function Alarms({ zone, onClose }) {
   const { t } = useI18n()
   const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zone?.uuid)
+  const motion = useListMotion(alarms, (a) => a.ID)
   const { zoneList, households } = useSystem()
   // An alarm lives on a speaker, so the browser room is not one of these.
   const rooms = withoutBrowserRoom(zoneList).sort((a, b) => a.name.localeCompare(b.name))
@@ -63,8 +65,8 @@ export default function Alarms({ zone, onClose }) {
             <div className="win-alarms-head" role="row">
               <span><RoomSceneHeading t={t} /></span><span>{t('win.alarms.when')}</span><span>{t('win.alarms.on')}</span>
             </div>
-            {(alarms || []).map((a) => (
-              <div key={a.ID} role="row" className="win-alarms-row" aria-selected={selected === a.ID}
+            {motion.rows.map(({ item: a, ...row }) => (
+              <div key={a.ID} {...motion.bind(row)} role="row" className="win-alarms-row" aria-selected={selected === a.ID}
                    onClick={() => setSelected(a.ID)}>
                 <span><AlarmWhere alarm={a} t={t} /></span>
                 <span>{when(a)}</span>

@@ -2026,3 +2026,12 @@
 /* The alarm tables' mark before each Room / Scene entry: its letter, outlined
    in the row's own color. */
 :where(:root[data-theme='sedona']) .alarm-kind { display: inline-block; min-width: 9px; margin-right: 6px; padding: 0 2px; border: 1px solid currentColor; border-radius: 3px; font-size: 9px; font-style: normal; font-weight: 700; line-height: 11px; text-align: center; opacity: 0.8; vertical-align: 1px; }
+
+/* Alarm rows coming and going as the list changes (lib/listMotion.js): in one after another, out within 160ms. */
+@keyframes sd-in { from { opacity: 0; transform: translateY(10px); } }
+@keyframes sd-out { to { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  :where(:root[data-theme='sedona']) :is(.dk-alarms-table [data-motion="enter"], .win-alarms-row[data-motion="enter"]) { animation: sd-in 320ms cubic-bezier(0.25, 0.1, 0.25, 1) min(calc(var(--motion-i, 0) * 40ms), 320ms) backwards; }
+  :where(:root[data-theme='sedona']) :is(.dk-alarms-table [data-motion="leave"], .win-alarms-row[data-motion="leave"]) { animation: sd-out 160ms ease-in forwards; }
+}
+:where(:root[data-theme='sedona']) :is(.dk-alarms-table [data-motion="leave"], .win-alarms-row[data-motion="leave"]) { pointer-events: none; }

@@ -1198,3 +1198,12 @@
 .mac-root .dk-lib-table [role='option'][data-removing] { opacity: 0.5; }
 .mac-root .dk-lib-table [role='option'][data-removing='leaving'] { animation: mac-lib-leave 320ms ease-in forwards; }
 @keyframes mac-lib-leave { from { opacity: 0.5; } to { opacity: 0; } }
+
+/* Alarm rows coming and going as the list changes (lib/listMotion.js): in one after another, out within 140ms. */
+@keyframes mac-in { from { opacity: 0; } }
+@keyframes mac-out { to { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .mac-root .dk-alarms-table [data-motion="enter"] { animation: mac-in 200ms ease-out min(calc(var(--motion-i, 0) * 20ms), 160ms) backwards; }
+  .mac-root .dk-alarms-table [data-motion="leave"] { animation: mac-out 140ms ease-in forwards; }
+}
+.mac-root .dk-alarms-table [data-motion="leave"] { pointer-events: none; }

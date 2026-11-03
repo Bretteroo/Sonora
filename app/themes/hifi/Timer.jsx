@@ -3,6 +3,7 @@ import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds, systemChoiceMatters } from '../../frontend/src/lib/format.js'
 import { useAlarms, recurrenceKey, recurrenceDays } from '../../frontend/src/lib/useAlarms.js'
+import { useListMotion } from '../../frontend/src/lib/listMotion.js'
 import { useSleepTimers, SLEEP_CHOICES, sleepLabel, clockText } from '../../frontend/src/lib/useSleepTimer.js'
 import AlarmEditorPanel from '../../frontend/src/components/AlarmEditorPanel.jsx'
 import * as G from './glyphs.jsx'
@@ -98,6 +99,7 @@ export default function TimerUnit({ households, zones, activeZone, activeGroup, 
     : (activeZone && ordered.find((h) => h.zone_uuids.includes(activeZone.uuid))?.id) || ordered[0]?.id
   const zoneUuid = ordered.find((h) => h.id === activeHh)?.zone_uuids?.find((u) => zones[u]) || ''
   const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zoneUuid)
+  const motion = useListMotion(alarms, (a) => a.ID)
   const rooms = zoneList.filter((z) => households.find((h) => h.id === activeHh)?.zone_uuids.includes(z.uuid)).sort((a, b) => a.name.localeCompare(b.name))
   const [editing, setEditing] = useState(null)
   const [refused, setRefused] = useState('')
@@ -137,14 +139,14 @@ export default function TimerUnit({ households, zones, activeZone, activeGroup, 
           </div>
           {alarms === null && !error && <Loading>{t('desk.browse.loading')}</Loading>}
           {error && <p className="hf-error">{error}</p>}
-          {alarms && alarms.length === 0 && <Empty icon={<G.Bell />} title={t('desk.alarms.none')} />}
-          {alarms && alarms.length > 0 && (
+          {alarms && alarms.length === 0 && !motion.rows.length && <Empty icon={<G.Bell />} title={t('desk.alarms.none')} />}
+          {motion.rows.length > 0 && (
             <ol className="hf-programs">
-              {alarms.map((a, i) => {
+              {motion.rows.map(({ item: a, ...row }, i) => {
                 const days = daysOf(a)
                 const on = a.Enabled === '1'
                 return (
-                  <li key={a.ID} className="hf-program" data-on={on || undefined}>
+                  <li key={a.ID} {...motion.bind(row)} className="hf-program" data-on={on || undefined}>
                     <span className="hf-program-num">{t('hifi.program', { n: i + 1 })}</span>
                     <Display className="hf-program-display">
                       <span className="hf-vfd-num hf-program-time">{a.StartTime.replace(/:00$/, '')}</span>

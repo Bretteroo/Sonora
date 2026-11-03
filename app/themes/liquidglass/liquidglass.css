@@ -890,3 +890,12 @@
 :root[data-theme='liquidglass'] .sf-scene-editor .scene-menu .scene-picker-list { padding: 4px 0; }
 :root[data-theme='liquidglass'] .sf-scene-editor .scene-picker-row:hover { background: var(--lg-neutral); }
 :root[data-theme='liquidglass'] .sf-scene-editor .scene-picker-row[aria-selected='true'] { background-color: var(--lg-tint); background-image: var(--lg-lens); box-shadow: var(--lg-rim); color: var(--t-accent); }
+
+/* Alarm rows coming and going as the list changes (lib/listMotion.js): in one after another, out within 160ms. */
+@keyframes lg-in { from { opacity: 0; transform: scale(0.94); } }
+@keyframes lg-out { to { opacity: 0; transform: scale(0.96); } }
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme='liquidglass'] .sf-alarm[data-motion="enter"] { animation: lg-in 420ms cubic-bezier(0.34, 1.4, 0.64, 1) min(calc(var(--motion-i, 0) * 45ms), 360ms) backwards; }
+  :root[data-theme='liquidglass'] .sf-alarm[data-motion="leave"] { animation: lg-out 160ms ease-in forwards; }
+}
+:root[data-theme='liquidglass'] .sf-alarm[data-motion="leave"] { pointer-events: none; }

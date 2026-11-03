@@ -2026,3 +2026,12 @@
 /* The alarm tables' mark before each Room / Scene entry: its letter, outlined
    in the row's own color. */
 :where(:root[data-theme='hotdog']) .alarm-kind { display: inline-block; min-width: 9px; margin-right: 6px; padding: 0 2px; border: 1px solid currentColor; border-radius: 3px; font-size: 9px; font-style: normal; font-weight: 700; line-height: 11px; text-align: center; opacity: 0.8; vertical-align: 1px; }
+
+/* Alarm rows coming and going as the list changes (lib/listMotion.js): in one after another, out within 120ms. */
+@keyframes hd-in { from { opacity: 0; } }
+@keyframes hd-out { to { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  :where(:root[data-theme='hotdog']) :is(.dk-alarms-table [data-motion="enter"], .win-alarms-row[data-motion="enter"]) { animation: hd-in 150ms steps(3, jump-end) min(calc(var(--motion-i, 0) * 40ms), 320ms) backwards; }
+  :where(:root[data-theme='hotdog']) :is(.dk-alarms-table [data-motion="leave"], .win-alarms-row[data-motion="leave"]) { animation: hd-out 120ms steps(2, jump-end) forwards; }
+}
+:where(:root[data-theme='hotdog']) :is(.dk-alarms-table [data-motion="leave"], .win-alarms-row[data-motion="leave"]) { pointer-events: none; }

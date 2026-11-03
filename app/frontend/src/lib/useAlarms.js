@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from './api.js'
 import { useSystem } from './store.jsx'
 import { isBrowserRoom } from './browserRoom.js'
@@ -13,6 +13,11 @@ export function useAlarms(zoneUuid) {
   const [alarms, setAlarms] = useState(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  // The room the list shown was read for. Changing system keeps the old list
+  // up until the new one arrives, so a theme can move one into the other
+  // (lib/listMotion.js); until then nothing on it can be changed.
+  const [readFor, setReadFor] = useState(null)
+  const latest = useRef(0)
   // This browser belongs to no household, so it has no alarm list of its own
   // and the speakers refused its id. Chosen, it lists every household's
   // alarms, each read through one of that household's rooms; an alarm is
@@ -27,6 +32,7 @@ export function useAlarms(zoneUuid) {
   const readersKey = readers.join(',')
   const load = useCallback(() => {
     if (!zoneUuid) return
+    const asked = ++latest.current
     const read = every
       ? Promise.all(readers.map((uuid) => api.alarms(uuid))).then((lists) => {
         const all = lists.flatMap((r) => r.alarms || [])
@@ -34,10 +40,11 @@ export function useAlarms(zoneUuid) {
         return { alarms: [...all.filter((a) => !a.scene).map((a) => ({ ...a, ID: `${a.RoomUUID}|${a.ID}` })), ...scenes] }
       })
       : api.alarms(zoneUuid)
-    read.then((r) => { setAlarms(r.alarms || []); setError('') })
-      .catch((exc) => setError(exc.message))
+    read.then((r) => { if (asked === latest.current) { setAlarms(r.alarms || []); setReadFor(zoneUuid); setError('') } })
+      .catch((exc) => { if (asked === latest.current) { setAlarms(null); setReadFor(zoneUuid); setError(exc.message) } })
   }, [zoneUuid, readersKey])  // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { setAlarms(null); load() }, [load])
+  useEffect(() => { load() }, [load])
+  const switching = alarms !== null && readFor !== zoneUuid
   useEffect(() => { if (alarmsEpoch) load() }, [alarmsEpoch, load])
   // A save (create, update) the speakers refuse answers with their reason, for
   // the editor to show over itself; any other refusal is the list's error.
@@ -60,7 +67,7 @@ export function useAlarms(zoneUuid) {
     return [String(id).slice(0, cut), String(id).slice(cut + 1)]
   }
   return {
-    alarms, error, busy, refresh: load,
+    alarms, error, busy: busy || switching, refresh: load,
     toggle: (id, enabled) => { const [zone, own] = target(id); return apply(() => api.setAlarm(own, { zone, enabled })) },
     remove: (id) => { const [zone, own] = target(id); return apply(() => api.deleteAlarm(own, zone)) },
     create: (definition) => apply(() => api.createAlarm({ zone: every ? (definition.room_uuid || readers[0]) : zoneUuid, ...definition }), true),

@@ -1997,3 +1997,12 @@
 /* The Windows wizard's Authorize: one wide button centered in the page, as its
    account buttons are (240px, 2026-09-29). */
 :where(:root[data-layout]) .win-root .dk-add-flow .dk-add-authorize { display: block; width: 240px; margin: 18px auto 12px; }
+
+/* Alarm rows coming and going as the list changes (lib/listMotion.js): in one after another, out within 140ms. */
+@keyframes pt-in { from { opacity: 0; } }
+@keyframes pt-out { to { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  :where(:root[data-layout]) :is(.dk-alarms-table [data-motion="enter"], .win-alarms-row[data-motion="enter"]) { animation: pt-in 180ms ease-out min(calc(var(--motion-i, 0) * 25ms), 200ms) backwards; }
+  :where(:root[data-layout]) :is(.dk-alarms-table [data-motion="leave"], .win-alarms-row[data-motion="leave"]) { animation: pt-out 140ms ease-in forwards; }
+}
+:where(:root[data-layout]) :is(.dk-alarms-table [data-motion="leave"], .win-alarms-row[data-motion="leave"]) { pointer-events: none; }

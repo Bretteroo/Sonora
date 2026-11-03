@@ -14,6 +14,7 @@ import { serviceLinkedMessage, LinkedMessage } from '../../frontend/src/lib/serv
 import { zoneLabel } from '../../frontend/src/lib/timezones.js'
 import { useSleepTimer, SLEEP_CHOICES, sleepLabel, sleepClock } from '../../frontend/src/lib/useSleepTimer.js'
 import { useAlarms, recurrenceKey, recurrenceDays } from '../../frontend/src/lib/useAlarms.js'
+import { useListMotion } from '../../frontend/src/lib/listMotion.js'
 import AlarmEditorPanel from '../../frontend/src/components/AlarmEditorPanel.jsx'
 import TimeField from '../../frontend/src/components/TimeField.jsx'
 import { orderedHouseholds, twoLineMetadata, systemChoiceMatters } from '../../frontend/src/lib/format.js'
@@ -1999,6 +2000,7 @@ const DAY_LETTERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 export function Alarms({ zone, onClose }) {
   const { t } = useI18n()
   const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zone?.uuid)
+  const motion = useListMotion(alarms, (a) => a.ID)
   const { zoneList, households } = useSystem()
   // An alarm lives on a speaker, so the browser room is not one of these.
   const rooms = withoutBrowserRoom(zoneList).sort((a, b) => a.name.localeCompare(b.name))
@@ -2065,8 +2067,8 @@ export function Alarms({ zone, onClose }) {
           <div className="dk-table-body">
             {alarms === null && !error && <p className="dk-table-empty">{t('desk.browse.loading')}</p>}
             {error && <p className="dk-table-empty dk-add-error">{error}</p>}
-            {alarms && alarms.map((a) => (
-              <div key={a.ID} role="option" aria-selected={selected === a.ID} onClick={() => setSelected(a.ID)}
+            {motion.rows.map(({ item: a, ...row }) => (
+              <div key={a.ID} {...motion.bind(row)} role="option" aria-selected={selected === a.ID} onClick={() => setSelected(a.ID)}
                    onDoubleClick={() => setEditing(a)}>
                 <span><AlarmWhere alarm={a} t={t} empty="—" /></span>
                 <span>{when(a)}</span>

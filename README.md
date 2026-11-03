@@ -57,11 +57,11 @@ Sonora is not affiliated with Sonos, Inc. and was created by an enthusiastic end
 - 🎵 **All your music**
   - Enjoy streamed music services, local libraries, Sonos Favorites, and all your old playlists.
 - 🎤 **Lyrics**
-  - Follow along with the words to whatever's playing, timed to the music where possible,
+  - Follow along with the words to whatever's playing, timed to the music where possible.
 - 🏠 **Every room**
-  - Grouping, volume, EQ, sleep timers, and alarms are all included.
+  - Grouping, volume, EQ, sleep timers, and alarms (which can start a scene) are all included.
 - 🎬 **Scenes**
-  - One tap sets up a whole listening session: which devices or groups play, volumes for each, and what plays where.
+  - One tap sets up the whole evening: which devices play, what they play, and the volume and tone levels for each.
 - 📱 **A new virtual speaker: "This browser"**
   - Play audio through your browser as if it were one more room.
 - 🧭 **S2 upgrade advisor**
@@ -473,15 +473,12 @@ It's really not that hard. You'll figure it out!
 
 ### Music services
 
-To play a service that needs an account login, like AccuRadio or Spotify:
+To play a service that needs an account, like Spotify or Apple Music, add it in a Sonos app (S1 or S2). Sonora uses the login your speakers already keep, so the service shows up in Sonora too. A few services also ask to be signed in from Sonora; it will prompt you when one does.
 
-1. Add the service in Sonos' own app in the Sonos S1 or S2 controller (or both).
-2. Add the service a second time, this time in Sonora using the same credentials. (Sonora will prompt you to do this for each unlinked account.)
-
-Anonymous services that don't require logins (like Audacy) only need step 2.
+Services that need no login, like Audacy, work in Sonora right away.
 
 > [!NOTE]
-> A notable few music services will not allow themselves to be used with apps like Sonora.  **SoundCloud** is one example. For services like these, you can navigate their menus and initiate playback with an official Sonos controller, but will have only basic playback controls with Sonora.
+> Some services only answer Sonos' own apps. **YouTube Music**, for example, requires a private key that only Sonos has. Sonora tells you when a service refuses it. For those services, browse and start playback in a Sonos app, and Sonora will still give you the basic playback controls. Some services, like Tonada, can't be linked to an S1 system at all, even in Sonos' app.
 
 ### Virtual Room
 
@@ -491,7 +488,9 @@ This is experimental; many services will only permit streaming to a Sonos device
 
 ### Scenes
 
-One tap sets up a whole listening session: which devices or groups play, volumes for each, and what plays where. Because your Dinner Party might have cocktail music in the dining room, jazz in the living room, and EDM in the backyard while your bedrooms are silent.
+One tap sets up the whole evening: which devices play, what they play, and the volume and tone levels for each. Because your Dinner Party might have cocktail music in the dining room, jazz in the living room, and EDM in the backyard while your bedrooms are silent.
+
+Scenes can also be alarms: choose Sonora Scenes as an alarm's music, and Sonora sets the scene at that time. Sonora keeps these alarms itself, so they only go off while Sonora is running.
 
 ## 💙 Contributions
 
@@ -512,6 +511,7 @@ There are many streaming services, each sending out a variety of content types (
     - <a href="https://github.com/svrooij/sonos-net">sonos-net</a>
     - <a href="https://github.com/SoCo/SoCo">SoCo</a>
     - <a href="https://github.com/svrooij/node-sonos-ts">node-sonos-ts</a>
+    - <a href="https://github.com/BookCatKid/SoCo-music-services-and-more/tree/music-services">SoCo music-services fork</a> by BookCatKid
 
   - <b>Sources of Inspiration:</b>
     - <a href="https://github.com/sonos-web/sonos-web">Sonos Web</a>

@@ -16,6 +16,7 @@ const FALLBACKS = {
   track: Icon.GenericTrack,
   station: Icon.GenericStation,
   multi: Icon.GenericMulti,
+  multiTrack: Icon.GenericMultiTrack,
   container: Icon.GenericContainer,
   playlist: Icon.Playlist,
 }
@@ -120,8 +121,11 @@ export default function Art({ src, size = 16, alt = '', className, fallback = 'n
     // decode shows the disc while a row with no art at all shows the stack.
     // A surface that draws one picture whatever went wrong names it in
     // `brokenFallback` (the Mac app's Group Rooms shows its note either way).
+    const kind = offered ? brokenFallback : fallback
     const Glyph = (offered ? FALLBACKS[brokenFallback] || Icon.Disc : FALLBACKS[fallback]) || Icon.Note
-    return <Glyph width={size} height={size} aria-hidden="true" className={className} />
+    // The kind drawn is named on it, so a theme can give each placeholder the
+    // tile its app draws behind it.
+    return <Glyph width={size} height={size} aria-hidden="true" className={className} data-fallback={kind} />
   }
   return (
     // No Referer: some providers' image hosts refuse hot-linked requests

@@ -1218,7 +1218,8 @@ async def service_favorite(sid: int, body: FavoriteBody) -> dict:
             key=creds.get("key", ""),
             device_id=await ctl.device_serial(household))
     except Exception as exc:
-        raise HTTPException(502, f"{service.name} refused: {exc}") from None
+        raise HTTPException(502, await _fault_text(service, exc)
+                            or f"{service.name} refused: {exc}") from None
     return {"ok": True, "favorite": body.favorite}
 
 
@@ -1312,6 +1313,16 @@ _USER_PLAYLISTS = "playlists"
 _USER_PLAYLISTS_KNOWN: dict[tuple[str, int, str], tuple[float, bool]] = {}
 
 
+async def _fault_text(service, exc: Exception) -> str:
+    """The service's own words for its fault, or "" when it has none.
+
+    A service's strings table may name a message for the SonosError it sent,
+    and the Sonos apps show that rather than the fault; so does Sonora.
+    """
+    return await controller().presentation.error_message(
+        getattr(service, "manifest_uri", ""), getattr(exc, "sonos_error", None))
+
+
 @app.get("/api/services/{sid}/user-playlists")
 async def service_user_playlists(sid: int, zone: str | None = None, account: str = "",
                                  probe: bool = False) -> dict:
@@ -1384,7 +1395,8 @@ async def service_user_playlist_add(sid: int, body: UserPlaylistBody) -> dict:
         _USER_PLAYLISTS_KNOWN.pop((household.id, sid, body.account), None)
         return {"ok": True, "playlist": made, "created": True}
     except SmapiError as exc:
-        raise HTTPException(502, f"{service.name} refused: {exc}") from None
+        raise HTTPException(502, await _fault_text(service, exc)
+                            or f"{service.name} refused: {exc}") from None
 
 
 class UserPlaylistRemoveBody(BaseModel):
@@ -1408,7 +1420,8 @@ async def service_user_playlist_remove(sid: int, body: UserPlaylistRemoveBody) -
             household_id=household.id, token=creds.get("token", ""),
             key=creds.get("key", ""), device_id=await ctl.device_serial(household))
     except SmapiError as exc:
-        raise HTTPException(502, f"{service.name} refused: {exc}") from None
+        raise HTTPException(502, await _fault_text(service, exc)
+                            or f"{service.name} refused: {exc}") from None
     return {"ok": True}
 
 
@@ -3617,10 +3630,15 @@ async def browse_service(
             # after the item was wrong.
             # An item the service no longer has (a favorite kept past the
             # playlist it pointed at) is said plainly, not as the fault's text.
+            # A service may word the fault itself (Apple Music's "For You"
+            # before the account has chosen any genres): that is shown as the
+            # service's message, as the Sonos apps show it, not as a failure.
+            said = "" if exc.missing else await _fault_text(service, exc)
             payload["error"] = {
                 "message": (f"{service.name} no longer has this item." if exc.missing else str(exc)),
                 "needs_auth": exc.needs_auth and item == "root",
                 "missing": exc.missing,
+                "from_service": bool(said),
             }
             return payload
 
@@ -4237,7 +4255,7 @@ async def rate_browser_item(body: BrowserRateBody) -> dict:
     except SmapiError as exc:
         log.warning("%s refused rating %s for %s in the browser room: %s",
                     service.name, body.rating, body.item_id, exc)
-        raise HTTPException(502, str(exc)) from exc
+        raise HTTPException(502, await _fault_text(service, exc) or str(exc)) from exc
     skip = str(button.get("auto_skip", "")).upper() == "ALWAYS" or answer.should_skip
     message = (await _rating_texts(service)).get(int(body.rating), "")
     if answer.message_string_id:

@@ -934,6 +934,13 @@
    folders and on the Songs list's Play row. Sonora's own drawing, sized and
    colored to that. */
 :where(:root[data-theme='windows']) .win-root .dk-browse-art:has(> .dk-browse-stack) { width: 40px; height: 40px; border-radius: 0; background: #262626; display: grid; place-items: center; }
+/* The folder tile on a container with no art (Apple Music's Radio shelves,
+   Amazon Music's home rows) sits on the same #262626 square in the app. */
+:where(:root[data-theme='windows']) .win-root .dk-browse-art:has(> svg:is([data-fallback='container'], [data-fallback='multiTrack'])) { background: #262626; }
+/* A picture the service sends is drawn straight on the row, as the app draws
+   it: Apple Music's Library icons are transparent, and the box's own dark
+   square showed through them; the app keeps that square for placeholders. */
+:where(:root[data-theme='windows']) .win-root .dk-browse-art:has(> img) { background: transparent; }
 :where(:root[data-theme='windows']) .win-root .dk-browse-art > svg.dk-browse-stack, :where(:root[data-theme='windows']) .win-root .dk-browse-art:not(.dk-browse-glyph) > svg.dk-browse-stack { width: 30px; height: 30px; }
 :where(:root[data-theme='windows']) .win-root .dk-browse-stack > rect:first-child { display: none; }
 :root[data-theme='windows'] .win-root .dk-browse-stack > rect:not(:first-child),
@@ -1394,7 +1401,7 @@
 :where(:root[data-theme='windows']) .win-root .dk-browse-check { color: #979797; width: 30px; }
 /* Drawn edge to edge: the box is the full 16px on Windows, where the shared
    glyph keeps a one-pixel inset for the Mac. */
-:where(:root[data-theme='windows']) .win-root .dk-browse-check svg rect { x: 0.5px; y: 0.5px; width: 15px; height: 15px; }
+:where(:root[data-theme='windows']) .win-root .dk-browse-check svg rect { x: 0.5px; y: 0.5px; width: 15px; height: 15px; rx: 2.5px; ry: 2.5px; }
 :where(:root[data-theme='windows']) .win-root .dk-browse-row:has(.dk-browse-check) .dk-browse-actions { margin-right: -2px; }
 
 /* Queue rows as the app draws them (observed 2026-09-05): 40px art, title
@@ -1645,7 +1652,9 @@
    2026-09-14). Firefox on GNOME paints overlay scrollbars, so
    scrollbar-gutter reserves nothing there; the strip is padding instead, and
    a thumb, when there is one, rides over it as the app's does. */
-:where(:root[data-theme='windows']) .win-root .dk-scroll .dk-browse-row { padding-right: 25px; }
+/* 24px, not 25: the chevron, caret and checkbox each sat 1px left of the app's
+   (Apple Music's Top Albums, Top Songs and a track row, 2026-11-02). */
+:where(:root[data-theme='windows']) .win-root .dk-scroll .dk-browse-row { padding-right: 24px; }
 
 /* Error Log (500x500): the text box 20px in over a 60px foot. */
 /* main/errorlogwindow.xaml is 500x500, Title "Sonos System Error Log",

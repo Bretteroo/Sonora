@@ -365,6 +365,36 @@ export const GenericMulti = (p) => (
     <path d="M11.4 7.8 9.2 8.4v2.9a.95.95 0 1 0 .6.9V9.1l1.6-.45z" fill="#2b2b2b" />
   </svg>
 )
+// A list of tracks with no art of its own, as the Windows app draws it: three
+// squares stepping down to the right, the front one with a pair of notes cut
+// out (every genre under Apple Music's New > Top Songs, measured 2026-11-02:
+// 20px of #666666 ink, squares 14px on a 3px step, in the middle of the 40px
+// tile). Sonora's own drawing on a 20-unit grid inside a 40-unit view, one
+// unit to the pixel at the 40px the Windows theme draws a placeholder.
+export const GenericMultiTrack = (p) => {
+  const id = React.useId()
+  return (
+    <svg viewBox="-10 -10 40 40" {...p}>
+      <defs>
+        <mask id={id}>
+          <rect width="20" height="20" fill="#fff" />
+          <g fill="#000">
+            <ellipse cx="10.1" cy="16.1" rx="1.7" ry="1.35" />
+            <ellipse cx="15.3" cy="15.1" rx="1.7" ry="1.35" />
+            <rect x="11.3" y="10.3" width="1.2" height="5.8" />
+            <rect x="16.5" y="9.3" width="1.2" height="5.8" />
+            <path d="M11.3 9.5 17.7 8.5v1.9l-6.4 1z" />
+          </g>
+        </mask>
+      </defs>
+      <g fill="#666666">
+        <path d="M0 0h14v2H2v12H0z" />
+        <path d="M3 3h14v2H5v12H3z" />
+        <rect x="6" y="6" width="14" height="14" mask={`url(#${id})`} />
+      </g>
+    </svg>
+  )
+}
 // A container that brings no art and no kind: what the app shows for every
 // row of Amazon Music's home and TuneIn's Change Location rows. The app's
 // tile is a folder with notes cut out of it; this is Sonora's own drawing of

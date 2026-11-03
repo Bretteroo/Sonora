@@ -299,7 +299,7 @@ export default function Browse({
         else setError(result.error.needs_auth
           ? t('services.needsSignIn', { service: node.serviceName || node.title })
           : result.error.message)
-        setFailed(!result.error.needs_auth)
+        setFailed(!result.error.needs_auth && !result.error.from_service)
       }
       setLoading(false)
       if (scroller.current) scroller.current.scrollTop = 0
@@ -1013,7 +1013,10 @@ export default function Browse({
   // a star, and over the library's Songs list (measured 2026-09-20).
   // The library's Songs list is a playlist to the speaker but has no cover:
   // its Play row wears the stack glyph (S2 Windows app, 2026-09-29).
-  const coverOnPlayRow = (node.kind === 'album' || node.kind === 'playlist') && node.id !== 'A:TRACKS'
+  // A service's playlist opens on the multi-track tile, not its cover (Apple
+  // Music's ALT CTRL, 2026-11-02); an album, and a Sonos playlist, keep theirs.
+  const coverOnPlayRow = (node.kind === 'album' || (node.kind === 'playlist' && !node.service))
+    && node.id !== 'A:TRACKS'
   // The library's lists of artists, albums, composers and genres open with
   // their first row, not Play and Shuffle: the S2 app has those rows over
   // Songs and over an album, not over the lists that lead to them.
@@ -1407,11 +1410,15 @@ export default function Browse({
                      onContextMenu={(event) => { event.preventDefault(); setMenu({ item: albumItem(), x: event.clientX, y: event.clientY }) }}>
                   {/* An album's Play row carries the album's art; the library's
                       Songs list, which has none, wears the library's own stack
-                      glyph there, as the app draws it (2026-09-14). */}
-                  <span className={`dk-browse-art${coverOnPlayRow ? '' : ' dk-browse-glyph'}`}>
+                      glyph there, as the app draws it (2026-09-14); a service's
+                      list of tracks wears the multi-track tile its rows do
+                      (Apple Music's Top Songs, 2026-11-02). */}
+                  <span className={`dk-browse-art${coverOnPlayRow || node.service ? '' : ' dk-browse-glyph'}`}>
                     {coverOnPlayRow
                       ? <><Art src={node.art} size={40} fallback="disc" /><Icon.Play className="dk-album-play-badge" /></>
-                      : <Icon.Stack className="dk-browse-stack" width={40} height={40} />}
+                      : node.service
+                        ? <Icon.GenericMultiTrack width={40} height={40} aria-hidden="true" data-fallback="multiTrack" />
+                        : <Icon.Stack className="dk-browse-stack" width={40} height={40} />}
                   </span>
                   <span className="dk-browse-text"><p className="dk-browse-title">{t('common.play')}</p></span>
                   {/* The Play row carries the album's own menu (observed
@@ -1678,12 +1685,26 @@ function Row({ item, root, displayTypes = {}, library = '', songArt = false, und
   // the biggest hits and best new Country." under Today's New Country, Most
   // Popular Channels, 2026-09-22.
   const typed = declared && (!declared.mode || ['LIST', 'EDITORIAL'].includes(declared.mode)) ? declared : null
-  const lineOf = (token) => (token === 'title' ? item.title
+  const field = (token) => (token === 'title' ? item.title
     : token === 'artist' ? (item.artist || item.author || '')
     : token === 'album' ? (item.album || '')
     : token === 'summary' ? (item.summary || '') : '')
-  const typedSecond = typed && typed.lines?.length > 1
-    ? typed.lines.slice(1).map(lineOf).filter(Boolean).join(' – ') : ''
+  // A line may be the service's own wording with fields in braces: Apple
+  // Music's TopItem titles its rows "{summary}. {title}", the chart position
+  // in summary ("1. Thriller"), and its library songs read "{artist} -
+  // {album}" (Windows app, 2026-11-02). One missing a field is left out.
+  const lineOf = (token) => {
+    if (!token?.startsWith('tmpl:')) return field(token)
+    let missing = false
+    const text = token.slice(5).replace(/\{(\w+)\}/g, (_, name) => field(name) || ((missing = true), ''))
+    return missing ? '' : text
+  }
+  // The row's first line is its title unless the service words it itself.
+  const typedTitle = typed?.lines?.[0]?.startsWith('tmpl:') ? lineOf(typed.lines[0]) : ''
+  // Only the second line shows, whatever the type names after it: Apple
+  // Music's Sessions albums (AlbumView: title, artist, summary) read the
+  // artist alone in the app, where Sonora had joined the summary on.
+  const typedSecond = typed && typed.lines?.length > 1 ? lineOf(typed.lines[1]) : ''
   // Inline for a row that only leads somewhere; on two lines for one that can
   // play. Plex's libraries (no canPlay) read "Comedy Albums / Burrito", its
   // playlists (canPlay) and Pandora's stations read their second line under
@@ -1692,7 +1713,9 @@ function Row({ item, root, displayTypes = {}, library = '', songArt = false, und
   // service's second line grey under the title -- Plex's artist "The
   // Beatles" over "in 3 locations", Windows app 2026-10-02.
   const inline = Boolean(typedSecond) && !item.can_play && !typed.mode && !match
-  const titleText = inline ? `${item.title} / ${typedSecond}` : item.title
+  const parentSecond = !typed && !item.is_container && Array.isArray(parentLines) && parentLines.length > 1
+    ? lineOf(parentLines[1]) : ''
+  const titleText = inline ? `${typedTitle || item.title} / ${typedSecond}` : (typedTitle || item.title)
   // A podcast episode is dated, not attributed: the app prints its release
   // date under the title (Pocket Casts, "9/11/2026", 2026-09-14) where a
   // track gets its artist. Keyed on the SMAPI semanticType, so every
@@ -1715,7 +1738,12 @@ function Row({ item, root, displayTypes = {}, library = '', songArt = false, und
   // and every search (Windows app, 2026-09-22). Playlists keep their owner
   // regardless: Spotify's mixes, in a CAROUSEL, still read "Spotify".
   const pageDropsArtist = Array.isArray(parentLines) && !parentLines.includes('artist')
-  const onArtistPage = (library === 'artist' || under === 'artist' || pageDropsArtist)
+  // A row that names its own type keeps what that type names over the page's
+  // rule: Apple Music's Top Albums (on an AlbumListView, no lines) are
+  // TopItem rows and read their artist under the title in the app
+  // (2026-11-02). Spotify's albums name no type, only an item type.
+  const ownType = Boolean(typed && item.display_type)
+  const onArtistPage = (library === 'artist' || under === 'artist' || (pageDropsArtist && !ownType))
     && (item.item_type || item.kind) === 'album'
   // The same holds for a track: on a page that drops the artist, it reads by its title alone. Plex's
   // song search opens a song onto its copies, one "Music / on <server>" row per library, and each of
@@ -1730,6 +1758,11 @@ function Row({ item, root, displayTypes = {}, library = '', songArt = false, und
   const sub = root || number || onArtistPage || trackTitleAlone ? (root ? item.sub || '' : '') : (favorite && item.description)
     || (typed ? (inline ? '' : typedSecond)
         : episode ? shortDate(item.release_date)
+        // A row naming no type of its own reads the second line its page
+        // names for its rows: the tracks of an Apple Music playlist
+        // (PlaylistView: title, artist, summary) print their artist alone
+        // in the app, where Sonora gave "artist – album" (2026-11-02).
+        : parentSecond ? parentSecond
         // The artist line belongs to what is or holds music -- a track, an
         // album -- and not to a container that merely names one: a podcast
         // show carries its producer as <artist> and the app prints the
@@ -2224,14 +2257,17 @@ const TUNEIN_ICONS = 'http://cdn-albums.tunein.com/sonos'
 
 function genericArt(item) {
   const kind = item.item_type || ''
-  if (item.playlist || kind === 'playlist' || kind === 'albumList') return 'playlist'
+  if (item.playlist || kind === 'playlist') return 'playlist'
   if (kind === 'stream' || kind === 'program' || item.radio) return 'station'
   if (item.is_container || item.container) {
     if (kind === 'album') return 'disc'
-    // A container the service says nothing more about than "container" gets
-    // the folder tile, which is what the app shows for Amazon Music's home
-    // rows; a list of tracks it names (albumList, trackList) gets the stack.
-    return kind === 'container' || !kind ? 'container' : 'multi'
+    // The folder tile, as the app draws it: on a container the service says
+    // nothing more about (Amazon Music's home rows), on Apple Music's shelves
+    // ("collection": Radio's Featured, Artists Take Over...) and on its lists
+    // of albums ("albumList": every genre under New > Top Albums). Any other
+    // list it names gets the multi-track tile (trackList: Top Songs' genres).
+    const folder = ['container', 'collection', 'albumList']
+    return folder.includes(kind) || !kind ? 'container' : 'multiTrack'
   }
   return kind === 'track' || kind === 'episode' ? 'track' : 'disc'
 }

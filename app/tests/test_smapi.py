@@ -138,3 +138,20 @@ def test_service_kinds_follow_the_apps_rule():
     # Declared kinds are the answer, whatever the words say.
     assert service_categories({"name": "Radio X", "resource_types": ["PODCAST"], "about": about("radio")}) == ["PODCASTS"]
     assert service_categories({"name": "Quiet", "about": {}}) == []
+
+
+def test_a_line_named_by_string_reads_its_text():
+    # Apple Music's TopItem titles its rows from a string with fields in
+    # braces, and its PlaylistView names fields by stringId with no string
+    # behind them; those count as the field they name.
+    from backend.sonos.presentation import _parse_display_types, _resolve_lines
+    pmap = ('<Presentation><PresentationMap type="DisplayType">'
+            '<DisplayType id="TopItem"><Lines><Line stringId="Numbered_Title"/><Line token="artist"/></Lines></DisplayType>'
+            '<DisplayType id="PlaylistView"><DisplayMode>HERO</DisplayMode><Lines><Line stringId="title"/>'
+            '<Line stringId="artist"/></Lines><Header><Line stringId="summary"/></Header></DisplayType>'
+            '</PresentationMap></Presentation>')
+    resolved = _resolve_lines(_parse_display_types(pmap), {"Numbered_Title": "{summary}. {title}"})
+    assert resolved["TopItem"]["lines"] == ["tmpl:{summary}. {title}", "artist"]
+    # The header's lines are not the rows' lines.
+    assert resolved["PlaylistView"]["lines"] == ["title", "artist"]
+

@@ -208,6 +208,23 @@ class Presentation:
                 return swapped
         return url
 
+    async def error_message(self, manifest_uri: str, sonos_error: int | None,
+                            language: str = "") -> str:
+        """The service's own words for a fault's SonosError, or "".
+
+        A service's strings table may carry ``Error<N>Message`` for the codes
+        it sends, and the Sonos apps show that text in place of the fault:
+        Apple Music answers "For You" with SonosError 10 until the account has
+        picked some genres, and its Error10Message says how to do that.
+        """
+        if sonos_error is None or not manifest_uri:
+            return ""
+        try:
+            view = await self.info_view(manifest_uri, language)
+        except Exception:  # the words are a nicety; the fault still stands
+            return ""
+        return ((view.get("strings") or {}).get(f"Error{sonos_error}Message") or "").strip()
+
     async def ratings(self, manifest_uri: str, language: str = "en") -> dict:
         """The service's Now Playing rating buttons.
 
@@ -237,7 +254,7 @@ class Presentation:
             entry["label"] = strings.get(entry["string_id"], "")
         propname, ratings, kinds = _parse_ratings(pmap) if pmap else ("", {}, {})
         search = _parse_search(pmap) if pmap else []
-        display_types = _parse_display_types(pmap) if pmap else {}
+        display_types = _resolve_lines(_parse_display_types(pmap), strings) if pmap else {}
         art_sizes = _parse_sizes(pmap, "ArtWorkSizeMap", "imageSizeMap") if pmap else []
         icon_sizes = _parse_sizes(pmap, "BrowseIconSizeMap", "browseIconSizeMap") if pmap else []
         for buttons in ratings.values():
@@ -285,8 +302,39 @@ def _parse_display_types(text: str) -> dict:
     for node in re.finditer(r'<DisplayType\s+id="([^"]+)"[^>]*>(.*?)</DisplayType>',
                             block.group(1), re.S):
         mode = re.search(r"<DisplayMode>\s*([^<\s]+)\s*</DisplayMode>", node.group(2))
-        lines = re.findall(r'<Line\s+token="([^"]+)"', node.group(2))
+        # Only the row's own Lines, not a Header's. A line is a field
+        # (token="artist") or a string from the strings table
+        # (stringId="Numbered_Title"), kept as "string:<id>" for _read to
+        # turn into its text.
+        rows = re.search(r"<Lines>(.*?)</Lines>", node.group(2), re.S)
+        lines = [f"string:{value}" if kind == "stringId" else value
+                 for kind, value in re.findall(r'<Line\s+(token|stringId)="([^"]+)"',
+                                               rows.group(1) if rows else "")]
         out[node.group(1).strip()] = {"mode": mode.group(1) if mode else "", "lines": lines}
+    return out
+
+
+def _resolve_lines(display_types: dict, strings: dict) -> dict:
+    """Each "string:<id>" line as the text it names, in the reader's language.
+
+    Apple Music's TopItem shows Numbered_Title ("{summary}. {title}", the
+    chart position in summary) over the artist, and its library songs
+    Artist_And_Album ("{artist} - {album}") under the title, both as the
+    Windows app prints them (2026-11-02). Such a line becomes "tmpl:" and its
+    text, the fields in braces filled in by the page. A string the table does
+    not hold is taken as the field it names: Apple's PlaylistView names
+    stringId="artist", which the table has no entry for.
+    """
+    out: dict = {}
+    for type_id, entry in display_types.items():
+        lines = []
+        for line in entry.get("lines", []):
+            if line.startswith("string:"):
+                name = line[len("string:"):]
+                text = strings.get(name, "")
+                line = f"tmpl:{text}" if text else name
+            lines.append(line)
+        out[type_id] = {**entry, "lines": lines}
     return out
 
 

@@ -1135,6 +1135,13 @@
 .mac-root .dk-browse-art > svg.dk-browse-stack,
 .mac-root .dk-browse-art.dk-browse-glyph > svg.dk-browse-stack { width: 30px; height: 30px; }
 .mac-root .dk-browse-art > svg.dk-browse-folder { width: 40px; height: 40px; }
+/* A service's rows with no art of their own sit on the same #262626 square
+   as the library's (Apple Music's shelves and genres, Mac app 2026-11-02),
+   and a picture the service sends sits straight on the row: Apple Music's
+   Library icons are transparent, and the box's own square showed through. */
+.mac-root .dk-browse-art:has(> svg:is([data-fallback='container'], [data-fallback='multiTrack'])) { background: #262626; }
+.mac-root .dk-browse-art > svg:is([data-fallback='container'], [data-fallback='multiTrack']) { width: 40px; height: 40px; }
+.mac-root .dk-browse-art:has(> img) { background: transparent; }
 .mac-root .dk-browse-stack > rect:first-child { display: none; }
 .mac-root .dk-browse-stack > rect:not(:first-child), .mac-root .dk-browse-stack > path { stroke: #666666; }
 .mac-root .dk-browse-row.dk-album-play { padding-left: 8px; gap: 8px; }

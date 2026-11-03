@@ -67,6 +67,13 @@ export function NowPlaying({ zone, onInfo, onMessage, groupLabel = '', onArt, ne
   // (CBC Radio One from CBC Radio & Music), has one line in the Windows app:
   // On Now, over the station, and no Song or Artist (2026-10-24). One that
   // names its song, from keyed stream text, keeps Song and Artist.
+  // A broadcast whose speaker names the song on air in keyed stream text, on
+  // an HLS radio track: Apple Music Hits reads On Now / Artist / Album in the
+  // Windows app, with Apple Music over the station under the art
+  // (2026-11-02). Only this case is known: TuneIn's keyed BBC Radio 1 (an
+  // http stream) showed none of its song there (issue 19).
+  const liveSong = broadcast && /^hls-radio:/.test(transport.track_uri || '')
+    && Boolean(transport.artist) && Boolean(transport.title) && transport.title !== transport.container_title
   const hlsStation = !broadcast && /^x-sonosapi-hls:/.test(transport.media_uri || '')
     && !transport.artist && (!transport.title || transport.title === transport.container_title)
   // The built-in TuneIn, sid 254. S2's "TuneIn (New)" is a different service
@@ -166,6 +173,12 @@ export function NowPlaying({ zone, onInfo, onMessage, groupLabel = '', onArt, ne
     : hlsStation
     ? [
         [t('desk.now.onNow'), transport.title || transport.container_title || '', true],
+      ]
+    : liveSong
+    ? [
+        [t('desk.now.onNow'), transport.title, true],
+        [t('desk.now.artist'), transport.artist, true],
+        [t('desk.now.album'), transport.album || '', Boolean(transport.album)],
       ]
     : broadcast
     ? [
@@ -287,7 +300,7 @@ export function NowPlaying({ zone, onInfo, onMessage, groupLabel = '', onArt, ne
             prints the name in its place. */}
         {broadcast && tuneIn ? (
           <p className="dk-now-badge">TuneIn</p>
-        ) : broadcast ? null : audiobook ? (
+        ) : broadcast && !liveSong ? null : audiobook ? (
           // The app names the book under a chapter's art wherever it plays
           // from (Windows app, 2026-09-07), ahead of the queue's "Next".
           <p className="dk-now-source">

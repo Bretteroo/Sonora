@@ -241,8 +241,9 @@ def keyed_song(text: str) -> tuple[str, str, str] | None:
     Some stations announce what is on air as fields rather than a sentence:
     ``TYPE=SNG|TITLE Midnight Sun|ARTIST Zara Larsson|ALBUM `` (TuneIn's BBC
     Radio 1, and private SMAPI stations reported in issue 19). The S2 app
-    shows that as the song and its artist; the S1 Windows app shows nothing
-    of it. Sonora shows the song. Only ``TYPE=SNG`` is a song: any other type
+    shows that as the song and its artist. The S1 Windows app showed nothing
+    of it on TuneIn's BBC Radio 1, but prints it as On Now / Artist / Album
+    for Apple Music's HLS radio (2026-11-02). Sonora shows the song. Only ``TYPE=SNG`` is a song: any other type
     (an advert, the station naming itself) gives None, as does a song with no
     title.
     """

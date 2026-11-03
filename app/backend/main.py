@@ -1559,16 +1559,27 @@ async def _album_track(session: dict) -> dict | None:
     over, as a speaker skips one it cannot play.
     """
     ctl = controller()
-    while session["pos"] + 1 < len(session["tracks"]):
+    # One track the service will not serve is passed over; a run of them is
+    # the service refusing Sonora, the same answer for every track, and
+    # asking about each in turn ran a 25-track Apple Music playlist through
+    # its rate limit (VelocityExceeded) in two seconds, ahead of a speaker's
+    # own request for the same account (2026-11-02). So a refusal ends the
+    # walk at once, and two misses in a row end it too.
+    misses = 0
+    while session["pos"] + 1 < len(session["tracks"]) and misses < 2:
         session["pos"] += 1
         item = session["tracks"][session["pos"]]
         try:
             answer = await ctl.smapi.get_media_uri(item_id=item.id, **_track_context(session, item))
         except Exception as exc:
             log.info("no URL for %s: %s", item.id, exc)
+            if isinstance(exc, SmapiError) and not exc.missing:
+                return None
+            misses += 1
             continue
         url = _page_playable(answer.get("url"))
         if not url:
+            misses += 1
             continue
         session["at"] = time.time()
         session["playing"] = True
@@ -1818,6 +1829,20 @@ async def _stream_facts(item: str, service, context: dict) -> dict:
     return {"track": _track_facts(found)} if found is not None else {}
 
 
+async def _variant_protected(url: str) -> bool:
+    """Whether an HLS variant's playlist names a key only the service can open."""
+    if not fetchguard.safe_to_fetch(url):
+        return False
+    try:
+        async with state["outward"].get(url, headers={"Range": "bytes=0-8191"},
+                                        timeout=aiohttp.ClientTimeout(total=15)) as answer:
+            body = (await answer.content.read(8192)).decode("utf-8", "replace")
+    except Exception as exc:
+        log.info("could not read the variant %s: %s", url, exc)
+        return False
+    return localplay.hls_is_protected(body)
+
+
 async def _followed(url: str, depth: int = 2) -> dict:
     """The URL the page should actually load.
 
@@ -1839,6 +1864,7 @@ async def _followed(url: str, depth: int = 2) -> dict:
             async with session.get(seen, headers={"Range": "bytes=0-8191", "Icy-MetaData": "1"},
                                    timeout=aiohttp.ClientTimeout(total=20)) as answer:
                 kind = answer.headers.get("Content-Type", "")
+                where = str(answer.url)
                 if not localplay.looks_like_playlist(kind, str(answer.url)):
                     # A stream that carries its own titles says so here; the
                     # page cannot read them, so Sonora will (see stream_audio).
@@ -1852,6 +1878,10 @@ async def _followed(url: str, depth: int = 2) -> dict:
         if found["hls"] and localplay.hls_is_protected(body):
             return {"url": "", "reason": "protected"}
         if found["hls"]:
+            # The keys are in a variant's own playlist, not the master's.
+            variant = localplay.hls_first_variant(body, where)
+            if variant and await _variant_protected(variant):
+                return {"url": "", "reason": "protected"}
             # A manifest, not a list of streams: the page plays it with hls.js
             # (Firefox has no HLS of its own), so it goes back as it is.
             return {"url": seen, "reason": "", "hls": True}

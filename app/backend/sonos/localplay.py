@@ -21,6 +21,7 @@ service token or an SMB client, and neither belongs in the page.
 from __future__ import annotations
 
 import re
+from urllib.parse import urljoin
 import urllib.parse
 
 #: Scheme prefixes that are a plain URL underneath, with the scheme to assume
@@ -121,22 +122,51 @@ def hls_is_protected(body: str) -> bool:
     only a player that knows how the service turns that into a key can decode
     the segments. Sonora does not, and will not work it out: that is the
     service's access control, not a bug.
+
+    A DRM system's key is locked the same way: Apple Music's live radio names
+    a FairPlay key (``METHOD=SAMPLE-AES``, ``URI="skd://…"``,
+    ``KEYFORMAT="com.apple.streamingkeydelivery"``, measured 2026-11-02), and
+    Widevine and PlayReady name theirs alike. Any key format but the plain
+    "identity" one, or a key a browser cannot fetch over http(s), is one only
+    the service's own players can open.
     """
     for line in (body or "").splitlines():
         if not line.startswith(("#EXT-X-KEY", "#EXT-X-SESSION-KEY")):
             continue
         if "METHOD=NONE" in line:
             continue
+        keyformat = re.search(r'KEYFORMAT="([^"]*)"', line)
+        if keyformat and keyformat.group(1) != "identity":
+            return True
         match = re.search(r'URI="([^"]*)"', line)
         if match is None:
             return True
         uri = match.group(1)
-        if not uri.startswith("data:"):
-            continue        # a real key URL: any player can fetch it
-        payload = uri.split(",", 1)[1] if "," in uri else ""
-        if len(payload.encode("utf-8", "replace")) != 16:
-            return True
+        if uri.startswith("data:"):
+            payload = uri.split(",", 1)[1] if "," in uri else ""
+            if len(payload.encode("utf-8", "replace")) != 16:
+                return True
+        elif not uri.lower().startswith(("http://", "https://")):
+            return True     # a scheme only a DRM client resolves (skd:)
     return False
+
+
+def hls_first_variant(body: str, base: str) -> str:
+    """The first stream a master manifest offers, as a full URL, or "".
+
+    A master manifest names only its variants; the keys are in each variant's
+    own playlist (Apple Music's live radio, 2026-11-02), so whether a stream
+    is locked is read from there.
+    """
+    lines = (body or "").splitlines()
+    for index, line in enumerate(lines):
+        if not line.startswith("#EXT-X-STREAM-INF"):
+            continue
+        for following in lines[index + 1:]:
+            following = following.strip()
+            if following and not following.startswith("#"):
+                return urljoin(base, following)
+    return ""
 
 
 def playlist_streams(body: str) -> dict:

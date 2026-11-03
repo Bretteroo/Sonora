@@ -125,7 +125,11 @@ export function twoLineMetadata(transport, t) {
   // its name. The Windows app on 2026-09-23: "Radio - harmony Feelings" under
   // a TuneIn room, "Progressive House Radio" and "Chill" under the others,
   // and "Chill" alone in Group Rooms.
-  if (station && !artist && (!title || title === station)) {
+  // An HLS radio station keeps that line though its speaker names the song on
+  // air: Apple Music Hits read "Radio - Apple Music Hits" under the room
+  // while Now Playing printed its song (Windows app, 2026-11-02).
+  const hlsRadio = /^hls-radio:/.test(transport.track_uri || '')
+  if (station && (hlsRadio || (!artist && (!title || title === station)))) {
     if (source === 'service_radio') return { line1: station, line2: '' }
     return { line1: label(sourceKey(source), 'Radio'), line2: station }
   }

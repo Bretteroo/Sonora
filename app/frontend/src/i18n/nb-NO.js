@@ -644,6 +644,7 @@ export default {
   'desk.sleep.off': 'Av',
   'desk.sleep.hours.one': '{count} time',
   'desk.sleep.hours.other': '{count} timer',
+  'services.refusesSonora': '{service} svarer bare Sonos-appene, så Sonora kan ikke bla eller søke i den.',
   'services.needsSignIn':
     '{service} må ha en pålogging før den viser noe. Koble den til Sonora '
     + 'for å bla gjennom den her; alt derfra som er lagret i Sonos-favoritter '
@@ -1012,11 +1013,7 @@ export default {
     + 'leverandøren logger ikke på en kontroller som ikke er fra Sonos.',
   'desk.add.auth.DeviceLink': 'Logg på hos leverandøren',
   'desk.add.auth.AppLink': 'Logg på hos leverandøren, hvis det tilbys',
-  'desk.add.needsApp':
-    '{service} tillater ikke pålogging fra Sonora; leverandøren godtar bare '
-    + 'pålogging via den offisielle Sonos-appen. Legg den til der for å bruke '
-    + 'den i Sonos-appene. Alt derfra som er lagret i Sonos-favoritter eller '
-    + 'Sonos-spillelister, spilles fortsatt i Sonora.',
+  'desk.add.needsApp': '{service} tillater ikke pålogging fra Sonora; leverandøren godtar bare den første påloggingen via de offisielle Sonos-appene. Når du har lagt den til der, kan du bruke den fullt ut i Sonora.',
   'desk.add.instructions': 'Gå til {url}, logg på og skriv inn denne koden:',
   'desk.add.instructionsNoCode':
     'Gå til {url} og logg på for å godkjenne Sonos.',
@@ -1084,9 +1081,7 @@ export default {
   'services.removing': 'Fjerner {service}…',
   'services.removeFailed': 'Kunne ikke fjerne {service}: {error}',
   'services.removeFromSonos': 'Fjern fra Sonos',
-  'services.removeSonosBody':
-    'Fjerne {service} fra Sonos-systemet ditt? Den fjernes for alle '
-    + 'Sonos-apper, ikke bare Sonora.',
+  'services.removeSonosBody': 'Dette fjerner den fra Sonora og alle Sonos-apper i systemet ditt.',
   'services.removeSonoraBody': 'Fjerne {service} fra Sonora? Sonora glemmer påloggingen.',
   'desk.add.doneSonora.multi':
     '{service} er nå koblet til i Sonora.\nDu må også koble til {service} en '

@@ -648,6 +648,7 @@ export default {
   'desk.sleep.off': 'Désactivé',
   'desk.sleep.hours.one': '{count} heure',
   'desk.sleep.hours.other': '{count} heures',
+  'services.refusesSonora': '{service} ne répond qu\'aux apps Sonos : Sonora ne peut donc ni le parcourir ni y faire de recherche.',
   'services.needsSignIn':
     '{service} exige une connexion avant d’afficher quoi que ce soit. '
     + 'Associe-le à Sonora pour le parcourir ici ; ce qui en a été enregistré '
@@ -1031,12 +1032,7 @@ export default {
     + 'son fournisseur refuse de connecter un contrôleur non Sonos.',
   'desk.add.auth.DeviceLink': 'Connexion sur le site du fournisseur',
   'desk.add.auth.AppLink': 'Connexion sur le site du fournisseur, si proposée',
-  'desk.add.needsApp':
-    '{service} n’autorise pas la connexion depuis Sonora ; son fournisseur '
-    + 'n’accepte la connexion que via l’application Sonos officielle. '
-    + 'Ajoute-le là-bas pour l’utiliser dans les applications Sonos. Ce qui '
-    + 'en a été enregistré dans les Favoris Sonos ou les listes de lecture '
-    + 'Sonos reste lisible dans Sonora.',
+  'desk.add.needsApp': '{service} n’autorise pas la connexion depuis Sonora ; son fournisseur n’accepte la première connexion que via les applications Sonos officielles. Une fois ajouté là-bas, tu peux l’utiliser pleinement dans Sonora.',
   'desk.add.instructions': 'Va sur {url}, connecte-toi et saisis ce code :',
   'desk.add.instructionsNoCode':
     'Va sur {url} et connecte-toi pour autoriser Sonos.',
@@ -1105,9 +1101,7 @@ export default {
   'services.removing': 'Suppression de {service}…',
   'services.removeFailed': 'Impossible de supprimer {service} : {error}',
   'services.removeFromSonos': 'Supprimer de Sonos',
-  'services.removeSonosBody':
-    'Supprimer {service} de ton système Sonos ? Il sera retiré de toutes '
-    + 'les applications Sonos, pas seulement de Sonora.',
+  'services.removeSonosBody': 'Cela le supprimera de Sonora et de toutes les apps Sonos de ton système.',
   'services.removeSonoraBody': 'Retirer {service} de Sonora ? Sonora oublie sa connexion.',
   'desk.add.doneSonora.multi':
     '{service} est maintenant associé dans Sonora.\nTu devras également '

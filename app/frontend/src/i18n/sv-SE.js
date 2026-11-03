@@ -641,6 +641,7 @@ export default {
   'desk.sleep.off': 'Av',
   'desk.sleep.hours.one': '{count} timme',
   'desk.sleep.hours.other': '{count} timmar',
+  'services.refusesSonora': '{service} svarar bara Sonos-apparna, så Sonora kan inte bläddra eller söka i den.',
   'services.needsSignIn':
     '{service} behöver en inloggning innan den visar något. Länka den med '
     + 'Sonora för att bläddra i den här; allt från tjänsten som sparats i '
@@ -1010,12 +1011,7 @@ export default {
   'desk.add.auth.DeviceLink': 'Logga in på leverantörens webbplats',
   'desk.add.auth.AppLink':
     'Logga in på leverantörens webbplats, om det erbjuds',
-  'desk.add.needsApp':
-    '{service} tillåter inte inloggning från Sonora; leverantören tar bara '
-    + 'emot inloggning via den officiella Sonos-appen. Lägg till tjänsten där '
-    + 'för att använda den i Sonos-apparna. Allt från tjänsten som sparats i '
-    + 'Sonos-favoriter eller Sonos-spellistor spelas fortfarande upp i '
-    + 'Sonora.',
+  'desk.add.needsApp': '{service} tillåter inte inloggning från Sonora; leverantören tar bara emot den första inloggningen via de officiella Sonos-apparna. När du har lagt till tjänsten där kan du använda den fullt ut i Sonora.',
   'desk.add.instructions': 'Gå till {url}, logga in och ange den här koden:',
   'desk.add.instructionsNoCode':
     'Gå till {url} och logga in för att godkänna Sonos.',
@@ -1084,9 +1080,7 @@ export default {
   'services.removing': 'Tar bort {service}…',
   'services.removeFailed': 'Det gick inte att ta bort {service}: {error}',
   'services.removeFromSonos': 'Ta bort från Sonos',
-  'services.removeSonosBody':
-    'Ta bort {service} från ditt Sonos-system? Tjänsten tas bort för alla '
-    + 'Sonos-appar, inte bara Sonora.',
+  'services.removeSonosBody': 'Det tar bort den från Sonora och alla Sonos-appar i ditt system.',
   'services.removeSonoraBody': 'Ta bort {service} från Sonora? Sonora glömmer inloggningen.',
   'desk.add.doneSonora.multi':
     '{service} är nu länkad i Sonora.\nDu behöver också länka {service} en '

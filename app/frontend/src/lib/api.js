@@ -45,6 +45,27 @@ export function setRequestLocale(tag) {
   locale = tag || ''
 }
 
+// The reader's translator, set by the i18n layer beside the locale. A few
+// answers carry a flag the backend cannot word in the reader's language; they
+// are worded here, once, so every theme that shows `error.message` shows it
+// translated.
+let translate = null
+
+export function setRequestWords(t) {
+  translate = t || null
+}
+
+// A provider that only answers Sonos' own apps (YouTube Music's "unregistered
+// callers" 403) is a refusal, not a failure to retry.
+function worded(data) {
+  const error = data?.error
+  if (error?.refuses_caller && translate) {
+    const service = data.service?.name || ''
+    error.message = translate('services.refusesSonora', { service })
+  }
+  return data
+}
+
 async function request(path, { method = 'GET', body } = {}) {
   const headers = {}
   if (body) headers['Content-Type'] = 'application/json'
@@ -281,7 +302,7 @@ export const api = {
     // The size the caller draws art at, where the service publishes sizes;
     // omitted, the provider's own default comes back, as the apps get it.
     if (art) params.set('art', String(art))
-    return request(`/api/services/${sid}/browse?${params}`)
+    return request(`/api/services/${sid}/browse?${params}`).then(worded)
   },
   // Where each letter starts in a long list, for an alphabet bar: the
   // service's own count, or the speakers' for their library. Empty when
@@ -304,7 +325,7 @@ export const api = {
     if (account) params.set('account', account)
     // Named, only that category is searched, as the apps' scope bar does.
     if (category) params.set('category', category)
-    return request(`/api/services/${sid}/search?${params}`)
+    return request(`/api/services/${sid}/search?${params}`).then(worded)
   },
   rateItem: (sid, body) => request(`/api/services/${sid}/rate`, { method: 'POST', body }),
   linkService: (sid, body) =>

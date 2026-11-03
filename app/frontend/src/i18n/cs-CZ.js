@@ -648,6 +648,7 @@ export default {
   'desk.sleep.off': 'Vypnuto',
   'desk.sleep.hours.one': '{count} hodina',
   'desk.sleep.hours.other': '{count} hodin',
+  'services.refusesSonora': '{service} odpovídá jen aplikacím Sonos, takže ho Sonora nemůže procházet ani v něm hledat.',
   'services.needsSignIn':
     '{service} před zobrazením obsahu vyžaduje přihlášení. Propojte službu '
     + 'se Sonorou, abyste ji zde mohli procházet; cokoli z ní uloženého v '
@@ -1015,11 +1016,7 @@ export default {
     + 'nepřihlásí ovladač, který není od Sonos.',
   'desk.add.auth.DeviceLink': 'Přihlášení na webu poskytovatele',
   'desk.add.auth.AppLink': 'Přihlášení na webu poskytovatele, je-li nabízeno',
-  'desk.add.needsApp':
-    '{service} nedovoluje přihlášení ze Sonory; poskytovatel přijímá '
-    + 'přihlášení jen přes oficiální aplikaci Sonos. Přidejte službu tam, '
-    + 'abyste ji mohli používat v aplikacích Sonos. Cokoli z ní uloženého v '
-    + 'Oblíbených Sonos nebo v playlistech Sonos se v Sonoře stále přehraje.',
+  'desk.add.needsApp': '{service} nedovoluje přihlášení ze Sonory; poskytovatel přijímá první přihlášení jen přes oficiální aplikace Sonos. Jakmile ji tam přidáte, můžete ji v Sonoře plně používat.',
   'desk.add.instructions':
     'Přejděte na {url}, přihlaste se a zadejte tento kód:',
   'desk.add.instructionsNoCode':
@@ -1089,9 +1086,7 @@ export default {
   'services.removing': 'Odebírání služby {service}…',
   'services.removeFailed': 'Službu {service} nelze odebrat: {error}',
   'services.removeFromSonos': 'Odebrat ze Sonos',
-  'services.removeSonosBody':
-    'Odebrat službu {service} z vašeho systému Sonos? Bude odebrána pro '
-    + 'všechny aplikace Sonos, nejen pro Sonoru.',
+  'services.removeSonosBody': 'Odebere se ze Sonory i ze všech aplikací Sonos ve vašem systému.',
   'services.removeSonoraBody': 'Odebrat {service} ze Sonory? Sonora zapomene jeho přihlášení.',
   'desk.add.doneSonora.multi':
     'Služba {service} je nyní propojena v Sonoře.\nAby Sonora mohla ovládat '

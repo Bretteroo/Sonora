@@ -637,6 +637,7 @@ export default {
   'desk.sleep.off': 'Uit',
   'desk.sleep.hours.one': '{count} uur',
   'desk.sleep.hours.other': '{count} uur',
+  'services.refusesSonora': '{service} antwoordt alleen de Sonos-apps, dus Sonora kan er niet in bladeren of zoeken.',
   'services.needsSignIn':
     '{service} vraagt om een aanmelding voordat er iets wordt getoond. '
     + 'Koppel de dienst aan Sonora om hier te bladeren; wat je ervan in '
@@ -1009,12 +1010,7 @@ export default {
   'desk.add.auth.DeviceLink': 'Aanmelden op de site van de aanbieder',
   'desk.add.auth.AppLink':
     'Aanmelden op de site van de aanbieder, als dat wordt aangeboden',
-  'desk.add.needsApp':
-    '{service} staat aanmelden vanuit Sonora niet toe; de aanbieder '
-    + 'accepteert alleen aanmelden via de officiële Sonos-app. Voeg hem daar '
-    + 'toe om hem in de Sonos-apps te gebruiken. Wat je ervan in '
-    + 'Sonos-favorieten of Sonos-afspeellijsten hebt bewaard, speelt gewoon '
-    + 'in Sonora.',
+  'desk.add.needsApp': '{service} staat aanmelden vanuit Sonora niet toe; de aanbieder accepteert de eerste aanmelding alleen via de officiële Sonos-apps. Zodra je hem daar hebt toegevoegd, kun je hem volledig in Sonora gebruiken.',
   'desk.add.instructions': 'Ga naar {url}, meld je aan en voer deze code in:',
   'desk.add.instructionsNoCode':
     'Ga naar {url} en meld je aan om Sonos te machtigen.',
@@ -1083,9 +1079,7 @@ export default {
   'services.removing': '{service} wordt verwijderd…',
   'services.removeFailed': 'Kan {service} niet verwijderen: {error}',
   'services.removeFromSonos': 'Van Sonos verwijderen',
-  'services.removeSonosBody':
-    '{service} van je Sonos-systeem verwijderen? Hij verdwijnt uit alle '
-    + 'Sonos-apps, niet alleen uit Sonora.',
+  'services.removeSonosBody': 'Hiermee wordt hij verwijderd uit Sonora en alle Sonos-apps in je systeem.',
   'services.removeSonoraBody': '{service} uit Sonora verwijderen? Sonora vergeet de aanmelding.',
   'desk.add.doneSonora.multi':
     '{service} is nu gekoppeld in Sonora.\nJe moet {service} ook een tweede '

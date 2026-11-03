@@ -595,6 +595,7 @@ export default {
   'desk.sleep.off': 'オフ',
   'desk.sleep.hours.one': '{count} 時間',
   'desk.sleep.hours.other': '{count} 時間',
+  'services.refusesSonora': '{service} は Sonos アプリにしか応答しないため、Sonora では閲覧も検索もできません。',
   'services.needsSignIn':
     '{service} は何かを表示する前にサインインを求めます。ここで参照するには Sonora に連携してください。Sonos '
     + 'のお気に入りや Sonos プレイリストに保存したものは引き続き再生できます。',
@@ -915,10 +916,7 @@ export default {
     + '以外のコントローラーのサインインを受け付けないためです。',
   'desk.add.auth.DeviceLink': '提供元のサイトでサインイン',
   'desk.add.auth.AppLink': '提供元のサイトでサインイン（提供されている場合）',
-  'desk.add.needsApp':
-    '{service} は Sonora からのサインインを許可していません。提供元は公式 Sonos '
-    + 'アプリ経由のサインインのみ受け付けます。Sonos アプリで使うにはそちらで追加してください。Sonos のお気に入りや Sonos '
-    + 'プレイリストに保存したものは Sonora でも引き続き再生できます。',
+  'desk.add.needsApp': '{service} は Sonora からのサインインを許可していません。提供元は最初のサインインを公式 Sonos アプリ経由でのみ受け付けます。そちらで一度追加すれば、Sonora でもすべての機能を使えます。',
   'desk.add.instructions': '{url} を開いてサインインし、次のコードを入力してください：',
   'desk.add.instructionsNoCode': '{url} を開いてサインインし、Sonos を承認してください。',
   'desk.add.open': 'ブラウザで開く',
@@ -981,8 +979,7 @@ export default {
   'services.removing': '{service} を削除しています…',
   'services.removeFailed': '{service} を削除できませんでした：{error}',
   'services.removeFromSonos': 'Sonos から削除',
-  'services.removeSonosBody':
-    '{service} を Sonos システムから削除しますか？ Sonora だけでなく、すべての Sonos アプリから消えます。',
+  'services.removeSonosBody': 'Sonora と、システム上のすべての Sonos アプリから削除されます。',
   'services.removeSonoraBody': 'Sonora から {service} を削除しますか？Sonora はそのサインインを消去します。',
   'desk.add.doneSonora.multi':
     '{service} を Sonora に連携しました。\nSonora から {gen} 機器を操作するには、Sonos の {gen} '

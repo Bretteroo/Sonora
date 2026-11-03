@@ -12,15 +12,18 @@ rename made here (or in a Sonos app) does not show up in it for a while, while
 this blob carries it at once.
 
 Each account also carries a ``Token`` and a ``Key``. Those are the account's
-live credentials and nothing here keeps them: the parser reads the fields
-below and drops the rest on the floor.
+live credentials: they let Sonora browse and play a service the person linked
+in a Sonos app but cannot link from here (Apple Music, SoundCloud and the
+rest that refuse a non-Sonos caller the sign-in). They are held in memory
+only, kept off the ``repr`` so an account never logs them, and never written
+to disk; the controller uses them through ``credentials_for``.
 """
 
 from __future__ import annotations
 
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from defusedxml import ElementTree
 
@@ -34,13 +37,19 @@ _UDN_TYPE = re.compile(r"^SA_RINCON(\d+)_")
 
 @dataclass(frozen=True, slots=True)
 class Account:
-    """One configured account. Credentials are deliberately absent."""
+    """One configured account, with the login the speakers hold for it.
+
+    ``token`` and ``key`` are live credentials, kept out of ``repr`` so they
+    never reach a log line.
+    """
 
     udn: str
     service_type: int
     username: str
     nickname: str
     serial: str
+    token: str = field(default="", repr=False)
+    key: str = field(default="", repr=False)
 
     @property
     def service_id(self) -> int:
@@ -93,5 +102,7 @@ def parse(blob: str, household_id: str) -> list[Account]:
                 username=username,
                 nickname=node.get(f"Nickname{index}", "") or "",
                 serial=node.get(f"SerialNum{index}", "") or "",
+                token=node.get(f"Token{index}", "") or "",
+                key=node.get(f"Key{index}", "") or "",
             ))
     return out

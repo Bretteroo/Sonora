@@ -639,6 +639,7 @@ export default {
   'desk.sleep.off': 'Aus',
   'desk.sleep.hours.one': '{count} Stunde',
   'desk.sleep.hours.other': '{count} Stunden',
+  'services.refusesSonora': '{service} antwortet nur den Sonos-Apps, deshalb kann Sonora darin weder stöbern noch suchen.',
   'services.needsSignIn':
     '{service} verlangt eine Anmeldung, bevor etwas angezeigt wird. '
     + 'Verknüpfe den Dienst mit Sonora, um ihn hier zu durchsuchen; was '
@@ -1024,12 +1025,7 @@ export default {
   'desk.add.auth.DeviceLink': 'Anmeldung auf der Website des Anbieters',
   'desk.add.auth.AppLink':
     'Anmeldung auf der Website des Anbieters, sofern angeboten',
-  'desk.add.needsApp':
-    '{service} erlaubt keine Anmeldung aus Sonora heraus; der Anbieter '
-    + 'akzeptiert die Anmeldung nur über die offizielle Sonos-App. Füge den '
-    + 'Dienst dort hinzu, um ihn in den Sonos-Apps zu nutzen. Was daraus in '
-    + 'Sonos-Favoriten oder Sonos-Playlists gespeichert ist, läuft weiterhin '
-    + 'in Sonora.',
+  'desk.add.needsApp': '{service} erlaubt keine Anmeldung aus Sonora heraus; der Anbieter akzeptiert die erste Anmeldung nur über die offiziellen Sonos-Apps. Sobald du den Dienst dort hinzugefügt hast, kannst du ihn in Sonora vollständig nutzen.',
   'desk.add.instructions':
     'Gehe zu {url}, melde dich an und gib diesen Code ein:',
   'desk.add.instructionsNoCode':
@@ -1099,9 +1095,7 @@ export default {
   'services.removing': '{service} wird entfernt…',
   'services.removeFailed': '{service} konnte nicht entfernt werden: {error}',
   'services.removeFromSonos': 'Von Sonos entfernen',
-  'services.removeSonosBody':
-    '{service} von deinem Sonos-System entfernen? Der Dienst verschwindet '
-    + 'aus allen Sonos-Apps, nicht nur aus Sonora.',
+  'services.removeSonosBody': 'Das entfernt ihn aus Sonora und allen Sonos-Apps in deinem System.',
   'services.removeSonoraBody': '{service} aus Sonora entfernen? Sonora vergisst die Anmeldung.',
   'desk.add.doneSonora.multi':
     '{service} ist jetzt in Sonora verknüpft.\nDu musst {service} außerdem '

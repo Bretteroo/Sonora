@@ -49,12 +49,15 @@ def test_the_accounts_come_out_with_their_names():
     assert by_udn["SA_RINCON3079_X_#Svc3079-b-Token"].nickname == "two"
 
 
-def test_no_credential_survives_the_parse():
+def test_credentials_are_kept_but_never_in_repr():
+    # The login lets Sonora browse a service linked only in a Sonos app, so it
+    # is kept -- but off the repr, so it can never reach a log line.
     found = accounts.parse(seal(LIST, HOUSEHOLD), HOUSEHOLD)
+    by_udn = {a.udn: a for a in found}
+    one = by_udn["SA_RINCON48135_X_#Svc48135-0-Token"]
+    assert one.token == "live-token" and one.key == "live-key"
     text = repr(found)
     assert "live-token" not in text and "live-key" not in text
-    assert not any(field in accounts.Account.__slots__
-                   for field in ("token", "key", "md"))
 
 
 def test_an_unreadable_blob_is_no_accounts_rather_than_an_error():

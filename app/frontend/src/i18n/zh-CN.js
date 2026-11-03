@@ -584,6 +584,7 @@ export default {
   'desk.sleep.off': '关闭',
   'desk.sleep.hours.one': '{count} 小时',
   'desk.sleep.hours.other': '{count} 小时',
+  'services.refusesSonora': '{service} 只响应 Sonos 应用，因此 Sonora 无法浏览或搜索它。',
   'services.needsSignIn':
     '{service} 需要先登录才会列出内容。把它关联到 Sonora 就能在这里浏览；已保存到 Sonos 收藏或 Sonos '
     + '播放列表中的内容仍可播放。',
@@ -889,9 +890,7 @@ export default {
   'desk.add.unpairable': '{service} 只能用官方 Sonos 应用添加：它的提供方不接受非 Sonos 控制器登录。',
   'desk.add.auth.DeviceLink': '在提供方网站登录',
   'desk.add.auth.AppLink': '在提供方网站登录（如果提供）',
-  'desk.add.needsApp':
-    '{service} 不允许从 Sonora 登录；它的提供方只接受通过官方 Sonos 应用登录。在那里添加后即可在 Sonos '
-    + '应用中使用。已保存到 Sonos 收藏或 Sonos 播放列表中的内容在 Sonora 里仍可播放。',
+  'desk.add.needsApp': '{service} 不允许从 Sonora 登录；它的提供方只接受通过官方 Sonos 应用进行首次登录。在那里添加一次后，即可在 Sonora 中完整使用。',
   'desk.add.instructions': '打开 {url}，登录并输入此代码：',
   'desk.add.instructionsNoCode': '打开 {url} 并登录以授权 Sonos。',
   'desk.add.open': '在浏览器中打开',
@@ -952,8 +951,7 @@ export default {
   'services.removing': '正在移除 {service}…',
   'services.removeFailed': '无法移除 {service}：{error}',
   'services.removeFromSonos': '从 Sonos 移除',
-  'services.removeSonosBody':
-    '要把 {service} 从你的 Sonos 系统中移除吗？它会从所有 Sonos 应用中消失，而不只是 Sonora。',
+  'services.removeSonosBody': '这会把它从 Sonora 和你系统中的所有 Sonos 应用中移除。',
   'services.removeSonoraBody': '要从 Sonora 移除 {service} 吗？Sonora 会忘记它的登录。',
   'desk.add.doneSonora.multi':
     '{service} 现在已在 Sonora 中关联。\n你还需要再关联一次 {service}——直接在任一 Sonos {gen} '

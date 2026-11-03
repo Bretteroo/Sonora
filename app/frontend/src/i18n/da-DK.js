@@ -641,6 +641,7 @@ export default {
   'desk.sleep.off': 'Fra',
   'desk.sleep.hours.one': '{count} time',
   'desk.sleep.hours.other': '{count} timer',
+  'services.refusesSonora': '{service} svarer kun Sonos-apps, så Sonora kan ikke gennemse eller søge i den.',
   'services.needsSignIn':
     '{service} kræver et login, før den viser noget. Tilknyt den til Sonora '
     + 'for at gennemse den her; alt derfra, der er gemt i Sonos-favoritter '
@@ -1006,11 +1007,7 @@ export default {
     + 'ikke logge en controller ind, der ikke er fra Sonos.',
   'desk.add.auth.DeviceLink': 'Log ind på udbyderens websted',
   'desk.add.auth.AppLink': 'Log ind på udbyderens websted, hvis muligt',
-  'desk.add.needsApp':
-    '{service} tillader ikke login fra Sonora; udbyderen accepterer kun '
-    + 'login via den officielle Sonos-app. Tilføj den der for at bruge den i '
-    + 'Sonos-apps. Alt derfra, der er gemt i Sonos-favoritter eller '
-    + 'Sonos-playlister, kan stadig afspilles i Sonora.',
+  'desk.add.needsApp': '{service} tillader ikke login fra Sonora; udbyderen accepterer kun det første login via de officielle Sonos-apps. Når du har tilføjet den der, kan du bruge den fuldt ud i Sonora.',
   'desk.add.instructions': 'Gå til {url}, log ind, og indtast denne kode:',
   'desk.add.instructionsNoCode':
     'Gå til {url}, og log ind for at godkende Sonos.',
@@ -1078,9 +1075,7 @@ export default {
   'services.removing': 'Fjerner {service}…',
   'services.removeFailed': 'Kunne ikke fjerne {service}: {error}',
   'services.removeFromSonos': 'Fjern fra Sonos',
-  'services.removeSonosBody':
-    'Vil du fjerne {service} fra dit Sonos-system? Den fjernes fra alle '
-    + 'Sonos-apps, ikke kun Sonora.',
+  'services.removeSonosBody': 'Det fjerner den fra Sonora og alle Sonos-apps i dit system.',
   'services.removeSonoraBody': 'Fjern {service} fra Sonora? Sonora glemmer tjenestens login.',
   'desk.add.doneSonora.multi':
     '{service} er nu tilknyttet i Sonora.\nDu skal også tilknytte {service} '

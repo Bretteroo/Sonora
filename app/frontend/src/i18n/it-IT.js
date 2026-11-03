@@ -638,6 +638,7 @@ export default {
   'desk.sleep.off': 'Disattivato',
   'desk.sleep.hours.one': '{count} ora',
   'desk.sleep.hours.other': '{count} ore',
+  'services.refusesSonora': '{service} risponde solo alle app Sonos, quindi Sonora non può sfogliarlo né cercarvi.',
   'services.needsSignIn':
     '{service} richiede un accesso prima di mostrare qualcosa. Collegalo a '
     + 'Sonora per esplorarlo qui; ciò che ne hai salvato nei Preferiti Sonos '
@@ -1025,11 +1026,7 @@ export default {
     + 'fornitore non fa accedere un controller non Sonos.',
   'desk.add.auth.DeviceLink': 'Accesso sul sito del fornitore',
   'desk.add.auth.AppLink': 'Accesso sul sito del fornitore, se offerto',
-  'desk.add.needsApp':
-    '{service} non consente l’accesso da Sonora; il suo fornitore accetta '
-    + 'l’accesso solo tramite l’app Sonos ufficiale. Aggiungilo lì per usarlo '
-    + 'nelle app Sonos. Ciò che ne hai salvato nei Preferiti Sonos o nelle '
-    + 'playlist Sonos continua a suonare in Sonora.',
+  'desk.add.needsApp': '{service} non consente l’accesso da Sonora; il suo fornitore accetta il primo accesso solo tramite le app Sonos ufficiali. Una volta aggiunto lì, puoi usarlo pienamente in Sonora.',
   'desk.add.instructions': 'Vai su {url}, accedi e inserisci questo codice:',
   'desk.add.instructionsNoCode':
     'Vai su {url} e accedi per autorizzare Sonos.',
@@ -1097,9 +1094,7 @@ export default {
   'services.removing': 'Rimozione di {service}…',
   'services.removeFailed': 'Impossibile rimuovere {service}: {error}',
   'services.removeFromSonos': 'Rimuovi da Sonos',
-  'services.removeSonosBody':
-    'Rimuovere {service} dal tuo sistema Sonos? Sparirà da tutte le app '
-    + 'Sonos, non solo da Sonora.',
+  'services.removeSonosBody': 'Verrà rimosso da Sonora e da tutte le app Sonos del tuo sistema.',
   'services.removeSonoraBody': 'Rimuovere {service} da Sonora? Sonora dimentica il suo accesso.',
   'desk.add.doneSonora.multi':
     '{service} è ora collegato in Sonora.\nDovrai collegare {service} anche '

@@ -668,6 +668,7 @@ export default {
   'desk.sleep.off': 'Desligado',
   'desk.sleep.hours.one': '{count} hora',
   'desk.sleep.hours.other': '{count} horas',
+  'services.refusesSonora': '{service} só responde às apps Sonos, por isso o Sonora não o consegue explorar nem pesquisar.',
   'services.needsSignIn':
     'O {service} precisa de um início de sessão antes de apresentar alguma '
     + 'coisa. Associe-o ao Sonora para navegar nele aqui; tudo o que tiver '
@@ -1052,12 +1053,7 @@ export default {
   'desk.add.auth.DeviceLink': 'Iniciar sessão no site do fornecedor',
   'desk.add.auth.AppLink':
     'Iniciar sessão no site do fornecedor, se disponível',
-  'desk.add.needsApp':
-    'O {service} não permite iniciar sessão a partir do Sonora; o seu '
-    + 'fornecedor só aceita o início de sessão através da aplicação Sonos '
-    + 'oficial. Adicione-o lá para o usar nas aplicações Sonos. Tudo o que '
-    + 'tiver guardado dele nos Favoritos Sonos ou nas Listas de reprodução '
-    + 'Sonos continua a ser reproduzido no Sonora.',
+  'desk.add.needsApp': 'O {service} não permite iniciar sessão a partir do Sonora; o seu fornecedor só aceita o primeiro início de sessão através das aplicações Sonos oficiais. Depois de o adicionar lá, pode usá-lo por completo no Sonora.',
   'desk.add.instructions':
     'Aceda a {url}, inicie sessão e introduza este código:',
   'desk.add.instructionsNoCode':
@@ -1127,9 +1123,7 @@ export default {
   'services.removing': 'A remover o {service}…',
   'services.removeFailed': 'Não foi possível remover o {service}: {error}',
   'services.removeFromSonos': 'Remover do Sonos',
-  'services.removeSonosBody':
-    'Remover o {service} do seu sistema Sonos? Será removido de todas as '
-    + 'aplicações Sonos, e não apenas do Sonora.',
+  'services.removeSonosBody': 'Isto remove-o do Sonora e de todas as apps Sonos do seu sistema.',
   'services.removeSonoraBody': 'Remover {service} do Sonora? O Sonora esquece o início de sessão.',
   'desk.add.doneSonora.multi':
     'O {service} está agora associado no Sonora.\nTambém terá de associar o '

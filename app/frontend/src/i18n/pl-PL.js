@@ -653,6 +653,7 @@ export default {
   'desk.sleep.off': 'Wył.',
   'desk.sleep.hours.one': '{count} godzina',
   'desk.sleep.hours.other': '{count} godziny',
+  'services.refusesSonora': '{service} odpowiada tylko aplikacjom Sonos, więc Sonora nie może go przeglądać ani w nim wyszukiwać.',
   'services.needsSignIn':
     'Serwis {service} wymaga zalogowania, zanim cokolwiek wyświetli. Połącz '
     + 'go z aplikacją Sonora, aby przeglądać go tutaj; wszystko, co z niego '
@@ -1028,12 +1029,7 @@ export default {
   'desk.add.auth.DeviceLink': 'Zaloguj się w witrynie dostawcy',
   'desk.add.auth.AppLink':
     'Zaloguj się w witrynie dostawcy, jeśli jest dostępna',
-  'desk.add.needsApp':
-    'Serwis {service} nie pozwala logować się z aplikacji Sonora; jego '
-    + 'dostawca przyjmuje logowanie tylko przez oficjalną aplikację Sonos. '
-    + 'Dodaj go tam, aby korzystać z niego w aplikacjach Sonos. Wszystko, co '
-    + 'z niego zapisano w Ulubionych Sonos lub Playlistach Sonos, nadal '
-    + 'odtwarza się w aplikacji Sonora.',
+  'desk.add.needsApp': 'Serwis {service} nie pozwala logować się z aplikacji Sonora; jego dostawca przyjmuje pierwsze logowanie tylko przez oficjalne aplikacje Sonos. Gdy dodasz go tam, możesz w pełni korzystać z niego w aplikacji Sonora.',
   'desk.add.instructions':
     'Przejdź na stronę {url}, zaloguj się i wpisz ten kod:',
   'desk.add.instructionsNoCode':
@@ -1104,9 +1100,7 @@ export default {
   'services.removing': 'Usuwanie serwisu {service}…',
   'services.removeFailed': 'Nie udało się usunąć serwisu {service}: {error}',
   'services.removeFromSonos': 'Usuń z Sonos',
-  'services.removeSonosBody':
-    'Usunąć serwis {service} z systemu Sonos? Zostanie usunięty ze '
-    + 'wszystkich aplikacji Sonos, nie tylko z aplikacji Sonora.',
+  'services.removeSonosBody': 'Spowoduje to usunięcie go z Sonory i wszystkich aplikacji Sonos w Twoim systemie.',
   'services.removeSonoraBody': 'Usunąć {service} z Sonory? Sonora zapomni jego logowanie.',
   'desk.add.doneSonora.multi':
     'Serwis {service} jest teraz połączony z aplikacją Sonora.\nMusisz też '

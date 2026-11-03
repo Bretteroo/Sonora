@@ -2,7 +2,7 @@ import React, {
   createContext, useCallback, useContext, useEffect, useMemo, useState,
 } from 'react'
 import { useTheme } from '../lib/theme.jsx'
-import { setRequestLocale } from '../lib/api.js'
+import { setRequestLocale, setRequestWords } from '../lib/api.js'
 import { LOCALES, REFERENCE, bestMatch, canonical, chainFor, localeOf } from './locales.js'
 import enUS from './en-US.js'
 import deDE from './de-DE.js'
@@ -156,6 +156,8 @@ export function I18nProvider({ children }) {
 
     return { t, language, languages: LANGUAGES, selectLanguage: select }
   }, [language, select, themeStrings])
+
+  useEffect(() => { setRequestWords(value.t) }, [value])
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
 }

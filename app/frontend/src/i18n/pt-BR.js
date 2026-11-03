@@ -636,6 +636,7 @@ export default {
   'desk.sleep.off': 'Desligado',
   'desk.sleep.hours.one': '{count} hora',
   'desk.sleep.hours.other': '{count} horas',
+  'services.refusesSonora': '{service} só responde aos apps da Sonos, então o Sonora não consegue navegar nem pesquisar nele.',
   'services.needsSignIn':
     'O {service} exige login antes de listar qualquer coisa. Vincule-o ao '
     + 'Sonora para navegar por ele aqui; o que você salvou dele nos Favoritos '
@@ -1017,11 +1018,7 @@ export default {
     + 'provedor dele não autentica um controlador que não seja da Sonos.',
   'desk.add.auth.DeviceLink': 'Login no site do provedor',
   'desk.add.auth.AppLink': 'Login no site do provedor, se oferecido',
-  'desk.add.needsApp':
-    'O {service} não permite login pelo Sonora; o provedor dele só aceita '
-    + 'login pelo aplicativo Sonos oficial. Adicione-o por lá para usá-lo nos '
-    + 'aplicativos Sonos. O que você salvou dele nos Favoritos Sonos ou nas '
-    + 'playlists Sonos continua tocando no Sonora.',
+  'desk.add.needsApp': 'O {service} não permite login pelo Sonora; o provedor dele só aceita o primeiro login pelos aplicativos Sonos oficiais. Depois de adicioná-lo por lá, você pode usá-lo por completo no Sonora.',
   'desk.add.instructions': 'Acesse {url}, faça login e informe este código:',
   'desk.add.instructionsNoCode':
     'Acesse {url} e faça login para autorizar a Sonos.',
@@ -1090,9 +1087,7 @@ export default {
   'services.removing': 'Removendo o {service}…',
   'services.removeFailed': 'Não foi possível remover o {service}: {error}',
   'services.removeFromSonos': 'Remover da Sonos',
-  'services.removeSonosBody':
-    'Remover o {service} do seu sistema Sonos? Ele sairá de todos os '
-    + 'aplicativos Sonos, não só do Sonora.',
+  'services.removeSonosBody': 'Isso vai removê-lo do Sonora e de todos os apps Sonos do seu sistema.',
   'services.removeSonoraBody': 'Remover {service} do Sonora? O Sonora esquece o login.',
   'desk.add.doneSonora.multi':
     'O {service} agora está vinculado no Sonora.\nVocê também precisará '

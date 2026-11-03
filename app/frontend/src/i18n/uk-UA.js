@@ -624,6 +624,7 @@ export default {
   'desk.sleep.off': 'Вимкнено',
   'desk.sleep.hours.one': '{count} година',
   'desk.sleep.hours.other': '{count} годин',
+  'services.refusesSonora': '{service} відповідає лише застосункам Sonos, тож Sonora не може переглядати його чи шукати в ньому.',
   'services.needsSignIn':
     '{service} вимагає входу, перш ніж щось показати. Приєднай його до '
     + 'Sonora, щоб переглядати тут; те, що з нього збережено в «Обраному '
@@ -990,11 +991,7 @@ export default {
     + 'постачальник не впускає контролер, який не є Sonos.',
   'desk.add.auth.DeviceLink': 'Вхід на сайті постачальника',
   'desk.add.auth.AppLink': 'Вхід на сайті постачальника, якщо пропонується',
-  'desk.add.needsApp':
-    '{service} не дозволяє входити із Sonora; його постачальник приймає '
-    + 'вхід лише через офіційний застосунок Sonos. Додай його там, щоб '
-    + 'користуватися ним у застосунках Sonos. Те, що з нього збережено в '
-    + 'Обраному Sonos чи в плейлистах Sonos, і далі грає в Sonora.',
+  'desk.add.needsApp': '{service} не дозволяє входити із Sonora; його постачальник приймає перший вхід лише через офіційні застосунки Sonos. Щойно ти додаси його там, ним можна повністю користуватися в Sonora.',
   'desk.add.instructions': 'Перейди на {url}, увійди та введи цей код:',
   'desk.add.instructionsNoCode':
     'Перейди на {url} та увійди, щоб авторизувати Sonos.',
@@ -1061,9 +1058,7 @@ export default {
   'services.removing': 'Вилучення {service}…',
   'services.removeFailed': 'Не вдалося вилучити {service}: {error}',
   'services.removeFromSonos': 'Вилучити із Sonos',
-  'services.removeSonosBody':
-    'Вилучити {service} з твоєї системи Sonos? Він зникне в усіх '
-    + 'застосунках Sonos, не лише в Sonora.',
+  'services.removeSonosBody': 'Це вилучить його із Sonora й усіх застосунків Sonos у твоїй системі.',
   'services.removeSonoraBody': 'Вилучити {service} із Sonora? Sonora забуде його вхід.',
   'desk.add.doneSonora.multi':
     '{service} тепер приєднано в Sonora.\nПотрібно приєднати {service} ще '

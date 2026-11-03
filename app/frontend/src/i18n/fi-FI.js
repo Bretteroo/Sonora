@@ -641,6 +641,7 @@ export default {
   'desk.sleep.off': 'Pois',
   'desk.sleep.hours.one': '{count} tunti',
   'desk.sleep.hours.other': '{count} tuntia',
+  'services.refusesSonora': '{service} vastaa vain Sonos-sovelluksille, joten Sonora ei voi selata sitä eikä hakea siitä.',
   'services.needsSignIn':
     '{service} vaatii kirjautumisen, ennen kuin se näyttää mitään. Yhdistä '
     + 'se Sonoraan, niin voit selata sitä täällä. Kaikki siitä '
@@ -1015,12 +1016,7 @@ export default {
   'desk.add.auth.DeviceLink': 'Kirjaudu palveluntarjoajan sivustolla',
   'desk.add.auth.AppLink':
     'Kirjaudu palveluntarjoajan sivustolla, jos mahdollista',
-  'desk.add.needsApp':
-    '{service} ei salli kirjautumista Sonorasta; palveluntarjoaja hyväksyy '
-    + 'kirjautumisen vain virallisen Sonos-sovelluksen kautta. Lisää palvelu '
-    + 'siellä käyttääksesi sitä Sonos-sovelluksissa. Kaikki siitä '
-    + 'Sonos-suosikkeihin tai Sonos-toistoluetteloihin tallennettu soi silti '
-    + 'Sonorassa.',
+  'desk.add.needsApp': '{service} ei salli kirjautumista Sonorasta; palveluntarjoaja hyväksyy ensimmäisen kirjautumisen vain virallisten Sonos-sovellusten kautta. Kun lisäät palvelun siellä, voit käyttää sitä Sonorassa täysin.',
   'desk.add.instructions':
     'Mene osoitteeseen {url}, kirjaudu sisään ja anna tämä koodi:',
   'desk.add.instructionsNoCode':
@@ -1090,9 +1086,7 @@ export default {
   'services.removeFailed':
     'Palvelun {service} poistaminen epäonnistui: {error}',
   'services.removeFromSonos': 'Poista Sonosista',
-  'services.removeSonosBody':
-    'Poistetaanko {service} Sonos-järjestelmästäsi? Se poistetaan kaikista '
-    + 'Sonos-sovelluksista, ei vain Sonorasta.',
+  'services.removeSonosBody': 'Tämä poistaa sen Sonorasta ja kaikista järjestelmäsi Sonos-sovelluksista.',
   'services.removeSonoraBody': 'Poistetaanko {service} Sonorasta? Sonora unohtaa sen kirjautumisen.',
   'desk.add.doneSonora.multi':
     '{service} on nyt yhdistetty Sonoraan.\nSinun on myös yhdistettävä '

@@ -155,3 +155,24 @@ def test_a_line_named_by_string_reads_its_text():
     # The header's lines are not the rows' lines.
     assert resolved["PlaylistView"]["lines"] == ["title", "artist"]
 
+
+GATEWAY_403 = '{\n  "error": {\n    "code": 403,\n    "message": "Method doesn\'t allow unregistered callers"\n  }\n}'
+NOT_AUTHORIZED = (
+    '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><s:Fault>'
+    '<faultcode>Server</faultcode><faultstring>NOT_AUTHORIZED</faultstring>'
+    '<detail><SonosError>403</SonosError></detail></s:Fault></s:Body></s:Envelope>'
+)
+
+
+def test_a_bare_403_is_the_provider_refusing_the_caller():
+    # YouTube Music's gateway answers this whatever login is sent.
+    assert SmapiClient._fault("YouTube Music", GATEWAY_403, 403).refuses_caller
+    assert SmapiClient._fault("Bookmate", "<!DOCTYPE html><html><title>Just a moment...</title></html>",
+                              403).refuses_caller
+
+
+def test_a_soap_fault_is_not_a_refused_caller():
+    # SonosError 403 came from SMAPI itself: it reached the service.
+    assert not SmapiClient._fault("SoundCloud", NOT_AUTHORIZED, 403).refuses_caller
+    assert not SmapiClient._fault("Bandcamp", RETRY, 200).refuses_caller
+    assert not SmapiClient._fault("Any", "", 500).refuses_caller

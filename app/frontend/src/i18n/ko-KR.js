@@ -602,6 +602,7 @@ export default {
   'desk.sleep.off': '끔',
   'desk.sleep.hours.one': '{count}시간',
   'desk.sleep.hours.other': '{count}시간',
+  'services.refusesSonora': '{service}은(는) Sonos 앱에만 응답하므로 Sonora에서 탐색하거나 검색할 수 없습니다.',
   'services.needsSignIn':
     '{service}는 목록을 보여주기 전에 로그인을 요구합니다. 여기서 탐색하려면 Sonora에 연결하세요. Sonos '
     + '즐겨찾기나 Sonos 재생목록에 저장해 둔 것은 그대로 재생됩니다.',
@@ -924,10 +925,7 @@ export default {
     + '않기 때문입니다.',
   'desk.add.auth.DeviceLink': '제공자 사이트에서 로그인',
   'desk.add.auth.AppLink': '제공자 사이트에서 로그인(제공되는 경우)',
-  'desk.add.needsApp':
-    '{service}은(는) Sonora에서의 로그인을 허용하지 않습니다. 제공자가 공식 Sonos 앱을 통한 로그인만 받습니다. '
-    + 'Sonos 앱에서 쓰려면 거기서 추가하세요. Sonos 즐겨찾기나 Sonos 재생목록에 저장해 둔 것은 Sonora에서도 계속 '
-    + '재생됩니다.',
+  'desk.add.needsApp': '{service}은(는) Sonora에서의 로그인을 허용하지 않습니다. 제공자가 처음 로그인은 공식 Sonos 앱을 통해서만 받습니다. 거기서 한 번 추가하면 Sonora에서도 모든 기능을 쓸 수 있습니다.',
   'desk.add.instructions': '{url}에 접속해 로그인한 뒤 이 코드를 입력하세요:',
   'desk.add.instructionsNoCode': '{url}에 접속해 로그인하고 Sonos를 승인하세요.',
   'desk.add.open': '브라우저에서 열기',
@@ -990,8 +988,7 @@ export default {
   'services.removing': '{service} 제거 중…',
   'services.removeFailed': '{service}을(를) 제거하지 못했습니다: {error}',
   'services.removeFromSonos': 'Sonos에서 제거',
-  'services.removeSonosBody':
-    '{service}을(를) Sonos 시스템에서 제거할까요? Sonora뿐 아니라 모든 Sonos 앱에서 사라집니다.',
+  'services.removeSonosBody': 'Sonora와 시스템의 모든 Sonos 앱에서 제거됩니다.',
   'services.removeSonoraBody': 'Sonora에서 {service}을(를) 제거할까요? Sonora는 로그인 정보를 지웁니다.',
   'desk.add.doneSonora.multi':
     '{service}을(를) Sonora에 연결했습니다.\nSonora가 {gen} 기기를 제어하려면, Sonos {gen} 앱 중 '

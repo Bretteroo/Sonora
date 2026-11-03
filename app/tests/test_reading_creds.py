@@ -12,6 +12,7 @@ HH = "Sonos_x"
 
 class _Ctl:
     credentials_for = SonosController.credentials_for
+    _own_login = SonosController._own_login
     tokens_for_service = SonosController.tokens_for_service
 
     def __init__(self, tokens):

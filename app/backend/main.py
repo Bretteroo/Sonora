@@ -1313,6 +1313,13 @@ _USER_PLAYLISTS = "playlists"
 _USER_PLAYLISTS_KNOWN: dict[tuple[str, int, str], tuple[float, bool]] = {}
 
 
+#: What a provider that only answers Sonos' own apps means by its bare 403
+#: (``SmapiError.refuses_caller``). The front end swaps in the reader's
+#: translation (api.js); this is the English for any other caller.
+_REFUSED_CALLER = ("{service} only answers the Sonos apps, so Sonora can't "
+                   "browse or search it.")
+
+
 async def _fault_text(service, exc: Exception) -> str:
     """The service's own words for its fault, or "" when it has none.
 
@@ -3488,7 +3495,7 @@ async def services(zone: str | None = None) -> dict:
             # means something when this is true; otherwise the only removal
             # that has any effect is from the Sonos system itself.
             entry["sonora_linked"] = (
-                held is not None
+                (held is not None and not held.get("from_system"))
                 or (not entry.get("on_system")
                     and sid in ctl.linked_services.get(household.id, {})))
 
@@ -3665,10 +3672,17 @@ async def browse_service(
             # service's message, as the Sonos apps show it, not as a failure.
             said = "" if exc.missing else await _fault_text(service, exc)
             payload["error"] = {
-                "message": (f"{service.name} no longer has this item." if exc.missing else str(exc)),
-                "needs_auth": exc.needs_auth and item == "root",
+                "message": (f"{service.name} no longer has this item." if exc.missing
+                            else _REFUSED_CALLER.format(service=service.name)
+                            if exc.refuses_caller
+                            else said or str(exc)),
+                "needs_auth": exc.needs_auth and item == "root" and not said,
                 "missing": exc.missing,
-                "from_service": bool(said),
+                # A refusal at the door is the provider's decision too, and
+                # trying again changes nothing, so it is not drawn as a failure.
+                "from_service": bool(said) or exc.refuses_caller,
+                # Worded in the reader's language by the front end (api.js).
+                "refuses_caller": exc.refuses_caller,
             }
             return payload
 
@@ -3869,8 +3883,14 @@ async def search_service(
         categories = [(cat["id"], cat["label"], cat["mapped_id"]) for cat in declared]
         custom_ids = {cat["id"] for cat in declared if cat.get("custom")}
     else:
-        categories = [(cat_id, title, cat_id)
-                      for cat_id, title in await ctl.smapi.search_categories(**common)]
+        try:
+            categories = [(cat_id, title, cat_id)
+                          for cat_id, title in await ctl.smapi.search_categories(**common)]
+        except SmapiError as exc:
+            if not exc.refuses_caller:
+                raise
+            payload["error"] = _refused_error(service)
+            return payload
     payload["available"] = [{"id": cat_id, "title": title, "custom": cat_id in custom_ids}
                             for cat_id, title, _ in categories]
     # The apps search one category at a time: the scope bar names them all
@@ -3891,6 +3911,8 @@ async def search_service(
     wanted = ([entry for entry in categories if entry[0] == category]
               or categories[:1]) if category else (everything or categories[:6])
 
+    refused: list[bool] = []
+
     async def one(cat_id: str):
         """One category's results, or None when it has none to give."""
         try:
@@ -3900,6 +3922,7 @@ async def search_service(
                                           index=index, count=count, **common)
         except SmapiError as exc:
             log.info("search of %s in %s failed: %s", service.name, cat_id, exc)
+            refused.append(exc.refuses_caller)
             return None
 
     # Every category at once. Asked one after another, a search of a cloud
@@ -3907,6 +3930,11 @@ async def search_service(
     # together it costs the slowest one. The order the provider listed them
     # in is kept, since that is the order the apps show them in.
     pages = await asyncio.gather(*(one(mapped) for _, _, mapped in wanted))
+    # Every category turned away at the provider's door is one refusal, said
+    # once, not an empty result.
+    if refused and all(refused) and all(page is None for page in pages):
+        payload["error"] = _refused_error(service)
+        return payload
     for (cat_id, cat_title, _mapped), page in zip(wanted, pages):
         if page is None or not page.items:
             continue
@@ -3931,6 +3959,11 @@ async def search_service(
     # so the map has to reach the search view as well.
     payload["display_types"] = await ctl.presentation.display_types(service.manifest_uri)
     return payload
+
+
+def _refused_error(service) -> dict:
+    return {"message": _REFUSED_CALLER.format(service=service.name),
+            "needs_auth": False, "from_service": True, "refuses_caller": True}
 
 
 #: What a search category returns, in the order the product mixes them.

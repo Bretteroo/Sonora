@@ -3215,13 +3215,39 @@ class SonosController:
                         single_account: bool = False) -> dict | None:
         """The login to browse ``sid`` as household account ``account_id``.
 
-        An exact match wins. A login recorded before accounts were tracked has
-        an empty account id; it stands for the household's only account when
-        there is only one (and is moved onto that account so the question does
-        not come up again), and is used as asked when no account is named. With
-        several accounts and no attribution, no account can claim it: the
-        person links again from the right row and the old login is dropped.
+        Sonora's own login wins; failing that, the one the speakers already
+        hold for the account is used, so a service linked only in a Sonos app
+        (Apple Music, SoundCloud, any that refuse Sonora the sign-in) still
+        browses and plays here. The speaker login is marked ``from_system``:
+        it is usable but not Sonora's own, so nothing offers to remove it.
         """
+        own = self._own_login(household_id, sid, account_id, single_account)
+        if own is not None:
+            return own
+        # Nothing of Sonora's own: use the login the speakers already hold for
+        # the account. The account id is the account's serial; with one named,
+        # its account is used, and with none named and a single account, that
+        # one. An account with no stored token (nothing linked, or a token the
+        # speakers withhold) yields nothing.
+        held = [a for a in self.household_accounts(household_id)
+                if a.service_id == sid and getattr(a, "token", "")]
+        if not held:
+            return None
+        if account_id:
+            match = next((a for a in held if a.serial == account_id), None)
+        elif len(held) == 1:
+            match = held[0]
+        else:
+            match = None
+        if match is None:
+            return None
+        return {"token": match.token, "key": getattr(match, "key", ""),
+                "from_system": True, "standalone": False,
+                "seen_accounts": [], "system_udn": ""}
+
+    def _own_login(self, household_id: str, sid: int, account_id: str = "",
+                   single_account: bool = False) -> dict | None:
+        """The login Sonora holds itself for ``sid``, or None."""
         exact = self.service_tokens.get((household_id, sid, account_id))
         if exact is not None:
             return exact

@@ -103,6 +103,20 @@ class SmapiError(Exception):
         return "ItemNotFound" in self.code or "ItemNotFound" in self.detail
 
     @property
+    def refuses_caller(self) -> bool:
+        """The provider's front door turned Sonora away before SMAPI was reached.
+
+        A bare HTTP 403 with no SOAP fault in it: the gateway in front of the
+        service decided who may call, whatever login was sent. YouTube Music
+        answers this way ("Method doesn't allow unregistered callers") with or
+        without the account's token, because it only takes requests that carry
+        the speakers' device certificate; Bookmate's Cloudflare check does the
+        same. A provider that reached SMAPI and refused the login answers with
+        a SOAP fault instead, which leaves the code as the fault's own.
+        """
+        return self.code == "HTTP 403"
+
+    @property
     def needs_auth(self) -> bool:
         """Whether the fault means "log in" rather than "something broke"."""
         markers = ("Client.LoginUnauthorized", "Client.LoginUnsupported",
@@ -1096,11 +1110,16 @@ class SmapiClient:
         ident = device_id or household_id
         if ident:
             parts.insert(0, f"<deviceId>{escape(ident)}</deviceId>")
-        if token and key:
+        if token:
+            # Apple Music stores a token and no key; a key element is sent only
+            # when there is one. Services that need a key (most do) still get
+            # the pair.
+            inner = f"<token>{escape(token)}</token>"
+            if key:
+                inner += f"<key>{escape(key)}</key>"
             parts.append(
                 "<loginToken>"
-                f"<token>{escape(token)}</token>"
-                f"<key>{escape(key)}</key>"
+                f"{inner}"
                 f"<householdId>{escape(household_id)}</householdId>"
                 "</loginToken>"
             )

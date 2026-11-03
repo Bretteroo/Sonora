@@ -126,6 +126,7 @@
 .sz-root .win-shortcuts-table th, .sz-root .win-alarms-table th, .sz-root.win-root .win-settings .win-lib-table th { background: var(--sz-panel); color: var(--sz-strong); border-color: var(--sz-rule); }
 .sz-root .win-shortcuts-table tbody tr:first-child td { background: var(--sz-panel); }
 .sz-root .win-alarms-table td, .sz-root.win-root .win-settings .win-lib-table td { border-color: var(--sz-rule); }
+.sz-root .win-alarms-table .win-alarms-row[aria-selected='true'] span { background: #268bd2; color: #fdf6e3; }
 .sz-root .win-savequeue-list button { color: var(--sz-fg); }
 .sz-root.win-root .win-grouping::after { background: var(--sz-panel); border-top-color: var(--sz-rule); }
 .sz-root.win-root .win-grouping .dk-grouping-right::after { background: var(--sz-rule); }

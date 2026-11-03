@@ -732,6 +732,17 @@
 .mac-root .alarm-inline:has(.alarm-music) { gap: 10px; }
 .mac-root .alarm-value { display: none; }
 .mac-root .alarm-form input[type='range'] { width: 210px; }
+/* The music picker is a light table like the sheet's others: its header was
+   left on the shell's dark surface, which hid the title, the back arrow and the
+   rows' chevrons. */
+.mac-root .alarm-picker { margin-left: 20px; border-color: #d6d6d6; border-radius: 3px; background: #ffffff; }
+.mac-root .alarm-picker-head { height: 27px; background: #ffffff; border-bottom: 1px solid #e6e6e6; color: #262626; font-size: 13px; }
+.mac-root .alarm-picker-back, .mac-root .alarm-picker-row svg { color: #262626; }
+.mac-root .alarm-picker-back { top: 1px; }
+.mac-root .alarm-picker-row { color: #262626; }
+.mac-root .alarm-picker-row:hover { background: #f2f2f2; }
+.mac-root .alarm-picker-row[aria-selected='true'] { background: linear-gradient(#80b6f2, #0083d3); color: #ffffff; }
+.mac-root .alarm-picker-row[aria-selected='true'] svg { color: #ffffff; }
 .mac-root .alarm-btn {
   height: 22px; min-width: 80px; padding: 0 12px;
   border: 1px solid #c8c8c8; border-radius: 6px; background: #ffffff; color: #262626;

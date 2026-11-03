@@ -1411,7 +1411,8 @@
   /* The shared alarm editor, dressed in this theme's fields and buttons. */
   & .mg-alarm-editor { accent-color: var(--mg-primary); }
   & .mg-alarm-editor .alarm-form { font-size: 16px; gap: 20px; }
-  & .mg-alarm-editor .alarm-form h3 { font-size: 22px; font-weight: 500; margin: 0 0 8px; }
+  /* The top bar names each step (Add Alarm, Browse to alarm music), so the body names neither. */
+  & .mg-alarm-editor .alarm-form h3 { display: none; }
   & .mg-alarm-editor .alarm-grid { row-gap: 20px; column-gap: 24px; }
   & .mg-alarm-editor .alarm-grid > label { font-size: 14px; font-weight: 500; color: var(--mg-on-surface-variant); }
   & .mg-alarm-editor :is(.alarm-form select, .alarm-length, .alarm-music, .alarm-form input[type='time']) {
@@ -1482,9 +1483,28 @@
   & .mg-alarm-editor .alarm-actions { gap: 8px; margin-top: 8px; }
   /* Save is in the top bar of this full-screen dialog; the form's own foot goes (the music picker keeps its). */
   & .mg-alarm-editor .alarm-form > .alarm-actions { display: none; }
-  & .mg-alarm-editor .alarm-picker-list { border-radius: 16px; background: var(--mg-surface-container-low); }
-  & .mg-alarm-editor .alarm-picker-row { min-height: 48px; border-radius: 12px; }
+  /* The music picker as a Material list on the dialog's surface: no frame, the folder named in a
+     list subheader with a standard icon button to go back, 56dp one-line items with a trailing
+     24dp chevron, the hover state layer, and the chosen item in secondary-container. */
+  & .mg-alarm-editor .alarm-picker { border: 0; border-radius: 0; overflow: visible; }
+  & .mg-alarm-editor .alarm-picker-head { display: flex; justify-content: flex-start; place-items: center; gap: 4px; height: 48px; padding: 0 16px;
+    background: none; border: 0; color: var(--mg-on-surface-variant); font-size: 14px; font-weight: 500; letter-spacing: 0.1px; }
+  & .mg-alarm-editor .alarm-picker-head:has(.alarm-picker-back) { padding-left: 4px; }
+  & .mg-alarm-editor .alarm-picker-back { position: relative; inset: auto; width: 40px; height: 40px; border-radius: 999px; color: var(--mg-on-surface-variant);
+    transition: border-radius 200ms var(--mg-effects); }
+  & .mg-alarm-editor .alarm-picker-back svg { width: 24px; height: 24px; }
+  & .mg-alarm-editor .alarm-picker-back:hover { background: color-mix(in oklab, var(--mg-on-surface-variant) 8%, transparent); }
+  & .mg-alarm-editor .alarm-picker-back:active { border-radius: 8px; background: color-mix(in oklab, var(--mg-on-surface-variant) 10%, transparent); }
+  & .mg-alarm-editor .alarm-picker-back:focus-visible { outline: 3px solid var(--mg-secondary); outline-offset: 2px; }
+  & .mg-alarm-editor .alarm-picker-list { max-height: min(60vh, 560px); padding: 0; background: none; }
+  & .mg-alarm-editor .alarm-picker-row { gap: 16px; min-height: 56px; padding: 8px 16px 8px 16px; border-radius: 16px;
+    color: var(--mg-on-surface); font-size: 16px; line-height: 24px; letter-spacing: 0.5px; }
+  & .mg-alarm-editor .alarm-picker-row:hover { background: color-mix(in oklab, var(--mg-on-surface) 8%, transparent); }
+  & .mg-alarm-editor .alarm-picker-row:focus-visible { outline: none; background: color-mix(in oklab, var(--mg-on-surface) 10%, transparent); }
+  & .mg-alarm-editor .alarm-picker-row svg { flex: none; width: 24px; height: 24px; color: var(--mg-on-surface-variant); }
   & .mg-alarm-editor .alarm-picker-row[aria-selected='true'] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
+  & .mg-alarm-editor .alarm-picker-row[aria-selected='true'] svg { color: var(--mg-on-secondary-container); }
+  & .mg-alarm-editor .alarm-note { padding: 16px; color: var(--mg-on-surface-variant); }
 
   /* --- Settings ----------------------------------------------------------------------------------- */
   & .mg-settings { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 32px; align-items: start; }

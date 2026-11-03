@@ -1199,7 +1199,6 @@
     & .sv-btn:focus-visible { outline: 2px dashed var(--sv-ph); outline-offset: 3px; }
     & .sv-btn:active:not(:disabled) { transform: translateY(1px); }
     & .sv-btn:disabled { opacity: 0.4; border-style: dashed; cursor: default; box-shadow: none; }
-    & .sv-btn[data-danger] { background: var(--sv-critical); border-color: var(--sv-critical); color: #1a0505; }
     & .sv-btn-icon { display: inline-grid; line-height: 0; }
     & .sv-btn-img { width: 18px; height: 18px; }
     & .sv-btnrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -1739,8 +1738,6 @@
   }
   & .sv-menu-item:hover:not(:disabled), & .sv-menu-item:focus-visible { background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px) fixed, var(--sv-ph); color: var(--sv-scr); text-shadow: none; outline: none; }
   & .sv-menu-item:disabled { opacity: 0.4; cursor: default; }
-  & .sv-menu-item[data-danger] { color: var(--sv-critical); }
-  & .sv-menu-item[data-danger]:hover, & .sv-menu-item[data-danger]:focus-visible { background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px) fixed, var(--sv-critical); color: #1a0505; }
   & .sv-menu-mark { display: grid; line-height: 0; }
   & .sv-menu-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   & .sv-menu-img { width: 16px; height: 16px; object-fit: contain; }

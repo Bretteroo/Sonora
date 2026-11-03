@@ -975,6 +975,7 @@
 .or-root .win-shortcuts-table td { color: var(--t-cyan); }
 .or-root .win-shortcuts-table tbody tr:first-child td { background: rgba(123, 44, 255, 0.18); }
 .or-root .win-alarms-table td { color: var(--t-fg); border-color: rgba(123, 44, 255, 0.25); }
+.or-root .win-alarms-table .win-alarms-row[aria-selected='true'] span { background: var(--t-magenta); color: #fff; }
 .or-root .win-savequeue-list button { color: var(--t-fg); }
 .or-root .win-savequeue-list button[aria-selected='true'] { background: rgba(255, 43, 214, 0.35); color: #ffffff; }
 /* The dialogs' foot buttons took the Windows gradient over Outrun's ink:

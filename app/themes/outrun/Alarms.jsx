@@ -5,6 +5,7 @@ import { Window, Confirm } from './Dialogs.jsx'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import AlarmEditor from './AlarmEditor.jsx'
 import { withoutBrowserRoom } from '../../frontend/src/lib/browserRoom.js'
+import { AlarmWhere, RoomSceneHeading } from '../../frontend/src/components/AlarmWhere.jsx'
 
 // The app names the zone generically ("6:44 AM Pacific Time"), not by the
 // season ("Pacific Daylight Time"), so the line reads the same all year.
@@ -36,6 +37,7 @@ export default function Alarms({ zone, onClose }) {
   })()
   const [selected, setSelected] = useState(null)
   const [editing, setEditing] = useState(null) // null, 'new' or an alarm
+  const [refused, setRefused] = useState('')
   const [confirm, setConfirm] = useState(null)
   const now = new Date()
   const stamp = `${new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(now)} - ${
@@ -59,12 +61,12 @@ export default function Alarms({ zone, onClose }) {
         <div className="win-alarms-main">
           <div className="win-alarms-table" role="grid">
             <div className="win-alarms-head" role="row">
-              <span>{t('win.alarms.where')}</span><span>{t('win.alarms.when')}</span><span>{t('win.alarms.on')}</span>
+              <span><RoomSceneHeading t={t} /></span><span>{t('win.alarms.when')}</span><span>{t('win.alarms.on')}</span>
             </div>
             {(alarms || []).map((a) => (
               <div key={a.ID} role="row" className="win-alarms-row" aria-selected={selected === a.ID}
                    onClick={() => setSelected(a.ID)}>
-                <span>{a.room || ''}</span>
+                <span><AlarmWhere alarm={a} t={t} /></span>
                 <span>{when(a)}</span>
                 <span>
                   <input type="checkbox" checked={a.Enabled === '1'} disabled={busy}
@@ -89,13 +91,17 @@ export default function Alarms({ zone, onClose }) {
                      defaultRoom={defaultRoom}
                      onClose={() => setEditing(null)}
                      onSave={async (definition) => {
-                       if (editing === 'new') await create(definition); else await update(editing.ID, definition)
-                       setEditing(null)
+                       const refused = editing === 'new' ? await create(definition) : await update(editing.ID, definition)
+                       if (refused) setRefused(refused); else setEditing(null)
                      }} />
       )}
       <div className="win-dialog-foot">
         <button type="button" className="dk-win-btn" data-default="true" onClick={onClose}>{t('common.done')}</button>
       </div>
+      {refused && (
+        <Confirm title={t('win.alarm.notSaved')} body={refused} action={t('common.ok')} cancelable={false}
+                 onConfirm={() => setRefused('')} onClose={() => setRefused('')} />
+      )}
       {confirm && (
         <Confirm title={t('win.queue.confirmTitle')}
                  body={t('win.alarms.deleteConfirm')}

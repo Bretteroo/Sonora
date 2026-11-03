@@ -162,6 +162,9 @@ BASS_RANGE = (-10, 10)
 TREBLE_RANGE = (-10, 10)
 BALANCE_RANGE = (-100, 100)
 
+#: The Sonos Chime, which an alarm plays when it has no music of its own.
+CHIME_URI = "x-rincon-buzzer:0"
+
 PLAY_MODES = (
     "NORMAL",
     "REPEAT_ALL",

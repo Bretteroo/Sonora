@@ -37,9 +37,10 @@ export default function ClockProgram({ households, zones, activeZone, activeGrou
   const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zoneUuid)
   const rooms = zoneList.filter((z) => households.find((h) => h.id === activeHh)?.zone_uuids.includes(z.uuid)).sort((a, b) => a.name.localeCompare(b.name))
   const [editing, setEditing] = useState(null)
+  const [refused, setRefused] = useState('')
   const [confirm, setConfirm] = useState(null)
   const [menu, setMenu] = useState(null)
-  const music = (a) => (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
+  const music = (a) => a.scene_name ? '' : (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
   return (
     <div className="sv-clock">
       <SleepBox zone={activeZone} groupLabel={activeGroup ? groupTitle(activeGroup, zones, t) : ''} />
@@ -72,7 +73,7 @@ export default function ClockProgram({ households, zones, activeZone, activeGrou
                       ? days.map((d, i) => <span key={i} className="sv-day" data-on={set.has(i) || undefined}>{d}</span>)
                       : <span className="sv-alarm-rec">{t(`desk.alarms.recurrence.${key}`)}</span>}
                   </span>
-                  <span className="sv-alarm-room" role="cell">{a.room || '-'}</span>
+                  <span className="sv-alarm-room" role="cell">{a.scene_name || a.room || '-'}</span>
                   <span className="sv-alarm-music" role="cell">{music(a)}</span>
                   <span className="sv-alarm-tools" role="cell" onClick={(event) => event.stopPropagation()}>
                     <Toggle checked={on} disabled={busy} onChange={(v) => toggle(a.ID, v)} ariaLabel={`${time} ${t('desk.alarms.enabled')}`} />
@@ -98,12 +99,17 @@ export default function ClockProgram({ households, zones, activeZone, activeGrou
           <div className="sv-window-body">
             <AlarmEditorPanel heading={false} formId="sv-alarm-form" Select={Select} alarm={editing === 'new' ? null : editing} rooms={rooms} households={households} busy={busy}
                               onCancel={() => setEditing(null)}
-                              onSave={async (d) => { if (editing === 'new') await create(d); else await update(editing.ID, d); setEditing(null) }} />
+                              onSave={async (d) => { const refused = editing === 'new' ? await create(d) : await update(editing.ID, d); if (refused) setRefused(refused); else setEditing(null) }} />
           </div>
         </Window>
       )}
+      {refused && (
+        <Confirm title={t('win.alarm.notSaved')} body={refused} action={t('common.ok')} cancelable={false}
+                 onConfirm={() => setRefused('')} onClose={() => setRefused('')} />
+      )}
       {confirm && (
-        <Confirm title={t('desk.alarms.deleteTitle')} body={t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
+        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: confirm.StartTime.replace(/:00$/, ''), scene: confirm.scene_name })
+                   : t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
                  action={t('desk.alarms.delete')} danger disabled={busy} icon={<G.Alarm size={48} />}
                  onConfirm={() => { remove(confirm.ID); setConfirm(null) }} onClose={() => setConfirm(null)} />
       )}

@@ -30,6 +30,7 @@ import { chosenHousehold } from '../../frontend/src/lib/shellSelection.js'
 import { suggestedQueueName } from '../../frontend/src/lib/playlistName.js'
 import { canStereoPair } from '../../frontend/src/lib/rooms.js'
 import { versionLabel } from '../../frontend/src/lib/version.js'
+import { AlarmWhere, RoomSceneHeading } from '../../frontend/src/components/AlarmWhere.jsx'
 
 // Secondary windows. On the Mac these are ordinary light windows floating
 // over the dark application, so they are drawn as such: a 22px title bar with
@@ -1896,7 +1897,7 @@ export function AddRadioStation({ zone, onClose, onAdded }) {
 // question, TextInputDialogWindow (Width="350", content Margin="20", a 25px
 // field, OK and Cancel) for a name.
 export function Confirm({ title, body, action, onConfirm, onClose, children,
-                          disabled = false, className = '', cancelLabel = null }) {
+                          disabled = false, cancelable = true, className = '', cancelLabel = null }) {
   const { t } = useI18n()
   return (
     <Window title={title} onClose={onClose} className={className}>
@@ -1904,7 +1905,7 @@ export function Confirm({ title, body, action, onConfirm, onClose, children,
         <p>{body}</p>
         {children}
         <div className="dk-confirm-foot">
-          <button type="button" className="dk-win-btn" onClick={onClose}>{cancelLabel || t('common.close')}</button>
+          {cancelable && <button type="button" className="dk-win-btn" onClick={onClose}>{cancelLabel || t('common.close')}</button>}
           <button type="button" className="dk-win-btn" data-default="true" disabled={disabled}
                   onClick={onConfirm}>{action}</button>
         </div>
@@ -2003,6 +2004,7 @@ export function Alarms({ zone, onClose }) {
   const rooms = withoutBrowserRoom(zoneList).sort((a, b) => a.name.localeCompare(b.name))
   const [confirm, setConfirm] = useState(null)
   const [editing, setEditing] = useState(null) // null, 'new' or an alarm
+  const [refused, setRefused] = useState('')
   // Declared before the editor's early return: a hook after it made opening
   // the editor render fewer hooks than the list did, and React threw
   // (error #300), blanking the Mac theme on Add.
@@ -2014,13 +2016,19 @@ export function Alarms({ zone, onClose }) {
   }
   if (editing) {
     return (
-      <Window title={t(editing === 'new' ? 'win.alarm.addTitle' : 'win.alarm.editTitle')} onClose={onClose}>
-        {/* The Mac app's Add Alarm shows "07:00": a 24-hour clock, no AM/PM,
-            whatever the Mac's own clock (watched 2026-09-23). */}
-        <AlarmEditorPanel alarm={editing === 'new' ? null : editing} rooms={rooms} households={households} busy={busy} clock={24}
-                          onCancel={() => setEditing(null)}
-                          onSave={async (d) => { if (editing === 'new') await create(d); else await update(editing.ID, d); setEditing(null) }} />
-      </Window>
+      <>
+        <Window title={t(editing === 'new' ? 'win.alarm.addTitle' : 'win.alarm.editTitle')} onClose={onClose}>
+          {/* The Mac app's Add Alarm shows "07:00": a 24-hour clock, no AM/PM,
+              whatever the Mac's own clock (watched 2026-09-23). */}
+          <AlarmEditorPanel alarm={editing === 'new' ? null : editing} rooms={rooms} households={households} busy={busy} clock={24}
+                            onCancel={() => setEditing(null)}
+                            onSave={async (d) => { const refused = editing === 'new' ? await create(d) : await update(editing.ID, d); if (refused) setRefused(refused); else setEditing(null) }} />
+        </Window>
+        {refused && (
+          <Confirm title={t('win.alarm.notSaved')} body={refused} action={t('common.ok')} cancelable={false}
+                   onConfirm={() => setRefused('')} onClose={() => setRefused('')} />
+        )}
+      </>
     )
   }
   // The app's sheet (2026-09-15): "Manage Sonos Alarms", the current time,
@@ -2052,7 +2060,7 @@ export function Alarms({ zone, onClose }) {
         <p className="dk-alarms-time">{stamp}</p>
         <div className="dk-table dk-alarms-table" role="listbox" aria-label={t('win.alarms.manage')}>
           <div className="dk-table-head" aria-hidden="true">
-            <span>{t('win.alarms.where')}</span><span>{t('win.alarms.when')}</span><span>{t('win.alarms.on')}</span>
+            <span><RoomSceneHeading t={t} /></span><span>{t('win.alarms.when')}</span><span>{t('win.alarms.on')}</span>
           </div>
           <div className="dk-table-body">
             {alarms === null && !error && <p className="dk-table-empty">{t('desk.browse.loading')}</p>}
@@ -2060,7 +2068,7 @@ export function Alarms({ zone, onClose }) {
             {alarms && alarms.map((a) => (
               <div key={a.ID} role="option" aria-selected={selected === a.ID} onClick={() => setSelected(a.ID)}
                    onDoubleClick={() => setEditing(a)}>
-                <span>{a.room || '—'}</span>
+                <span><AlarmWhere alarm={a} t={t} empty="—" /></span>
                 <span>{when(a)}</span>
                 <span><input type="checkbox" checked={a.Enabled === '1'} disabled={busy} title={t('desk.alarms.enabled')}
                              onClick={(e) => e.stopPropagation()} onChange={(e) => toggle(a.ID, e.target.checked)} /></span>
@@ -2080,7 +2088,8 @@ export function Alarms({ zone, onClose }) {
       </div>
       {confirm && (
         <Confirm title={t('desk.alarms.deleteTitle')}
-                 body={t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
+                 body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: confirm.StartTime.replace(/:00$/, ''), scene: confirm.scene_name })
+                   : t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
                  action={t('desk.alarms.delete')} cancelLabel={t('common.cancel')} disabled={busy}
                  onConfirm={() => { remove(confirm.ID); setConfirm(null); setSelected(null) }} onClose={() => setConfirm(null)} />
       )}

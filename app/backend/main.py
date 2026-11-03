@@ -18,6 +18,7 @@ import secrets
 import io
 import logging
 import time
+from datetime import datetime, timedelta, timezone
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -40,6 +41,7 @@ from .sonos.soundcloud_art import soundcloud_ref
 from .sonos.artcache import upsized
 from .sonos import const
 from .sonos import scenes
+from .sonos import scene_alarms
 from .sonos import smb
 from . import ingress, origin
 from . import release
@@ -129,11 +131,13 @@ async def lifespan(app: FastAPI):
             log.info("service list warm-up failed: %s", exc)
     warming = asyncio.create_task(warm_services())
     _resume_scene_ends()
+    alarm_clock = asyncio.create_task(_scene_alarm_clock(), name="scene alarms")
     release.start()
     try:
         yield
     finally:
         warming.cancel()
+        alarm_clock.cancel()
         await release.stop()
         await controller.stop()
         await session.close()
@@ -5622,13 +5626,31 @@ class AlarmBody(BaseModel):
     enabled: bool
 
 
+#: Alarms that set a scene: Sonora's own, not the speakers' (scene_alarms.py).
+_SCENE_ALARMS = scene_alarms.SceneAlarms(settings.data_dir / "scene_alarms.json")
+
+
+def _listed_scene_alarm(alarm: dict) -> dict:
+    """A scene alarm in the speakers' own terms, as the alarm windows read
+    theirs: no room, no music, the scene named by the name it has now."""
+    scene = _SCENES.get(alarm["scene"])
+    return {"ID": alarm["ID"], "StartTime": alarm["StartTime"], "Recurrence": alarm["Recurrence"],
+            "Enabled": alarm["Enabled"], "Duration": "", "RoomUUID": "", "room": "",
+            "ProgramURI": "", "ProgramMetaData": "", "PlayMode": "NORMAL", "Volume": "",
+            "IncludeLinkedZones": "0", "scene": alarm["scene"], "scene_name": scene["name"] if scene else ""}
+
+
 async def _named_alarms(zone: str) -> list[dict]:
-    """The household's alarms with the room each one plays in named."""
+    """The household's alarms with the room each one plays in named, and
+    after them the scene alarms Sonora keeps for the household."""
     ctl = controller()
     items = await commands().alarms(zone)
     for alarm in items:
         room = ctl.zones.get(alarm.get("RoomUUID", ""))
         alarm["room"] = room.name if room else ""
+    household = ctl.household_of(zone)
+    if household is not None:
+        items += [_listed_scene_alarm(a) for a in _SCENE_ALARMS.items(household.id)]
     return items
 
 
@@ -5643,34 +5665,103 @@ class AlarmDefinition(BaseModel):
     duration: str = "02:00:00" #: HH:MM:SS, "" for no limit
     recurrence: str = "ONCE"   #: ONCE, DAILY, WEEKDAYS, WEEKENDS, or ON_<days, 0 = Sunday>
     enabled: bool = True
-    room_uuid: str
+    room_uuid: str = ""
     program_uri: str = "x-rincon-buzzer:0"
     program_metadata: str = ""
     play_mode: str = "NORMAL"
     volume: int = 25
     include_linked_zones: bool = False
+    #: A scene the alarm sets in place of music; Sonora keeps such an alarm itself.
+    scene: str = ""
+
+
+async def _alarm_write(zone: str, definition: dict, write, alarm_id: str = "") -> None:
+    """Save an alarm, saying so plainly when the speakers refuse it because
+    the room already has an alarm that is on at that time: they answer 801
+    for that, the same code as for a player that did not answer in time."""
+    try:
+        await write()
+    except SoapFault as exc:
+        if exc.code != "801" or not definition.get("enabled", True):
+            raise
+        try:
+            taken = [a for a in await commands().alarms(zone)
+                     if a["ID"] != alarm_id and a["Enabled"] == "1" and a["RoomUUID"] == definition["room_uuid"]
+                     and a["StartTime"] == definition["start_time"]]
+        except Exception:                             # noqa: BLE001 - the speaker's own answer stands
+            raise exc from None
+        if not taken:
+            raise
+        room = controller().zones.get(definition["room_uuid"])
+        raise HTTPException(409, {"error": "alarm_taken", "room": room.name if room else "",
+                                  "message": "That room already has an alarm at this time."}) from None
+
+
+def _save_scene_alarm(body: AlarmDefinition, alarm_id: str = "") -> None:
+    if _SCENES.get(body.scene) is None:
+        raise HTTPException(404, f"unknown scene {body.scene}")
+    household = controller().household_of(body.zone)
+    if household is None:
+        raise HTTPException(404, f"unknown room {body.zone}")
+    try:
+        _SCENE_ALARMS.save(household.id, body.scene, body.start_time, body.recurrence, body.enabled, alarm_id)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from None
+
+
+async def _alarms_changed() -> None:
+    await _fan_out({"type": "alarms"})
 
 
 @app.post("/api/alarms")
 async def create_alarm(body: AlarmDefinition) -> dict:
-    """Create an alarm (the apps' Add Alarm)."""
+    """Create an alarm (the apps' Add Alarm); one that sets a scene is Sonora's."""
     if not re.match(r"^\d{2}:\d{2}:\d{2}$", body.start_time):
         raise HTTPException(400, "start_time must be HH:MM:SS")
-    new_id = await commands().create_alarm(body.zone, body.model_dump())
-    return {"id": new_id, "alarms": await _named_alarms(body.zone)}
+    if body.scene:
+        _save_scene_alarm(body)
+        await _alarms_changed()
+        return {"alarms": await _named_alarms(body.zone)}
+    definition = body.model_dump()
+    made: dict = {}
+
+    async def write() -> None:
+        made["id"] = await commands().create_alarm(body.zone, definition)
+    await _alarm_write(body.zone, definition, write)
+    return {"id": made["id"], "alarms": await _named_alarms(body.zone)}
 
 
 @app.put("/api/alarms/{alarm_id}")
 async def update_alarm(alarm_id: str, body: AlarmDefinition) -> dict:
-    """Replace an alarm's definition (the apps' Edit Alarm)."""
+    """Replace an alarm's definition (the apps' Edit Alarm). An alarm changed
+    from music to a scene, or back, moves between the speakers and Sonora."""
     if not re.match(r"^\d{2}:\d{2}:\d{2}$", body.start_time):
         raise HTTPException(400, "start_time must be HH:MM:SS")
-    await commands().update_alarm(body.zone, alarm_id, body.model_dump())
+    cmd = commands()
+    ours = scene_alarms.is_scene_alarm(alarm_id)
+    if body.scene:
+        _save_scene_alarm(body, alarm_id if ours else "")
+        if not ours:
+            await cmd.destroy_alarm(body.zone, alarm_id)
+        await _alarms_changed()
+        return {"alarms": await _named_alarms(body.zone)}
+    definition = body.model_dump()
+    if ours:
+        await _alarm_write(body.zone, definition, lambda: cmd.create_alarm(body.zone, definition))
+        _SCENE_ALARMS.remove(alarm_id)
+        await _alarms_changed()
+    else:
+        await _alarm_write(body.zone, definition, lambda: cmd.update_alarm(body.zone, alarm_id, definition), alarm_id)
     return {"alarms": await _named_alarms(body.zone)}
 
 
 @app.post("/api/alarms/{alarm_id}")
 async def set_alarm(alarm_id: str, body: AlarmBody) -> dict:
+    if scene_alarms.is_scene_alarm(alarm_id):
+        if not _SCENE_ALARMS.set_enabled(alarm_id, body.enabled):
+            raise HTTPException(404, f"no alarm {alarm_id}")
+        await _alarms_changed()
+        return {"alarms": await _named_alarms(body.zone)}
     try:
         await commands().set_alarm_enabled(body.zone, alarm_id, body.enabled)
     except KeyError:
@@ -5680,8 +5771,72 @@ async def set_alarm(alarm_id: str, body: AlarmBody) -> dict:
 
 @app.delete("/api/alarms/{alarm_id}")
 async def delete_alarm(alarm_id: str, zone: str) -> dict:
-    await commands().destroy_alarm(zone, alarm_id)
+    if scene_alarms.is_scene_alarm(alarm_id):
+        _SCENE_ALARMS.remove(alarm_id)
+        await _alarms_changed()
+    else:
+        await commands().destroy_alarm(zone, alarm_id)
     return {"alarms": await _named_alarms(zone)}
+
+
+#: Each system's clock as an offset from UTC, with when it was read.
+_SYSTEM_CLOCKS: dict[str, tuple[timedelta, float]] = {}
+CLOCK_READ_EVERY = 15 * 60.0
+
+
+async def _system_offset(household) -> timedelta | None:
+    """How far the system's clock (the speakers' local time) is from UTC,
+    read from a speaker now and then; None when no speaker answers."""
+    held = _SYSTEM_CLOCKS.get(household.id)
+    if held is not None and time.monotonic() - held[1] < CLOCK_READ_EVERY:
+        return held[0]
+    ctl = controller()
+    for zone in household.visible_zones:
+        if zone.uuid not in ctl.zones or not ctl.zones[zone.uuid].online:
+            continue
+        try:
+            now = (await commands().soap.call(ctl.zones[zone.uuid].host, const.ALARM_CLOCK, "GetTimeNow")).args
+            local = datetime.strptime(now["CurrentLocalTime"], "%Y-%m-%d %H:%M:%S")
+            utc = datetime.strptime(now["CurrentUTCTime"], "%Y-%m-%d %H:%M:%S")
+        except Exception:                             # noqa: BLE001 - the next speaker is asked
+            continue
+        offset = timedelta(minutes=round((local - utc).total_seconds() / 900) * 15)
+        _SYSTEM_CLOCKS[household.id] = (offset, time.monotonic())
+        return offset
+    return held[0] if held is not None else None
+
+
+async def _scene_alarm_clock() -> None:
+    """Set each scene alarm's scene when its minute comes on its system's clock.
+    A one-time alarm turns itself off after, as the speakers' do."""
+    fired: set[tuple[str, str]] = set()
+    while True:
+        await asyncio.sleep(20 - time.time() % 20)
+        try:
+            for household in controller().ordered_households():
+                waiting = [a for a in _SCENE_ALARMS.items(household.id) if a["Enabled"] == "1"]
+                if not waiting:
+                    continue
+                offset = await _system_offset(household)
+                if offset is None:
+                    continue
+                local = datetime.now(timezone.utc).replace(tzinfo=None) + offset
+                minute = local.strftime("%Y-%m-%d %H:%M")
+                for alarm in waiting:
+                    if not scene_alarms.due(alarm, local) or (alarm["ID"], minute) in fired:
+                        continue
+                    fired.add((alarm["ID"], minute))
+                    scene = _SCENES.get(alarm["scene"])
+                    if alarm["Recurrence"] == "ONCE":
+                        _SCENE_ALARMS.set_enabled(alarm["ID"], False)
+                        await _alarms_changed()
+                    if scene is None:
+                        continue
+                    log.info("alarm %s sets scene %r", alarm["ID"], scene["name"])
+                    asyncio.create_task(_run_scene(scene, alarm["scene"]), name=f"scene alarm {alarm['ID']}")
+            fired = {f for f in fired if f[1] >= (datetime.now(timezone.utc) - timedelta(days=2)).strftime("%Y-%m-%d")}
+        except Exception:                             # noqa: BLE001 - the clock keeps going
+            log.exception("scene alarm clock")
 
 
 # -- scenes --------------------------------------------------------------------
@@ -6069,7 +6224,8 @@ async def update_scene(scene_id: str, body: SceneBody) -> dict:
 @app.delete("/api/scenes/{scene_id}")
 async def remove_scene(scene_id: str) -> dict:
     """Delete a scene, ending it first if it is on: its rooms are put back
-    as its End would, then it is gone. ``ended`` is that End's report."""
+    as its End would, then it is gone, and every alarm that sets it with it.
+    ``ended`` is that End's report; ``alarms`` how many alarms were deleted."""
     if _SCENES.get(scene_id) is None:
         raise HTTPException(404, f"unknown scene {scene_id}")
     ended = None
@@ -6078,6 +6234,9 @@ async def remove_scene(scene_id: str) -> dict:
             ended = await _end(scene_id)
         except Exception as exc:                      # noqa: BLE001 - the delete goes ahead
             log.info("scene %s could not be ended before its delete: %s", scene_id, exc)
+    alarms = _SCENE_ALARMS.remove_scene(scene_id)
+    if alarms:
+        await _alarms_changed()
     _SCENES.remove(scene_id)
     # Whatever is left of it (an End that failed part way) goes too.
     _cancel_pending(scene_id)
@@ -6085,7 +6244,7 @@ async def remove_scene(scene_id: str) -> dict:
     await _unask(scene_id)
     _ACTIVE.release(scene_id)
     await _scenes_changed()
-    return {"ok": True, "ended": ended}
+    return {"ok": True, "ended": ended, "alarms": alarms}
 
 
 @app.post("/api/scenes/{scene_id}/apply")

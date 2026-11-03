@@ -955,7 +955,7 @@ function ExitBtn({ onClose, children }) {
 }
 
 // A dialog asking one thing, or asking for a name when `input` is set.
-export function Confirm({ title, body, action, cancelLabel, onConfirm, onClose, danger = false, input = null, disabled = false, icon = null, children }) {
+export function Confirm({ title, body, action, cancelLabel, onConfirm, onClose, danger = false, input = null, disabled = false, cancelable = true, icon = null, children }) {
   const { t } = useI18n()
   const [value, setValue] = useState(input?.initial || '')
   const ok = input ? value.trim() && (input.allowSame || value.trim() !== (input.initial || '')) : true
@@ -970,7 +970,7 @@ export function Confirm({ title, body, action, cancelLabel, onConfirm, onClose, 
         {children}
       </div>
       <footer className="sv-window-actions">
-        <ExitBtn onClose={onClose}>{cancelLabel || t('common.cancel')}</ExitBtn>
+        {cancelable && <ExitBtn onClose={onClose}>{cancelLabel || t('common.cancel')}</ExitBtn>}
         <Btn variant="solid" data-danger={danger || undefined} disabled={!ok || disabled} onClick={submit}>{action}</Btn>
       </footer>
     </Window>

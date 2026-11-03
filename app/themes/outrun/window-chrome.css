@@ -2022,3 +2022,7 @@
 :where(:root[data-theme='outrun']) .win-root :is(.win-lib-table tr, .dk-lib-table [role='option'])[data-removing] { opacity: 0.5; }
 :where(:root[data-theme='outrun']) .win-root :is(.win-lib-table tr, .dk-lib-table [role='option'])[data-removing='leaving'] { animation: outrun-lib-leave 320ms ease-in forwards; }
 @keyframes outrun-lib-leave { from { opacity: 0.5; } to { opacity: 0; } }
+
+/* The alarm tables' mark before each Room / Scene entry: its letter, outlined
+   in the row's own color. */
+:where(:root[data-theme='outrun']) .alarm-kind { display: inline-block; min-width: 9px; margin-right: 6px; padding: 0 2px; border: 1px solid currentColor; border-radius: 3px; font-size: 9px; font-style: normal; font-weight: 700; line-height: 11px; text-align: center; opacity: 0.8; vertical-align: 1px; }

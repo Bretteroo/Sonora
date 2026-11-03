@@ -100,6 +100,7 @@ export default function TimerUnit({ households, zones, activeZone, activeGroup, 
   const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zoneUuid)
   const rooms = zoneList.filter((z) => households.find((h) => h.id === activeHh)?.zone_uuids.includes(z.uuid)).sort((a, b) => a.name.localeCompare(b.name))
   const [editing, setEditing] = useState(null)
+  const [refused, setRefused] = useState('')
   const [confirm, setConfirm] = useState(null)
   const letters = dayLetters(t)
   const daysOf = (a) => {
@@ -115,7 +116,7 @@ export default function TimerUnit({ households, zones, activeZone, activeGroup, 
     const key = recurrenceKey(a.Recurrence)
     return key === 'ON' ? '' : t(`desk.alarms.recurrence.${key}`)
   }
-  const music = (a) => (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
+  const music = (a) => a.scene_name ? '' : (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
   return (
     <Unit className="hf-timer-unit" name={t('hifi.unit.timer')} model={t('desk.browse.alarms')}>
       <div className="hf-timer-body">
@@ -153,7 +154,7 @@ export default function TimerUnit({ households, zones, activeZone, activeGroup, 
                       {recurrence(a) && <span className="hf-vfd-sub">{recurrence(a)}</span>}
                     </Display>
                     <span className="hf-program-text">
-                      <span className="hf-program-room"><G.Speaker />{a.room || '—'}</span>
+                      <span className="hf-program-room">{a.scene_name || <><G.Speaker />{a.room || '—'}</>}</span>
                       {music(a) && <span className="hf-program-music"><G.Note />{music(a)}</span>}
                     </span>
                     <Lever checked={on} disabled={busy} label={on ? t('win.alarm.on') : t('win.alarm.off')} onChange={(next) => toggle(a.ID, next)} />
@@ -174,12 +175,17 @@ export default function TimerUnit({ households, zones, activeZone, activeGroup, 
           <div className="hf-panel-body">
             <AlarmEditorPanel heading={false} alarm={editing === 'new' ? null : editing} rooms={rooms} households={households} busy={busy}
                               onCancel={() => setEditing(null)}
-                              onSave={async (d) => { if (editing === 'new') await create(d); else await update(editing.ID, d); setEditing(null) }} />
+                              onSave={async (d) => { const refused = editing === 'new' ? await create(d) : await update(editing.ID, d); if (refused) setRefused(refused); else setEditing(null) }} />
           </div>
         </Panel>
       )}
+      {refused && (
+        <Confirm title={t('win.alarm.notSaved')} body={refused} action={t('common.ok')} cancelable={false}
+                 onConfirm={() => setRefused('')} onClose={() => setRefused('')} />
+      )}
       {confirm && (
-        <Confirm title={t('desk.alarms.deleteTitle')} body={t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
+        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: confirm.StartTime.replace(/:00$/, ''), scene: confirm.scene_name })
+                   : t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
                  action={t('desk.alarms.delete')} danger disabled={busy}
                  onConfirm={() => { remove(confirm.ID); setConfirm(null) }} onClose={() => setConfirm(null)} />
       )}

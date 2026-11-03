@@ -24,13 +24,14 @@ export default function AlarmsSection({ households, zones, activeZone, activeGro
   const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zoneUuid)
   const rooms = zoneList.filter((z) => households.find((h) => h.id === activeHh)?.zone_uuids.includes(z.uuid)).sort((a, b) => a.name.localeCompare(b.name))
   const [editing, setEditing] = useState(null)
+  const [refused, setRefused] = useState('')
   const [confirm, setConfirm] = useState(null)
   const describe = (a) => {
     const key = recurrenceKey(a.Recurrence)
     if (key === 'ON') return recurrenceDays(a.Recurrence).map((i) => DAY_LETTERS[i]).join(' ')
     return t(`desk.alarms.recurrence.${key}`)
   }
-  const music = (a) => (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
+  const music = (a) => a.scene_name || (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
   return (
     <div className="sf-alarms">
       <header className="sf-page-head">
@@ -57,7 +58,8 @@ export default function AlarmsSection({ households, zones, activeZone, activeGro
               <span>{describe(a)}</span>
             </div>
             <div className="sf-alarm-text">
-              <span className="sf-alarm-room"><I.Speaker />{a.room || '—'}</span>
+              {/* A scene alarm sets a scene, in no one room: the scene stands where the room would, named below as its music. */}
+              <span className="sf-alarm-room">{a.scene_name ? <><I.Clapper />{t('win.alarms.scene')}</> : <><I.Speaker />{a.room || '—'}</>}</span>
               {music(a) && <span className="sf-alarm-music"><I.Note />{music(a)}</span>}
             </div>
             <div className="sf-alarm-tools">
@@ -73,12 +75,17 @@ export default function AlarmsSection({ households, zones, activeZone, activeGro
           <div className="sf-sheet-body">
             <AlarmEditorPanel heading={false} alarm={editing === 'new' ? null : editing} rooms={rooms} households={households} busy={busy}
                               onCancel={() => setEditing(null)}
-                              onSave={async (d) => { if (editing === 'new') await create(d); else await update(editing.ID, d); setEditing(null) }} />
+                              onSave={async (d) => { const refused = editing === 'new' ? await create(d) : await update(editing.ID, d); if (refused) setRefused(refused); else setEditing(null) }} />
           </div>
         </Sheet>
       )}
+      {refused && (
+        <Confirm title={t('win.alarm.notSaved')} body={refused} action={t('common.ok')} cancelable={false}
+                 onConfirm={() => setRefused('')} onClose={() => setRefused('')} />
+      )}
       {confirm && (
-        <Confirm title={t('desk.alarms.deleteTitle')} body={t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
+        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: confirm.StartTime.replace(/:00$/, ''), scene: confirm.scene_name })
+                   : t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
                  action={t('desk.alarms.delete')} danger disabled={busy}
                  onConfirm={() => { remove(confirm.ID); setConfirm(null) }} onClose={() => setConfirm(null)} />
       )}

@@ -12,8 +12,12 @@ import { browserQueue } from './browserQueue.js'
 import { browserItem } from './browserItem.js'
 
 export class ApiError extends Error {
-  constructor(status, payload) {
-    super(payload?.message || payload?.detail || `Request failed with ${status}`)
+  constructor(status, body) {
+    // A refusal the backend words itself arrives as an object under `detail`.
+    const payload = body?.detail && typeof body.detail === 'object' ? body.detail : body
+    super(payload?.error === 'alarm_taken' && translate
+      ? translate('win.alarm.taken', { room: payload.room || '' })
+      : payload?.message || payload?.detail || `Request failed with ${status}`)
     this.status = status
     this.kind = payload?.error || 'error'
     this.code = payload?.code

@@ -4,7 +4,7 @@ import { useI18n } from '../i18n/index.jsx'
 import { useSystem } from '../lib/store.jsx'
 import { api } from '../lib/api.js'
 import { isPlayableLeaf } from '../lib/items.js'
-import { ALARM_DAYS, alarmToForm, formToDefinition } from '../lib/useAlarms.js'
+import { ALARM_DAYS, alarmScenes, alarmToForm, formToDefinition } from '../lib/useAlarms.js'
 import * as Icon from './Icons.jsx'
 import './alarm.css'
 
@@ -19,22 +19,32 @@ import './alarm.css'
 // a length of time being no time of day.
 // `heading`: false where the theme's own sheet already names the editor in its header, so
 // "Add Alarm" is not said twice (Liquid Glass).
-export default function AlarmEditorPanel({ alarm = null, rooms, households, onCancel, onSave, busy = false, clock = null, formId = undefined, Select = 'select', TimeInput = TimeField, heading = true }) {
+// `onPicker`: for a theme whose own top bar carries the music picker's actions (Material Girl's
+// full-screen dialog). It is told { chosen, set, cancel } while the picker shows, and null when
+// it closes; the picker then draws no buttons of its own.
+export default function AlarmEditorPanel({ alarm = null, rooms, households, onCancel, onSave, busy = false, clock = null, formId = undefined, Select = 'select', TimeInput = TimeField, heading = true, onPicker = null }) {
   const { t, language } = useI18n()
   // 12 or 24; a theme that copies an app says which (the Mac app's is 24),
   // and otherwise the locale decides.
   const hours = clock || (new Intl.DateTimeFormat(language, { hour: 'numeric' }).resolvedOptions().hour12 ? 12 : 24)
   const [form, setForm] = useState(() => alarmToForm(alarm, rooms))
   const [picking, setPicking] = useState(false)
+  const [pickerChosen, setPickerChosen] = useState(null)
   const set = (patch) => setForm((f) => ({ ...f, ...patch }))
   const toggleDay = (d) => set({ once: false, days: form.days.includes(d) ? form.days.filter((x) => x !== d) : [...form.days, d] })
-  const musicText = form.programUri === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : form.musicTitle
+  const pick = (item) => { set({ programUri: item.uri, programMetadata: item.metadata || '', musicTitle: item.title, scene: item.scene || '' }); setPicking(false) }
+  useEffect(() => {
+    if (!onPicker) return
+    onPicker(picking ? { chosen: Boolean(pickerChosen), set: () => pickerChosen && pick(pickerChosen), cancel: () => setPicking(false) } : null)
+  }, [picking, pickerChosen])  // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => onPicker?.(null), [])  // eslint-disable-line react-hooks/exhaustive-deps
+  const musicText = form.scene ? t('win.alarm.sceneMusic', { name: form.musicTitle }) : form.programUri === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : form.musicTitle
   if (picking) {
     return (
       <div className="alarm-form">
         <AlarmMusicPicker room={rooms.find((r) => r.uuid === form.room) || rooms[0]} households={households}
-                          onCancel={() => setPicking(false)}
-                          onPick={(item) => { set({ programUri: item.uri, programMetadata: item.metadata || '', musicTitle: item.title }); setPicking(false) }} />
+                          onCancel={() => setPicking(false)} onPick={pick}
+                          actions={!onPicker} onChosen={setPickerChosen} />
       </div>
     )
   }
@@ -51,10 +61,12 @@ export default function AlarmEditorPanel({ alarm = null, rooms, households, onCa
         </div>
         <label>{t('desk.alarms.time')}</label>
         <div><TimeInput className="alarm-time" value={form.time} clock={hours} label={t('desk.alarms.time')} onChange={(time) => set({ time })} /></div>
-        <label>{t('desk.alarms.room')}</label>
-        <div><Select value={form.room} onChange={(e) => set({ room: e.target.value })}>
-          {rooms.map((r) => <option key={r.uuid} value={r.uuid}>{r.name}</option>)}
-        </Select></div>
+        {!form.scene && <>
+          <label>{t('desk.alarms.room')}</label>
+          <div><Select value={form.room} onChange={(e) => set({ room: e.target.value })}>
+            {rooms.map((r) => <option key={r.uuid} value={r.uuid}>{r.name}</option>)}
+          </Select></div>
+        </>}
         <label>{t('win.alarm.music')}</label>
         <div className="alarm-inline"><span className="alarm-music">{musicText}</span>
           <button type="button" className="alarm-btn" onClick={() => setPicking(true)}>{t('win.alarm.select')}</button></div>
@@ -65,16 +77,20 @@ export default function AlarmEditorPanel({ alarm = null, rooms, households, onCa
             <label key={d}><input type="checkbox" checked={!form.once && form.days.includes(d)} onChange={() => toggleDay(d)} /> {t(`win.alarm.day.${d}`)}</label>
           ))}
         </div>
-        <label>{t('win.alarm.volume')}</label>
-        <div><input type="range" data-wheel-step="2" min="0" max="100" value={form.volume} onChange={(e) => set({ volume: Number(e.target.value) })} /> <span className="alarm-value">{form.volume}</span></div>
-        <label>{t('win.alarm.duration')}</label>
-        <div className="alarm-stack">
-          <label><input type="checkbox" checked={form.noLimit} onChange={(e) => set({ noLimit: e.target.checked })} /> {t('win.alarm.noLimit')}</label>
-          <TimeField className="alarm-time" value={form.duration} clock={24} disabled={form.noLimit}
-                     label={t('win.alarm.duration')} onChange={(duration) => set({ duration })} />
-          <label><input type="checkbox" checked={form.linked} onChange={(e) => set({ linked: e.target.checked })} /> {t('win.alarm.linked')}</label>
-          <label><input type="checkbox" checked={form.shuffle} disabled={form.programUri === 'x-rincon-buzzer:0'} onChange={(e) => set({ shuffle: e.target.checked })} /> {t('win.alarm.shuffle')}</label>
-        </div>
+        {!form.scene && <>
+          <label>{t('win.alarm.volume')}</label>
+          <div><input type="range" data-wheel-step="2" min="0" max="100" value={form.volume} onChange={(e) => set({ volume: Number(e.target.value) })} /> <span className="alarm-value">{form.volume}</span></div>
+        </>}
+        {!form.scene && <>
+          <label>{t('win.alarm.duration')}</label>
+          <div className="alarm-stack">
+            <label><input type="checkbox" checked={form.noLimit} onChange={(e) => set({ noLimit: e.target.checked })} /> {t('win.alarm.noLimit')}</label>
+            <TimeField className="alarm-time" value={form.duration} clock={24} disabled={form.noLimit}
+                       label={t('win.alarm.duration')} onChange={(duration) => set({ duration })} />
+            <label><input type="checkbox" checked={form.linked} onChange={(e) => set({ linked: e.target.checked })} /> {t('win.alarm.linked')}</label>
+            <label><input type="checkbox" checked={form.shuffle} disabled={form.programUri === 'x-rincon-buzzer:0'} onChange={(e) => set({ shuffle: e.target.checked })} /> {t('win.alarm.shuffle')}</label>
+          </div>
+        </>}
       </div>
       <div className="alarm-actions">
         <button type="button" className="alarm-btn" onClick={onCancel}>{t('common.cancel')}</button>
@@ -84,7 +100,7 @@ export default function AlarmEditorPanel({ alarm = null, rooms, households, onCa
   )
 }
 
-export function AlarmMusicPicker({ room, households, onCancel, onPick }) {
+export function AlarmMusicPicker({ room, households, onCancel, onPick, actions = true, onChosen = null }) {
   const { t } = useI18n()
   useSystem()
   const [stack, setStack] = useState([])
@@ -101,21 +117,28 @@ export function AlarmMusicPicker({ room, households, onCancel, onPick }) {
     }).catch(() => setServices([]))
   }, [household?.id])
   const node = stack[stack.length - 1] || null
+  useEffect(() => { onChosen?.(chosen) }, [chosen])  // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     setChosen(null)
     if (!node) { setItems([]); return undefined }
     let canceled = false
     setLoading(true)
+    if (node.scenes) {
+      api.scenes().then((r) => { if (!canceled) { setItems(alarmScenes(r)); setLoading(false) } })
+        .catch(() => { if (!canceled) { setItems([]); setLoading(false) } })
+      return () => { canceled = true }
+    }
     const fetcher = node.service
       ? api.browseService(node.service, { zone, item: node.item ?? 'root', count: 200, account: node.account || '' })
       : api.browse(node.id, { zone, count: 200 })
     fetcher.then((r) => { if (!canceled) { setItems(r.items || []); setLoading(false) } })
       .catch(() => { if (!canceled) { setItems([]); setLoading(false) } })
     return () => { canceled = true }
-  }, [node, zone])
+  }, [node, zone, household?.id])
   const roots = [
     { id: '__chime', title: t('win.alarm.chime'), leaf: true, uri: 'x-rincon-buzzer:0', metadata: '' },
     { id: 'SQ:', title: t('desk.browse.playlists') },
+    { id: '__scenes', title: t('win.alarm.sonoraScenes'), scenes: true },
     { id: 'A:PLAYLISTS', title: t('win.alarm.importedPlaylists') },
     ...services.map((s) => ({ id: `svc:${s.id}`, title: s.name, service: s.id, account: s.account_id ?? '' })),
   ]
@@ -123,6 +146,7 @@ export function AlarmMusicPicker({ room, households, onCancel, onPick }) {
   const isLeaf = (row) => Boolean(row.leaf) || (Boolean(node) && Boolean(row.uri) && (isPlayableLeaf(row) || row.is_container))
   const open = (row) => {
     if (isLeaf(row)) { setChosen(row); return }
+    if (row.scenes) { setStack([...stack, { id: row.id, title: row.title, scenes: true }]); return }
     if (row.service) { setStack([...stack, { id: row.id, title: row.title, service: row.service, item: 'root', account: row.account }]); return }
     if (node?.service) { setStack([...stack, { ...node, id: row.id, title: row.title, item: row.id }]); return }
     setStack([...stack, { id: row.id, title: row.title }])
@@ -145,10 +169,12 @@ export function AlarmMusicPicker({ room, households, onCancel, onPick }) {
           ))}
         </div>
       </div>
-      <div className="alarm-actions">
-        <button type="button" className="alarm-btn" onClick={onCancel}>{t('common.cancel')}</button>
-        <button type="button" className="alarm-btn alarm-btn-primary" disabled={!chosen} onClick={() => chosen && onPick(chosen)}>{t('win.alarm.setMusic')}</button>
-      </div>
+      {actions && (
+        <div className="alarm-actions">
+          <button type="button" className="alarm-btn" onClick={onCancel}>{t('common.cancel')}</button>
+          <button type="button" className="alarm-btn alarm-btn-primary" disabled={!chosen} onClick={() => chosen && onPick(chosen)}>{t('win.alarm.setMusic')}</button>
+        </div>
+      )}
     </>
   )
 }

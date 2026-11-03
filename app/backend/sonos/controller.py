@@ -5215,7 +5215,7 @@ class Commands:
     def _alarm_args(self, alarm: dict) -> dict:
         return {"StartLocalTime": alarm["start_time"], "Duration": alarm.get("duration", ""),
                 "Recurrence": alarm.get("recurrence", "ONCE"), "Enabled": 1 if alarm.get("enabled", True) else 0,
-                "RoomUUID": alarm["room_uuid"], "ProgramURI": alarm.get("program_uri") or "x-rincon-buzzer:0",
+                "RoomUUID": alarm["room_uuid"], "ProgramURI": alarm.get("program_uri") or const.CHIME_URI,
                 "ProgramMetaData": alarm.get("program_metadata", ""),
                 "PlayMode": alarm.get("play_mode", "NORMAL"), "Volume": int(alarm.get("volume", 25)),
                 "IncludeLinkedZones": 1 if alarm.get("include_linked_zones") else 0}

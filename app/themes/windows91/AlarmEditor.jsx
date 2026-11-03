@@ -7,7 +7,7 @@ import * as Icon from '../../frontend/src/components/Icons.jsx'
 import MoreRows from '../../frontend/src/components/MoreRows.jsx'
 import TimePicker from './TimePicker.jsx'
 import { isPlayableLeaf } from '../../frontend/src/lib/items.js'
-import { ALARM_DAYS, alarmToForm, formToDefinition } from '../../frontend/src/lib/useAlarms.js'
+import { ALARM_DAYS, alarmScenes, alarmToForm, formToDefinition } from '../../frontend/src/lib/useAlarms.js'
 
 // The app's alarm editor (alarms/editalarmwindow.xaml, captured 2026-09-05,
 // 494x494 "Add Alarm" / "Edit Alarm"): a 110px label column with Alarm
@@ -29,14 +29,14 @@ export default function AlarmEditor({ alarm = null, rooms, households, onClose, 
   const toggleDay = (d) => set({ once: false, days: form.days.includes(d) ? form.days.filter((x) => x !== d) : [...form.days, d] })
   const save = () => onSave(formToDefinition(form))
   const title = alarm ? t('win.alarm.editTitle') : t('win.alarm.addTitle')
-  const musicText = form.programUri === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : form.musicTitle
+  const musicText = form.scene ? t('win.alarm.sceneMusic', { name: form.musicTitle }) : form.programUri === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : form.musicTitle
 
   if (picking) {
     return (
       <Window title={title} onClose={onClose} className="win-alarm-editor">
         <AlarmMusicPicker room={rooms.find((r) => r.uuid === form.room) || rooms[0]} households={households}
                           onCancel={() => setPicking(false)}
-                          onPick={(item) => { set({ programUri: item.uri, programMetadata: item.metadata || '', musicTitle: item.title }); setPicking(false) }} />
+                          onPick={(item) => { set({ programUri: item.uri, programMetadata: item.metadata || '', musicTitle: item.title, scene: item.scene || '' }); setPicking(false) }} />
       </Window>
     )
   }
@@ -51,10 +51,12 @@ export default function AlarmEditor({ alarm = null, rooms, households, onClose, 
           </div>
           <span className="win-alarm-label">{t('desk.alarms.time')}</span>
           <div><TimePicker className="win-alarm-time" value={form.time} clock={clock} label={t('desk.alarms.time')} onChange={(time) => set({ time })} /></div>
-          <span className="win-alarm-label">{t('desk.alarms.room')}</span>
-          <div><select className="win-alarm-room" value={form.room} onChange={(e) => set({ room: e.target.value })}>
-            {rooms.map((r) => <option key={r.uuid} value={r.uuid}>{r.name}</option>)}
-          </select></div>
+          {!form.scene && <>
+            <span className="win-alarm-label">{t('desk.alarms.room')}</span>
+            <div><select className="win-alarm-room" value={form.room} onChange={(e) => set({ room: e.target.value })}>
+              {rooms.map((r) => <option key={r.uuid} value={r.uuid}>{r.name}</option>)}
+            </select></div>
+          </>}
           <span className="win-alarm-label">{t('win.alarm.music')}</span>
           <div className="win-alarm-music">
             <input type="text" readOnly value={musicText} />
@@ -67,16 +69,20 @@ export default function AlarmEditor({ alarm = null, rooms, households, onClose, 
               <label key={d}><input type="checkbox" checked={!form.once && form.days.includes(d)} onChange={() => toggleDay(d)} /> {t(`win.alarm.day.${d}`)}</label>
             ))}
           </div>
-          <span className="win-alarm-label">{t('win.alarm.volume')}</span>
-          <div><input type="range" className="win-alarm-volume" data-wheel-step="2" min="0" max="100" value={form.volume} onChange={(e) => set({ volume: Number(e.target.value) })} /></div>
-          <span className="win-alarm-label">{t('win.alarm.duration')}</span>
-          <div className="win-alarm-duration">
-            <label><input type="checkbox" checked={form.noLimit} onChange={(e) => set({ noLimit: e.target.checked })} /> {t('win.alarm.noLimit')}</label>
-            <TimePicker className="win-alarm-time win-alarm-length" value={form.duration} clock={24} disabled={form.noLimit}
-                        label={t('win.alarm.duration')} onChange={(duration) => set({ duration })} />
-            <label><input type="checkbox" checked={form.linked} onChange={(e) => set({ linked: e.target.checked })} /> {t('win.alarm.linked')}</label>
-            <label><input type="checkbox" checked={form.shuffle} disabled={form.programUri === 'x-rincon-buzzer:0'} onChange={(e) => set({ shuffle: e.target.checked })} /> {t('win.alarm.shuffle')}</label>
-          </div>
+          {!form.scene && <>
+            <span className="win-alarm-label">{t('win.alarm.volume')}</span>
+            <div><input type="range" className="win-alarm-volume" data-wheel-step="2" min="0" max="100" value={form.volume} onChange={(e) => set({ volume: Number(e.target.value) })} /></div>
+          </>}
+          {!form.scene && <>
+            <span className="win-alarm-label">{t('win.alarm.duration')}</span>
+            <div className="win-alarm-duration">
+              <label><input type="checkbox" checked={form.noLimit} onChange={(e) => set({ noLimit: e.target.checked })} /> {t('win.alarm.noLimit')}</label>
+              <TimePicker className="win-alarm-time win-alarm-length" value={form.duration} clock={24} disabled={form.noLimit}
+                          label={t('win.alarm.duration')} onChange={(duration) => set({ duration })} />
+              <label><input type="checkbox" checked={form.linked} onChange={(e) => set({ linked: e.target.checked })} /> {t('win.alarm.linked')}</label>
+              <label><input type="checkbox" checked={form.shuffle} disabled={form.programUri === 'x-rincon-buzzer:0'} onChange={(e) => set({ shuffle: e.target.checked })} /> {t('win.alarm.shuffle')}</label>
+            </div>
+          </>}
         </div>
       </div>
       <div className="win-dialog-foot win-alarm-foot">
@@ -136,6 +142,11 @@ function AlarmMusicPicker({ room, households, onCancel, onPick }) {
     if (!node) { setItems([]); return undefined }
     let canceled = false
     setLoading(true)
+    if (node.scenes) {
+      api.scenes().then((r) => { if (!canceled) { setItems(alarmScenes(r)); setLoading(false) } })
+        .catch(() => { if (!canceled) { setItems([]); setLoading(false) } })
+      return () => { canceled = true }
+    }
     // The first page at once, the next when the list is scrolled to its end.
     const pager = node.service
       ? browseServicePages(node.service, { zone, item: node.item ?? 'root', account: node.account || '' })
@@ -147,10 +158,11 @@ function AlarmMusicPicker({ room, households, onCancel, onPick }) {
     }, (exc, first) => { if (!canceled && first) { setItems([]); setLoading(false) } })
     following.current = follow
     return () => { canceled = true; follow.stop() }
-  }, [node, zone])
+  }, [node, zone, household?.id])
   const roots = services === null ? [] : [
     { id: '__chime', title: t('win.alarm.chime'), leaf: true, uri: 'x-rincon-buzzer:0', metadata: '' },
     { id: 'SQ:', title: t('desk.browse.playlists') },
+    { id: '__scenes', title: t('win.alarm.sonoraScenes'), scenes: true },
     { id: 'A:PLAYLISTS', title: t('win.alarm.importedPlaylists') },
     ...services.map((s) => ({ id: `svc:${s.id}`, title: s.name, service: s.id, account: s.account_id ?? '' })),
   ]
@@ -160,6 +172,7 @@ function AlarmMusicPicker({ room, households, onCancel, onPick }) {
   const isLeaf = (row) => Boolean(row.leaf) || (Boolean(node) && Boolean(row.uri) && (isPlayableLeaf(row) || row.is_container))
   const open = (row) => {
     if (isLeaf(row)) { setChosen(row); return }
+    if (row.scenes) { setStack([...stack, { id: row.id, title: row.title, scenes: true }]); return }
     if (row.service) { setStack([...stack, { id: row.id, title: row.title, service: row.service, item: 'root', account: row.account }]); return }
     if (node?.service) { setStack([...stack, { ...node, id: row.id, title: row.title, item: row.id }]); return }
     setStack([...stack, { id: row.id, title: row.title }])

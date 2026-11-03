@@ -477,7 +477,7 @@ function ExitButton({ onClose, children }) {
 }
 
 // A basic dialog asking one thing, or asking for a name when `input` is set.
-export function Confirm({ title, body, action, cancelLabel, onConfirm, onClose, danger = false, input = null, disabled = false, icon = null, children }) {
+export function Confirm({ title, body, action, cancelLabel, onConfirm, onClose, danger = false, input = null, disabled = false, cancelable = true, icon = null, children }) {
   const { t } = useI18n()
   const [value, setValue] = useState(input?.initial || '')
   const ok = input ? value.trim() && (input.allowSame || value.trim() !== (input.initial || '')) : true
@@ -495,7 +495,7 @@ export function Confirm({ title, body, action, cancelLabel, onConfirm, onClose, 
         {children}
       </div>
       <footer className="mg-dialog-actions">
-        <ExitButton onClose={onClose}>{cancelLabel || t('common.cancel')}</ExitButton>
+        {cancelable && <ExitButton onClose={onClose}>{cancelLabel || t('common.cancel')}</ExitButton>}
         <Button variant={danger ? 'danger' : 'text'} disabled={!ok || disabled} onClick={submit}>{action}</Button>
       </footer>
     </Sheet>

@@ -1680,3 +1680,7 @@
 :root[data-theme='macos'] .mac-root .dk-scene-window .scene-menu .scene-picker-row[aria-selected='true'] { background: none; color: inherit; }
 :root[data-theme='macos'] .mac-root .dk-scene-window .scene-menu .scene-picker-row[aria-selected='true']:is(:hover, [data-cursor]),
 :root[data-theme='macos'] .mac-root .dk-scene-window .scene-menu .scene-picker-list:not(:has(.scene-picker-row:hover, .scene-picker-row[data-cursor])) .scene-picker-row[aria-selected='true'] { background: #dcdcdc; }
+
+/* The alarm tables' mark before each Room / Scene entry: its letter, outlined
+   in the row's own color. */
+:where(:root[data-theme='macos']) .alarm-kind { display: inline-block; min-width: 9px; margin-right: 6px; padding: 0 2px; border: 1px solid currentColor; border-radius: 3px; font-size: 9px; font-style: normal; font-weight: 700; line-height: 11px; text-align: center; opacity: 0.8; vertical-align: 1px; }

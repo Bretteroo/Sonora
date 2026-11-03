@@ -36,14 +36,18 @@ export function useAlarms(zoneUuid) {
   }, [zoneUuid, readersKey])  // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { setAlarms(null); load() }, [load])
   useEffect(() => { if (alarmsEpoch) load() }, [alarmsEpoch, load])
-  const apply = async (fn) => {
+  // A save (create, update) the speakers refuse answers with their reason, for
+  // the editor to show over itself; any other refusal is the list's error.
+  const apply = async (fn, save = false) => {
     setBusy(true); setError('')
+    let refused = ''
     try {
       const r = await fn()
       if (every) load()
       else setAlarms(r.alarms || [])
-    } catch (exc) { setError(exc.message) }
+    } catch (exc) { if (save) refused = exc.message; else setError(exc.message) }
     setBusy(false)
+    return refused
   }
   // The room to send a change through, and the speakers' own id.
   const target = (id) => {
@@ -55,8 +59,8 @@ export function useAlarms(zoneUuid) {
     alarms, error, busy, refresh: load,
     toggle: (id, enabled) => { const [zone, own] = target(id); return apply(() => api.setAlarm(own, { zone, enabled })) },
     remove: (id) => { const [zone, own] = target(id); return apply(() => api.deleteAlarm(own, zone)) },
-    create: (definition) => apply(() => api.createAlarm({ zone: every ? definition.room_uuid : zoneUuid, ...definition })),
-    update: (id, definition) => { const [zone, own] = target(id); return apply(() => api.updateAlarm(own, { zone, ...definition })) },
+    create: (definition) => apply(() => api.createAlarm({ zone: every ? definition.room_uuid : zoneUuid, ...definition }), true),
+    update: (id, definition) => { const [zone, own] = target(id); return apply(() => api.updateAlarm(own, { zone, ...definition }), true) },
   }
 }
 
@@ -82,14 +86,17 @@ export function alarmToForm(alarm, rooms, defaultRoom = '') {
     // An alarm plays on a speaker: chosen from this browser, a new one opens
     // on the first room instead.
     room: alarm?.RoomUUID || (isBrowserRoom(defaultRoom) ? '' : defaultRoom) || rooms[0]?.uuid || '',
-    musicTitle: alarm && alarm.ProgramURI !== 'x-rincon-buzzer:0' ? (alarm.program_title || alarm.ProgramURI) : '',
+    musicTitle: alarm?.scene_name || (alarm && alarm.ProgramURI !== 'x-rincon-buzzer:0' ? (alarm.program_title || alarm.ProgramURI) : ''),
+    // A Sonora scene the alarm sets in place of music: the room and volume are then the scene's.
+    scene: alarm?.scene || '',
     programUri: alarm?.ProgramURI || 'x-rincon-buzzer:0',
     programMetadata: alarm?.ProgramMetaData || '',
     // A new alarm has every day ticked and Once Only clear, in both apps'
     // Add Alarm (Windows capture alarm-editor.png; the Mac app, 2026-09-23).
     once: alarm ? rec === 'ONCE' : false,
     days: alarm ? days : [0, 1, 2, 3, 4, 5, 6],
-    volume: alarm ? Number(alarm.Volume || 25) : 25,
+    // A scene alarm is saved silent; set back to music, it starts from the usual level.
+    volume: alarm && !alarm.scene ? Number(alarm.Volume || 25) : 25,
     noLimit: alarm ? !alarm.Duration : false,
     duration: (alarm?.Duration || '02:00:00').slice(0, 5),
     linked: alarm ? alarm.IncludeLinkedZones === '1' : false,
@@ -110,6 +117,14 @@ export function formToDefinition(form) {
     recurrence: recurrenceOf(form), enabled: form.enabled, room_uuid: form.room,
     program_uri: form.programUri, program_metadata: form.programMetadata,
     play_mode: form.shuffle ? 'SHUFFLE_NOREPEAT' : 'NORMAL', volume: form.volume,
-    include_linked_zones: form.linked,
+    include_linked_zones: form.linked, scene: form.scene || '',
   }
 }
+
+// The alarm music pickers' "Sonora Scenes": every scene, each a choice of its own.
+// The backend saves it as a silent alarm in a room of its choosing; the scene
+// itself may be on any system.
+export function alarmScenes(list) {
+  return (list?.scenes || []).map((s) => ({ id: `scene:${s.id}`, title: s.name, leaf: true, uri: 'x-rincon-buzzer:0', metadata: '', scene: s.id }))
+}
+

@@ -278,7 +278,7 @@ export function Spinner({ label = '' }) {
 export function Kbd({ children }) { return <kbd className="sf-kbd">{children}</kbd> }
 
 // A question with one action, or a name to type when `input` is given.
-export function Confirm({ title, body, action, cancelLabel, onConfirm, onClose, danger = false, input = null, disabled = false, children }) {
+export function Confirm({ title, body, action, cancelLabel, onConfirm, onClose, danger = false, input = null, disabled = false, cancelable = true, children }) {
   const { t } = useI18n()
   const [value, setValue] = useState(input?.initial || '')
   const ok = input ? value.trim() && (input.allowSame || value.trim() !== (input.initial || '')) : true
@@ -297,7 +297,7 @@ export function Confirm({ title, body, action, cancelLabel, onConfirm, onClose, 
         {children}
       </div>
       <footer className="sf-sheet-foot">
-        <Button quiet onClick={onClose}>{cancelLabel || t('common.cancel')}</Button>
+        {cancelable && <Button quiet onClick={onClose}>{cancelLabel || t('common.cancel')}</Button>}
         <Button primary disabled={!ok || disabled} onClick={submit} className={danger ? 'sf-btn-danger' : ''}>{action}</Button>
       </footer>
     </Sheet>

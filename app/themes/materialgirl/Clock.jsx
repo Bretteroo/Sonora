@@ -38,9 +38,11 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
   const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zoneUuid)
   const rooms = zoneList.filter((z) => households.find((h) => h.id === activeHh)?.zone_uuids.includes(z.uuid)).sort((a, b) => a.name.localeCompare(b.name))
   const [editing, setEditing] = useState(null)
+  const [refused, setRefused] = useState('')
+  const [picker, setPicker] = useState(null)
   const [confirm, setConfirm] = useState(null)
   const [menu, setMenu] = useState(null)
-  const music = (a) => (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
+  const music = (a) => a.scene_name ? '' : (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
   return (
     <div className="mg-page mg-clock">
       <header className="mg-appbar mg-appbar-medium">
@@ -82,7 +84,7 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
                     : <span className="mg-alarm-rec">{t(`desk.alarms.recurrence.${key}`)}</span>}
                 </div>
                 <div className="mg-alarm-lines">
-                  <span><I.Speaker />{a.room || '—'}</span>
+                  <span>{a.scene_name || <><I.Speaker />{a.room || '—'}</>}</span>
                   {music(a) && <span><I.Note />{music(a)}</span>}
                 </div>
                 <IconButton size="xs" className="mg-alarm-more" label={t('desk.browse.actions')}
@@ -102,18 +104,31 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
         <Sheet kind="full" title={editing === 'new' ? t('win.alarm.addTitle') : t('win.alarm.editTitle')} onClose={() => setEditing(null)} className="mg-alarm-editor">
           {/* A full-screen dialog: close at the leading end, the confirming action at the trailing end
               of the top bar (Material's full-screen dialog). */}
-          <SheetBar title={editing === 'new' ? t('win.alarm.addTitle') : t('win.alarm.editTitle')} onClose={() => setEditing(null)}>
-            <Button variant="text" size="s" type="submit" form="mg-alarm-form" disabled={busy}>{t('common.save')}</Button>
-          </SheetBar>
+          {/* While the music is picked the bar is that step's: back to the form, and its action sets
+              the music rather than saving the alarm. */}
+          {picker ? (
+            <SheetBar title={t('win.alarm.browseTitle')} back={picker.cancel}>
+              <Button variant="text" size="s" disabled={!picker.chosen} onClick={picker.set}>{t('win.alarm.setMusic')}</Button>
+            </SheetBar>
+          ) : (
+            <SheetBar title={editing === 'new' ? t('win.alarm.addTitle') : t('win.alarm.editTitle')} onClose={() => setEditing(null)}>
+              <Button variant="text" size="s" type="submit" form="mg-alarm-form" disabled={busy}>{t('common.save')}</Button>
+            </SheetBar>
+          )}
           <div className="mg-sheet-body">
-            <AlarmEditorPanel heading={false} formId="mg-alarm-form" Select={Select} TimeInput={TimeField} alarm={editing === 'new' ? null : editing} rooms={rooms} households={households} busy={busy}
+            <AlarmEditorPanel heading={false} formId="mg-alarm-form" Select={Select} TimeInput={TimeField} onPicker={setPicker} alarm={editing === 'new' ? null : editing} rooms={rooms} households={households} busy={busy}
                               onCancel={() => setEditing(null)}
-                              onSave={async (d) => { if (editing === 'new') await create(d); else await update(editing.ID, d); setEditing(null) }} />
+                              onSave={async (d) => { const refused = editing === 'new' ? await create(d) : await update(editing.ID, d); if (refused) setRefused(refused); else setEditing(null) }} />
           </div>
         </Sheet>
       )}
+      {refused && (
+        <Confirm title={t('win.alarm.notSaved')} body={refused} action={t('common.ok')} cancelable={false}
+                 onConfirm={() => setRefused('')} onClose={() => setRefused('')} />
+      )}
       {confirm && (
-        <Confirm title={t('desk.alarms.deleteTitle')} body={t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
+        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: confirm.StartTime.replace(/:00$/, ''), scene: confirm.scene_name })
+                   : t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
                  action={t('desk.alarms.delete')} danger disabled={busy} icon={<I.Alarm />}
                  onConfirm={() => { remove(confirm.ID); setConfirm(null) }} onClose={() => setConfirm(null)} />
       )}

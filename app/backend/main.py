@@ -5642,15 +5642,14 @@ def _listed_scene_alarm(alarm: dict) -> dict:
 
 async def _named_alarms(zone: str) -> list[dict]:
     """The household's alarms with the room each one plays in named, and
-    after them the scene alarms Sonora keeps for the household."""
+    after them every scene alarm Sonora keeps. A scene alarm belongs to no
+    room, so it is listed whichever system is being looked at."""
     ctl = controller()
     items = await commands().alarms(zone)
     for alarm in items:
         room = ctl.zones.get(alarm.get("RoomUUID", ""))
         alarm["room"] = room.name if room else ""
-    household = ctl.household_of(zone)
-    if household is not None:
-        items += [_listed_scene_alarm(a) for a in _SCENE_ALARMS.items(household.id)]
+    items += [_listed_scene_alarm(a) for a in _SCENE_ALARMS.items()]
     return items
 
 
@@ -5698,13 +5697,25 @@ async def _alarm_write(zone: str, definition: dict, write, alarm_id: str = "") -
 
 
 def _save_scene_alarm(body: AlarmDefinition, alarm_id: str = "") -> None:
-    if _SCENES.get(body.scene) is None:
+    """Save a scene alarm on the clock of a system the scene plays on: the one
+    it has already, else the system of the scene's first rooms, else the
+    system the alarm was made from."""
+    scene = _SCENES.get(body.scene)
+    if scene is None:
         raise HTTPException(404, f"unknown scene {body.scene}")
-    household = controller().household_of(body.zone)
-    if household is None:
-        raise HTTPException(404, f"unknown room {body.zone}")
+    ctl = controller()
+    held = _SCENE_ALARMS.get(alarm_id) if alarm_id else None
+    households = [g.get("household", "") for g in scene.get("groups", [])]
+    if held is not None:
+        households.insert(0, held["household"])
+    household = next((h for h in households if h in ctl.households), "")
+    if not household:
+        zone_household = ctl.household_of(body.zone)
+        if zone_household is None:
+            raise HTTPException(404, f"unknown room {body.zone}")
+        household = zone_household.id
     try:
-        _SCENE_ALARMS.save(household.id, body.scene, body.start_time, body.recurrence, body.enabled, alarm_id)
+        _SCENE_ALARMS.save(household, body.scene, body.start_time, body.recurrence, body.enabled, alarm_id)
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from None
 

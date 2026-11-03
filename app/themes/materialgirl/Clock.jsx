@@ -42,7 +42,7 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
   const [picker, setPicker] = useState(null)
   const [confirm, setConfirm] = useState(null)
   const [menu, setMenu] = useState(null)
-  const music = (a) => a.scene_name ? '' : (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
+  const music = (a) => a.scene_name || (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
   return (
     <div className="mg-page mg-clock">
       <header className="mg-appbar mg-appbar-medium">
@@ -84,7 +84,7 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
                     : <span className="mg-alarm-rec">{t(`desk.alarms.recurrence.${key}`)}</span>}
                 </div>
                 <div className="mg-alarm-lines">
-                  <span>{a.scene_name || <><I.Speaker />{a.room || '—'}</>}</span>
+                  <span>{a.scene_name ? <><I.Clapper />{t('win.alarms.scene')}</> : <><I.Speaker />{a.room || '—'}</>}</span>
                   {music(a) && <span><I.Note />{music(a)}</span>}
                 </div>
                 <IconButton size="xs" className="mg-alarm-more" label={t('desk.browse.actions')}

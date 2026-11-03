@@ -18,7 +18,8 @@ export function useAlarms(zoneUuid) {
   // alarms, each read through one of that household's rooms; an alarm is
   // then changed through its own room, and a new one through the room it
   // will play in. Alarm ids count from 1 in each household, so they are kept
-  // apart here as "<room>|<id>".
+  // apart here as "<room>|<id>". A scene alarm is Sonora's, listed whichever
+  // household is read, so it keeps its own id and is listed once.
   const every = isBrowserRoom(zoneUuid)
   const readers = every
     ? (households || []).map((h) => (h.zone_uuids.find((uuid) => zones?.[uuid]?.online !== false && zones?.[uuid]) || h.zone_uuids.find((uuid) => zones?.[uuid]))).filter(Boolean)
@@ -27,9 +28,11 @@ export function useAlarms(zoneUuid) {
   const load = useCallback(() => {
     if (!zoneUuid) return
     const read = every
-      ? Promise.all(readers.map((uuid) => api.alarms(uuid))).then((lists) => ({
-        alarms: lists.flatMap((r) => (r.alarms || []).map((a) => ({ ...a, ID: `${a.RoomUUID}|${a.ID}` }))),
-      }))
+      ? Promise.all(readers.map((uuid) => api.alarms(uuid))).then((lists) => {
+        const all = lists.flatMap((r) => r.alarms || [])
+        const scenes = [...new Map(all.filter((a) => a.scene).map((a) => [a.ID, a])).values()]
+        return { alarms: [...all.filter((a) => !a.scene).map((a) => ({ ...a, ID: `${a.RoomUUID}|${a.ID}` })), ...scenes] }
+      })
       : api.alarms(zoneUuid)
     read.then((r) => { setAlarms(r.alarms || []); setError('') })
       .catch((exc) => setError(exc.message))
@@ -52,6 +55,7 @@ export function useAlarms(zoneUuid) {
   // The room to send a change through, and the speakers' own id.
   const target = (id) => {
     if (!every) return [zoneUuid, id]
+    if (!String(id).includes('|')) return [readers[0], id]
     const cut = String(id).lastIndexOf('|')
     return [String(id).slice(0, cut), String(id).slice(cut + 1)]
   }
@@ -59,8 +63,13 @@ export function useAlarms(zoneUuid) {
     alarms, error, busy, refresh: load,
     toggle: (id, enabled) => { const [zone, own] = target(id); return apply(() => api.setAlarm(own, { zone, enabled })) },
     remove: (id) => { const [zone, own] = target(id); return apply(() => api.deleteAlarm(own, zone)) },
-    create: (definition) => apply(() => api.createAlarm({ zone: every ? definition.room_uuid : zoneUuid, ...definition }), true),
-    update: (id, definition) => { const [zone, own] = target(id); return apply(() => api.updateAlarm(own, { zone, ...definition }), true) },
+    create: (definition) => apply(() => api.createAlarm({ zone: every ? (definition.room_uuid || readers[0]) : zoneUuid, ...definition }), true),
+    update: (id, definition) => {
+      const [zone, own] = target(id)
+      // A scene alarm made a room's alarm again goes to that room's household.
+      const via = every && !definition.scene && !String(id).includes('|') ? (definition.room_uuid || zone) : zone
+      return apply(() => api.updateAlarm(own, { zone: via, ...definition }), true)
+    },
   }
 }
 

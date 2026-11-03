@@ -116,7 +116,7 @@ export default function TimerUnit({ households, zones, activeZone, activeGroup, 
     const key = recurrenceKey(a.Recurrence)
     return key === 'ON' ? '' : t(`desk.alarms.recurrence.${key}`)
   }
-  const music = (a) => a.scene_name ? '' : (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
+  const music = (a) => a.scene_name || (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
   return (
     <Unit className="hf-timer-unit" name={t('hifi.unit.timer')} model={t('desk.browse.alarms')}>
       <div className="hf-timer-body">
@@ -154,7 +154,7 @@ export default function TimerUnit({ households, zones, activeZone, activeGroup, 
                       {recurrence(a) && <span className="hf-vfd-sub">{recurrence(a)}</span>}
                     </Display>
                     <span className="hf-program-text">
-                      <span className="hf-program-room">{a.scene_name || <><G.Speaker />{a.room || '—'}</>}</span>
+                      <span className="hf-program-room">{a.scene_name ? <><G.ScenesOutline />{t('win.alarms.scene')}</> : <><G.Speaker />{a.room || '—'}</>}</span>
                       {music(a) && <span className="hf-program-music"><G.Note />{music(a)}</span>}
                     </span>
                     <Lever checked={on} disabled={busy} label={on ? t('win.alarm.on') : t('win.alarm.off')} onChange={(next) => toggle(a.ID, next)} />

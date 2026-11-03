@@ -40,7 +40,7 @@ export default function ClockProgram({ households, zones, activeZone, activeGrou
   const [refused, setRefused] = useState('')
   const [confirm, setConfirm] = useState(null)
   const [menu, setMenu] = useState(null)
-  const music = (a) => a.scene_name ? '' : (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
+  const music = (a) => a.scene_name || (a.ProgramURI === 'x-rincon-buzzer:0' ? t('win.alarm.chime') : (a.music || a.ProgramTitle || ''))
   return (
     <div className="sv-clock">
       <SleepBox zone={activeZone} groupLabel={activeGroup ? groupTitle(activeGroup, zones, t) : ''} />
@@ -73,7 +73,7 @@ export default function ClockProgram({ households, zones, activeZone, activeGrou
                       ? days.map((d, i) => <span key={i} className="sv-day" data-on={set.has(i) || undefined}>{d}</span>)
                       : <span className="sv-alarm-rec">{t(`desk.alarms.recurrence.${key}`)}</span>}
                   </span>
-                  <span className="sv-alarm-room" role="cell">{a.scene_name || a.room || '-'}</span>
+                  <span className="sv-alarm-room" role="cell">{a.scene_name ? t('win.alarms.scene') : (a.room || '-')}</span>
                   <span className="sv-alarm-music" role="cell">{music(a)}</span>
                   <span className="sv-alarm-tools" role="cell" onClick={(event) => event.stopPropagation()}>
                     <Toggle checked={on} disabled={busy} onChange={(v) => toggle(a.ID, v)} ariaLabel={`${time} ${t('desk.alarms.enabled')}`} />

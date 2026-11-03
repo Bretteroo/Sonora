@@ -151,7 +151,8 @@ function SleepBody({ zone, groupLabel = '', zones }) {
   return (
     <>
       <div className="mg-sleep-main" data-active={mine ? '' : undefined}>
-        <span className="mg-sleep-badge" style={{ clipPath: SHAPES.sunny }} aria-hidden="true"><I.Moon /></span>
+        {/* It turns while any room has a timer running, and stands still while none has. */}
+        <span className="mg-sleep-badge" style={{ clipPath: SHAPES.sunny }} data-running={timers.length ? '' : undefined} aria-hidden="true"><I.Moon /></span>
         <div className="mg-sleep-text">
           <span className="mg-overline">{groupLabel || zone.name}</span>
           {mine ? <strong className="mg-sleep-clock" aria-live="off">{clockText(mine.seconds)}</strong>

@@ -1896,6 +1896,24 @@
   /* The shared alarm editor, on the screen. */
   & .alarm-form { color: var(--sv-ph); font-family: var(--sv-screen-font); font-size: 21px; }
   & .alarm-form input:is([type='radio'], [type='checkbox'], [type='range']) { accent-color: rgb(var(--sv-ph-rgb)); }
+  /* Its volume drawn as the screen's own bars: faint segments, lit ones up to the value, and a
+     glowing head (WebKit has no lit part to draw, so there it is the segments and the head). */
+  & .alarm-form input[type='range'] { appearance: none; height: 24px; background: transparent; cursor: ew-resize; vertical-align: middle; }
+  & .alarm-form input[type='range']::-moz-range-track {
+    height: 16px; border: 0; border-radius: 0;
+    background: repeating-linear-gradient(90deg, var(--sv-ph-faint) 0 round(6px, var(--sv-dpx)), transparent 0 calc(round(6px, var(--sv-dpx)) + round(3px, var(--sv-dpx))));
+  }
+  & .alarm-form input[type='range']::-moz-range-progress {
+    height: 16px; border-radius: 0;
+    background: repeating-linear-gradient(90deg, var(--sv-ph) 0 round(6px, var(--sv-dpx)), transparent 0 calc(round(6px, var(--sv-dpx)) + round(3px, var(--sv-dpx))));
+  }
+  & .alarm-form input[type='range']::-moz-range-thumb { width: 4px; height: 24px; border: 0; border-radius: 0; background: var(--sv-ph); box-shadow: var(--sv-glow); }
+  & .alarm-form input[type='range']::-webkit-slider-runnable-track {
+    height: 16px;
+    background: repeating-linear-gradient(90deg, var(--sv-ph-faint) 0 round(6px, var(--sv-dpx)), transparent 0 calc(round(6px, var(--sv-dpx)) + round(3px, var(--sv-dpx))));
+  }
+  & .alarm-form input[type='range']::-webkit-slider-thumb { appearance: none; width: 4px; height: 24px; margin-top: -4px; background: var(--sv-ph); box-shadow: var(--sv-glow); }
+  & .alarm-form input[type='range']:focus-visible { outline: 2px dashed var(--sv-ph); outline-offset: 4px; }
   & .alarm-form .alarm-btn { background: transparent; border: 2px solid var(--sv-ph); color: var(--sv-ph); font: inherit; font-size: 19px; padding: 1px 10px; cursor: pointer; text-transform: uppercase; }
   & .alarm-form .alarm-btn:hover { background: var(--sv-ph-wash-strong); }
 

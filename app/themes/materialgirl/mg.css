@@ -260,6 +260,10 @@
   & .mg-rail-systems { display: flex; flex-direction: column; gap: 2px; padding: 4px; border-radius: 16px; background: var(--mg-surface-container-high); }
   & .mg-root:is([data-rail='open'], [data-rail='modal']) .mg-rail-systems { flex-direction: row; }
   & .mg-rail-systems button { position: relative; flex: 1; min-width: 44px; height: 32px; border: 0; border-radius: 12px; background: none; cursor: pointer; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-on-surface-variant); transition: border-radius 500ms var(--mg-spring), background 200ms var(--mg-effects); }
+  /* The segments sit 2px apart, so each one's 48dp touch square reaches only to the gap's middle:
+     a full square on each covered most of the segment before it (stacked, all but its top edge). */
+  & .mg-root .mg-rail .mg-rail-systems button::after { width: calc(100% + 2px); }
+  & .mg-root:not([data-rail]) .mg-rail .mg-rail-systems button::after { height: calc(100% + 2px); }
   & .mg-rail-systems button[aria-checked='true'] { background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); border-radius: 999px; }
   & .mg-rail-live { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; color: var(--mg-on-surface-variant); text-align: center; }
   & .mg-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mg-error); flex: none; }
@@ -1385,6 +1389,7 @@
   & .mg-sleep-main { display: flex; align-items: center; gap: 20px; }
   & .mg-sleep-badge { display: grid; place-items: center; width: 72px; height: 72px; background: var(--mg-primary); color: var(--mg-on-primary); flex: none; animation: mg-turn 30s linear infinite; }
   & .mg-sleep-badge svg { width: 30px; height: 30px; animation: mg-turn 30s linear infinite reverse; }
+  & .mg-sleep-badge:not([data-running]), & .mg-sleep-badge:not([data-running]) svg { animation-play-state: paused; }
   & .mg-sleep-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   & .mg-sleep .mg-overline { color: inherit; opacity: 0.8; }
   & .mg-sleep-clock { font-size: 57px; line-height: 64px; font-weight: 400; font-variant-numeric: tabular-nums; letter-spacing: -0.25px; }

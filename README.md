@@ -510,8 +510,8 @@ There are many streaming services, each sending out a variety of content types (
     - <a href="https://github.com/svrooij/sonos-api-docs">Unofficial Sonos docs</a>
     - <a href="https://github.com/svrooij/sonos-net">sonos-net</a>
     - <a href="https://github.com/SoCo/SoCo">SoCo</a>
+    - <a href="https://github.com/BookCatKid/SoCo-music-services-and-more/tree/music-services">SoCo music-services fork</a>
     - <a href="https://github.com/svrooij/node-sonos-ts">node-sonos-ts</a>
-    - <a href="https://github.com/BookCatKid/SoCo-music-services-and-more/tree/music-services">SoCo music-services fork</a> by BookCatKid
 
   - <b>Sources of Inspiration:</b>
     - <a href="https://github.com/sonos-web/sonos-web">Sonos Web</a>

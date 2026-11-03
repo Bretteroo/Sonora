@@ -634,19 +634,22 @@ function Field2({ label, children, hint = '' }) {
 function AppearancePage() {
   const { t } = useI18n()
   const prefs = usePrefs()
+  // These three take effect as they are pressed; Apply lights for them anyway.
+  const [changed, setChanged] = useState(false)
+  const write = (key, value) => { writePref(key, value); setChanged(true) }
   return (
     <div className="sv-stack">
       <Setting label={t('sv.phosphor')} hint={t('sv.phosphorBody')}>
-        <Seg label={t('sv.phosphor')} value={prefs.phosphor} onChange={(id) => writePref('phosphor', id)}
+        <Seg label={t('sv.phosphor')} value={prefs.phosphor} onChange={(id) => write('phosphor', id)}
              options={PHOSPHORS.map((id) => ({ id, label: t(`sv.phosphor.${id}`), icon: <span className="sv-swatch" data-phosphor={id} aria-hidden="true" /> }))} />
       </Setting>
-      <Toggle checked={prefs.colorArt} label={t('sv.colorArt')} onChange={(on) => writePref('colorArt', on)} />
+      <Toggle checked={prefs.colorArt} label={t('sv.colorArt')} onChange={(on) => write('colorArt', on)} />
       <p className="sv-dim sv-hint">{t('sv.colorArtBody')}</p>
       <div className="sv-inline">
-        <Toggle checked={prefs.sound} label={t('sv.keySound')} onChange={(on) => { writePref('sound', on); if (on) setTimeout(() => { keySound('down'); setTimeout(() => keySound('up'), 90) }, 0) }} />
+        <Toggle checked={prefs.sound} label={t('sv.keySound')} onChange={(on) => { write('sound', on); if (on) setTimeout(() => { keySound('down'); setTimeout(() => keySound('up'), 90) }, 0) }} />
       </div>
       <p className="sv-dim sv-hint">{t('sv.keySoundBody')}</p>
-      <ThemeChooser Field={Field2} Select={Select} classes={{
+      <ThemeChooser Field={Field2} Select={Select} changed={changed} onApply={() => setChanged(false)} classes={{
         select: 'sv-select', button: 'sv-btn sv-btn-line sv-btn-s', primary: 'sv-btn sv-btn-solid sv-btn-s',
         preview: 'sv-theme-preview', version: 'sv-theme-version', blurb: 'sv-dim',
         noshot: 'sv-theme-noshot', actions: 'sv-inline', error: 'sv-error', manage: 'sv-theme-manage',

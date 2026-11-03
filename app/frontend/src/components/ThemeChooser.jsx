@@ -33,7 +33,11 @@ function DefaultRow({ c, label, hint, children }) {
   )
 }
 
-export default function ThemeChooser({ classes = {}, title = null, Field = null, Select = 'select' }) {
+// `changed` marks settings of the theme's own beside the chooser that took
+// effect as they were pressed: Apply is offered for them too, since a reader
+// who changed something looks for it, and `onApply` tells the page it was.
+export default function ThemeChooser({ classes = {}, title = null, Field = null, Select = 'select',
+                                       changed = false, onApply = null }) {
   const { themes, themeId, selectTheme, reloadThemes, appearance, setAppearance, theme,
           systemDark } = useTheme()
   const { t, language, selectLanguage } = useI18n()
@@ -55,6 +59,7 @@ export default function ThemeChooser({ classes = {}, title = null, Field = null,
   const shot = thumbnailFor(chosen || theme, pendingAppearance, systemDark)
   const variants = appearancesOf(chosen || theme)
   const hasBoth = variants.includes('light') && variants.includes('dark')
+  const unchanged = pending === themeId && (!hasBoth || pendingAppearance === appearance)
 
   // A new still fades in over the old one rather than cutting to it. The old
   // picture is copied in beside the new one, in the same place and wearing
@@ -221,11 +226,15 @@ export default function ThemeChooser({ classes = {}, title = null, Field = null,
               two ways up: a theme with one look would otherwise change the
               setting for whatever is worn next. */}
           <button type="button" className={`${c.primary} theme-apply`} data-default="true"
-                  disabled={pending === themeId && (!hasBoth || pendingAppearance === appearance)}
-                  onClick={() => fadeThemeChange(() => {
-                    if (hasBoth && pendingAppearance !== appearance) setAppearance(pendingAppearance)
-                    if (pending !== themeId) selectTheme(pending, { land: true })
-                  })}>{t('common.apply')}</button>
+                  disabled={!changed && unchanged}
+                  onClick={() => {
+                    onApply?.()
+                    if (unchanged) return
+                    fadeThemeChange(() => {
+                      if (hasBoth && pendingAppearance !== appearance) setAppearance(pendingAppearance)
+                      if (pending !== themeId) selectTheme(pending, { land: true })
+                    })
+                  }}>{t('common.apply')}</button>
         </div>
       </div>
       <div className={c.manage}>

@@ -4651,7 +4651,10 @@ class Commands:
         household = self._c.household_of(zone_uuid)
         elements = self.share_elements(uri, username, password, variant,
                                        household_id=household.id if household else "")
-        redacted = re.sub(r"<(r:password[X]?)>.*?</\1>", r"<\1>***</\1>", elements, flags=re.S)
+        # What the log shows is built with a stand-in password, so the real one
+        # never reaches a log line.
+        redacted = self.share_elements(uri, username, "***" if password else "", variant,
+                                       household_id=household.id if household else "")
         hosts = [self._c.zone(zone_uuid).host]
         if household is not None:
             # Bonded satellites are skipped: Sonora has no event subscription

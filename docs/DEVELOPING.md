@@ -47,11 +47,13 @@ time-stamped lyrics, directly (`app/frontend/src/lib/lrclib.js`): Sonora's
 backend never fetches, holds, or passes on a song's words. Lyrics are off
 until someone turns them on, the first time after a notice saying that each
 song's title, artist, album, and length go to LRCLIB along with the browser's
-IP address. Requests name Sonora in LRCLIB's `X-User-Agent` header, and the
+IP address. Requests name Sonora in LRCLIB's `X-User-Agent` header and carry
+Sonora's public LRCLIB application ID in `Lrclib-App-Id`, which earns a higher
+rate limit (if LRCLIB ever refuses the ID, the page carries on without it). The
 answers live in the page's memory only, for as long as the page is open; they
 are fetched with `cache: 'no-store'`, so the browser's own disk cache never
 holds them either. Following LRCLIB's implementation
-requirements, a page sends its requests one at a time, 300 ms apart, waits
+requirements, a page sends its requests one at a time, 1.1 seconds apart, waits
 out the `Retry-After` of a 429 or 503 before sending another, and drops a
 lookup for a song the player has already moved past.
 

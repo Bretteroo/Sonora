@@ -10,7 +10,9 @@
 // It is only made while a big player's lyrics are open, and the answers live
 // in this page's memory and nowhere else. LRCLIB sends the CORS headers for
 // this and reads who is asking from the X-User-Agent header, its stand-in
-// for the User-Agent a page cannot set.
+// for the User-Agent a page cannot set, and from Lrclib-App-Id, the ID of
+// Sonora's registration as a client-side application, which earns a higher
+// rate limit. That ID is public by design, not a secret.
 //
 // Finding the song:
 //
@@ -30,6 +32,9 @@
 // A song the player has moved on from is not asked about at all.
 
 const API = 'https://lrclib.net/api'
+//: Sonora's registration with LRCLIB, sent as Lrclib-App-Id. Its public
+//: authorization document: https://lrclib.net/developers/authorizations/<id>
+export const APP_ID = 'kwkyib3jFSMHvLAakXCa-cpsz9DCpoE3HQ9YsERC7Hs'
 //: How far, in seconds, an entry's length may be from the track's for its
 //: timings to be trusted.
 const TIMING_SLACK = 3
@@ -206,13 +211,23 @@ export async function findLyrics({ title, artist, album = '', duration = 0 }, { 
 // `no-store` keeps the answer out of the browser's own HTTP cache, which is
 // on disk: LRCLIB's answers say nothing about caching, so a browser was free
 // to keep a copy of each song's lyrics there.
+// The app ID goes with every request until LRCLIB refuses it (401: revoked or
+// unknown); from then on this page asks without it, as an identified client
+// at the ordinary rate, rather than lose its lyrics.
+let appId = APP_ID
 async function request(path, params, client) {
+  const sent = appId
   let response
   try {
     response = await fetch(`${API}${path}?${new URLSearchParams(params)}`,
-      { headers: { 'X-User-Agent': client }, credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' })
+      { headers: { 'X-User-Agent': client, ...(sent ? { 'Lrclib-App-Id': sent } : {}) },
+        credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' })
   } catch (error) {
     throw Object.assign(new Error('LRCLIB could not be read'), { blocked: true, cause: error })
+  }
+  if (response.status === 401 && sent) {
+    appId = ''
+    return request(path, params, client)
   }
   if (response.status === 404) return null
   if (response.ok) return response.json()

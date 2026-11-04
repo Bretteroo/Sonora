@@ -3,7 +3,7 @@
 // What a big player looks up for the lyrics, how LRCLIB is asked, and which
 // line is being sung.
 import { lineAt, lyricsSong } from './lyricsSong.js'
-import { createPacer, findLyrics, firstArtist, parseLrc, pick, plainTitle } from './lrclib.js'
+import { APP_ID, createPacer, findLyrics, firstArtist, parseLrc, pick, plainTitle } from './lrclib.js'
 
 let failed = 0
 const is = (got, want, what) => {
@@ -134,6 +134,25 @@ const timed = (c, answers) => {
   const t9 = table({})
   await findLyrics({ title: 'Suite', artist: 'Band', album: 'Album', duration: 4000 }, { get: t9.get, pacer: createPacer(clock()) })
   is(t9.asked.map((a) => a[0]), ['/search'], 'a track over an hour skips /get, which refuses it')
+}
+
+// Every request names Sonora's LRCLIB registration; one refused 401 drops it
+// for the rest of the page and the same request is asked again without it.
+{
+  const sent = []
+  let refuse = false
+  globalThis.fetch = async (url, init) => {
+    sent.push(init.headers['Lrclib-App-Id'] || '')
+    const status = refuse && init.headers['Lrclib-App-Id'] ? 401 : 404
+    return { status, ok: false, headers: { get: () => null }, json: async () => null }
+  }
+  await findLyrics({ title: 'Song', artist: 'Band' }, { pacer: createPacer(clock()) })
+  is(sent.every((id) => id === APP_ID) && sent.length > 0, true, 'each request carries the app ID')
+  sent.length = 0
+  refuse = true
+  const got = await findLyrics({ title: 'Song (Live)', artist: 'Band' }, { pacer: createPacer(clock()) })
+  is(sent, [APP_ID, '', ''], 'a refused app ID is asked again without it, and left off after')
+  is(got.unreachable, undefined, 'a refused app ID does not cost the lookup')
 }
 
 if (failed) { console.log(`${failed} failed`); process.exit(1) }

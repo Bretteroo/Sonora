@@ -134,18 +134,28 @@ h2 { margin: 10px 0 0; font: 700 clamp(30px, 4vw, 46px)/1.12 var(--display); let
 .feature svg { display: block; width: 30px; height: 30px; color: var(--peach); }
 .feature h3 { margin: 16px 0 6px; font-size: 18px; font-weight: 650; }
 .feature p { margin: 0; color: var(--ink-soft); font-size: 15px; }
-/* A card's picture: hidden until the pointer rests on the card, then shown
-   whole over it, centered where the card is wider than the picture's 4:3.
-   Where there is no hover (touch screens), cards stay text. */
+/* A card's picture, shown whole over the card (centered where the card is
+   wider than its 4:3): while the pointer rests on the card, or after a tap
+   on a touch screen or Enter on the card's picture button, until the next. */
 .feature { position: relative; overflow: hidden; }
-.feature-shot { display: none; }
-@media (hover: hover) {
-  .feature-shot { display: block; position: absolute; inset: 0; opacity: 0; transition: opacity 0.25s ease 0.1s; pointer-events: none;
-                  background: var(--night-2); }
-  .feature-shot img { display: block; width: 100%; height: 100%; object-fit: contain; }
-  /* In at once; out a tenth of a second after the pointer leaves. */
-  .feature:hover .feature-shot { opacity: 1; transition-delay: 0s; }
+.feature-shot { position: absolute; inset: 0; opacity: 0; transition: opacity 0.25s ease 0.1s; pointer-events: none;
+                background: var(--night-2); }
+.feature-shot img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.feature[data-shown] .feature-shot { opacity: 1; transition-delay: 0s; }
+/* In at once; out a tenth of a second after the pointer leaves. */
+@media (hover: hover) { .feature:hover .feature-shot { opacity: 1; transition-delay: 0s; } }
+/* The picture button: on touch screens, the hint that a card has one; with
+   a pointer, there only for the keyboard. */
+.feature .feature-peek {
+  position: absolute; top: 14px; right: 14px; z-index: 1; width: 34px; height: 34px; padding: 0;
+  display: grid; place-items: center; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--line); background: rgba(23, 12, 26, 0.7); color: var(--peach);
 }
+.feature .feature-peek svg { width: 16px; height: 16px; }
+.feature .feature-peek .peek-close, .feature[data-shown] .feature-peek .peek-open { display: none; }
+.feature[data-shown] .feature-peek .peek-close { display: block; }
+.feature .feature-peek:focus-visible { outline: 2px solid var(--peach); outline-offset: 2px; }
+@media (hover: hover) { .feature .feature-peek:not(:focus-visible) { opacity: 0; } }
 
 /* --- spotlight ------------------------------------------------------------ */
 .spot { display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; margin-top: 70px; }
@@ -382,72 +392,84 @@ footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="16" rx="2"/><rect x="14" y="4" width="7" height="16" rx="2"/><circle cx="6.5" cy="14" r="2"/><circle cx="17.5" cy="14" r="2"/></svg>
           <h3>S1 and S2 together</h3>
           <p>Every Sonos speaker ever made, in one app.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/s1s2.webp" width="552" height="414" loading="lazy" alt="Hi-Fi's System knob, turned to All, between S1 and S2"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="15" height="11" rx="2"/><path d="M6 19h7"/><rect x="17" y="9" width="5" height="11" rx="1.5"/></svg>
           <h3>Any browser, any screen</h3>
           <p>Phone, tablet, laptop, or wall screen, with nothing to install on any of them.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/screens.webp" width="960" height="720" loading="lazy" alt="The Solarized theme on a laptop, a tablet, and a phone"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 9l2.5 2L7 13M12 13h4"/><path d="M2 20h20"/></svg>
           <h3>Any desktop, Linux too</h3>
           <p>Windows, Mac, or Linux: if it has a browser, it can control your Sonos.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/linux.webp" width="960" height="720" loading="lazy" alt="Sonora's Coromar theme in a browser window on a GNOME-style Linux desktop"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.2a1.6 1.6 0 0 1 1.2-2.7H16a5 5 0 0 0 5-5C21 6.4 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10" cy="7" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></svg>
           <h3>A choice of themes</h3>
           <p>Sonos' own apps recreated, plus originals. Or write your own.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/themes.webp" width="960" height="720" loading="lazy" alt="A fan of five Sonora themes: Severed, Outrun, Coromar, Material Girl, and Hi-Fi"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4M8 22h8"/></svg>
           <h3>Lyrics</h3>
           <p>The words to whatever's playing, timed where possible.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/lyrics.webp" width="1020" height="765" loading="lazy" alt="Outrun's Now Playing pane with timed lyrics, the current line lit"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/><path d="M5 16l.6 1.4L7 18l-1.4.6L5 20l-.6-1.4L3 18l1.4-.6z"/></svg>
           <h3>Scenes</h3>
           <p>Start your evening across S1 and S2 devices with one tap.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/scenes.webp" width="960" height="720" loading="lazy" alt="A scene called Friday Night in Liquid Glass's scene editor: Study and Porch on S1 and Den and Loft on S2, started with one play button"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
           <h3>"This browser" as a speaker</h3>
           <p>Play through the device in your hand, like one more room.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/browser.webp" width="960" height="720" loading="lazy" alt="A phone playing an album in Material Girl with This browser chosen as the room, and headphones plugged in"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
           <h3>Network check</h3>
           <p>How every speaker is doing on your network, in plain words.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/network.webp" width="1068" height="801" loading="lazy" alt="Severed's Network check for S1: ten speakers, nine good and one with a problem"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 5 5.6.8-4 3.9.9 5.5L12 14.6 7.1 17.2 8 11.7 4 7.8 9.6 7z"/></svg>
           <h3>S2 upgrade advisor</h3>
           <p>Which speakers can move to S2, and what replacing the rest costs.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/advisor.webp" width="800" height="600" loading="lazy" alt="The upgrade advisor in the Windows theme: which speakers are upgradable, which cannot run S2, and the replacement and price for each"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
           <h3>Local first</h3>
           <p>Talks to your speakers directly. Signing in to Sonos is optional.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/local.webp" width="960" height="720" loading="lazy" alt="A drawing: Sonora and the speakers inside your home network, with the Sonos account outside and optional"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
           <h3>Away from home</h3>
           <p>Works over your own VPN, with nothing exposed to the internet.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/away.webp" width="960" height="720" loading="lazy" alt="A drawing: a phone reaching home through your own VPN"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.4-9.2C1.1 8.3 3.3 4.6 7 4.6c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.7 0 5.9 3.7 4.4 7.2C19.5 16.4 12 21 12 21z"/></svg>
           <h3>Free software</h3>
           <p>Licensed AGPL-3.0, so it stays free.</p>
+          <button type="button" class="feature-peek" aria-pressed="false" aria-label="Show picture"><svg class="peek-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><svg class="peek-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           <div class="feature-shot"><img src="img/features/free.webp" width="960" height="720" loading="lazy" alt="A terminal cloning Sonora and showing its license, the GNU Affero General Public License version 3"></div>
         </article>
       </div>
@@ -837,6 +859,29 @@ const seen = new IntersectionObserver((entries) => {
   for (const e of entries) if (e.isIntersecting) { e.target.classList.add('shown'); seen.unobserve(e.target) }
 }, { rootMargin: '0px 0px -8% 0px' })
 document.querySelectorAll('.reveal').forEach((el) => seen.observe(el))
+
+// Feature pictures without hover: a tap on a card (touch screens) or its
+// picture button (anywhere) shows that card's picture and puts any other
+// away; a second tap, a tap elsewhere or Escape puts it away.
+{
+  const touch = matchMedia('(hover: none)')
+  const cards = [...document.querySelectorAll('.feature')].filter((card) => card.querySelector('.feature-shot'))
+  const show = (card, on) => {
+    card.toggleAttribute('data-shown', on)
+    const peek = card.querySelector('.feature-peek')
+    peek.setAttribute('aria-pressed', String(on))
+    peek.setAttribute('aria-label', on ? 'Hide picture' : 'Show picture')
+  }
+  document.addEventListener('click', (event) => {
+    const card = event.target.closest('.feature')
+    const chosen = card && cards.includes(card) && (event.target.closest('.feature-peek') || touch.matches) ? card : null
+    const on = chosen ? !chosen.hasAttribute('data-shown') : false
+    for (const each of cards) if (each.hasAttribute('data-shown') || each === chosen) show(each, each === chosen && on)
+  })
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') for (const each of cards) if (each.hasAttribute('data-shown')) show(each, false)
+  })
+}
 </script>
 </body>
 </html>

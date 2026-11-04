@@ -11,8 +11,9 @@ import './about.css'
 // a page left open for days still hears of a release.
 //
 // "Got it" puts this release away for good in this browser; the next one
-// asks again. "Remind me in 24 hours" puts it away until then. Escape or a
-// click outside only closes it until the page is opened again.
+// asks again. "Remind me in 24 hours" puts it away until then. Those two are
+// the only ways out: neither Escape nor a click outside closes it, so the
+// notice cannot be lost to a stray key or click.
 
 const SEEN_KEY = 'sonora.appUpdate.seen'
 const SNOOZE_KEY = 'sonora.appUpdate.snooze'
@@ -35,13 +36,12 @@ function snoozed(version) {
 export default function UpdateNotice() {
   const { t } = useI18n()
   const [offer, setOffer] = useState(null)
-  const closed = useRef(null)
   const ok = useRef(null)
   useEffect(() => {
     let live = true
     const look = () => api.appUpdate().then((r) => {
       if (!live || !r?.available || !r.latest) return
-      if (read(SEEN_KEY) === r.latest || snoozed(r.latest) || closed.current === r.latest) return
+      if (read(SEEN_KEY) === r.latest || snoozed(r.latest)) return
       setOffer({ version: r.latest, current: r.current })
     }).catch(() => {})
     look()
@@ -49,16 +49,8 @@ export default function UpdateNotice() {
     return () => { live = false; clearInterval(timer) }
   }, [])
 
-  const close = () => { closed.current = offer?.version; setOffer(null) }
   const later = () => { write(SNOOZE_KEY, JSON.stringify({ version: offer.version, until: Date.now() + SNOOZE_MS })); setOffer(null) }
   const gotIt = () => { write(SEEN_KEY, offer.version); setOffer(null) }
-
-  useEffect(() => {
-    if (!offer) return undefined
-    const key = (event) => { if (event.key === 'Escape') close() }
-    document.addEventListener('keydown', key)
-    return () => document.removeEventListener('keydown', key)
-  })
 
   // "Got it" takes the keyboard as the card opens, without the focus ring a
   // pointer user would read as a second border.
@@ -67,9 +59,8 @@ export default function UpdateNotice() {
 
   if (!offer) return null
   return (
-    <div className="about-backdrop" role="presentation"
-         onPointerDown={(event) => { if (event.target === event.currentTarget) close() }}>
-      <div className="about-card update-card" role="dialog" aria-modal="true" aria-labelledby="update-card-title">
+    <div className="about-backdrop" role="presentation">
+      <div className="about-card update-card" role="alertdialog" aria-modal="true" aria-labelledby="update-card-title">
         <img className="about-icon update-icon" src={icon} width="64" height="64" alt="" />
         <h2 className="update-title" id="update-card-title">{t('appUpdate.title')}</h2>
         <p className="update-body">

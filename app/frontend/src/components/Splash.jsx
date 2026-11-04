@@ -1,6 +1,7 @@
 import React from 'react'
 import { useSystem } from '../lib/store.jsx'
 import { useI18n } from '../i18n/index.jsx'
+import { APP } from '../lib/meta.js'
 import ThemePicker from './ThemePicker.jsx'
 import LanguagePicker from './LanguagePicker.jsx'
 import logo from '../assets/sonora.png'
@@ -10,7 +11,8 @@ import wordmark from '../assets/wordmark-readme.png'
 // for there is nothing to act on, so that screen is the logo, a title and a
 // line of explanation and no controls at all; the
 // empty and error screens keep "Search again" and the language picker, and the
-// empty one links to the project's site, under the wordmark, for help with setting up. The crash
+// empty one links to the project's site, under the wordmark, for help with setting up, and names
+// Sonora's version at the foot. The crash
 // screen, shown when a theme throws, offers a reload and both pickers, so a
 // broken theme can be left without clearing the browser's storage.
 // It is drawn in the theme's background and text colors; a theme whose text
@@ -58,6 +60,7 @@ export default function Splash({ kind, detail }) {
             <LanguagePicker />
           </div>
         )}
+        {empty && <p style={styles.version}>{t('about.version', { version: APP.version })}</p>}
       </div>
     </div>
   )
@@ -95,6 +98,8 @@ const styles = {
     flexWrap: 'wrap',
   },
   site: { margin: '0 0 26px', fontSize: 13 },
+  // Which Sonora this is, for anyone asking for help with an empty household.
+  version: { marginTop: 22, fontSize: 12, color: 'var(--t-fg-muted, #888)' },
   // The card's own text color, which every theme keeps readable on its background; an accent
   // is not always.
   link: { color: 'inherit', textDecoration: 'underline' },

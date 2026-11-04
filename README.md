@@ -429,6 +429,30 @@ A web recreation of the Sonos desktop controller for Windows.
 <img src="docs/screenshots/windows/spread-mobile.webp" width="45%" alt="Sonos Windows Desktop theme on a phone: Home and the full-screen player">
 </details>
 
+## Scenes
+
+Scenes are a quick way to control several speakers at once with a single tap.  They're shortcuts!
+
+They can be very simple, or they can get very complicated, very quickly.
+
+<details>  
+<summary>Learn more about scenes</summary>
+
+
+Scenes consist of "groups" of activities.  You "set" a scene to activate it, and you "end" it to end it.
+
+When creating a Scene called "**Dinner Party**", you might have one group or you might have four:
+* **Group 1** plays Sade's entire discography on repeat, shuffled, from your Plex library in the Entryway of your home on an S1 device.
+* **Group 2** mutes any music that might be playing in the bedrooms during your dinner party, since nobody will be in them.
+* **Group 3** waits 90 minutes before it activates, because that's when dinner is served.  It joins together the S2 speakers in the Dining Room and the Game Room to play Cocktail Jazz from Pandora.
+* **Group 4** streams waterfall sounds from TuneIn to an S1 device hidden in your Guest Bathroom to help move things along throughout the entire evening.
+
+More than one scene can be active at a time, and the most recently-activated scenes take priority if any given speaker appears in more than one active scene.  Multiple active scenes cascade against each other, so ending one scene makes Sonora revert to whatever behaviors the previous scene called for.
+
+When you end a scene (or when it ends on its own) everything is returned to the way it was before the scene began: Any temporary speaker groupings created by the scene are destroyed, any previous speaker groupings are restored, and any audio that may have been playing previously resumes wherever it was originally playing. 
+
+Scenes are a powerful way to control your Sonos devices.  They can be confusing, so start simple and work your way up from there!      
+</details>
 
 ## Three generations of hardware
 

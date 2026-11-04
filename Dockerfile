@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
 # ---- frontend -------------------------------------------------------------
-FROM --platform=$BUILDPLATFORM node:25-slim AS web
+FROM --platform=$BUILDPLATFORM node:26-slim AS web
 # The page imports the themes from app/themes/, beside app/frontend/, so
 # the two keep their places here.
 WORKDIR /src/frontend

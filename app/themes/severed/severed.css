@@ -1680,15 +1680,21 @@
     & .sv-member[data-offline] { opacity: 0.45; }
 
     /* Clock */
-    & .sv-alarm-table { display: grid; border-top: 2px solid var(--sv-ph-line); }
+    /* One set of columns for the whole list, each row a subgrid of it, so a
+       row's room and music line up with every other row's whatever its time
+       and days take. */
+    & .sv-alarm-table {
+      display: grid; grid-template-columns: max-content max-content minmax(0, 1fr) minmax(0, 1.2fr) auto; column-gap: 18px;
+      border-top: 2px solid var(--sv-ph-line);
+    }
     & .sv-alarm {
-      display: grid; grid-template-columns: 7ch auto minmax(0, 1fr) minmax(0, 1.2fr) auto; align-items: center; gap: 18px;
+      grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center;
       min-height: 52px; padding: 4px 8px; border-bottom: 1px dashed var(--sv-ph-faint); cursor: pointer;
     }
     & .sv-alarm:hover { background: var(--sv-ph-wash); }
     & .sv-alarm:focus-visible { outline: 2px dashed var(--sv-ph); outline-offset: -3px; }
     & .sv-alarm:not([data-on]) > :not(.sv-alarm-tools) { opacity: 0.45; }
-    & .sv-alarm-time { font-weight: 400; font-size: 34px; }
+    & .sv-alarm-time { font-weight: 400; font-size: 34px; white-space: nowrap; }
     & .sv-alarm-days { display: flex; gap: 3px; }
     & .sv-day { display: grid; place-items: center; width: 22px; height: 24px; color: var(--sv-ph-faint); }
     & .sv-day[data-on] { background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }

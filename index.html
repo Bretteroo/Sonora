@@ -124,16 +124,28 @@ h2 { margin: 10px 0 0; font: 700 clamp(30px, 4vw, 46px)/1.12 var(--display); let
 .center .section-lede { margin-left: auto; margin-right: auto; }
 
 /* --- features ------------------------------------------------------------- */
-.features { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 46px; }
+.features { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); grid-auto-rows: 1fr; gap: 16px; margin-top: 46px; }
 .feature {
   padding: 26px 24px 24px; border-radius: var(--radius);
   background: var(--card); border: 1px solid var(--line);
   transition: background 0.2s ease, transform 0.2s ease;
 }
 .feature:hover { background: var(--card-hover); transform: translateY(-2px); }
-.feature svg { width: 30px; height: 30px; color: var(--peach); }
+.feature svg { display: block; width: 30px; height: 30px; color: var(--peach); }
 .feature h3 { margin: 16px 0 6px; font-size: 18px; font-weight: 650; }
 .feature p { margin: 0; color: var(--ink-soft); font-size: 15px; }
+/* A card's picture: hidden until the pointer rests on the card, then shown
+   whole over it, centered where the card is wider than the picture's 4:3.
+   Where there is no hover (touch screens), cards stay text. */
+.feature { position: relative; overflow: hidden; }
+.feature-shot { display: none; }
+@media (hover: hover) {
+  .feature-shot { display: block; position: absolute; inset: 0; opacity: 0; transition: opacity 0.25s ease 0.1s; pointer-events: none;
+                  background: var(--night-2); }
+  .feature-shot img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  /* In at once; out a tenth of a second after the pointer leaves. */
+  .feature:hover .feature-shot { opacity: 1; transition-delay: 0s; }
+}
 
 /* --- spotlight ------------------------------------------------------------ */
 .spot { display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; margin-top: 70px; }
@@ -363,83 +375,80 @@ footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
       <div class="center reveal">
         <div class="eyebrow">Features</div>
         <h2>Everyday control, and then some</h2>
-        <p class="section-lede">Most of what you do day to day in Sonos' own apps is here, plus a few things they never had. Setting up new speakers still happens in the Sonos app.</p>
+        <p class="section-lede">Most of what you do day to day in Sonos' own apps is here, plus a few things they never had.</p>
       </div>
       <div class="features">
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="16" rx="2"/><rect x="14" y="4" width="7" height="16" rx="2"/><circle cx="6.5" cy="14" r="2"/><circle cx="17.5" cy="14" r="2"/></svg>
           <h3>S1 and S2 together</h3>
-          <p>Every Sonos speaker ever made, from one app. Each system keeps its own groups and music services, as Sonos requires.</p>
+          <p>Every Sonos speaker ever made, in one app.</p>
+          <div class="feature-shot"><img src="img/features/s1s2.webp" width="552" height="414" loading="lazy" alt="Hi-Fi's System knob, turned to All, between S1 and S2"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="15" height="11" rx="2"/><path d="M6 19h7"/><rect x="17" y="9" width="5" height="11" rx="1.5"/></svg>
           <h3>Any browser, any screen</h3>
-          <p>A phone, a tablet, a laptop, a wall-mounted screen. Nothing to install on them, and every layout adapts to its screen.</p>
+          <p>Phone, tablet, laptop, or wall screen, with nothing to install on any of them.</p>
+          <div class="feature-shot"><img src="img/features/screens.webp" width="960" height="720" loading="lazy" alt="The Solarized theme on a laptop, a tablet, and a phone"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 9l2.5 2L7 13M12 13h4"/><path d="M2 20h20"/></svg>
-          <h3>Desktop control for Linux</h3>
-          <p>Sonora's web-based approach gives Linux users their first Sonos desktop controller.</p>
+          <h3>Any desktop, Linux too</h3>
+          <p>Windows, Mac, or Linux: if it has a browser, it can control your Sonos.</p>
+          <div class="feature-shot"><img src="img/features/linux.webp" width="960" height="720" loading="lazy" alt="Sonora's Coromar theme in a browser window on a GNOME-style Linux desktop"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.2a1.6 1.6 0 0 1 1.2-2.7H16a5 5 0 0 0 5-5C21 6.4 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10" cy="7" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></svg>
           <h3>A choice of themes</h3>
-          <p>Faithful recreations of the Sonos Windows, Mac, and web apps, plus designs of its own. Or write your own theme.</p>
-        </article>
-        <article class="feature reveal">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-          <h3>All your music</h3>
-          <p>Streaming services, your local library, Sonos Favorites, and every playlist you've built over the years.</p>
+          <p>Sonos' own apps recreated, plus originals. Or write your own.</p>
+          <div class="feature-shot"><img src="img/features/themes.webp" width="960" height="720" loading="lazy" alt="A fan of five Sonora themes: Severed, Outrun, Coromar, Material Girl, and Hi-Fi"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4M8 22h8"/></svg>
           <h3>Lyrics</h3>
-          <p>The words to whatever's playing, in every theme, timed to the music where possible.</p>
-        </article>
-        <article class="feature reveal">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
-          <h3>Every room</h3>
-          <p>Grouping, volume, EQ, sleep timers, and alarms, for every room in the house.</p>
+          <p>The words to whatever's playing, timed where possible.</p>
+          <div class="feature-shot"><img src="img/features/lyrics.webp" width="1020" height="765" loading="lazy" alt="Outrun's Now Playing pane with timed lyrics, the current line lit"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/><path d="M5 16l.6 1.4L7 18l-1.4.6L5 20l-.6-1.4L3 18l1.4-.6z"/></svg>
           <h3>Scenes</h3>
-          <p>One tap sets up the whole evening: which devices play, what they play, and the volume and tone levels for each. Make a scene an alarm, and Sonora sets it for you at that time.</p>
+          <p>Start your evening across S1 and S2 devices with one tap.</p>
+          <div class="feature-shot"><img src="img/features/scenes.webp" width="640" height="480" loading="lazy" alt="Liquid Glass alarms: the Slow Morning scene on weekdays and the Dinner Party scene every day"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
           <h3>"This browser" as a speaker</h3>
-          <p>Play through the device in your hand as if it were one more room. Headphones on, music from your Sonos sources.</p>
+          <p>Play through the device in your hand, like one more room.</p>
+          <div class="feature-shot"><img src="img/features/browser.webp" width="960" height="720" loading="lazy" alt="A phone playing an album in Material Girl with This browser chosen as the room, and headphones plugged in"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
           <h3>Network check</h3>
-          <p>How every speaker is doing on your network, in plain words: which ones are fine, which to watch, and where the music cut out this week.</p>
+          <p>How every speaker is doing on your network, in plain words.</p>
+          <div class="feature-shot"><img src="img/features/network.webp" width="1068" height="801" loading="lazy" alt="Severed's Network check for S1: ten speakers, nine good and one with a problem"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 5 5.6.8-4 3.9.9 5.5L12 14.6 7.1 17.2 8 11.7 4 7.8 9.6 7z"/></svg>
           <h3>S2 upgrade advisor</h3>
-          <p>Which of your speakers can move to S2, which can't, and roughly what replacing them would cost.</p>
+          <p>Which speakers can move to S2, and what replacing the rest costs.</p>
+          <div class="feature-shot"><img src="img/features/advisor.webp" width="800" height="600" loading="lazy" alt="The upgrade advisor in the Windows theme: which speakers are upgradable, which cannot run S2, and the replacement and price for each"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
           <h3>Local first</h3>
-          <p>Sonora talks to your speakers directly on your own network. Signing in to Sonos is optional, as it is in their apps.</p>
+          <p>Talks to your speakers directly. Signing in to Sonos is optional.</p>
+          <div class="feature-shot"><img src="img/features/local.webp" width="960" height="720" loading="lazy" alt="A drawing: Sonora and the speakers inside your home network, with the Sonos account outside and optional"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
           <h3>Away from home</h3>
-          <p>Already have a VPN into your home network? Then Sonora works from wherever you are, with nothing exposed to the internet.</p>
-        </article>
-        <article class="feature reveal">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h9M8.5 3v2M6 5c0 4 3 7 6 8M11 5c-1 4-4 7-7 8"/><path d="M13 21l4-10 4 10M14.5 17h5"/></svg>
-          <h3>Twenty languages</h3>
-          <p>Sonora uses your browser's language, or the one you pick in Settings.</p>
+          <p>Works over your own VPN, with nothing exposed to the internet.</p>
+          <div class="feature-shot"><img src="img/features/away.webp" width="960" height="720" loading="lazy" alt="A drawing: a phone reaching home through your own VPN"></div>
         </article>
         <article class="feature reveal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.4-9.2C1.1 8.3 3.3 4.6 7 4.6c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.7 0 5.9 3.7 4.4 7.2C19.5 16.4 12 21 12 21z"/></svg>
           <h3>Free software</h3>
-          <p>Licensed AGPL-3.0, so it stays free. Built by someone who uses it every day.</p>
+          <p>Licensed AGPL-3.0, so it stays free.</p>
+          <div class="feature-shot"><img src="img/features/free.webp" width="960" height="720" loading="lazy" alt="A terminal cloning Sonora and showing its license, the GNU Affero General Public License version 3"></div>
         </article>
       </div>
     </div>
@@ -517,7 +526,7 @@ footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
       </div>
       <div class="center reveal advisor-intro">
         <h3>Thinking of moving to S2?</h3>
-        <p class="section-lede">S1 and S2 rooms can't be grouped together, and each system keeps its own music service links. That's Sonos' wall, not Sonora's. The built-in upgrade advisor shows what moving everything to S2 would take.</p>
+        <p class="section-lede">S1 and S2 rooms can't be grouped together, and each system keeps its own music service links. That's Sonos' wall, not Sonora's. Scenes get you partway over it: one tap starts rooms on both systems. The built-in upgrade advisor shows what moving everything to S2 would take.</p>
       </div>
       <div class="advisor reveal" role="img" aria-label="An illustration of Sonora's Upgrade Advisor for a five-room household: three speakers need replacing, one needs a software update, and one already runs S2, for a total of $1,897.">
         <div class="advisor-bar"><i></i><i></i><i></i><span>Sonos Upgrade Advisor</span></div>
@@ -630,7 +639,7 @@ footer nav a.support svg { width: 15px; height: 15px; color: var(--orange); }
         </details>
         <details>
           <summary>Does it work with S1 speakers?</summary>
-          <p>Yes, and with S2 speakers in the same house. Sonora shows both systems side by side. You can't group an S1 room with an S2 room, since the speakers themselves don't allow it.</p>
+          <p>Yes, and with S2 speakers in the same house. Sonora shows both systems side by side. You can't group an S1 room with an S2 room, since the speakers themselves don't allow it. A scene can still start rooms on both systems at once, though each system plays on its own.</p>
         </details>
         <details>
           <summary>Which music services work?</summary>

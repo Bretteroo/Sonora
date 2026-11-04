@@ -1,5 +1,43 @@
 # Changelog
 
+## 1.2.0
+
+### Added support for Scenes
+
+Scenes are a way of setting a variety of content, volume levels, and tone settings in several different rooms with just one click.  Once you’ve created a few scenes, interacting with your Sonos system can become a single-button endeavor, not a drillfest through menus.  I built support for scenes over the course of a week based on my best guesses as to how they should work, so its implementation may not be ideal for your particular use case.  Please let me know if you’ve got any feedback on scenes over in the Discussions!
+
+### Music service improvements
+
+Many more music services can now be searched, browsed, and played with this release (Apple Music and SoundCloud work now), but some (YouTube Music, maybe others) can never fully work with Sonora due to their required use of Sonos’ own private keys.  Requiring Sonos’ own signing key is a design decision Sonos has made and Sonora is bound to respect it.  Sonora does not (and cannot) contain these keys.
+
+### What’s new
+
+* Scenes. One tap sets up a whole listening session: which rooms are grouped, each room’s volume and tone, and what plays where, for as long as you like or on a timer. Every theme supports scenes, and each has its own themed editor. Check the readme to learn more about how scenes work. Thanks to reddit user larryboy44 for the suggestion to add scenes to Sonora!
+* Alarms can now activate scenes.  The Sonora server must be running for scene alarms to fire, so installing it on a laptop or a PC that you regularly power down is not recommended.
+* Apple Music, SoundCloud, and other services that can only be linked in a Sonos app now browse, search, and play in Sonora, using the login your speakers already hold. These services also no longer need to be linked a second time in Sonora. Thanks to BookCatKid’s SoCo music-services fork for showing how this is possible.
+* A service that only works with Sonos’ own apps (like YouTube Music) now says so instead of showing an error.
+* Apple Music radio and other HLS stations now show what’s on, with the artist and album.
+* Service rows have better placeholder art in many spots.
+* The “This browser” room now takes Add to Queue, Play Next, and Sonos playlists.
+* In the “This browser” room, a stream locked with DRM (like Apple Music radio) now shows the appropriate error message instead of playing silence.
+* Severed: The Apply button lights up when you change the phosphor, key sounds, or color art.
+* Mobile users can now access the easter egg.
+
+### Fixes
+
+* Rooms no longer disappear after Sonora sits idle and the network stops answering discovery (#24). Thanks to @hasifantasy for reporting it.
+* S2 speakers on the “legacy device” firmware branch are no longer offered S2.1 updates that they can’t take (#23). Thanks to @Fabri1960 for reporting it.
+* A factory-reset speaker no longer shows up as a second system.
+* One slow service on S1 (frequently the CBC) no longer empties the whole list of music services.
+* A room no longer appears twice for a moment while its group changes hands on S1.
+* A station whose first item fails while the next one loads is no longer reported as failed.
+* Group volume popovers, confirmation dialogs, and the Add Music Services icon match their theme in more of the desktop themes.
+* Hi-Fi’s mute keys stay down the moment they’re pressed instead of double-pressing.
+* Severed’s keyboard deck stays whole in narrow windows.
+* Alarm times follow your system’s 12- or 24-hour setting in every theme.
+* Severed’s alarm list keeps its columns lined up from row to row.
+* A music library password can no longer end up in Sonora’s log.
+
 ## 1.1.0
 
 ### What’s new

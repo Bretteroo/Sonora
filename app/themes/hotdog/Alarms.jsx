@@ -25,7 +25,7 @@ function zoneTime(now) {
 // alarm editor; on/off and remove work today.
 export default function Alarms({ zone, onClose }) {
   const { t } = useI18n()
-  const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zone?.uuid)
+  const { alarms, error, busy, toggle, remove, create, update, clock } = useAlarms(zone?.uuid)
   const motion = useListMotion(alarms, (a) => a.ID)
   const { zoneList, households } = useSystem()
   // An alarm lives on a speaker, so the browser room is not one of these.
@@ -46,8 +46,7 @@ export default function Alarms({ zone, onClose }) {
     zoneTime(now)}`
   // "3:00 AM - Once", as the app prints it (observed 2026-09-05).
   const when = (a) => {
-    const [h, m] = (a.StartTime || '00:00:00').split(':').map(Number)
-    const time = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(2000, 0, 1, h, m))
+    const time = clock(a.StartTime)
     const key = recurrenceKey(a.Recurrence)
     const days = key === 'ON'
       ? recurrenceDays(a.Recurrence).map((d) => t(`desk.alarms.day.${d}`)).join(', ')

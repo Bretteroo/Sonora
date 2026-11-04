@@ -98,7 +98,7 @@ export default function TimerUnit({ households, zones, activeZone, activeGroup, 
   const activeHh = tab && ordered.some((h) => h.id === tab) ? tab
     : (activeZone && ordered.find((h) => h.zone_uuids.includes(activeZone.uuid))?.id) || ordered[0]?.id
   const zoneUuid = ordered.find((h) => h.id === activeHh)?.zone_uuids?.find((u) => zones[u]) || ''
-  const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zoneUuid)
+  const { alarms, error, busy, toggle, remove, create, update, clock } = useAlarms(zoneUuid)
   const motion = useListMotion(alarms, (a) => a.ID)
   const rooms = zoneList.filter((z) => households.find((h) => h.id === activeHh)?.zone_uuids.includes(z.uuid)).sort((a, b) => a.name.localeCompare(b.name))
   const [editing, setEditing] = useState(null)
@@ -149,7 +149,7 @@ export default function TimerUnit({ households, zones, activeZone, activeGroup, 
                   <li key={a.ID} {...motion.bind(row)} className="hf-program" data-on={on || undefined}>
                     <span className="hf-program-num">{t('hifi.program', { n: i + 1 })}</span>
                     <Display className="hf-program-display">
-                      <span className="hf-vfd-num hf-program-time">{a.StartTime.replace(/:00$/, '')}</span>
+                      <span className="hf-vfd-num hf-program-time">{clock(a.StartTime)}</span>
                       <span className="hf-days" aria-label={recurrence(a) || [...days].map((d) => letters[DAY_ORDER.indexOf(d)]).join(' ')}>
                         {DAY_ORDER.map((d, k) => <span key={d} className="hf-day" data-on={days.has(d) || undefined}>{letters[k]}</span>)}
                       </span>
@@ -186,8 +186,8 @@ export default function TimerUnit({ households, zones, activeZone, activeGroup, 
                  onConfirm={() => setRefused('')} onClose={() => setRefused('')} />
       )}
       {confirm && (
-        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: confirm.StartTime.replace(/:00$/, ''), scene: confirm.scene_name })
-                   : t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
+        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: clock(confirm.StartTime), scene: confirm.scene_name })
+                   : t('desk.alarms.deleteBody', { time: clock(confirm.StartTime), room: confirm.room || '' })}
                  action={t('desk.alarms.delete')} danger disabled={busy}
                  onConfirm={() => { remove(confirm.ID); setConfirm(null) }} onClose={() => setConfirm(null)} />
       )}

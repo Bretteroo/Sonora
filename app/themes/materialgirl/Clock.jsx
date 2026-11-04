@@ -36,7 +36,7 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
   const activeHh = tab && ordered.some((h) => h.id === tab) ? tab
     : (activeZone && ordered.find((h) => h.zone_uuids.includes(activeZone.uuid))?.id) || ordered[0]?.id
   const zoneUuid = ordered.find((h) => h.id === activeHh)?.zone_uuids?.find((u) => zones[u]) || ''
-  const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zoneUuid)
+  const { alarms, error, busy, toggle, remove, create, update, clock } = useAlarms(zoneUuid)
   // The cards make room first, then the new ones come into it.
   const motion = useListMotion(alarms, (a) => a.ID, { moveMs: 350, enterAfterMove: true })
   const rooms = zoneList.filter((z) => households.find((h) => h.id === activeHh)?.zone_uuids.includes(z.uuid)).sort((a, b) => a.name.localeCompare(b.name))
@@ -75,10 +75,10 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
                        onContextMenu={(event) => { event.preventDefault(); setMenu({ a, x: event.clientX, y: event.clientY }) }}>
                 <span className="mg-state" aria-hidden="true" />
                 <div className="mg-alarm-top">
-                  <strong className="mg-alarm-time">{a.StartTime.replace(/:00$/, '')}</strong>
+                  <strong className="mg-alarm-time">{clock(a.StartTime)}</strong>
                   <span onClick={(event) => event.stopPropagation()}>
                     <Switch checked={on} disabled={busy} onChange={(v) => toggle(a.ID, v)}
-                            ariaLabel={`${a.StartTime.replace(/:00$/, '')} ${t('desk.alarms.enabled')}`} />
+                            ariaLabel={`${clock(a.StartTime)} ${t('desk.alarms.enabled')}`} />
                   </span>
                 </div>
                 <div className="mg-alarm-days" aria-label={key === 'ON' ? '' : t(`desk.alarms.recurrence.${key}`)}>
@@ -98,7 +98,7 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
         </div>
       </section>
       {menu && (
-        <Menu x={menu.x} y={menu.y} anchor={menu.anchor || null} align="right" onClose={() => setMenu(null)} title={menu.a.StartTime.replace(/:00$/, '')}>
+        <Menu x={menu.x} y={menu.y} anchor={menu.anchor || null} align="right" onClose={() => setMenu(null)} title={clock(menu.a.StartTime)}>
           <MenuItem icon={<I.Edit />} disabled={busy} onSelect={() => { const a = menu.a; setMenu(null); setEditing(a) }}>{t('win.alarms.edit')}</MenuItem>
           <MenuItem icon={<I.Trash />} danger disabled={busy} onSelect={() => { const a = menu.a; setMenu(null); setConfirm(a) }}>{t('desk.alarms.delete')}</MenuItem>
         </Menu>
@@ -130,8 +130,8 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
                  onConfirm={() => setRefused('')} onClose={() => setRefused('')} />
       )}
       {confirm && (
-        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: confirm.StartTime.replace(/:00$/, ''), scene: confirm.scene_name })
-                   : t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
+        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: clock(confirm.StartTime), scene: confirm.scene_name })
+                   : t('desk.alarms.deleteBody', { time: clock(confirm.StartTime), room: confirm.room || '' })}
                  action={t('desk.alarms.delete')} danger disabled={busy} icon={<I.Alarm />}
                  onConfirm={() => { remove(confirm.ID); setConfirm(null) }} onClose={() => setConfirm(null)} />
       )}

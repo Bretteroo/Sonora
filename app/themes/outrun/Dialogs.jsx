@@ -1999,7 +1999,7 @@ const DAY_LETTERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 // with the Sonos app (see useAlarms).
 export function Alarms({ zone, onClose }) {
   const { t } = useI18n()
-  const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zone?.uuid)
+  const { alarms, error, busy, toggle, remove, create, update, clock } = useAlarms(zone?.uuid)
   const motion = useListMotion(alarms, (a) => a.ID)
   const { zoneList, households } = useSystem()
   // An alarm lives on a speaker, so the browser room is not one of these.
@@ -2052,8 +2052,7 @@ export function Alarms({ zone, onClose }) {
     zone: zonePart,
   })
   const when = (a) => {
-    const [h, m] = (a.StartTime || '00:00:00').split(':').map(Number)
-    return `${new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(2000, 0, 1, h, m))} - ${describe(a)}`
+    return `${clock(a.StartTime)} - ${describe(a)}`
   }
   return (
     <Window title={t('desk.browse.alarms')} onClose={onClose} className="dk-alarms-window">
@@ -2090,8 +2089,8 @@ export function Alarms({ zone, onClose }) {
       </div>
       {confirm && (
         <Confirm title={t('desk.alarms.deleteTitle')}
-                 body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: confirm.StartTime.replace(/:00$/, ''), scene: confirm.scene_name })
-                   : t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
+                 body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: clock(confirm.StartTime), scene: confirm.scene_name })
+                   : t('desk.alarms.deleteBody', { time: clock(confirm.StartTime), room: confirm.room || '' })}
                  action={t('desk.alarms.delete')} cancelLabel={t('common.cancel')} disabled={busy}
                  onConfirm={() => { remove(confirm.ID); setConfirm(null); setSelected(null) }} onClose={() => setConfirm(null)} />
       )}

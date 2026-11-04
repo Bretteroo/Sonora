@@ -22,7 +22,7 @@ export default function AlarmsSection({ households, zones, activeZone, activeGro
   const activeHh = tab && ordered.some((h) => h.id === tab) ? tab
     : (activeZone && ordered.find((h) => h.zone_uuids.includes(activeZone.uuid))?.id) || ordered[0]?.id
   const zoneUuid = ordered.find((h) => h.id === activeHh)?.zone_uuids?.find((u) => zones[u]) || ''
-  const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zoneUuid)
+  const { alarms, error, busy, toggle, remove, create, update, clock } = useAlarms(zoneUuid)
   const motion = useListMotion(alarms, (a) => a.ID)
   const rooms = zoneList.filter((z) => households.find((h) => h.id === activeHh)?.zone_uuids.includes(z.uuid)).sort((a, b) => a.name.localeCompare(b.name))
   const [editing, setEditing] = useState(null)
@@ -56,7 +56,7 @@ export default function AlarmsSection({ households, zones, activeZone, activeGro
           <article key={a.ID} {...motion.bind(row)} className="sf-alarm" data-on={a.Enabled === '1' || undefined}>
             <Toggle checked={a.Enabled === '1'} disabled={busy} label="" onChange={(on) => toggle(a.ID, on)} />
             <div className="sf-alarm-time">
-              <strong>{a.StartTime.replace(/:00$/, '')}</strong>
+              <strong>{clock(a.StartTime)}</strong>
               <span>{describe(a)}</span>
             </div>
             <div className="sf-alarm-text">
@@ -86,8 +86,8 @@ export default function AlarmsSection({ households, zones, activeZone, activeGro
                  onConfirm={() => setRefused('')} onClose={() => setRefused('')} />
       )}
       {confirm && (
-        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: confirm.StartTime.replace(/:00$/, ''), scene: confirm.scene_name })
-                   : t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
+        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: clock(confirm.StartTime), scene: confirm.scene_name })
+                   : t('desk.alarms.deleteBody', { time: clock(confirm.StartTime), room: confirm.room || '' })}
                  action={t('desk.alarms.delete')} danger disabled={busy}
                  onConfirm={() => { remove(confirm.ID); setConfirm(null) }} onClose={() => setConfirm(null)} />
       )}

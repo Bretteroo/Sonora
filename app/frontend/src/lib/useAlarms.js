@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from './api.js'
 import { useSystem } from './store.jsx'
 import { isBrowserRoom } from './browserRoom.js'
+import { alarmClock } from './format.js'
 
 // The household's alarms (read from any of its speakers), with on/off,
 // delete, create and update. The speakers take a full alarm definition each
@@ -44,6 +45,16 @@ export function useAlarms(zoneUuid) {
       .catch((exc) => { if (asked === latest.current) { setAlarms(null); setReadFor(zoneUuid); setError(exc.message) } })
   }, [zoneUuid, readersKey])  // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { load() }, [load])
+  // The household's 12/24-hour setting, so the list shows times as its
+  // speakers and the Sonos apps do; read through the room the list is.
+  const [timeFormat, setTimeFormat] = useState('')
+  const clockZone = every ? readers[0] : zoneUuid
+  useEffect(() => {
+    if (!clockZone) return undefined
+    let live = true
+    api.timeSettings(clockZone).then((r) => { if (live) setTimeFormat(r.time_format || '') }).catch(() => {})
+    return () => { live = false }
+  }, [clockZone])
   const switching = alarms !== null && readFor !== zoneUuid
   useEffect(() => { if (alarmsEpoch) load() }, [alarmsEpoch, load])
   // A save (create, update) the speakers refuse answers with their reason, for
@@ -68,6 +79,8 @@ export function useAlarms(zoneUuid) {
   }
   return {
     alarms, error, busy: busy || switching, refresh: load,
+    // An alarm's StartTime as this household's clock shows it.
+    clock: (startTime) => alarmClock(startTime, timeFormat),
     toggle: (id, enabled) => { const [zone, own] = target(id); return apply(() => api.setAlarm(own, { zone, enabled })) },
     remove: (id) => { const [zone, own] = target(id); return apply(() => api.deleteAlarm(own, zone)) },
     create: (definition) => apply(() => api.createAlarm({ zone: every ? (definition.room_uuid || readers[0]) : zoneUuid, ...definition }), true),

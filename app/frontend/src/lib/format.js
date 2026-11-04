@@ -11,6 +11,16 @@ export function parseDuration(value) {
   return parts.reduce((total, part) => total * 60 + part, 0)
 }
 
+// An alarm's start ("06:45:00") as the household's clock shows times: "12H"
+// gives "6:45 AM" (the day-period words in the reader's language), "24H"
+// "06:45", and an unset format the language's own habit.
+export function alarmClock(startTime, timeFormat) {
+  const [h, m] = String(startTime || '00:00:00').split(':').map(Number)
+  const hour12 = timeFormat === '24H' ? false : timeFormat === '12H' ? true : undefined
+  return new Intl.DateTimeFormat(undefined, { hour: hour12 === false ? '2-digit' : 'numeric', minute: '2-digit', hour12 })
+    .format(new Date(2000, 0, 1, h || 0, m || 0))
+}
+
 export function formatDuration(seconds) {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00'
   const total = Math.floor(seconds)

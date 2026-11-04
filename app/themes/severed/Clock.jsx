@@ -35,7 +35,7 @@ export default function ClockProgram({ households, zones, activeZone, activeGrou
   const activeHh = tab && ordered.some((h) => h.id === tab) ? tab
     : (activeZone && ordered.find((h) => h.zone_uuids.includes(activeZone.uuid))?.id) || ordered[0]?.id
   const zoneUuid = ordered.find((h) => h.id === activeHh)?.zone_uuids?.find((u) => zones[u]) || ''
-  const { alarms, error, busy, toggle, remove, create, update } = useAlarms(zoneUuid)
+  const { alarms, error, busy, toggle, remove, create, update, clock } = useAlarms(zoneUuid)
   const motion = useListMotion(alarms, (a) => a.ID)
   const rooms = zoneList.filter((z) => households.find((h) => h.id === activeHh)?.zone_uuids.includes(z.uuid)).sort((a, b) => a.name.localeCompare(b.name))
   const [editing, setEditing] = useState(null)
@@ -64,7 +64,7 @@ export default function ClockProgram({ households, zones, activeZone, activeGrou
               const on = a.Enabled === '1'
               const key = recurrenceKey(a.Recurrence)
               const set = new Set(recurrenceDays(a.Recurrence))
-              const time = a.StartTime.replace(/:00$/, '')
+              const time = clock(a.StartTime)
               return (
                 <div key={a.ID} {...motion.bind(row)} className="sv-alarm" data-on={on || undefined} role="row" tabIndex={0}
                      onClick={() => !busy && setEditing(a)} onKeyDown={(event) => { if (event.key === 'Enter' && !busy) setEditing(a) }}
@@ -88,7 +88,7 @@ export default function ClockProgram({ households, zones, activeZone, activeGrou
         )}
       </section>
       {menu && (
-        <Menu x={menu.x} y={menu.y} anchor={menu.anchor || null} align="right" onClose={() => setMenu(null)} title={menu.a.StartTime.replace(/:00$/, '')}>
+        <Menu x={menu.x} y={menu.y} anchor={menu.anchor || null} align="right" onClose={() => setMenu(null)} title={clock(menu.a.StartTime)}>
           <MenuItem icon={<G.Edit size={12} />} disabled={busy} onSelect={() => { const a = menu.a; setMenu(null); setEditing(a) }}>{t('win.alarms.edit')}</MenuItem>
           <MenuItem icon={<G.Trash size={12} />} danger disabled={busy} onSelect={() => { const a = menu.a; setMenu(null); setConfirm(a) }}>{t('desk.alarms.delete')}</MenuItem>
         </Menu>
@@ -110,8 +110,8 @@ export default function ClockProgram({ households, zones, activeZone, activeGrou
                  onConfirm={() => setRefused('')} onClose={() => setRefused('')} />
       )}
       {confirm && (
-        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: confirm.StartTime.replace(/:00$/, ''), scene: confirm.scene_name })
-                   : t('desk.alarms.deleteBody', { time: confirm.StartTime.replace(/:00$/, ''), room: confirm.room || '' })}
+        <Confirm title={t('desk.alarms.deleteTitle')} body={confirm.scene_name ? t('desk.alarms.deleteSceneBody', { time: clock(confirm.StartTime), scene: confirm.scene_name })
+                   : t('desk.alarms.deleteBody', { time: clock(confirm.StartTime), room: confirm.room || '' })}
                  action={t('desk.alarms.delete')} danger disabled={busy} icon={<G.Alarm size={48} />}
                  onConfirm={() => { remove(confirm.ID); setConfirm(null) }} onClose={() => setConfirm(null)} />
       )}

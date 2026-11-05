@@ -233,7 +233,7 @@ export function Shell() {
       if (cmd && key === 'g') { event.preventDefault(); setQueueOpen((v) => !v); return }
       if (cmd && key === 'j') { event.preventDefault(); if (activeZone) setPlayerOpen((v) => !v); return }
       if (cmd && (key === '*' || (event.shiftKey && key === '8'))) { event.preventDefault(); browseSource('FV:2'); return }
-      if (cmd && /^[1-5]$/.test(key)) { event.preventDefault(); setPlayerOpen(false); setSection(SECTIONS[Number(key) - 1]); return }
+      if (cmd && /^[1-6]$/.test(key)) { event.preventDefault(); setPlayerOpen(false); setSection(SECTIONS[Number(key) - 1]); return }
       if (cmd && event.shiftKey && key === 'x') { event.preventDefault(); if (activeZone) actions.setCrossfade(activeZone.uuid, !activeZone.transport?.crossfade); return }
       if (typing || (anyLayer && !playerOpen)) return
       if (event.key === '?') { event.preventDefault(); setShortcuts(true); return }

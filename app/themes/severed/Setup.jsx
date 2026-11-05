@@ -698,7 +698,7 @@ export function ShortcutsWindow({ onClose }) {
     [t('desk.shortcuts.nextZone'), 'Ctrl .'], [t('desk.shortcuts.prevZone'), 'Ctrl ,'],
     [t('common.search'), 'Ctrl K'], [t('win.shortcuts.jumpSearch'), 'Ctrl F'],
     [t('sv.prog.player'), '1'], [t('sv.prog.queue'), '2'], [t('sv.prog.library'), '3'], [t('sv.prog.rooms'), '4'],
-    [t('sv.prog.clock'), '5'], [t('sv.prog.setup'), '6'],
+    [t('sv.prog.scenes'), '5'], [t('sv.prog.clock'), '6'], [t('sv.prog.setup'), '7'],
     [t('win.shortcuts.favorites'), 'Ctrl *'], [t('desk.shortcuts.title'), '?'], [t('win.shortcuts.closeWindow'), 'Esc'],
   ]
   return (

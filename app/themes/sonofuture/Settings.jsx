@@ -740,7 +740,7 @@ export function ShortcutsSheet({ onClose }) {
     [t('win.shortcuts.toggleShuffle'), 'Ctrl E'], [t('win.shortcuts.toggleRepeat'), 'Ctrl R'], [t('win.shortcuts.toggleCrossfade'), 'Ctrl ⇧ X'],
     [t('desk.shortcuts.nextZone'), 'Ctrl .'], [t('desk.shortcuts.prevZone'), 'Ctrl ,'],
     [t('sf.commandPalette'), 'Ctrl K'], [t('win.shortcuts.jumpSearch'), 'Ctrl F'], [t('common.queue'), 'Ctrl G'], [t('win.shortcuts.toggleMini'), 'Ctrl D'],
-    [t('sf.nav.home'), 'Ctrl 1'], [t('sf.nav.library'), 'Ctrl 2'], [t('sf.nav.rooms'), 'Ctrl 3'], [t('sf.nav.alarms'), 'Ctrl 4'], [t('common.settings'), 'Ctrl 5'],
+    [t('sf.nav.home'), 'Ctrl 1'], [t('sf.nav.library'), 'Ctrl 2'], [t('sf.nav.rooms'), 'Ctrl 3'], [t('sf.nav.scenes'), 'Ctrl 4'], [t('sf.nav.alarms'), 'Ctrl 5'], [t('common.settings'), 'Ctrl 6'],
     [t('win.shortcuts.favorites'), 'Ctrl *'], [t('desk.shortcuts.title'), '?'], [t('win.shortcuts.closeWindow'), 'Esc'],
   ]
   return (

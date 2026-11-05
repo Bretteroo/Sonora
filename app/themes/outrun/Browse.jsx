@@ -21,6 +21,9 @@ import { useScenes } from '../../frontend/src/lib/scenes.js'
 import { itemAccount } from '../../frontend/src/lib/itemAccount.js'
 import { versionLabel, updateBody } from '../../frontend/src/lib/version.js'
 
+// Whether a service can be searched: its capabilities carry the search bit.
+const canSearch = (svc) => ((svc.capabilities ?? 0) & 1) === 1
+
 // The Music pane. Its header reads "Select a Music Source" at the root and the
 // container's title below it, with a 42px back button on the left and a 30px
 // "Music" home button on the right. Rows are 50px with 40px art at x=8, a
@@ -484,7 +487,7 @@ export default function Browse({
       // app "Spotify (Kate's Spotify)" for the same household, each the
       // account it had chosen, never both (2026-10-02). Sonora's choice is
       // the service row's caret, else the account it holds a login for.
-      const all = (servicesByHh[h.id] || []).filter((svc) => ((svc.capabilities ?? 0) & 1) === 1)
+      const all = (servicesByHh[h.id] || []).filter(canSearch)
       const searchable = all
         .filter((svc, n) => {
           const same = all.filter((other) => other.id === svc.id)
@@ -528,7 +531,7 @@ export default function Browse({
     if (!playingSid || !onScope || !activeZone) return
     if (followed.current === `${activeZone.uuid}:${playingSid}`) return
     const hh = households.find((h) => h.zone_uuids.includes(homeZone(activeZone)))
-    const match = (servicesByHh[hh?.id] || []).find((svc) => svc.id === playingSid)
+    const match = (servicesByHh[hh?.id] || []).find((svc) => svc.id === playingSid && canSearch(svc))
     if (!match) return
     const hzone = zoneForHousehold(hh.id)
     onScope({ key: `${hh.id}:${match.id}:${match.account_id ?? ''}`, id: match.id, name: match.name,
@@ -552,7 +555,9 @@ export default function Browse({
     const match = (servicesByHh[node.hh] || []).find((svc) => svc.id === node.service
       && String(svc.account_id ?? '') === String(node.account ?? ''))
       || Object.values(servicesByHh).flat().find((svc) => svc.id === node.service)
-    if (!match) return
+    // A service with no search leaves the box where it was, as the S1
+    // Windows app does: it only moves to a service it can search.
+    if (!match || !canSearch(match)) return
     onScope({ key: `${node.hh}:${node.service}:${node.account ?? ''}`, id: node.service, name: match.name,
               nickname: match.nickname || '', icon: match.icon, account: node.account ?? '',
               hh: node.hh, hzone: node.hzone, gen: node.gen })

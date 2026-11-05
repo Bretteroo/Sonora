@@ -1175,8 +1175,10 @@
 :root[data-theme='hifi'] .hf-root-icon { grid-row: 1 / span 2; position: relative; width: 34px; height: 34px; display: grid; place-items: center; }
 :root[data-theme='hifi'] .hf-root-icon img { width: 34px; height: 34px; border-radius: 5px; background: #fff; object-fit: contain; }
 :root[data-theme='hifi'] .hf-root-icon .hf-glyph { width: 22px; height: 22px; }
-:root[data-theme='hifi'] .hf-root-title { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-:root[data-theme='hifi'] .hf-root-sub { font-size: 11px; color: var(--hf-screen-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root[data-theme='hifi'] .hf-root-title { align-self: end; font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A name with no line under it takes both rows, level with the icon. */
+:root[data-theme='hifi'] .hf-root-title:last-child { grid-row: 1 / span 2; align-self: center; }
+:root[data-theme='hifi'] .hf-root-sub { align-self: start; font-size: 11px; color: var(--hf-screen-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* A page's head: the source's own name, or an album's cover and keys. */
 :root[data-theme='hifi'] .hf-page-title { display: flex; align-items: center; gap: 14px; margin: 0 0 14px; }

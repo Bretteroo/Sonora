@@ -20,6 +20,14 @@ is(lyricsSong({ ...track, source: 'line_in' }), null, 'a line-in has no song')
 is(lyricsSong({ ...track, track_duration: '0:00:00' }).duration, 0, 'a stream has no length to time against')
 is(lyricsSong({ ...track, media_uri: 'x-sonosapi-hls:station' }).duration, 0, 'a live broadcast has none either')
 
+const station = { source: 'radio', title: '80s80s Dinnerparty', artist: '', album: '', track_duration: '0:00:00', media_uri: 'x-rincon-mp3radio://x', stream_content: 'Simply Red - Holding Back the Years' }
+is(lyricsSong(station), { title: 'Holding Back the Years', artist: 'Simply Red', album: '', duration: 0, turned: { title: 'Simply Red', artist: 'Holding Back the Years' } }, "a station's Artist - Title is looked up, with the other reading")
+is(lyricsSong({ ...station, stream_content: 'A-ha - Take On Me - Remastered' }).title, 'Take On Me - Remastered', 'split at the first spaced dash only')
+is(lyricsSong({ ...station, stream_content: 'Your number one for the 80s' }), null, 'a slogan has no song')
+is(lyricsSong({ ...station, stream_content: 'ZPSTR_CONNECTING' }), null, 'a placeholder has no song')
+is(lyricsSong({ ...station, stream_content: 'TYPE=SPOT|TITLE Ad - Break' }), null, 'keyed text is not split')
+is(lyricsSong({ ...station, artist: 'Band', title: 'Song' }).artist, 'Band', 'a room that names its artist keeps it')
+
 const lines = [[5, 'a'], [10, 'b'], [20, 'c']]
 is(lineAt(lines, 0), -1, 'before the first line, none')
 is(lineAt(lines, 5), 0, 'a line starts at its stamp')

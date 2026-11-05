@@ -78,7 +78,7 @@ export function sourceKey(source) {
 // S2 app shows it. Anything else in the form, an advert or the station naming
 // itself, is never printed raw: the Windows app showed no Information line
 // for it (measured 2026-09-12).
-function isKeyedStream(value) {
+export function isKeyedStream(value) {
   const raw = (value || '').trim()
   return /^TYPE=/.test(raw) && raw.includes('|')
 }

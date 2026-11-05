@@ -40,7 +40,13 @@ const wanted = (key) => (demand.get(key) || 0) > 0
 function lookUp(song) {
   const key = songKey(song)
   if (!answers.has(key)) {
-    const pending = clientName().then((name) => findLyrics(song, { client: name, wanted: () => wanted(key) })).then((answer) => {
+    const pending = clientName().then(async (name) => {
+      const options = { client: name, wanted: () => wanted(key) }
+      const answer = await findLyrics(song, options)
+      // A station's "Song - Artist", read the other way round.
+      if (answer.found || answer.unreachable || !song.turned) return answer
+      return findLyrics({ ...song, ...song.turned }, options)
+    }).then((answer) => {
       if (answer?.unreachable) answers.delete(key)
       else settled.set(key, answer)
       // Dropped, then wanted again before the drop was noticed: ask afresh.

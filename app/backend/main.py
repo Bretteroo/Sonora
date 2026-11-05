@@ -725,6 +725,30 @@ def _host_for(uuid: str | None) -> str:
     raise HTTPException(503, "no speaker available")
 
 
+#: How long one player gets to answer a household-wide browse before the
+#: next is asked: a speaker whose web server has hung still answers ping, and
+#: the client's own three tries of eight seconds kept Sonos Favorites waiting
+#: half a minute for it.
+_BROWSE_STEP_S = 4.0
+
+
+async def _browse_household(zone: str | None, object_id: str, **kwargs):
+    """Browse a container any player of the household can answer for, asking
+    the next player when one does not answer in time. A queue (Q:) is the
+    zone's own, so only its player is asked."""
+    ctl = controller()
+    if not zone or object_id.startswith("Q:") or zone not in ctl.zones:
+        host = _host_for(zone)
+        return await ctl.content.browse(host, object_id, **kwargs), host
+    hosts = ctl.household_hosts(zone)
+    for host in hosts[:-1]:
+        try:
+            return await ctl.content.browse(host, object_id, timeout=_BROWSE_STEP_S, retries=0, **kwargs), host
+        except ConnectionError as exc:
+            log.info("%s; asking the next player for %s", exc, object_id)
+    return await ctl.content.browse(hosts[-1], object_id, **kwargs), hosts[-1]
+
+
 @app.get("/api/browse")
 async def browse(
     object_id: str = Query(default="A:"),
@@ -733,9 +757,7 @@ async def browse(
     count: int = Query(default=100, le=500),
     sort: str = "",
 ) -> dict:
-    host = _host_for(zone)
-    result = await controller().content.browse(
-        host, object_id, start=start, count=count, sort=sort)
+    result, host = await _browse_household(zone, object_id, start=start, count=count, sort=sort)
     payload = result.as_dict(host)
     if object_id == "FV:2":
         # The Sonos Favorites page: each row carries what the apps derive

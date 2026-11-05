@@ -66,8 +66,12 @@ class ContentBrowser:
         count: int = 100,
         sort: str = "",
         metadata: bool = False,
+        timeout: float | None = None,
+        retries: int | None = None,
     ) -> BrowseResult:
-        """Browse one container, or fetch a single object's own metadata."""
+        """Browse one container, or fetch a single object's own metadata.
+        ``timeout`` and ``retries`` are the SOAP client's, for a caller with
+        another player to ask."""
         try:
             result = await self._soap.call(
                 host, CONTENT_DIRECTORY, "Browse", {
@@ -78,7 +82,7 @@ class ContentBrowser:
                     "StartingIndex": start,
                     "RequestedCount": min(count, MAX_PER_REQUEST),
                     "SortCriteria": sort,
-                })
+                }, timeout=timeout, retries=retries)
         except SoapFault as exc:
             # The speaker's refusal names no object, so the log could not say
             # which container was missing (the 701s a reader asked about).

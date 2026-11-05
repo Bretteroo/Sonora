@@ -143,7 +143,6 @@
     font-family: var(--mg-font); color: var(--mg-on-surface); -webkit-font-smoothing: antialiased;
     font-feature-settings: 'ss02' 1;
   }
-  & .mg-display { margin: 0; font-size: 36px; line-height: 44px; font-weight: 500; letter-spacing: 0; }
   & .mg-display-s { margin: 0; font-size: 32px; line-height: 40px; font-weight: 400; letter-spacing: 0; }
   & .mg-headline { margin: 0; font-size: 28px; line-height: 36px; font-weight: 400; letter-spacing: 0; }
   & .mg-title-l { margin: 0; font-size: 22px; line-height: 28px; font-weight: 400; }
@@ -152,8 +151,6 @@
   & .mg-overline { margin: 0; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; color: var(--mg-primary); }
   & .mg-muted { color: var(--mg-on-surface-variant); font-size: 14px; line-height: 20px; margin: 0; }
   & .mg-error { color: var(--mg-error); font-size: 14px; margin: 8px 0; }
-  & .mg-hint { display: flex; align-items: center; gap: 6px; margin: 8px 0 0; font-size: 12px; color: var(--mg-on-surface-variant); }
-  & .mg-hint svg { width: 16px; height: 16px; }
   & .mg-mono { font-family: var(--t-mono); font-size: 0.92em; }
   & .mg-grow { flex: 1; }
   & .mg-inline { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -213,21 +210,12 @@
   & .mg-page { width: 100%; max-width: 1440px; margin: 0 auto 0 0; }
   /* On a phone the system selector is the header row's trailing element: it stands at the far
      right of the page's title row, and the title stops short of it. The picker
-     is 40 tall and centred on the 36px title line; inside a service, on the 64px crumb row. */
+     is 40 tall, as the title row is; inside a service, on the 64px crumb row. */
   & .mg-size-compact .mg-main { position: relative; }
-  & .mg-compact-systems { position: absolute; top: 26px; right: 16px; z-index: 2; display: flex; }
-  & .mg-compact-systems + .mg-page :is(.mg-appbar-medium .mg-headline, .mg-appbar-browse > .mg-headline) { padding-right: 162px; }
+  & .mg-compact-systems { position: absolute; top: 28px; right: 16px; z-index: 2; display: flex; }
+  & .mg-compact-systems + .mg-page .mg-pagehead { grid-template-columns: minmax(0, 1fr) auto 146px; }
   & .mg-compact-systems + .mg-page .mg-appbar-browse > .mg-appbar-row { padding-right: 154px; }
   & .mg-main:has(> .mg-page .mg-appbar-browse > .mg-appbar-row) > .mg-compact-systems { top: 24px; }
-  /* Listen's search button stands just left of the picker, or at the row's
-     end where there is no picker. Beside both, the greeting takes the other titles' size and
-     wraps when it is too long for what is left of the row. */
-  /* Its title starts on the same line as every other page's (24px down, as .mg-appbar-medium). */
-  & .mg-size-compact .mg-listen .mg-appbar { position: relative; padding-top: 16px; }
-  & .mg-size-compact .mg-listen .mg-appbar-row { position: absolute; right: -4px; top: 22px; min-height: 0; }
-  & .mg-size-compact .mg-listen .mg-display { padding-right: 52px; }
-  & .mg-compact-systems + .mg-listen .mg-display { font-size: 28px; line-height: 36px; padding-right: 206px; }
-  & .mg-compact-systems + .mg-listen .mg-appbar-row { right: 154px; }
 
   /* The navigation rail: collapsed is 96 wide with labels under the icons;
      open is wider with the labels beside them. */
@@ -286,14 +274,18 @@
   /* --- top app bars ------------------------------------------------------------ */
   & .mg-appbar { padding: 8px 0 20px; }
   & .mg-appbar-row { display: flex; align-items: center; gap: 4px; min-height: 64px; }
-  & .mg-appbar-large .mg-display { margin-top: 8px; }
-  & .mg-appbar-sub { margin: 8px 0 0; font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; color: var(--mg-on-surface-variant); }
-  & .mg-appbar-large .mg-appbar-sub { font-size: 16px; line-height: 24px; letter-spacing: 0.15px; }
   & .mg-appbar-medium { padding-top: 24px; }
-  & .mg-rooms-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  & .mg-rooms-actions { display: flex; gap: 8px; margin-left: auto; }
-  /* On a phone the system selector holds the title row's end, so the actions take the line under it. */
-  & .mg-size-compact .mg-rooms-actions { margin-left: 0; flex-basis: 100%; }
+  /* Every top-level page's title block (PageTitle in m3.jsx): the title in the first column, the page's
+     actions at the row's end, the line saying what the page is for under both, set as Settings'
+     page blurbs are so the two heads beside each other there line up. */
+  /* The title row is a button's height on every page, with buttons or without, so every title and line sit at the same height. */
+  & .mg-pagehead { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: minmax(40px, auto); column-gap: 16px; align-items: center; }
+  & .mg-pagehead > .mg-headline { grid-row: 1; grid-column: 1; }
+  & .mg-pagehead-actions { grid-row: 1; grid-column: 2; display: flex; align-items: center; gap: 8px; }
+  & .mg-pagehead > .mg-appbar-sub { grid-row: 2; grid-column: 1 / -1; }
+  & .mg-appbar-sub { margin: 4px 0 0; font-size: 14px; line-height: 20px; color: var(--mg-on-surface-variant); }
+  /* On a phone, actions too wide for the title row take a line of their own under the page's line. */
+  & .mg-size-compact .mg-pagehead-wrap .mg-pagehead-actions { grid-row: 3; grid-column: 1 / -1; margin-top: 12px; }
 
   /* --- buttons ----------------------------------------------------------------- */
   & .mg-btn {
@@ -1523,9 +1515,13 @@
   & .mg-settings-list { display: flex; flex-direction: column; gap: 16px; padding-top: 24px; position: sticky; top: 0; }
   & .mg-size-compact .mg-settings-list { position: static; }
   & .mg-settings-list .mg-card { border-radius: 16px; }
+  /* The same 20px under the head as every other page. */
+  & .mg-settings-list > .mg-pagehead { margin-bottom: 4px; }
   & .mg-settings-detail { min-width: 0; padding-top: 24px; display: flex; flex-direction: column; gap: 20px; }
   & .mg-settings-detail-head { display: flex; align-items: flex-start; gap: 8px; }
   & .mg-settings-detail-head p { margin-top: 4px; }
+  /* Its title in a 40px line, as the page titles' rows are, so beside the list the two heads line up. */
+  & .mg-settings-detail-head .mg-headline { padding: 2px 0; }
   /* Beside its list, a settings page scrolls on its own and the list holds still, each in its own
      column, the room under the player bar kept at the foot of each; on a phone the two are
      separate screens. */

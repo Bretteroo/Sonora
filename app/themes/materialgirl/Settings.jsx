@@ -19,7 +19,7 @@ import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
 import NetworkMap, { HealthDonut, MeshGuidance, forSystem } from '../../frontend/src/components/NetworkMap.jsx'
 import ParentalControls from '../../frontend/src/components/ParentalControls.jsx'
 import * as I from './icons.jsx'
-import { Sheet, SheetBar, Button, IconButton, Switch, Confirm, Empty, Busy, Menu, MenuItem, MenuSep, Select, TextField, ListItem, SystemPicker, Loading, Kbd, Skeleton } from './m3.jsx'
+import { Sheet, SheetBar, Button, IconButton, Switch, Confirm, Empty, Busy, Menu, MenuItem, MenuSep, Select, TextField, ListItem, SystemPicker, Loading, Kbd, Skeleton, PageTitle } from './m3.jsx'
 import { SHAPES } from './shapes.js'
 import { readDynamic, writeDynamic } from './color.js'
 import { ServiceGrid } from './Browse.jsx'
@@ -68,7 +68,7 @@ export default function SettingsPage({ households, zones, systemFilter, page, se
   return (
     <div key="list" className="mg-page mg-settings" data-motion={compact && motion === 'back' ? 'back' : undefined}>
       <nav className="mg-settings-list" aria-label={t('common.settings')}>
-        <h1 className="mg-headline">{t('common.settings')}</h1>
+        <PageTitle title={t('common.settings')} sub={t('mg.sub.settings')} />
         <div className="mg-card mg-card-filled mg-list">
           {PAGES.map((id) => {
             const Glyph = PAGE_ICONS[id]

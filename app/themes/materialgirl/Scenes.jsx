@@ -6,7 +6,7 @@ import { useScenes, applyScene, trySceneBody, reportText, sceneKey, sceneName, s
 import SceneEditorPanel from '../../frontend/src/components/SceneEditorPanel.jsx'
 import SceneTimeLeft from '../../frontend/src/components/SceneTimeLeft.jsx'
 import * as I from './icons.jsx'
-import { Sheet, SheetBar, Button, Confirm, Empty, IconButton, Loading, Menu, MenuItem, Select, Skeleton } from './m3.jsx'
+import { Sheet, SheetBar, Button, Confirm, Empty, IconButton, Loading, Menu, MenuItem, Select, Skeleton, PageTitle } from './m3.jsx'
 
 // Scenes: groups of rooms, each on its own system, their levels and what
 // each plays, set in one go. Every scene as a card in a grid, a tap on one
@@ -101,12 +101,12 @@ export default function ScenesPage({ zones, onMessage }) {
     )
   }
   return (
-    <div className="mg-scenes">
-      <div className="mg-alarms-head">
-        <h2 className="mg-title-l">{t('scenes.title')}</h2>
-        <span className="mg-grow" />
-        <Button variant="filled" size="s" icon={<I.Plus />} disabled={!households.length} onClick={() => open(null)}>{t('scenes.add')}</Button>
-      </div>
+    <div className="mg-page mg-scenes">
+      <header className="mg-appbar mg-appbar-medium">
+        <PageTitle title={t('scenes.title')} sub={t('mg.sub.scenes')}>
+          <Button variant="filled" size="s" icon={<I.Plus />} disabled={!households.length} onClick={() => open(null)}>{t('scenes.add')}</Button>
+        </PageTitle>
+      </header>
       {!loaded && <Skeleton label={t('desk.browse.loading')} kind="cards" rows={3} />}
       {loaded && scenes.length === 0 && <Empty icon={<I.Clapper />} title={t('scenes.none')} body={t('scenes.noneBody')} />}
       {scenes.length > 0 && <div className="mg-alarm-grid mg-scene-grid">{scenes.map(card)}</div>}

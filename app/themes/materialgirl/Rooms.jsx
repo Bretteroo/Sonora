@@ -7,7 +7,7 @@ import { roomSections, canStereoPair } from '../../frontend/src/lib/rooms.js'
 import { proposedGroups, groupingPlan, runPlan, leaderOf as groupLeader } from '../../frontend/src/lib/grouping.js'
 import { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
 import * as I from './icons.jsx'
-import { Sheet, SheetBar, IconButton, Button, Chip, Slider, Switch, Confirm, Empty, Select, TextField, ListItem, ShapeArt, Menu, MenuItem, cx } from './m3.jsx'
+import { Sheet, SheetBar, IconButton, Button, Chip, Slider, Switch, Confirm, Empty, Select, TextField, ListItem, ShapeArt, Menu, MenuItem, PageTitle, cx } from './m3.jsx'
 import { KIND_SHAPES, SHAPES } from './shapes.js'
 import { nowSummary, hasMusic, householdOf } from './data.js'
 import { PlayButton } from './Player.jsx'
@@ -78,15 +78,13 @@ export default function RoomsPage({ groups, zones, households, systemFilter, act
   return (
     <div className="mg-page mg-rooms">
       <header className="mg-appbar mg-appbar-medium">
-        <div className="mg-rooms-head">
-          <h1 className="mg-headline">{t('desk.rooms.title')}</h1>
-          {/* The whole house's actions, beside the rooms they act on. */}
-          <div className="mg-rooms-actions">
-            <Button variant="tonal" size="s" icon={<I.Pause />} disabled={pauseDisabled} onClick={onPauseAll}>{t('desk.rooms.pauseAll')}</Button>
-            <Button variant="tonal" size="s" icon={<I.Sparkle />} disabled={partyDisabled} onClick={onParty}>{t('mg.partyMode')}</Button>
-          </div>
-        </div>
-        {groups.filter((g) => !g.local).length > 1 && <p className="mg-hint mg-hint-drag"><I.Drag />{t('mg.dragToGroup')}</p>}
+        {/* The whole house's actions, beside the rooms they act on. How to group is said while
+            there are two rooms to group. */}
+        <PageTitle title={t('desk.rooms.title')} actionsBelow
+                  sub={groups.filter((g) => !g.local).length > 1 ? t('mg.dragToGroup') : t('mg.sub.rooms')}>
+          <Button variant="tonal" size="s" icon={<I.Pause />} disabled={pauseDisabled} onClick={onPauseAll}>{t('desk.rooms.pauseAll')}</Button>
+          <Button variant="tonal" size="s" icon={<I.Sparkle />} disabled={partyDisabled} onClick={onParty}>{t('mg.partyMode')}</Button>
+        </PageTitle>
       </header>
       {sections.map((section) => {
         const label = many && section.household ? section.household.generation : ''

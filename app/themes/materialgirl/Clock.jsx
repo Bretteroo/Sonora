@@ -7,7 +7,7 @@ import { useListMotion } from '../../frontend/src/lib/listMotion.js'
 import { useSleepTimers, SLEEP_CHOICES, sleepLabel, clockText } from '../../frontend/src/lib/useSleepTimer.js'
 import AlarmEditorPanel from '../../frontend/src/components/AlarmEditorPanel.jsx'
 import * as I from './icons.jsx'
-import { Sheet, SheetBar, Button, Switch, Confirm, Empty, Busy, Chip, IconButton, Menu, MenuItem, SystemPicker, Select, Skeleton } from './m3.jsx'
+import { Sheet, SheetBar, Button, Switch, Confirm, Empty, Busy, Chip, IconButton, Menu, MenuItem, SystemPicker, Select, Skeleton, PageTitle } from './m3.jsx'
 import { SHAPES } from './shapes.js'
 import { groupTitle } from './data.js'
 import { TimeField } from './Pickers.jsx'
@@ -49,7 +49,7 @@ export default function ClockPage({ households, zones, activeZone, activeGroup, 
   return (
     <div className="mg-page mg-clock">
       <header className="mg-appbar mg-appbar-medium">
-        <h1 className="mg-headline">{t('desk.browse.alarms')}</h1>
+        <PageTitle title={t('desk.browse.alarms')} sub={t('mg.sub.clock')} />
       </header>
 
       <SleepCard zone={activeZone} groupLabel={activeGroup ? groupTitle(activeGroup, zones, t) : ''} />

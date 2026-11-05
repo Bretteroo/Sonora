@@ -683,6 +683,20 @@ export const SearchBar = React.forwardRef(function SearchBar({ value, onChange, 
   )
 })
 
+// --- page headers ---------------------------------------------------------------------
+
+// The title block every top-level page opens with: the title, the page's own actions at the
+// row's end, and one line under it saying what the page is for.
+export function PageTitle({ title, sub, children = null, actionsBelow = false }) {
+  return (
+    <div className={cx('mg-pagehead', actionsBelow && 'mg-pagehead-wrap')}>
+      <h1 className="mg-headline">{title}</h1>
+      {children && <div className="mg-pagehead-actions">{children}</div>}
+      <p className="mg-appbar-sub">{sub}</p>
+    </div>
+  )
+}
+
 // --- lists, empty states ----------------------------------------------------------------
 
 export function Empty({ icon = null, title, body = '', children }) {

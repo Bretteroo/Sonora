@@ -14,7 +14,7 @@ import { useLetterIndex, useLetterDrag, useKeepPlace, useRailHeight, fitLetters 
 import { CautionBadge } from '../../frontend/src/components/CautionBadge.jsx'
 import * as I from './icons.jsx'
 import { IconButton, Button, SplitButton, Menu, MenuItem, MenuSep, Confirm, Empty, Busy, Sheet, SheetBar, Chip, SearchBar,
-         TextField, ListItem, ShapeArt, SystemPicker, cx, Skeleton } from './m3.jsx'
+         TextField, ListItem, ShapeArt, SystemPicker, cx, Skeleton, PageTitle } from './m3.jsx'
 import { KIND_SHAPES, SHAPES } from './shapes.js'
 import { useBrowsePage, useSources, searchScopesOf, playItems, isQueueable, genericArt, describeFavorite, serviceLabelFor,
          TUNEIN_ICONS, readStored, writeStored, VIEW_KEY, householdOf, useSpeakerUpdates, favoriteTarget } from './data.js'
@@ -495,7 +495,7 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
               </IconButton>
             </div>
           ) : (
-            <h1 className="mg-headline">{t('mg.nav.browse')}</h1>
+            <PageTitle title={t('mg.nav.browse')} sub={t('mg.sub.browse')} />
           )}
           <SearchBar ref={searchRef} value={term} onChange={setTerm} label={t('common.search')}
                      placeholder={scope && !scope.all ? t('desk.search.in', { service: scope.name }) : t('common.search')}

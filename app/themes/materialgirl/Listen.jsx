@@ -4,7 +4,7 @@ import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import Art, { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
 import { dayPart } from '../../frontend/src/lib/playlistName.js'
 import * as I from './icons.jsx'
-import { IconButton, Button, Chip, Slider, Menu, MenuItem, MenuSep, Empty, ListItem } from './m3.jsx'
+import { IconButton, Button, Chip, Slider, Menu, MenuItem, MenuSep, Empty, ListItem, PageTitle } from './m3.jsx'
 import { KIND_SHAPES } from './shapes.js'
 import { nowSummary, nextTransport, togglePlay, canAct, isLoaded, genericArt, groupTitle } from './data.js'
 import { Transport, WavySeek } from './Player.jsx'
@@ -168,14 +168,14 @@ export default function Listen({ groups, zones, households, activeId, activeZone
 
   return (
     <div className="mg-page mg-listen">
-      <header className="mg-appbar mg-appbar-large">
-        <div className="mg-appbar-row">
-          <span className="mg-grow" />
+      <header className="mg-appbar mg-appbar-medium">
+        <PageTitle title={t('mg.nav.listen')}
+                  sub={t('mg.sub.listen', {
+                    greeting: t(`mg.greeting.${dayPart()}`),
+                    status: playing > 0 ? t('mg.sub.playing', { rooms: t.plural('common.rooms', playing) }) : t('mg.sub.quiet'),
+                  })}>
           <IconButton label={`${t('common.search')} (Ctrl K)`} onClick={onSearch}><I.Search /></IconButton>
-        </div>
-        <h1 className="mg-display">{t(`mg.greeting.${dayPart()}`)}</h1>
-        {/* Said only while something plays. */}
-        {playing > 0 && <p className="mg-appbar-sub">{t('mg.playingIn', { rooms: t.plural('common.rooms', playing) })}</p>}
+        </PageTitle>
       </header>
 
       {groups.length === 0 ? <Empty icon={<I.Speaker />} title={t('mg.noRooms')} /> : (

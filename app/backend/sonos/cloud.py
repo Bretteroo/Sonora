@@ -28,7 +28,10 @@ session and are never stored, logged, or written to disk. The resulting session
 cookies are held in memory and also written to the data dir (mode 0600) so the
 sign-in survives a restart instead of dropping every time the process stops;
 they are validated on startup and discarded if the web app no longer accepts
-them. Only two hosts are ever contacted over HTTP, ``login.sonos.com`` and
+them. The access token inside the session cookie lasts a day, and only asking
+the web app for the session document renews it, so Sonora asks halfway through
+each token's life and again before any request made with under two minutes
+left. Only two hosts are ever contacted over HTTP, ``login.sonos.com`` and
 ``play.sonos.com``, plus the websocket host ``api.ws.sonos.com``, and nothing
 about the household is sent to any of them beyond the household id already in
 the URL.
@@ -42,7 +45,8 @@ import logging
 import urllib.parse
 from dataclasses import dataclass, field
 from pathlib import Path
-from time import monotonic
+from time import monotonic, time
+from typing import NoReturn
 
 import aiohttp
 
@@ -59,7 +63,12 @@ APP = "https://play.sonos.com"
 SERVICE_CATALOG = "https://service-catalog.ws.sonos.com/catalog/services"
 CSRF = f"{APP}/api/auth/csrf"
 #: Returns the current session as JSON (a user object when signed in, ``{}``
-#: when not). Used to validate a restored session cheaply.
+#: when not). Used to validate a restored session cheaply, and asking it is
+#: also what renews the session: each answer carries
+#: ``accessTokenStatus.expiration`` (milliseconds) for the access token the
+#: cookie holds, a day ahead, and sets the cookie again with its own end ten
+#: days out (measured 2026-11-04). An access token that has lapsed is still
+#: renewed this way while the cookie lasts.
 SESSION = f"{APP}/api/auth/session"
 SIGNIN = f"{APP}/api/auth/signin/okta"
 CONTENT = f"{APP}/api/content/v1"
@@ -105,6 +114,14 @@ LABS_TTL = 900.0
 
 #: The full service catalog changes rarely, so it is held far longer.
 CATALOG_TTL = 3600.0
+
+#: A request made with less than this left on the access token renews the
+#: session first, the margin the Sonos S1 app's token manager uses.
+RENEW_MARGIN = 120.0
+#: The longest wait before trying again when a renewal could not reach Sonos.
+RENEW_RETRY = 900.0
+#: How long to wait between renewals when Sonos names no expiry.
+RENEW_FALLBACK = 6 * 3600.0
 
 
 class CloudError(Exception):
@@ -195,6 +212,11 @@ class SonosCloud:
         #: their pins by. Not the Okta id in ``_user_id``.
         self._account: str | None = None
         self._email: str | None = None
+        #: When the access token inside the session cookie runs out, in epoch
+        #: seconds, as the last session document said.
+        self._token_expires: float | None = None
+        self._renewing: asyncio.Task | None = None
+        self._keeper: asyncio.Task | None = None
         self._lock = asyncio.Lock()
         self._icons: dict[str, tuple[bytes, str]] = {}
         self._registrations: dict[str, _Cached] = {}
@@ -226,6 +248,10 @@ class SonosCloud:
         }
 
     async def close(self) -> None:
+        if self._keeper is not None and self._keeper is not asyncio.current_task():
+            self._keeper.cancel()
+        self._keeper = None
+        self._token_expires = None
         if self._session is not None and not self._session.closed:
             await self._session.close()
         self._session = None
@@ -269,6 +295,13 @@ class SonosCloud:
             self._email = email
             self._persist()
             log.info("signed in to Sonos as %s", email)
+            try:
+                # Learns when the new token runs out, so the keeper knows
+                # when to renew it.
+                await self._renew()
+            except Exception as exc:
+                log.info("could not read the new Sonos session yet: %s", exc)
+            self._keep()
             return self.status()
 
     async def restore(self) -> bool:
@@ -323,7 +356,10 @@ class SonosCloud:
             self._session = session
             self._email = meta.get("email")
             self._user_id = meta.get("user_id")
-            self._account = str(((data.get("user") or {}).get("sonosId") or "")) or None
+            self._take_session(data)
+            # Asking renewed the cookie, so the stored copy is replaced.
+            self._persist()
+            self._keep()
             log.info("restored Sonos session for %s", self._email or "unknown")
             return True
 
@@ -354,6 +390,94 @@ class SonosCloud:
         await self.close()
         self._forget()
 
+
+    # -- keeping the session ---------------------------------------------------
+
+    def _take_session(self, data: object) -> bool:
+        """Note what a session document says. False if it names nobody."""
+        user = data.get("user") if isinstance(data, dict) else None
+        if not user:
+            return False
+        self._account = str(user.get("sonosId") or "") or self._account
+        expiration = (data.get("accessTokenStatus") or {}).get("expiration")
+        try:
+            self._token_expires = float(expiration) / 1000
+        except (TypeError, ValueError):
+            self._token_expires = None
+        return True
+
+    async def _renew(self) -> bool:
+        """Ask Sonos for the session document, which renews it.
+
+        Callers arriving together share one request. Returns whether the
+        session still stands; when Sonos says it does not, Sonora is signed
+        out and the stored session is forgotten. Raises when Sonos could not
+        be asked.
+        """
+        if self._renewing is None or self._renewing.done():
+            self._renewing = asyncio.create_task(self._ask_session())
+        return await asyncio.shield(self._renewing)
+
+    async def _ask_session(self) -> bool:
+        session = self._require()
+        async with session.get(SESSION) as resp:
+            data = await resp.json(content_type=None)
+        if not self._take_session(data):
+            log.info("Sonos no longer knows the session for %s; signed out",
+                     self._email or "unknown")
+            await self.close()
+            self._forget()
+            return False
+        self._persist()
+        return True
+
+    def _next_renewal(self) -> float:
+        """Seconds until the keeper next renews: halfway to the token's end."""
+        if self._token_expires is None:
+            return RENEW_FALLBACK
+        return max(RENEW_RETRY, (self._token_expires - time()) / 2)
+
+    def _keep(self) -> None:
+        """Start renewing the session in the background, if not already."""
+        if self._keeper is None or self._keeper.done():
+            self._keeper = asyncio.create_task(self._keep_alive())
+
+    async def _keep_alive(self) -> None:
+        # Halfway through each token's life, the timing the Sonos S2 Android
+        # app keeps, so the session stays alive while Sonora sits unused.
+        while self.signed_in:
+            await asyncio.sleep(self._next_renewal())
+            try:
+                if not await self._renew():
+                    return
+            except Exception as exc:
+                log.info("could not renew the Sonos session, will try again: %s", exc)
+
+    async def _ready(self) -> aiohttp.ClientSession:
+        """The session, renewed first if its token is about to run out."""
+        session = self._require()
+        if self._token_expires is not None and self._token_expires - time() < RENEW_MARGIN:
+            try:
+                await self._renew()
+            except Exception as exc:
+                log.info("could not renew the Sonos session: %s", exc)
+            session = self._require()
+        return session
+
+    async def _rejected(self) -> NoReturn:
+        """Sonos turned a request away as unauthorized.
+
+        That is an expired token as often as an ended session, so Sonos is
+        asked which: a session that still stands has just been renewed, and
+        only one that does not signs Sonora out.
+        """
+        try:
+            alive = await self._renew()
+        except Exception as exc:
+            raise CloudError(f"Sonos turned the request away and could not be asked why: {exc}") from exc
+        if not alive:
+            raise NotSignedIn()
+        raise CloudError("Sonos turned the request away; the session has been renewed, so try again.")
 
     @staticmethod
     async def _okta_authn(session: aiohttp.ClientSession, email: str,
@@ -500,12 +624,11 @@ class SonosCloud:
 
     async def _fetch_registrations(self, household_id: str) -> list[Registration]:
         gen = self._gen.get(("registrations", household_id), 0)
-        session = self._require()
+        session = await self._ready()
         url = f"{CONTENT}/households/{household_id}/integrations/registrations"
         async with session.get(url, headers=self._headers()) as resp:
             if resp.status == 401:
-                await self.close()
-                raise NotSignedIn()
+                await self._rejected()
             if resp.status >= 400:
                 raise CloudError(
                     f"Sonos returned {resp.status} for the service list.")
@@ -598,13 +721,9 @@ class SonosCloud:
         """
         if self._account:
             return self._account
-        session = self._require()
-        async with session.get(SESSION) as resp:
-            data = await resp.json(content_type=None)
-        if resp.status == 401 or not (data or {}).get("user"):
-            await self.close()
+        self._require()
+        if not await self._renew():
             raise NotSignedIn()
-        self._account = str((data["user"].get("sonosId") or "")) or None
         return self._account or ""
 
     async def pinned(self, household_id: str) -> list[dict]:
@@ -631,13 +750,12 @@ class SonosCloud:
         account = await self.account_number()
         if not account:
             raise NotSignedIn()
-        session = self._require()
+        session = await self._ready()
         url = (f"{CONTENT}/households/{household_id}/services/{FAVORITES_SERVICE}"
                f"/accounts/{account}/favorites/resources?resources=CONTAINERS")
         async with session.get(url, headers=self._headers()) as resp:
             if resp.status == 401:
-                await self.close()
-                raise NotSignedIn()
+                await self._rejected()
             if resp.status >= 400:
                 # 410 for a household whose players the cloud cannot reach,
                 # which is a household with no pins to show rather than a
@@ -694,12 +812,11 @@ class SonosCloud:
 
     async def _fetch_catalog(self, household_id: str) -> dict[int, dict]:
         gen = self._gen.get(("catalog", household_id), 0)
-        session = self._require()
+        session = await self._ready()
         url = f"{CONTENT}/households/{household_id}/integrations"
         async with session.get(url, headers=self._headers()) as resp:
             if resp.status == 401:
-                await self.close()
-                raise NotSignedIn()
+                await self._rejected()
             if resp.status >= 400:
                 raise CloudError(
                     f"Sonos returned {resp.status} for the catalog.")
@@ -774,14 +891,13 @@ class SonosCloud:
         if cached is not None and cached.fresh(LABS_TTL):
             return cached.value  # type: ignore[return-value]
 
-        session = self._require()
+        session = await self._ready()
         headers = {**self._headers(),
                    "Accept": "application/sonos_service_catalog.v2.json"}
         url = f"{SERVICE_CATALOG}?householdId={household_id}"
         async with session.get(url, headers=headers) as resp:
             if resp.status == 401:
-                await self.close()
-                raise NotSignedIn()
+                await self._rejected()
             if resp.status >= 400:
                 raise CloudError(
                     f"Sonos returned {resp.status} for the service catalog.")
@@ -818,7 +934,7 @@ class SonosCloud:
         if hit is not None:
             return hit
 
-        session = self._require()
+        session = await self._ready()
         url = (f"{CONTENT}/integrations/{urllib.parse.quote(integration_id)}"
                f"/configurations/{urllib.parse.quote(config_id)}/images/icon"
                f"?height={size}&width={size}")
@@ -832,8 +948,7 @@ class SonosCloud:
         for accept in ("image/svg+xml", "image/png"):
             async with session.get(url, headers={"Accept": accept}) as resp:
                 if resp.status == 401:
-                    await self.close()
-                    raise NotSignedIn()
+                    await self._rejected()
                 if resp.status == 200:
                     body = await resp.read()
                     content_type = resp.headers.get("Content-Type", accept)
@@ -861,7 +976,7 @@ class SonosCloud:
         if hit is not None:
             return hit
 
-        session = self._require()
+        session = await self._ready()
         url = (f"{CONTENT}/integrations/{urllib.parse.quote(integration_id)}"
                f"/configurations/{urllib.parse.quote(config_id)}/images/{kind}"
                f"?height={height}&width={width}")
@@ -871,8 +986,7 @@ class SonosCloud:
         for accept in ("image/png", "image/svg+xml"):
             async with session.get(url, headers={"Accept": accept}) as resp:
                 if resp.status == 401:
-                    await self.close()
-                    raise NotSignedIn()
+                    await self._rejected()
                 if resp.status == 200:
                     body = await resp.read()
                     content_type = resp.headers.get("Content-Type", accept)
@@ -908,11 +1022,10 @@ class SonosCloud:
 
     async def muse_ticket(self) -> str:
         """A one-time ticket authorizing a websocket connection."""
-        session = self._require()
+        session = await self._ready()
         async with session.get(MFE, headers=self._headers()) as resp:
             if resp.status == 401:
-                await self.close()
-                raise NotSignedIn()
+                await self._rejected()
             if resp.status >= 400:
                 raise CloudError(
                     f"Sonos returned {resp.status} for a websocket ticket.")
@@ -924,7 +1037,7 @@ class SonosCloud:
 
     async def muse_connect(self) -> aiohttp.ClientWebSocketResponse:
         """Open the live-status websocket on this session."""
-        session = self._require()
+        session = await self._ready()
         ticket = await self.muse_ticket()
         url = f"{MUSE_WS}?ticket={urllib.parse.quote(ticket)}"
         try:

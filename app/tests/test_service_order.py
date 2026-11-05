@@ -78,6 +78,7 @@ def _cloud():
     cloud._catalog = {}
     cloud._inflight = {}
     cloud._gen = {}
+    cloud._token_expires = None
     cloud._session = _Session()
     cloud._require = lambda: cloud._session
     cloud._headers = lambda: {}

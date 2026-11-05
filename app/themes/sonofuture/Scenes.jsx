@@ -92,6 +92,7 @@ export default function ScenesSection({ zones, onMessage }) {
       <header className="sf-page-head">
         <div>
           <h1>{t('scenes.title')}</h1>
+          <p className="sf-page-sub">{t('sf.sub.scenes')}</p>
         </div>
         <div className="sf-page-actions">
           <Button primary icon={<I.Plus />} disabled={!households.length} onClick={() => open(null)}>{t('scenes.add')}</Button>

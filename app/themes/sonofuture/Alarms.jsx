@@ -39,6 +39,7 @@ export default function AlarmsSection({ households, zones, activeZone, activeGro
       <header className="sf-page-head">
         <div>
           <h1>{t('desk.browse.alarms')}</h1>
+          <p className="sf-page-sub">{t('sf.sub.alarms')}</p>
         </div>
         <div className="sf-page-actions">
           <SystemTabs households={ordered} value={activeHh} onChange={setTab} />

@@ -110,10 +110,17 @@
 /* --- the main column -------------------------------------------------------------------- */
 :where(:root[data-theme='sonofuture']) .sf-main { grid-area: main; min-width: 0; min-height: 0; overflow: auto; padding: 22px 28px 28px; animation: sf-fade--sonofuture 200ms var(--sf-ease); }
 @keyframes sf-fade--sonofuture { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-:where(:root[data-theme='sonofuture']) .sf-page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
-:where(:root[data-theme='sonofuture']) .sf-page-head h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
-:where(:root[data-theme='sonofuture']) .sf-page-sub { margin: 4px 0 0; color: var(--t-fg-muted); }
-:where(:root[data-theme='sonofuture']) .sf-page-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* Every section's head alike: the title in a row a button tall, the page's actions at that row's
+   end, and under both the line saying what the page holds. The title and its line stay in one
+   element in the markup; the grid lays them out. */
+:where(:root[data-theme='sonofuture']) .sf-page-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: minmax(40px, auto); column-gap: 16px; align-items: center; margin-bottom: 18px; }
+:where(:root[data-theme='sonofuture']) .sf-page-head > div:first-child { display: contents; }
+:where(:root[data-theme='sonofuture']) .sf-page-head h1 { grid-row: 1; grid-column: 1; margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+:where(:root[data-theme='sonofuture']) .sf-page-head .sf-page-sub { grid-row: 2; grid-column: 1 / -1; }
+:where(:root[data-theme='sonofuture']) .sf-page-sub { margin: 4px 0 0; font-size: 14px; color: var(--t-fg-muted); }
+:where(:root[data-theme='sonofuture']) .sf-page-actions { grid-row: 1; grid-column: 2; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* Rooms says how to drag where there is a pointer to drag with. */
+:where(:root[data-theme='sonofuture']) .sf-sub-touch { display: none; }
 
 /* --- buttons ------------------------------------------------------------------------------- */
 :where(:root[data-theme='sonofuture']) .sf-icon-btn {
@@ -437,7 +444,6 @@
 :where(:root[data-theme='sonofuture']) .sf-group { transition: border-color 160ms var(--sf-ease), transform 160ms var(--sf-ease), box-shadow 160ms var(--sf-ease); }
 :where(:root[data-theme='sonofuture']) .sf-group[draggable='true']:hover { border-color: var(--t-border-strong); transform: translateY(-1px); }
 @media (prefers-reduced-motion: reduce) { :where(:root[data-theme='sonofuture']) .sf-group[draggable='true']:hover { transform: none; } }
-:where(:root[data-theme='sonofuture']) .sf-rooms .sf-hint-drag { margin: 6px 0 0; }
 :where(:root[data-theme='sonofuture']) .sf-rooms-system + .sf-rooms-system { margin-top: 12px; }
 :where(:root[data-theme='sonofuture']) .sf-group-head { display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; }
 :where(:root[data-theme='sonofuture']) .sf-group-head:hover { background: rgba(148, 163, 184, 0.05); }
@@ -820,7 +826,8 @@
 /* --- Settings ---------------------------------------------------------------------------------- */
 :where(:root[data-theme='sonofuture']) .sf-settings { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 28px; }
 :where(:root[data-theme='sonofuture']) .sf-settings-nav { display: flex; flex-direction: column; gap: 2px; }
-:where(:root[data-theme='sonofuture']) .sf-settings-nav h1 { margin: 0 0 10px; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+/* The same 18px under the head as every other page, the list's own 2px gap included. */
+:where(:root[data-theme='sonofuture']) .sf-settings-nav > .sf-page-head { margin-bottom: 16px; }
 :where(:root[data-theme='sonofuture']) .sf-settings-nav-strip { display: flex; flex-direction: column; gap: 2px; }
 :where(:root[data-theme='sonofuture']) .sf-settings-jump { display: none; }
 :where(:root[data-theme='sonofuture']) .sf-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -850,7 +857,8 @@
 }
 /* The upgrade advisor's tables take the whole width there is. */
 :where(:root[data-theme='sonofuture']) .sf-settings-page[data-page='s2'] { max-width: none; }
-:where(:root[data-theme='sonofuture']) .sf-settings-title { margin: 0; font-size: 22px; font-weight: 700; }
+/* In a row as tall as the section titles', so beside the list its title and line sit level with Settings' own. */
+:where(:root[data-theme='sonofuture']) .sf-settings-title { display: flex; align-items: center; min-height: 40px; margin: 0; font-size: 22px; font-weight: 700; }
 :where(:root[data-theme='sonofuture']) .sf-settings-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 :where(:root[data-theme='sonofuture']) .sf-svc-list { display: flex; flex-direction: column; gap: 6px; }
 :where(:root[data-theme='sonofuture']) .sf-svc { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--t-border); border-radius: 12px; background: var(--t-surface); }
@@ -981,7 +989,7 @@
   :where(:root[data-theme='sonofuture']) .sf-settings-nav {
     display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px;
   }
-  :where(:root[data-theme='sonofuture']) .sf-settings-nav h1 { margin: 0; }
+  :where(:root[data-theme='sonofuture']) .sf-settings-nav > .sf-page-head { margin-bottom: 8px; }
   :where(:root[data-theme='sonofuture']) .sf-settings-nav-strip { display: none; }
   :where(:root[data-theme='sonofuture']) .sf-settings-jump { display: block; }
   :where(:root[data-theme='sonofuture']) .sf-settings-nav-foot { flex-direction: row; margin: 0; padding: 0; border: 0; }
@@ -1041,11 +1049,11 @@
   :where(:root[data-theme='sonofuture']) .sf-rail-item span { display: block; font-size: 10px; }
   :where(:root[data-theme='sonofuture']) .sf-page-systems { display: inline-flex; }
   /* The system selector sits at the far right of the page's header row, not above it:
-     lifted out of the flow onto the heading's line, centred on its 31px against the
-     selector's 35, with room kept for it at the header's right so a long title wraps short of it. */
+     lifted out of the flow onto the title row and centred on its 40px, with a column kept for it
+     at the row's end so a long title wraps short of it. */
   :where(:root[data-theme='sonofuture']) :has(> .sf-page-systems) { position: relative; }
-  :where(:root[data-theme='sonofuture']) .sf-page-systems { position: absolute; top: -2px; right: 0; margin: 0; z-index: 1; }
-  :where(:root[data-theme='sonofuture']) .sf-page-systems + .sf-page-head > :first-child { padding-right: 152px; }
+  :where(:root[data-theme='sonofuture']) .sf-page-systems { position: absolute; top: 2px; right: 0; margin: 0; z-index: 1; }
+  :where(:root[data-theme='sonofuture']) .sf-page-systems + .sf-page-head { grid-template-columns: minmax(0, 1fr) auto 136px; }
 }
 @media (min-width: 901px) and (max-height: 560px) {
   :where(:root[data-theme='sonofuture']) .sf-root {
@@ -1092,7 +1100,8 @@
   :where(:root[data-theme='sonofuture']) .sf-stage-controls { gap: 6px; }
   :where(:root[data-theme='sonofuture']) .sf-stage-transport { row-gap: 4px; }
   :where(:root[data-theme='sonofuture']) .sf-sources { inset: 0 15% calc(var(--sf-bar) + 62px) 0; }
-  :where(:root[data-theme='sonofuture']) .sf-page-head { align-items: flex-start; flex-direction: column; }
+  /* The page's actions take a line of their own, under the head's line. */
+  :where(:root[data-theme='sonofuture']) .sf-page-actions { grid-row: 3; grid-column: 1 / -1; margin-top: 12px; }
   :where(:root[data-theme='sonofuture']) .sf-qrow-tools { opacity: 1; }
   :where(:root[data-theme='sonofuture']) .sf-tile-play, :where(:root[data-theme='sonofuture']) .sf-tile-more, :where(:root[data-theme='sonofuture']) .sf-quick-play { opacity: 1; transform: none; }
 }
@@ -1138,7 +1147,8 @@
    cannot be followed -- by input, not by width, since a narrow window on a
    desktop still has a mouse. */
 @media (hover: none), (pointer: coarse) {
-  :where(:root[data-theme='sonofuture']) .sf-hint-drag { display: none; }
+  :where(:root[data-theme='sonofuture']) .sf-sub-pointer { display: none; }
+  :where(:root[data-theme='sonofuture']) .sf-sub-touch { display: inline; }
 }
 
 /* Where a track dragged within a Sonos Playlist will land. */
@@ -1256,7 +1266,6 @@
 :where(:root[data-theme='sonofuture']) .sf-svc-state + .sf-svc-state { white-space: normal; }
 
 /* Scenes: cards, one per scene, a press on one setting it; its tools at the end. */
-:where(:root[data-theme='sonofuture']) .sf-scenes .sf-page-head p { margin: 4px 0 0; max-width: 60ch; }
 :where(:root[data-theme='sonofuture']) .sf-scene-list { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
 :where(:root[data-theme='sonofuture']) .sf-scene-list h2 { margin: 12px 0 0; font-size: 16px; }
 :where(:root[data-theme='sonofuture']) .sf-scene-list > p { margin: 0 0 4px; font-size: 13px; }

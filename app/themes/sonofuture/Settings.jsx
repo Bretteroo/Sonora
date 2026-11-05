@@ -49,7 +49,12 @@ export default function SettingsSection({ households, zones, activeZone, activeG
   return (
     <div className="sf-settings">
       <nav className="sf-settings-nav" aria-label={t('common.settings')}>
-        <h1>{t('common.settings')}</h1>
+        <header className="sf-page-head">
+          <div>
+            <h1>{t('common.settings')}</h1>
+            <p className="sf-page-sub">{t('sf.sub.settings')}</p>
+          </div>
+        </header>
         {/* A column of pages on a wide screen; on a narrow one the stylesheet
             hides it and shows the dropdown below instead. */}
         <label className="sf-settings-jump">

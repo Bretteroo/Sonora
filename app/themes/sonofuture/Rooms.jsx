@@ -83,8 +83,13 @@ export default function RoomsSection({ groups, zones, households, systemFilter, 
       <header className="sf-page-head">
         <div>
           <h1>{t('desk.rooms.title')}</h1>
-          {/* Dragging needs a pointer, so the hint is for the widths that have one. */}
-          {groups.filter((g) => !g.local).length > 1 && <p className="sf-hint sf-hint-drag">{t('sf.dragToGroup')}</p>}
+          {/* How to group, while there are two rooms to group and a pointer to drag with (the
+              stylesheet swaps in the other line on a touch screen); else what the page holds. */}
+          <p className="sf-page-sub">
+            {groups.filter((g) => !g.local).length > 1
+              ? <><span className="sf-sub-pointer">{t('sf.dragToGroup')}</span><span className="sf-sub-touch">{t('sf.sub.rooms')}</span></>
+              : t('sf.sub.rooms')}
+          </p>
         </div>
       </header>
       {sections.map((section) => {

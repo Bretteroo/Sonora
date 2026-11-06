@@ -1289,6 +1289,21 @@
       background: transparent; border: 2px solid var(--sv-ph-line); color: var(--sv-ph); font: inherit; font-size: 20px; padding: 2px 8px; min-height: 34px;
       color-scheme: dark;
     }
+    /* Chromium paints the picker's icon white and the chosen field in the system highlight;
+       both are redrawn in the phosphor. Firefox already tints its icon with the text color. */
+    & .sv-time-input::-webkit-calendar-picker-indicator {
+      background: var(--sv-ph); cursor: pointer; opacity: 1;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M1 3h14v12H1zM2.5 6.5v7h11v-7zM4 1h2v3H4zM10 1h2v3h-2z' fill-rule='evenodd'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+    & .sv-time-input[type='time']::-webkit-calendar-picker-indicator {
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M7.25 3.5h1.5v4h3v1.5h-4.5z'/%3E%3C/svg%3E");
+    }
+    & .sv-time-input::-webkit-datetime-edit-fields-wrapper { text-shadow: inherit; }
+    & .sv-time-input::-webkit-datetime-edit-hour-field:focus, & .sv-time-input::-webkit-datetime-edit-minute-field:focus,
+    & .sv-time-input::-webkit-datetime-edit-ampm-field:focus, & .sv-time-input::-webkit-datetime-edit-month-field:focus,
+    & .sv-time-input::-webkit-datetime-edit-day-field:focus, & .sv-time-input::-webkit-datetime-edit-year-field:focus {
+      background: var(--sv-ph); color: var(--sv-scr); text-shadow: none;
+    }
     & .sv-prompt { display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--sv-ph); padding: 2px 0 4px; }
     & .sv-prompt-sign { font-size: 24px; letter-spacing: 0.06em; white-space: nowrap; }
     & .sv-prompt input { font-size: 26px; }
@@ -1315,6 +1330,10 @@
     /* A cover with no picture shows Sonora's placeholder for its kind, drawn in the phosphor too. */
     /* The stand-in glyph is drawn in the phosphor as everything else on the screen is; the gray and brightness filters are for pictures only. */
     & .sv-art > svg { width: 70%; height: 70%; color: var(--sv-ph); opacity: 0.7; }
+    /* Some placeholders carry fixed grays: the light ones take the phosphor, the dark the screen. */
+    & .sv-art > svg[data-fallback] :is([fill='#666666'], [fill='#6f6f6f'], [fill='#fff']) { fill: currentColor; }
+    & .sv-art > svg[data-fallback] [stroke='#6f6f6f'] { stroke: currentColor; }
+    & .sv-art > svg[data-fallback] :is([fill='#1e1e1e'], [fill='#222222'], [fill='#2b2b2b'], [fill='#000']) { fill: var(--sv-scr); }
     & .sv-art:has(img)::before {
       content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
       background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.18) 2px 3px);
@@ -1901,7 +1920,19 @@
 
   /* The shared alarm editor, on the screen. */
   & .alarm-form { color: var(--sv-ph); font-family: var(--sv-screen-font); font-size: 21px; }
-  & .alarm-form input:is([type='radio'], [type='checkbox'], [type='range']) { accent-color: rgb(var(--sv-ph-rgb)); }
+  /* The shared panels' own ticks and choices (the alarm editor, the Upgrade Advisor's plans): the
+     browser draws an empty one gray whatever its accent, so they are drawn as the screen's Toggle
+     boxes, square for a tick and round for a choice. */
+  & :is(.sv-crt, .sv-screenlike, .alarm-form) input:is([type='radio'], [type='checkbox']):not(:is(.sv-toggle, .sv-tick) > input) {
+    appearance: none; flex: none; display: inline-grid; place-items: center; width: 20px; height: 20px; margin: 0 4px 0 0; vertical-align: -3px;
+    border: 2px solid var(--sv-ph); border-radius: 0; background: transparent; box-shadow: var(--sv-glow-soft); cursor: pointer;
+    &[type='radio'] { border-radius: 50%; }
+    &::after { content: ''; width: 10px; height: 10px; background: var(--sv-ph); box-shadow: var(--sv-glow); border-radius: inherit; transform: scale(0); }
+    &:checked::after { transform: scale(1); }
+    &:focus-visible { outline: 2px dashed var(--sv-ph); outline-offset: 2px; }
+    &:disabled { opacity: 0.4; cursor: default; }
+  }
+  & .alarm-form input[type='range'] { accent-color: rgb(var(--sv-ph-rgb)); }
   /* Its volume drawn as the screen's own bars: faint segments, lit ones up to the value, and a
      glowing head (WebKit has no lit part to draw, so there it is the segments and the head). */
   & .alarm-form input[type='range'] { appearance: none; height: 24px; background: transparent; cursor: ew-resize; vertical-align: middle; }

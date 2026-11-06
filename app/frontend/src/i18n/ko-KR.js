@@ -713,6 +713,7 @@ export default {
   'desk.sleep.hours.one': '{count}시간',
   'desk.sleep.hours.other': '{count}시간',
   'services.refusesSonora': '{service}은(는) Sonos 앱에만 응답하므로 Sonora에서 탐색하거나 검색할 수 없습니다.',
+  'services.systemLoginRefused': '{service}은(는) 이 Sonos 시스템에 저장된 로그인을 받아들이지 않고 Sonora에서 연결할 수도 없으므로, 여기서는 Sonora로 탐색하거나 검색할 수 없습니다. Sonos 앱에서는 계속 이용할 수 있습니다.',
   'services.needsSignIn':
     '{service}는 목록을 보여주기 전에 로그인을 요구합니다. 여기서 탐색하려면 Sonora에 연결하세요. Sonos '
     + '즐겨찾기나 Sonos 재생목록에 저장해 둔 것은 그대로 재생됩니다.',

@@ -510,6 +510,13 @@ class SmapiClient:
         #: answer in its context header, so the filtering is the service's
         #: own and nothing here has to know which services do it.
         self.content_filtering = None
+        #: Called as (household_id, token) -> str | None: the account-scoped
+        #: household id (``<household>_<account uid>``) of the speakers'
+        #: account holding that token, or None. Set by the controller.
+        self.account_identity = None
+        #: The household id each token is accepted under, where that is the
+        #: account-scoped one (see ``_call``).
+        self._identity: dict[tuple[str, str], str] = {}
         self._session = session
         self._timeout = aiohttp.ClientTimeout(total=timeout)
 
@@ -996,6 +1003,29 @@ class SmapiClient:
                                          household_id=household_id, token=token,
                                          key=key, device_id=device_id)
         except SmapiError as exc:
+            # A login made by an S2 app is accepted only under the household
+            # id scoped to its account, ``<household>_<account uid>``, while
+            # one made by an S1 app is accepted only under the bare household
+            # id; under the other, Apple Music answers AuthTokenExpired and
+            # refuses to refresh it (2026-11-06). So an expired login the
+            # speakers hold is tried once under its account's scoped id, and
+            # the id that works is kept for that token. The idea came from a
+            # SoCo fork's music-services browser (SoCo, MIT).
+            if (self._expired(exc) and exc.refresh is None and token and not _retried
+                    and action != "refreshAuthToken"
+                    and (household_id, token) not in self._identity
+                    and self.account_identity is not None):
+                scoped = self.account_identity(household_id, token)
+                if scoped and scoped != household_id:
+                    self._identity[(household_id, token)] = scoped
+                    try:
+                        return await self._call_once(endpoint, service_name, action, body,
+                                                     household_id=household_id, token=token,
+                                                     key=key, device_id=device_id)
+                    except SmapiError as again:
+                        if not self._expired(again):
+                            raise
+                        del self._identity[(household_id, token)]
             # A rotated token: store the pair the provider sent and try once
             # more with it. Only once, so a provider that keeps rotating cannot
             # loop the request.
@@ -1026,7 +1056,8 @@ class SmapiClient:
     async def _call_once(self, endpoint: str, service_name: str, action: str,
                          body: str, *, household_id: str = "", token: str = "",
                          key: str = "", device_id: str = "") -> str:
-        header = self._credentials(household_id, token, key, device_id)
+        login = self._identity.get((household_id, token), household_id)
+        header = self._credentials(login, token, key, device_id)
         envelope = (
             '<?xml version="1.0" encoding="utf-8"?>'
             '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">'

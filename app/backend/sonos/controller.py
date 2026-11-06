@@ -427,6 +427,7 @@ class SonosController:
         self.registry.known_hosts = [f["host"] for f in self._known.values() if f.get("host")]
         self.contentsvc = ContentService(session)
         self.smapi.on_token_refresh = self._refresh_service_token
+        self.smapi.account_identity = self._account_identity
         # Optional, and the only cloud-dependent part of the app.
         self.cloud = SonosCloud()
         self.muse = MuseFeed(self.cloud, self._on_muse_status)
@@ -3244,6 +3245,12 @@ class SonosController:
         return {"token": match.token, "key": getattr(match, "key", ""),
                 "from_system": True, "standalone": False,
                 "seen_accounts": [], "system_udn": ""}
+
+    def _account_identity(self, household_id: str, token: str) -> str | None:
+        """The account-scoped household id of the speakers' account holding ``token``."""
+        account = next((a for a in self.household_accounts(household_id)
+                        if getattr(a, "token", "") == token), None)
+        return (account.scoped_household(household_id) or None) if account else None
 
     def _own_login(self, household_id: str, sid: int, account_id: str = "",
                    single_account: bool = False) -> dict | None:

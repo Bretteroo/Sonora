@@ -34,6 +34,9 @@ log = logging.getLogger(__name__)
 #: ``SA_RINCON<service type>_<logon string>``, the app's own ``SA_RINCON%u_%s``.
 _UDN_TYPE = re.compile(r"^SA_RINCON(\d+)_")
 
+#: A token account's logon string, ``X_#Svc<type>-<account uid in hex>-Token``.
+_TOKEN_LOGON = re.compile(r"X_#Svc\d+-([0-9a-fA-F]+)-Token$")
+
 
 @dataclass(frozen=True, slots=True)
 class Account:
@@ -55,6 +58,17 @@ class Account:
     def service_id(self) -> int:
         """The browse sid, which the type carries in its high bits."""
         return self.service_type >> 8
+
+    def scoped_household(self, household_id: str) -> str:
+        """``<household>_<account uid>``, or "" for an account with no uid.
+
+        The household id a login made by an S2 app is accepted under; see
+        ``SmapiClient._call``.
+        """
+        match = _TOKEN_LOGON.search(self.username)
+        if match is None or not household_id:
+            return ""
+        return f"{household_id}_{int(match.group(1), 16):08x}"
 
 
 def account_udn(service_type: int, username: str) -> str:

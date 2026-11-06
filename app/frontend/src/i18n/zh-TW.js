@@ -695,6 +695,7 @@ export default {
   'desk.sleep.hours.one': '{count} 小時',
   'desk.sleep.hours.other': '{count} 小時',
   'services.refusesSonora': '{service} 只回應 Sonos App，因此 Sonora 無法瀏覽或搜尋它。',
+  'services.systemLoginRefused': '{service} 不接受此 Sonos 系統為其保存的登入資訊，而且無法在 Sonora 中連結，因此 Sonora 無法在這裡瀏覽或搜尋它。Sonos App 仍然可以。',
   'services.needsSignIn':
     '{service} 需要先登入才會列出內容。把它連結到 Sonora 就能在這裡瀏覽；已存到 Sonos 我的最愛或 Sonos '
     + '播放清單裡的內容仍可播放。',

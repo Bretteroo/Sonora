@@ -85,6 +85,8 @@ def test_a_shared_login_that_rotates_is_handed_to_the_speakers():
 def test_an_expired_login_with_no_new_one_attached_is_renewed():
     client = SmapiClient.__new__(SmapiClient)
     client.on_token_refresh = None
+    client.account_identity = None
+    client._identity = {}
     seen = []
 
     async def once(endpoint, service_name, action, body, *, household_id="", token="", key="", device_id=""):
@@ -111,6 +113,8 @@ def test_an_expired_login_with_no_new_one_attached_is_renewed():
 def test_a_provider_that_will_not_refresh_leaves_the_original_error():
     client = SmapiClient.__new__(SmapiClient)
     client.on_token_refresh = None
+    client.account_identity = None
+    client._identity = {}
 
     async def once(endpoint, service_name, action, body, *, household_id="", token="", key="", device_id=""):
         if action == "refreshAuthToken":

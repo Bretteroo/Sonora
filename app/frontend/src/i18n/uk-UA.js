@@ -735,6 +735,7 @@ export default {
   'desk.sleep.hours.one': '{count} година',
   'desk.sleep.hours.other': '{count} годин',
   'services.refusesSonora': '{service} відповідає лише застосункам Sonos, тож Sonora не може переглядати його чи шукати в ньому.',
+  'services.systemLoginRefused': '{service} не приймає вхід, який ця система Sonos зберігає для нього, а в Sonora його не можна підключити, тож Sonora не може тут переглядати його чи шукати в ньому. Застосунок Sonos і далі може.',
   'services.needsSignIn':
     '{service} вимагає входу, перш ніж щось показати. Приєднай його до '
     + 'Sonora, щоб переглядати тут; те, що з нього збережено в «Обраному '

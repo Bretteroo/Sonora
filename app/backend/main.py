@@ -1358,6 +1358,27 @@ _USER_PLAYLISTS_KNOWN: dict[tuple[str, int, str], tuple[float, bool]] = {}
 _REFUSED_CALLER = ("{service} only answers the Sonos apps, so Sonora can't "
                    "browse or search it.")
 
+#: What a service means when it turns down the login the speakers hold for it
+#: and is not one Sonora can link itself (an AppLink service). Offering to
+#: link it here leads nowhere, so this is said instead. It is reached only
+#: after the login has been tried under both the bare and the account-scoped
+#: household id and a refresh has been refused (``SmapiClient._call``). The
+#: front end swaps in the reader's translation (api.js).
+_SYSTEM_LOGIN_REFUSED = ("{service} won't accept the sign-in this Sonos system "
+                         "holds for it, and it can't be linked in Sonora, so "
+                         "Sonora can't browse or search it here. The Sonos app "
+                         "still can.")
+
+
+def _system_login_refused(service, creds: dict) -> bool:
+    """Whether a refused login was the speakers' and nothing else can be tried."""
+    return bool(creds.get("from_system")) and not service.linkable_locally
+
+
+def _system_refused_error(service) -> dict:
+    return {"message": _SYSTEM_LOGIN_REFUSED.format(service=service.name),
+            "needs_auth": False, "from_service": True, "system_login_refused": True}
+
 
 async def _fault_text(service, exc: Exception) -> str:
     """The service's own words for its fault, or "" when it has none.
@@ -3709,6 +3730,9 @@ async def browse_service(
             # A service may word the fault itself (Apple Music's "For You"
             # before the account has chosen any genres): that is shown as the
             # service's message, as the Sonos apps show it, not as a failure.
+            if exc.needs_auth and item == "root" and _system_login_refused(service, creds):
+                payload["error"] = _system_refused_error(service)
+                return payload
             said = "" if exc.missing else await _fault_text(service, exc)
             payload["error"] = {
                 "message": (f"{service.name} no longer has this item." if exc.missing
@@ -3926,6 +3950,9 @@ async def search_service(
             categories = [(cat_id, title, cat_id)
                           for cat_id, title in await ctl.smapi.search_categories(**common)]
         except SmapiError as exc:
+            if exc.needs_auth and _system_login_refused(service, creds):
+                payload["error"] = _system_refused_error(service)
+                return payload
             if not exc.refuses_caller:
                 raise
             payload["error"] = _refused_error(service)
@@ -3951,6 +3978,7 @@ async def search_service(
               or categories[:1]) if category else (everything or categories[:6])
 
     refused: list[bool] = []
+    denied: list[bool] = []
 
     async def one(cat_id: str):
         """One category's results, or None when it has none to give."""
@@ -3962,6 +3990,7 @@ async def search_service(
         except SmapiError as exc:
             log.info("search of %s in %s failed: %s", service.name, cat_id, exc)
             refused.append(exc.refuses_caller)
+            denied.append(exc.needs_auth)
             return None
 
     # Every category at once. Asked one after another, a search of a cloud
@@ -3973,6 +4002,12 @@ async def search_service(
     # once, not an empty result.
     if refused and all(refused) and all(page is None for page in pages):
         payload["error"] = _refused_error(service)
+        return payload
+    # The same for a login the speakers hold that the service turns down in
+    # every category: that is one refusal, not a search that found nothing.
+    if (denied and all(denied) and all(page is None for page in pages)
+            and _system_login_refused(service, creds)):
+        payload["error"] = _system_refused_error(service)
         return payload
     for (cat_id, cat_title, _mapped), page in zip(wanted, pages):
         if page is None or not page.items:

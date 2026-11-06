@@ -92,3 +92,95 @@ def test_a_token_only_login_reaches_the_smapi_header():
 def test_a_token_and_key_login_still_sends_both():
     header = SmapiClient._credentials("Sonos_x", "tok", "kee", "serial:1")
     assert "<token>tok</token>" in header and "<key>kee</key>" in header
+
+
+# A borrowed login the service turns down. When the service cannot be linked
+# in Sonora either (AppLink), offering to link it leads nowhere, so the page
+# says so instead (Apple Music on S2 refuses the S2 speakers' token).
+
+def _service(auth):
+    from backend.sonos.services import MusicService
+    return MusicService(id=SID, name="Apple Music", uri="", secure_uri="",
+                        container_type="MService", capabilities=0, auth=auth)
+
+
+def test_a_refused_system_login_for_an_applink_service_is_said_plainly():
+    from backend.main import _system_login_refused, _system_refused_error
+    service = _service("AppLink")
+    assert _system_login_refused(service, {"token": "t", "from_system": True})
+    error = _system_refused_error(service)
+    assert error["system_login_refused"] and not error["needs_auth"]
+    assert error["message"].startswith("Apple Music won't accept")
+
+
+def test_sonoras_own_refused_login_still_asks_to_link():
+    from backend.main import _system_login_refused
+    assert not _system_login_refused(_service("AppLink"), {"token": "t"})
+
+
+def test_a_service_sonora_can_link_still_asks_to_link():
+    from backend.main import _system_login_refused
+    assert not _system_login_refused(_service("DeviceLink"),
+                                     {"token": "t", "from_system": True})
+
+
+# A login made by an S2 app is accepted only under the household id scoped to
+# its account, one made by an S1 app only under the bare household id.
+
+import asyncio
+
+from backend.sonos.smapi import SmapiError
+
+_EXPIRED = SmapiError("Apple Music", "SOAP-ENV:Client.AuthTokenExpired", "InvalidTokenException")
+
+
+def _client_accepting(household_ok):
+    client = SmapiClient(session=None)
+    client.account_identity = lambda hh, token: f"{hh}_0000beef"
+    sent = []
+
+    async def once(endpoint, service_name, action, body, *, household_id="", token="", key="", device_id=""):
+        login = client._identity.get((household_id, token), household_id)
+        sent.append((action, login))
+        if action == "refreshAuthToken" or login != household_ok:
+            raise _EXPIRED
+        return "<ok/>"
+
+    client._call_once = once
+    return client, sent
+
+
+def test_an_expired_login_is_tried_under_its_accounts_scoped_id_and_kept():
+    client, sent = _client_accepting("Sonos_x_0000beef")
+    call = lambda: client._call("https://x", "Apple Music", "getMetadata", "", household_id="Sonos_x", token="t")
+    assert asyncio.run(call()) == "<ok/>"
+    assert sent == [("getMetadata", "Sonos_x"), ("getMetadata", "Sonos_x_0000beef")]
+    sent.clear()
+    assert asyncio.run(call()) == "<ok/>"
+    assert sent == [("getMetadata", "Sonos_x_0000beef")]
+
+
+def test_a_login_accepted_bare_never_moves():
+    client, sent = _client_accepting("Sonos_x")
+    asyncio.run(client._call("https://x", "Apple Music", "getMetadata", "", household_id="Sonos_x", token="t"))
+    assert sent == [("getMetadata", "Sonos_x")]
+
+
+def test_a_login_refused_both_ways_still_fails_and_is_not_kept():
+    client, sent = _client_accepting("nowhere")
+    try:
+        asyncio.run(client._call("https://x", "Apple Music", "getMetadata", "", household_id="Sonos_x", token="t"))
+    except SmapiError:
+        pass
+    else:
+        raise AssertionError("expected the refusal to stand")
+    assert ("getMetadata", "Sonos_x_0000beef") in sent
+    assert not client._identity
+
+
+def test_an_accounts_scoped_household_id():
+    account = _apple("23", "t")
+    account = Account(udn=account.udn, service_type=account.service_type,
+                      username="X_#Svc52231-1a2b-Token", nickname="", serial="23", token="t")
+    assert account.scoped_household("Sonos_x") == "Sonos_x_00001a2b"
+    assert _apple("23", "t").scoped_household("Sonos_x") == ""

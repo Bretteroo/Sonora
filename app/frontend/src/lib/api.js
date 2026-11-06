@@ -68,6 +68,10 @@ function worded(data) {
     const service = data.service?.name || ''
     error.message = translate('services.refusesSonora', { service })
   }
+  if (error?.system_login_refused && translate) {
+    const service = data.service?.name || ''
+    error.message = translate('services.systemLoginRefused', { service })
+  }
   return data
 }
 

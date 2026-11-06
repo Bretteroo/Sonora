@@ -684,6 +684,7 @@ export default {
   'desk.sleep.hours.one': '{count} óra',
   'desk.sleep.hours.other': '{count} óra',
   'services.refusesSonora': 'A(z) {service} csak a Sonos alkalmazásoknak válaszol, ezért a Sonora nem tud benne böngészni vagy keresni.',
+  'services.systemLoginRefused': 'A(z) {service} nem fogadja el a bejelentkezést, amelyet ez a Sonos-rendszer tárol hozzá, és a Sonorában nem kapcsolható össze, ezért a Sonora itt nem tud benne böngészni vagy keresni. A Sonos alkalmazás továbbra is képes rá.',
   'services.needsSignIn': 'A(z) {service} bejelentkezés nélkül nem listáz semmit. Kapcsold össze a Sonorával, hogy itt böngészhesd; a belőle a Sonos Kedvencekbe vagy Lejátszási listákba mentett tartalmak továbbra is lejátszhatók.',
   'desk.library.folders': 'Mappák',
   'desk.library.advanced': 'Speciális',

@@ -759,6 +759,7 @@ export default {
   'desk.sleep.hours.one': '{count} hodina',
   'desk.sleep.hours.other': '{count} hodin',
   'services.refusesSonora': '{service} odpovídá jen aplikacím Sonos, takže ho Sonora nemůže procházet ani v něm hledat.',
+  'services.systemLoginRefused': '{service} nepřijímá přihlášení, které pro něj má tento systém Sonos uložené, a v Sonoře ho propojit nelze, takže ho tu Sonora nemůže procházet ani v něm hledat. Aplikace Sonos to dál zvládne.',
   'services.needsSignIn':
     '{service} před zobrazením obsahu vyžaduje přihlášení. Propojte službu '
     + 'se Sonorou, abyste ji zde mohli procházet; cokoli z ní uloženého v '

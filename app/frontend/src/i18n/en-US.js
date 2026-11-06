@@ -700,6 +700,7 @@ export default {
   'desk.sleep.hours.one': '{count} hour',
   'desk.sleep.hours.other': '{count} hours',
   'services.refusesSonora': '{service} only answers the Sonos apps, so Sonora can\'t browse or search it.',
+  'services.systemLoginRefused': '{service} won\'t accept the sign-in this Sonos system holds for it, and it can\'t be linked in Sonora, so Sonora can\'t browse or search it here. The Sonos app still can.',
   'services.needsSignIn': '{service} needs a sign-in before it will list anything. Link it with Sonora to browse it here; anything from it saved in Sonos Favorites or Sonos Playlists still plays.',
   'desk.library.folders': 'Folders',
   'desk.library.advanced': 'Advanced',

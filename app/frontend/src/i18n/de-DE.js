@@ -750,6 +750,7 @@ export default {
   'desk.sleep.hours.one': '{count} Stunde',
   'desk.sleep.hours.other': '{count} Stunden',
   'services.refusesSonora': '{service} antwortet nur den Sonos-Apps, deshalb kann Sonora darin weder stöbern noch suchen.',
+  'services.systemLoginRefused': '{service} akzeptiert die Anmeldung nicht, die dieses Sonos-System dafür gespeichert hat, und lässt sich in Sonora nicht verknüpfen. Deshalb kann Sonora hier weder darin stöbern noch suchen. Die Sonos-App kann es weiterhin.',
   'services.needsSignIn':
     '{service} verlangt eine Anmeldung, bevor etwas angezeigt wird. '
     + 'Verknüpfe den Dienst mit Sonora, um ihn hier zu durchsuchen; was '

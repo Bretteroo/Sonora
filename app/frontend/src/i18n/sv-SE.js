@@ -752,6 +752,7 @@ export default {
   'desk.sleep.hours.one': '{count} timme',
   'desk.sleep.hours.other': '{count} timmar',
   'services.refusesSonora': '{service} svarar bara Sonos-apparna, så Sonora kan inte bläddra eller söka i den.',
+  'services.systemLoginRefused': '{service} godtar inte inloggningen som det här Sonos-systemet har sparat för den, och den kan inte länkas i Sonora, så Sonora kan inte bläddra eller söka i den här. Sonos-appen kan fortfarande.',
   'services.needsSignIn':
     '{service} behöver en inloggning innan den visar något. Länka den med '
     + 'Sonora för att bläddra i den här; allt från tjänsten som sparats i '

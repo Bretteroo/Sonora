@@ -752,6 +752,7 @@ export default {
   'desk.sleep.hours.one': '{count} tunti',
   'desk.sleep.hours.other': '{count} tuntia',
   'services.refusesSonora': '{service} vastaa vain Sonos-sovelluksille, joten Sonora ei voi selata sitä eikä hakea siitä.',
+  'services.systemLoginRefused': '{service} ei hyväksy kirjautumista, jonka tämä Sonos-järjestelmä on tallentanut sille, eikä sitä voi yhdistää Sonoraan, joten Sonora ei voi selata sitä eikä hakea siitä täällä. Sonos-sovellus pystyy siihen yhä.',
   'services.needsSignIn':
     '{service} vaatii kirjautumisen, ennen kuin se näyttää mitään. Yhdistä '
     + 'se Sonoraan, niin voit selata sitä täällä. Kaikki siitä '

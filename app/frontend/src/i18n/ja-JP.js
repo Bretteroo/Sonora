@@ -706,6 +706,7 @@ export default {
   'desk.sleep.hours.one': '{count} 時間',
   'desk.sleep.hours.other': '{count} 時間',
   'services.refusesSonora': '{service} は Sonos アプリにしか応答しないため、Sonora では閲覧も検索もできません。',
+  'services.systemLoginRefused': '{service} はこの Sonos システムが保持しているサインインを受け付けず、Sonora で連携することもできないため、ここでは Sonora から閲覧も検索もできません。Sonos アプリでは引き続き利用できます。',
   'services.needsSignIn':
     '{service} は何かを表示する前にサインインを求めます。ここで参照するには Sonora に連携してください。Sonos '
     + 'のお気に入りや Sonos プレイリストに保存したものは引き続き再生できます。',

@@ -686,6 +686,7 @@ export default {
   'desk.sleep.hours.one': '{count} hora',
   'desk.sleep.hours.other': '{count} horas',
   'services.refusesSonora': '{service} solo responde a las apps de Sonos, así que Sonora no puede explorarlo ni buscar en él.',
+  'services.systemLoginRefused': '{service} no acepta el inicio de sesión que este sistema Sonos tiene guardado para él, y no se puede vincular en Sonora, así que Sonora no puede explorarlo ni buscar en él aquí. La app de Sonos sí puede.',
   'services.needsSignIn': '{service} necesita un inicio de sesión antes de mostrar nada. Vincúlalo con Sonora para explorarlo aquí; lo que tengas guardado de él en Favoritos o Listas de Sonos sigue sonando.',
   'desk.library.folders': 'Carpetas',
   'desk.library.advanced': 'Avanzado',

@@ -577,3 +577,33 @@ def test_a_queued_item_that_fails_is_reported_though_the_queue_plays_on():
 def test_a_station_that_plays_on_past_a_failed_item_is_not_reported():
     # Pandora's blocked ads: the station carries on, nothing to warn about.
     assert not _reporting("x-sonosapi-radio:ST%3a123?sid=236&flags=8300&sn=2")
+
+
+def test_an_emptied_queue_forgets_its_stream_text_and_playlist():
+    """No current track leaves nothing to read, "Connecting..." included."""
+    from backend.sonos.controller import SonosController
+    from backend.sonos.models import TransportState
+
+    transport = TransportState(
+        media_uri="x-rincon-queue:RINCON_000000000000001400#0",
+        stream_content="ZPSTR_CONNECTING",
+        container_title="Summer Playlist",
+    )
+    assert transport.source == "queue"
+    SonosController._forget_track(transport)
+    assert transport.stream_content == ""
+    assert transport.container_title == ""
+
+
+def test_a_stopped_station_with_no_track_keeps_its_name():
+    from backend.sonos.controller import SonosController
+    from backend.sonos.models import TransportState
+
+    transport = TransportState(
+        media_uri="x-sonosapi-stream:s24861?sid=254&flags=8224&sn=0",
+        stream_content="ZPSTR_CONNECTING",
+        container_title="KEXP",
+    )
+    SonosController._forget_track(transport)
+    assert transport.stream_content == ""
+    assert transport.container_title == "KEXP"

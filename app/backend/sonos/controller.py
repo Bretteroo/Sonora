@@ -1297,6 +1297,14 @@ class SonosController:
     @staticmethod
     def _forget_track(transport: TransportState) -> None:
         """Everything the last track said about itself, gone."""
+        # The stream text too: a queue emptied while a stream was opening
+        # kept ZPSTR_CONNECTING, and the room read "Connecting..." over an
+        # empty queue with the speaker reporting no track at all. An empty
+        # queue plays no playlist either, so its name goes; a stopped
+        # station keeps its own.
+        transport.stream_content = ""
+        if transport.source == "queue":
+            transport.container_title = ""
         transport.title = ""
         transport.artist = ""
         transport.album = ""

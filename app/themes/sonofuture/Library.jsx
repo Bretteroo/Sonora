@@ -240,7 +240,13 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
              uri: item.uri, metadata: item.metadata, art: item.art, serviceName: svc?.name || '' })
       return
     }
-    if (isPlayableLeaf(item) || (node.id === 'FV:2' && item.uri)) { openMenu(item, event); return }
+    // Something to play is played by its art's play button, a double-click
+    // or Enter; a single click elsewhere on it does nothing, and its menu
+    // comes from its "..." or a right click.
+    if (isPlayableLeaf(item) || (node.id === 'FV:2' && item.uri)) {
+      if (event?.type === 'keydown') act(item, 'now')
+      return
+    }
     if (node.pickCity && peek[item.id] === 'final') { chooseCity(item); return }
     // A container that enumerates to nothing still opens, onto an empty
     // pane; the app does not follow the openUrl such a row can carry.
@@ -286,8 +292,13 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
   // --- acting ---------------------------------------------------------------
   const openMenu = (item, event, extra = {}) => {
     event?.stopPropagation?.()
-    const anchor = event?.currentTarget?.closest?.('[data-item]') || null
-    setMenu({ item: { ...item, ...extra }, x: event?.clientX, y: event?.clientY, anchor: event?.type === 'contextmenu' ? null : anchor })
+    // A row's "..." button holds the menu at its own right edge; a click on
+    // the row itself, under the row. Anchored to the row from its button,
+    // the menu opened at the row's far left, away from what was clicked.
+    const button = event?.currentTarget?.closest?.('button') || null
+    const anchor = button || event?.currentTarget?.closest?.('[data-item]') || null
+    setMenu({ item: { ...item, ...extra }, x: event?.clientX, y: event?.clientY,
+              anchor: event?.type === 'contextmenu' ? null : anchor, align: button ? 'right' : 'left' })
   }
   const serviceOf = (item) => item.service ?? node.service ?? scope?.id ?? null
   // The household's favorites, read with the page, so a row's menu can say
@@ -796,7 +807,7 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
         </Menu>
       )}
       {menu && (
-        <ActionMenu item={menu.item} x={menu.x} y={menu.y} anchor={menu.anchor} onClose={() => setMenu(null)} onAct={(how) => act(menu.item, how)}
+        <ActionMenu item={menu.item} x={menu.x} y={menu.y} anchor={menu.anchor} align={menu.align} onClose={() => setMenu(null)} onAct={(how) => act(menu.item, how)}
                     canUnselect={checked.size > 0} saved={savedFavorite} t={t} />
       )}
       {addTo && (
@@ -1082,7 +1093,8 @@ function ItemRow({ item, node, t, displayTypes = {}, place = false, onDelete, nu
           : playlist ? <I.Playlist />
           : <Art src={item.art} size={44} fallback={genericArt(item)} />}
         {onPlay && !opens && !unavailable && (
-          <button type="button" className="sf-row-play" title={t('desk.actions.playNow')} onClick={(event) => { event.stopPropagation(); onPlay() }}><I.Play /></button>
+          <button type="button" className="sf-row-play" title={t('desk.actions.playNow')} onClick={(event) => { event.stopPropagation(); if (event.detail <= 1) onPlay() }}
+                  onDoubleClick={(event) => event.stopPropagation()}><I.Play /></button>
         )}
       </span>
       <span className="sf-row-text">
@@ -1130,7 +1142,8 @@ function ItemCard({ item, node, t, displayTypes = {}, onOpen, onPlay, onMenu, on
       <span className="sf-tile-art" data-round={item.item_type === 'artist' || undefined}>
         {unavailable ? <I.Warning /> : <Art src={item.art} size={160} fallback={genericArt(item)} />}
         {onPlay && (
-          <button type="button" className="sf-tile-play" title={t('desk.actions.playNow')} onClick={(event) => { event.stopPropagation(); onPlay() }}><I.Play /></button>
+          <button type="button" className="sf-tile-play" title={t('desk.actions.playNow')} onClick={(event) => { event.stopPropagation(); if (event.detail <= 1) onPlay() }}
+                  onDoubleClick={(event) => event.stopPropagation()}><I.Play /></button>
         )}
         <button type="button" className="sf-tile-more" title={t('desk.browse.actions')} onClick={onMenu}><I.Ellipsis /></button>
       </span>
@@ -1279,12 +1292,12 @@ function AddServicesPage({ node, servicesRaw, t, onPick }) {
 // The row menu, shaped by what the row is: a track offers the queue and the
 // adds; a station only Play Now and the favorite; a Sonos Favorite its
 // rename and removal; a Sonos Playlist its rename and deletion.
-function ActionMenu({ item, x, y, anchor, onClose, onAct, canUnselect, saved = null, t }) {
+function ActionMenu({ item, x, y, anchor, align = 'left', onClose, onAct, canUnselect, saved = null, t }) {
   // The television input, reached from the source list: the S2 app's menu for
   // it holds one item and no title line (measured 2026-09-11).
   if (item.root) {
     return (
-      <Menu x={x} y={y} anchor={anchor} onClose={onClose} width={200}>
+      <Menu x={x} y={y} anchor={anchor} align={align} onClose={onClose} width={200}>
         <MenuItem icon={<I.Play />} onSelect={() => onAct('now')}>{t('desk.actions.playNow')}</MenuItem>
       </Menu>
     )
@@ -1295,7 +1308,7 @@ function ActionMenu({ item, x, y, anchor, onClose, onAct, canUnselect, saved = n
   const title = item.title
   if (item.playlist) {
     return (
-      <Menu x={x} y={y} anchor={anchor} onClose={onClose} title={title}>
+      <Menu x={x} y={y} anchor={anchor} align={align} onClose={onClose} title={title}>
         <MenuItem icon={<I.Play />} onSelect={() => onAct('now')}>{t('desk.actions.playNow')}</MenuItem>
         <MenuItem icon={<I.Next />} onSelect={() => onAct('next')}>{t('desk.actions.playNext')}</MenuItem>
         <MenuItem icon={<I.Queue />} onSelect={() => onAct('add')}>{t('desk.actions.addToQueue')}</MenuItem>
@@ -1312,7 +1325,7 @@ function ActionMenu({ item, x, y, anchor, onClose, onAct, canUnselect, saved = n
   }
   if (item.favorite) {
     return (
-      <Menu x={x} y={y} anchor={anchor} onClose={onClose} title={title}>
+      <Menu x={x} y={y} anchor={anchor} align={align} onClose={onClose} title={title}>
         {usable && <MenuItem icon={<I.Play />} onSelect={() => onAct('now')}>{t('desk.actions.playNow')}</MenuItem>}
         {usable && queueable && (
           <>
@@ -1335,7 +1348,7 @@ function ActionMenu({ item, x, y, anchor, onClose, onAct, canUnselect, saved = n
     )
   }
   return (
-    <Menu x={x} y={y} anchor={anchor} onClose={onClose} title={title}>
+    <Menu x={x} y={y} anchor={anchor} align={align} onClose={onClose} title={title}>
       {playable && <MenuItem icon={<I.Play />} onSelect={() => onAct('now')}>{t('desk.actions.playNow')}</MenuItem>}
       {playable && queueable && (
         <>

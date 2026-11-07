@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.2.1
+
+This release fixes several S2 services, gets rooms back up a little more smoothly after a network outage, and lets a sleep timer turn off your TV.
+
+### What's new
+
+* When a soundbar is playing from TV input, a sleep timer now also turns off the TV. This needs an HDMI soundbar, HDMI-CEC enabled on the TV, and for now it only works on S2 soundbars.  S1 CEC control isn't documented anywhere and I don't have an S1 soundbar to test with.
+* Lyrics now show for stations that put the song on the Information line as "Artist - Title" instead of sending separate tags. Sonora also tries "Title - Artist", since some stations send it that way.
+* Sonora checks in with your speakers less frequently: every half hour instead of every nine minutes, for less chatter on your network.
+* Sonora now plays HLS stations more closely to the official apps, so other Sonos apps now show the station by name, not as an unnamed web stream.
+* In Sonofuture and Liquid Glass, a row's "..." menu opens beside the button instead of way on the other side of the row. Clicking a song row no longer opens its menu: click its art or double-click the row to play it, and use "..." or a right-click for the menu.
+* Every page in Sonofuture, Liquid Glass, and Material Girl now has consistently-styled headers.
+* Scenes are now listed in every theme's keyboard shortcuts.
+* The 'No speakers found' page now shows Sonora's version number.
+
+### Fixes
+
+* It worked in S1, and now Apple Music correctly browses and searches on S2 (#32). Thanks to @jgorhan for reporting it.
+* Sonos Radio on S2 no longer shows "No selections are available."
+* An S2 service whose login has lapsed in the Sonos app now shows the caution badge instead of failing.
+* After a network outage, every room picks up again within seconds of the network coming back. Before, some rooms stayed frozen until Sonora was restarted.
+* Slow stations (like CBC Radio) now get more time to start playing instead of ending in an error.
+* A station's art and name no longer flicker as it starts (Planet Radio), and slow station art shows right away (NTS Radio).
+* A queued station that can't be reached now shows an error instead of silently skipping to the next song.
+* Stations listed as collections, like Radio France's, open as folders instead of failing to play.
+* Shelves and album lists show a folder in Liquid Glass, Sonofuture, Hi-Fi, Severed, and Material Girl, instead of the stack icon.
+* Opening a service that can't be searched no longer takes over the search box.
+* Letters like g and y are no longer cut off under "Next" in some themes.
+* Hi-Fi's Tuner tile names sit centered on their icons.
+* Severed's date and time fields, placeholder covers, and choice boxes are drawn in the phosphor instead of browser colors.
+* The Sonos sign-in now stays alive perpetually instead of lapsing after a day.
+* If one speaker doesn't answer a household browse, Sonora asks another.
+* Sonora's update notice now requires a single button press to dismiss.  An accidental unfocused errant click at just the wrong time could mean you'd be running an old version of Sonora for months without ever knowing about the better life that awaited you.
+
 ## 1.2.0
 
 ### Added support for Scenes

@@ -61,6 +61,34 @@ export function Shell() {
   // the last page's scroll.
   const mainRef = useRef(null)
   useLayoutEffect(() => { if (mainRef.current) mainRef.current.scrollTop = 0 }, [settingsPage])
+  // Every page runs on under the bottom bar, as a list does under a glass
+  // bar: the main pane reaches the window's foot (`reach`, how far that is
+  // below the pane's own place in the grid) and pads its end by as much as
+  // the bar and anything under it stand up from that foot (`under`), so the
+  // last of a page scrolls clear of them. Both are read off the page, since
+  // the bar's height changes with the layout and a phone's tab bar sits
+  // below it. The pane already runs on by its last reach, given back as its
+  // negative bottom margin.
+  const [foot, setFoot] = useState({ reach: 0, under: 0 })
+  useEffect(() => {
+    const read = () => {
+      const pane = mainRef.current
+      const root = pane?.closest('.sf-root')
+      const bar = root?.querySelector('.sf-nowbar')
+      if (!pane || !root || !bar) return
+      const bottom = root.getBoundingClientRect().bottom
+      const paneBottom = pane.getBoundingClientRect().bottom + (parseFloat(getComputedStyle(pane).marginBottom) || 0)
+      const next = { reach: Math.max(0, Math.round(bottom - paneBottom)),
+                     under: Math.max(0, Math.round(bottom - bar.getBoundingClientRect().top)) }
+      setFoot((prev) => (prev.reach === next.reach && prev.under === next.under ? prev : next))
+    }
+    read()
+    const watch = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(read) : null
+    const bar = mainRef.current?.closest('.sf-root')?.querySelector('.sf-nowbar')
+    if (watch && bar) watch.observe(bar)
+    window.addEventListener('resize', read)
+    return () => { watch?.disconnect(); window.removeEventListener('resize', read) }
+  }, [section])
   const [stageOpen, setStageOpen] = useState(false)
   const [queueOpen, setQueueOpen] = useState(() => readStored('sonora.sf.queue') === '1')
   const [groupSheet, setGroupSheet] = useState(null)
@@ -343,7 +371,7 @@ export function Shell() {
         </div>
       </nav>
 
-      <main className="sf-main" key={section} ref={mainRef}>{Section}</main>
+      <main className="sf-main" key={section} ref={mainRef} style={{ '--sf-reach': `${foot.reach}px`, '--sf-under': `${foot.under}px` }}>{Section}</main>
 
       {/* The drawer stays mounted so it can slide out as well as in; the
           column it sits in carries the width and CSS hides it when shut. */}

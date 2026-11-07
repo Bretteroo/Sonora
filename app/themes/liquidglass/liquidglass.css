@@ -776,7 +776,7 @@
 :root[data-theme='liquidglass'] .sf-rating[aria-disabled='true'] { cursor: default; }
 
 
-/* --- the library runs on under the bottom bar --------------------------
+/* --- the pages run on under the bottom bar -----------------------------
    Its scroller reaches the window's foot, behind the bar, which is drawn
    over it, and its end is padded so the last row scrolls clear (the
    distances are measured by Library.jsx). The glass bar shows the rows passing behind it. */
@@ -784,6 +784,17 @@
 :root[data-theme='liquidglass'] .sf-main:has(> .sf-library) .sf-content-scroll {
   margin-bottom: calc(-1 * var(--sf-reach, 0px));
   padding-bottom: calc(var(--sf-under, 0px) + 24px);
+}
+/* Every other page runs on under the bar the same way, its pane scrolling
+   behind it (the shell measures the distances); beside its list, a settings
+   page and the list each scroll on their own, so each is padded clear. */
+:root[data-theme='liquidglass'] .sf-main:not(:has(> .sf-library)) {
+  margin-bottom: calc(-1 * var(--sf-reach, 0px));
+  padding-bottom: calc(var(--sf-under, 0px) + 24px);
+}
+@media (min-width: 901px) {
+  :root[data-theme='liquidglass'] .sf-main:has(> .sf-settings) { padding-bottom: 0; }
+  :root[data-theme='liquidglass'] .sf-main > .sf-settings > :is(.sf-settings-nav, .sf-settings-page) { padding-bottom: calc(var(--sf-under, 0px) + 24px); }
 }
 /* Both bars are drawn over the scroller, the tab bar too where it sits under
    the player bar on a narrow window, or the rows ran over it and took its taps. */

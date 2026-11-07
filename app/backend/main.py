@@ -5589,7 +5589,9 @@ async def radio(zone: str | None = None) -> dict:
 
 
 class SourceBody(BaseModel):
-    uri: str
+    #: Never empty: a player told to play "" drops whatever it had, a
+    #: soundbar its TV input included, and has nothing to play instead.
+    uri: str = Field(min_length=1)
     metadata: str = ""
     #: Used only to name a station whose metadata has to be composed here.
     title: str = ""

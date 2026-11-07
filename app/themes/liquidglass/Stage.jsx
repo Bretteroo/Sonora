@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import Art, { nowPlayingArt, cachedArt } from '../../frontend/src/components/Art.jsx'
@@ -71,7 +71,7 @@ export default function Stage({ zone, group, zones, queue, queueOpen, onQueue, o
 
   return (
     <Sheet kind="full" title={t('desk.now.title')} onClose={onClose} className="sf-stage">
-      <div className="sf-stage-bg" style={artUrl ? { backgroundImage: `url("${artUrl}")` } : undefined} aria-hidden="true" />
+      <StageBackdrop url={artUrl} />
       <header className="sf-stage-head">
         <IconButton label={t('common.close')} onClick={onClose}><I.ChevronDown /></IconButton>
         <button type="button" className="sf-room-chip" onClick={onRooms}>
@@ -160,5 +160,31 @@ export default function Stage({ zone, group, zones, queue, queueOpen, onQueue, o
         </aside>
       </div>
     </Sheet>
+  )
+}
+
+// The blurred artwork behind the stage. A picture is shown only once it has
+// loaded, as a layer over the last one that fades in; the layer under it
+// goes when the fade ends.
+function StageBackdrop({ url }) {
+  const [layers, setLayers] = useState([])
+  const next = useRef(0)
+  useEffect(() => {
+    if (!url) { setLayers([]); return undefined }
+    let live = true
+    const image = new Image()
+    image.onload = image.onerror = () => {
+      if (live) setLayers((prev) => [...prev.slice(-1), { url, key: next.current++ }])
+    }
+    image.src = url
+    return () => { live = false }
+  }, [url])
+  return (
+    <div className="sf-stage-bg" aria-hidden="true">
+      {layers.map((layer, i) => (
+        <span key={layer.key} className="sf-stage-bg-art" style={{ backgroundImage: `url("${layer.url}")` }}
+              onAnimationEnd={i === layers.length - 1 ? () => setLayers((prev) => prev.slice(-1)) : undefined} />
+      ))}
+    </div>
   )
 }

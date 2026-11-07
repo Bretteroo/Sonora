@@ -11,7 +11,8 @@ libraries (SoCo, node-sonos-ts) send, which the speakers have accepted for
 years:
 
 - a track: ``x-sonos-http:<id>.<ext>?sid=<sid>&flags=8224&sn=<sn>``
-- a station (stream): ``x-sonosapi-stream:<id>?sid=<sid>&flags=8224&sn=<sn>``
+- a station (stream): ``x-sonosapi-stream:<id>?sid=<sid>&flags=8224&sn=<sn>``,
+  or ``x-sonosapi-hls:`` for one the service describes as HLS
 - a program (radio): ``x-sonosapi-radio:<id>?sid=<sid>&flags=8300&sn=<sn>``
 - a playable container: ``x-rincon-cpcontainer:<prefix><id>?sid=<sid>&flags=8300&sn=<sn>``
 
@@ -35,15 +36,18 @@ _DIDL_NS = (
     'xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"'
 )
 
-#: The media types that mean "this is an HLS playlist, not a file". A service
-#: that answers with one of these wants the hls-static scheme and no extension:
-#: Mixcloud describes every cloudcast as application/vnd.apple.mpegurl, and the
-#: Windows app duly queues x-sonosapi-hls-static:cloudcast%3a... for it. Handed
-#: the x-sonos-http: form instead, a player takes the track, reports Play, and
-#: then sits silent.
+#: The media types that mean "this is an HLS playlist, not a file": the three
+#: the S1 apps' own library lists, compared without regard to case. A track
+#: with one wants the hls-static scheme and no extension: Mixcloud describes
+#: every cloudcast as application/vnd.apple.mpegurl, and the Windows app duly
+#: queues x-sonosapi-hls-static:cloudcast%3a... for it. Handed the
+#: x-sonos-http: form instead, a player takes the track, reports Play, and
+#: then sits silent. A station with one is x-sonosapi-hls: (CBC Radio One's
+#: application/x-mpegURL, 2026-11-07). The near misses are not HLS to the
+#: app: 80er-Radio harmony's audio/x-mpegurl and Audacy's audio/m3u8 stations
+#: were both set playing as x-sonosapi-stream:.
 _HLS_TYPES = {
-    "application/vnd.apple.mpegurl", "application/x-mpegurl",
-    "audio/mpegurl", "audio/x-mpegurl",
+    "application/vnd.apple.mpegurl", "application/x-mpegurl", "audio/mpegurl",
 }
 
 #: File extension by MIME type, for the track scheme.
@@ -107,8 +111,13 @@ def playable(item: SmapiItem, sid: int, sn: str, *,
             uri = f"x-rincon-cpcontainer:{prefix}{qid}?" + query.format(flags=8300)
             did, tag = f"{prefix}{qid}", "container"
     elif kind == "stream":
-        uri = f"x-sonosapi-stream:{qid}?" + query.format(flags=8224)
-        did, cls, tag = f"F00092020{qid}", "object.item.audioItem.audioBroadcast", "item"
+        # As the S1 Windows app sets a station playing (captured 2026-11-07
+        # for CBC, Audacy and 80er-Radio harmony): HLS by its media type, and
+        # the 10092020 item prefix either way.
+        mime = (item.mime_type or "").split(";")[0].strip().lower()
+        scheme = "x-sonosapi-hls" if mime in _HLS_TYPES else "x-sonosapi-stream"
+        uri = f"{scheme}:{qid}?" + query.format(flags=8224)
+        did, cls, tag = f"10092020{qid}", "object.item.audioItem.audioBroadcast", "item"
     elif kind == "program":
         uri = f"x-sonosapi-radio:{qid}?" + query.format(flags=8300)
         did, cls, tag = f"000c206c{qid}", "object.item.audioItem.audioBroadcast", "item"

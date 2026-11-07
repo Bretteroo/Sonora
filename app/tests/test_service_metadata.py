@@ -188,3 +188,49 @@ def test_an_escaped_comma_stays_in_the_show_name():
     # the shapes the reader already handled
     assert (_show_name("Marci Wiser,p1151215"), _show_id("Marci Wiser,p1151215")) == ("Marci Wiser", "p1151215")
     assert _show_name("Your family-friendly radio station,") == "Your family-friendly radio station"
+
+
+def _station(mime):
+    from backend.sonos.smapi import SmapiItem
+    return SmapiItem(id="R1-Program-stream:kamloops", title="CBC Radio One Kamloops",
+                     item_type="stream", can_play=True, mime_type=mime)
+
+
+def test_a_station_is_set_playing_as_the_s1_app_sets_it():
+    """Captured from the S1 Windows app (2026-11-07): an HLS station is
+    x-sonosapi-hls:, any other is x-sonosapi-stream:, both with the 10092020
+    item prefix; only the three types the app's library lists count as HLS."""
+    from backend.sonos.playback import playable
+    uri, meta = playable(_station("application/x-mpegURL"), 256, "59", udn="SA_RINCON65543_")
+    assert uri == "x-sonosapi-hls:R1-Program-stream%3Akamloops?sid=256&flags=8224&sn=59"
+    assert 'id="10092020R1-Program-stream%3Akamloops"' in meta and "SA_RINCON65543_" in meta
+    for plain in ("audio/x-mpegurl", "audio/m3u8", "audio/aac", ""):
+        uri, meta = playable(_station(plain), 280, "36")
+        assert uri.startswith("x-sonosapi-stream:R1-Program-stream%3Akamloops?"), plain
+        assert 'id="10092020R1-Program' in meta
+
+
+def test_an_anonymous_services_serial_comes_from_the_speakers_list(monkeypatch):
+    import asyncio
+    from types import SimpleNamespace
+    import backend.main as main
+    accounts = [SimpleNamespace(service_id=256, serial="59"),
+                SimpleNamespace(service_id=12, serial="22"), SimpleNamespace(service_id=12, serial="43")]
+    household = SimpleNamespace(id="HH-serials")
+
+    class Content:
+        async def favorites(self, host):
+            return [SimpleNamespace(uri="x-sonosapi-stream:x?sid=256&flags=8224&sn=0"),
+                    SimpleNamespace(uri="x-sonosapi-stream:y?sid=516&flags=8224&sn=27")]
+
+        async def radio_favorites(self, host):
+            return []
+
+    ctl = SimpleNamespace(household_of=lambda zone: household, household_accounts=lambda hid: accounts,
+                          any_host=lambda h: "192.168.0.110", content=Content())
+    monkeypatch.setattr(main, "controller", lambda: ctl)
+    main._HOUSEHOLD_SERIALS.pop("HH-serials", None)
+    serials = asyncio.run(main._household_serials("zone"))
+    # The list wins over a favorite saved with another number; a service with
+    # two accounts is not guessed at; the favorites still fill the gaps.
+    assert serials == {256: "59", 516: "27"}

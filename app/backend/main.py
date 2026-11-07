@@ -991,10 +991,11 @@ async def _favorite_context(zone: str | None) -> tuple[set[int], dict[int, str],
 # Radio -- has no registration, yet the speakers still hold a serial for it,
 # and without one its items browse but cannot be played (every
 # 80s80s station came back with no URI, so no play actions and no
-# double-click). The number is not readable anywhere directly: /status/accounts
-# is empty on both firmware trains. It is however written into every URI the
-# household already holds, so it is read back out of the household's own Sonos
-# Favorites, and TuneIn's own "0" stands in when nothing names the service.
+# double-click). The speakers' own account list (ThirdPartyMediaServersX) has
+# it, and it is what the S1 app sends: CBC's stations went out with sn=59,
+# CBC's number there, where Sonora had sent 0 (2026-11-07). The household's
+# saved Sonos Favorites stand in where that list is not to hand, and TuneIn's
+# own "0" when nothing names the service.
 _HOUSEHOLD_SERIALS: dict[str, tuple[float, dict[int, str]]] = {}
 _SERIALS_TTL = 300.0
 
@@ -1010,6 +1011,12 @@ async def _household_serials(zone: str | None) -> dict[int, str]:
     if cached is not None and (time.monotonic() - cached[0]) < _SERIALS_TTL:
         return cached[1]
     found: dict[int, str] = {}
+    by_service: dict[int, list[str]] = {}
+    for account in ctl.household_accounts(household.id):
+        by_service.setdefault(account.service_id, []).append(account.serial)
+    for sid, serials in by_service.items():
+        if len(serials) == 1 and serials[0]:
+            found[sid] = serials[0]
     try:
         host = controller().any_host(household)
         if host is not None:

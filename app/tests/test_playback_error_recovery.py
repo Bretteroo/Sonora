@@ -13,7 +13,8 @@ from backend.sonos.controller import SonosController
 
 
 def _controller(state_after: str):
-    lead = SimpleNamespace(uuid="RINCON_P", name="Terrace", transport=SimpleNamespace(state="TRANSITIONING"))
+    lead = SimpleNamespace(uuid="RINCON_P", name="Terrace", transport=SimpleNamespace(
+        state="TRANSITIONING", media_uri="x-sonosapi-radio:ST%3a123?sid=236&flags=8300&sn=2"))
     sent = []
     ctl = SonosController.__new__(SonosController)
     ctl.PLAYBACK_RECOVERY = 0.01
@@ -66,7 +67,8 @@ def test_a_room_still_transitioning_has_not_recovered():
 def test_a_room_that_opens_the_next_item_while_still_transitioning_is_not_shown():
     # A station just started: the first item fails, the player sits in
     # TRANSITIONING past the first look while it fetches the next, then plays.
-    lead = SimpleNamespace(uuid="RINCON_P", name="Terrace", transport=SimpleNamespace(state="TRANSITIONING"))
+    lead = SimpleNamespace(uuid="RINCON_P", name="Terrace", transport=SimpleNamespace(
+        state="TRANSITIONING", media_uri="x-sonosapi-radio:ST%3a123?sid=236&flags=8300&sn=2"))
     sent = []
     ctl = SonosController.__new__(SonosController)
     ctl.PLAYBACK_RECOVERY = 0.01

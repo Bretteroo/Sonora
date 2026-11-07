@@ -1644,7 +1644,14 @@ class SonosController:
             step = min(1.0, self.PLAYBACK_SETTLING / 10)
             await asyncio.sleep(step)
             waited += step
-        carried_on = lead.transport.state == "PLAYING"
+        # From a queue, playing on is no recovery: the speaker skips the item
+        # that failed and plays the next one in the queue, which is not what
+        # was asked for. Radio France's "100% années 80", queued as a
+        # station, failed to reach its server and Office went straight to
+        # the queue's next song with nothing said, where the S1 app reports
+        # the failure (2026-11-07).
+        carried_on = (lead.transport.state == "PLAYING"
+                      and not (lead.transport.media_uri or "").startswith("x-rincon-queue:"))
         await self.dropouts.failed(lead, carried_on=carried_on, item=item,
                                    service=message["service"], reason=reason)
         if carried_on:

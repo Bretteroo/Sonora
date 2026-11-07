@@ -541,3 +541,39 @@ def test_one_stations_picture_is_never_taken_for_the_next():
                            "x-sonosapi-stream:nts1?sid=230&flags=8224&sn=61")
     assert not SonosController._use_station_art(state)
     assert state.transport.provider_art_uri == ""
+
+
+def _reporting(media_uri, state="PLAYING"):
+    import asyncio
+    from types import SimpleNamespace
+    from backend.sonos.controller import SonosController, ZoneState
+    ctl = SonosController.__new__(SonosController)
+    ctl.PLAYBACK_RECOVERY = 0
+    ctl.PLAYBACK_SETTLING = 0
+    sent = []
+
+    async def broadcast(message):
+        sent.append(message)
+
+    async def failed(*a, **k):
+        return None
+
+    ctl._broadcast = broadcast
+    ctl.dropouts = SimpleNamespace(failed=failed)
+    lead = ZoneState(uuid="RINCON_O01400", name="Office", host="192.168.0.30")
+    lead.transport.state = state
+    lead.transport.media_uri = media_uri
+    message = {"room": "Office", "status": "ERROR_CANT_REACH_SERVER", "service": "Radio France"}
+    asyncio.run(ctl._report_playback_error(lead, message, "Direct 100% années 80"))
+    return sent
+
+
+def test_a_queued_item_that_fails_is_reported_though_the_queue_plays_on():
+    """Office skipped the station it could not reach and played the queue's
+    next song; the S1 app says the station failed, and so does Sonora now."""
+    assert _reporting("x-rincon-queue:RINCON_O01400#0")
+
+
+def test_a_station_that_plays_on_past_a_failed_item_is_not_reported():
+    # Pandora's blocked ads: the station carries on, nothing to warn about.
+    assert not _reporting("x-sonosapi-radio:ST%3a123?sid=236&flags=8300&sn=2")

@@ -318,3 +318,151 @@ async def test_a_refused_renewal_with_a_good_address_subscribes_again(monkeypatc
         await listener.stop()
         await session.close()
     assert asked == [("127.0.0.4", "AVTransport", "127.0.0.1")]
+
+
+# -- a subscription that lapses while the network is down ---------------------
+
+async def test_a_resubscribe_that_fails_is_left_for_the_sweep(monkeypatch):
+    # The renewal failed and so did the try after it (a router updating):
+    # the subscription is dropped from the live ones, still wanted, and the
+    # sweep takes it out again once the speaker answers.
+    listener, session, asked = await listener_with_subscriptions(monkeypatch, "127.0.0.1", "127.0.0.2")
+    sub = listener._subs[("127.0.0.4", "AVTransport")]
+    listener._wanted[("127.0.0.4", "AVTransport")] = sub.service
+    down = True
+
+    async def subscribe(host, service, *, why=None):
+        asked.append((host, service.name))
+        if down:
+            return False
+        listener._subs[(host, service.name)] = sub
+        return True
+
+    async def subscribe_many(host, services):
+        return {s.name: await subscribe(host, s) for s in services}
+
+    monkeypatch.setattr(listener, "subscribe", subscribe)
+    monkeypatch.setattr(listener, "subscribe_many", subscribe_many)
+    try:
+        await listener._resubscribe(sub)
+        assert ("127.0.0.4", "AVTransport") not in listener._subs
+        down = False
+        await listener._restore_missing()
+    finally:
+        await listener.stop()
+        await session.close()
+    assert asked == [("127.0.0.4", "AVTransport"), ("127.0.0.4", "AVTransport")]
+
+
+async def test_a_failed_address_check_does_not_stop_the_resubscribe(monkeypatch):
+    # With the network down the address check itself raises; that once ended
+    # the retry before it subscribed at all.
+    listener, session, asked = await listener_with_subscriptions(monkeypatch, "127.0.0.1", "127.0.0.2")
+
+    async def unreachable(host):
+        raise OSError(101, "Network is unreachable")
+
+    monkeypatch.setattr(listener, "_check_callback", unreachable)
+    try:
+        await listener._resubscribe(listener._subs[("127.0.0.4", "AVTransport")])
+    finally:
+        await listener.stop()
+        await session.close()
+    assert asked == [("127.0.0.4", "AVTransport", "127.0.0.1")]
+
+
+async def test_the_sweep_leaves_live_subscriptions_and_players_given_up():
+    import aiohttp
+    from backend.sonos import events
+    from backend.sonos.const import AV_TRANSPORT
+    session = aiohttp.ClientSession()
+    listener = events.EventListener(session, port=0)
+    asked = []
+
+    async def subscribe_many(host, services):
+        asked.append(host)
+        return {}
+
+    listener.subscribe_many = subscribe_many
+    for host in ("127.0.0.3", "127.0.0.4", "127.0.0.5"):
+        listener._wanted[(host, AV_TRANSPORT.name)] = AV_TRANSPORT
+    listener._subs[("127.0.0.3", AV_TRANSPORT.name)] = events._Subscription(
+        host="127.0.0.3", service=AV_TRANSPORT, sid="uuid:live", timeout=600)
+    listener.retain({"127.0.0.3", "127.0.0.4"})
+    try:
+        await listener._restore_missing()
+    finally:
+        await session.close()
+    assert asked == ["127.0.0.4"]
+
+
+def test_the_network_coming_back_is_a_change(monkeypatch):
+    # A router restarting for an update: no route, then the same one back.
+    from backend.sonos import events
+    listener = events.EventListener.__new__(events.EventListener)
+    listener._route = events._UNCHECKED
+    routes = iter(["192.168.1.20", OSError(101, "Network is unreachable"), "192.168.1.20",
+                   "192.168.1.20", "10.0.0.5"])
+
+    def route(host):
+        value = next(routes)
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+    monkeypatch.setattr(events, "local_ip_for", route)
+    seen = [listener._network_changed("192.168.1.165") for _ in range(5)]
+    # First check, outage, back, unchanged, another network.
+    assert seen == [False, False, True, False, True]
+
+
+async def test_a_gone_renewal_is_left_for_the_sweep(monkeypatch):
+    listener, session, asked = await listener_with_subscriptions(monkeypatch, "127.0.0.1", "127.0.0.2")
+    sub = listener._subs[("127.0.0.4", "AVTransport")]
+    sub.timeout = 0
+
+    class Gone:
+        status, headers = 410, {}
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *exc):
+            return False
+
+    from backend.sonos import events
+    monkeypatch.setattr(listener._session, "request", lambda *a, **k: Gone())
+
+    async def no_wait(_):
+        return None
+
+    monkeypatch.setattr(events.asyncio, "sleep", no_wait)
+    try:
+        await listener._renew_loop(sub)
+    finally:
+        monkeypatch.undo()
+        await listener.stop()
+        await session.close()
+    assert ("127.0.0.4", "AVTransport") not in listener._subs and asked == []
+
+
+async def test_a_network_change_takes_out_every_subscription_again(monkeypatch):
+    import asyncio
+    listener, session, asked = await listener_with_subscriptions(monkeypatch, "127.0.0.1", "127.0.0.2")
+    listener.NETWORK_CHECK_S = 0.01
+    changes = iter([True])
+    monkeypatch.setattr(listener, "_network_changed", lambda host: next(changes, False))
+
+    async def still_reaches(host):
+        return False
+
+    monkeypatch.setattr(listener, "_check_callback", still_reaches)
+    try:
+        watch = asyncio.create_task(listener._watch_network())
+        await asyncio.sleep(0.2)
+        watch.cancel()
+    finally:
+        await listener.stop()
+        await session.close()
+    assert sorted(asked) == [("127.0.0.3", "AVTransport", "127.0.0.1"), ("127.0.0.3", "RenderingControl", "127.0.0.1"),
+                             ("127.0.0.4", "AVTransport", "127.0.0.1")]

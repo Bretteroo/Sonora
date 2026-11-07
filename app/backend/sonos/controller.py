@@ -1362,10 +1362,12 @@ class SonosController:
 
     async def _subscribe_all(self, households: dict[str, Household]) -> None:
         tasks = []
+        hosts: set[str] = set()
         for household in households.values():
             for zone in household.visible_zones:
                 if not zone.primary.online:
                     continue
+                hosts.add(zone.primary.host)
                 tasks.append(self.events.subscribe_many(
                     zone.primary.host, ZONE_SERVICES))
                 if zone.primary.supports_line_in:
@@ -1373,7 +1375,11 @@ class SonosController:
                         zone.primary.host, LINE_IN_SERVICES))
             host = self.any_host(household)
             if host:
+                hosts.add(host)
                 tasks.append(self.events.subscribe_many(host, HOUSEHOLD_SERVICES))
+        # A player no longer among them is not taken out again by the
+        # listener's sweep; one that is, and failed here, is.
+        self.events.retain(hosts)
         await asyncio.gather(*tasks, return_exceptions=True)
 
     # -- event handling ------------------------------------------------------
@@ -2119,9 +2125,13 @@ class SonosController:
         # been adjusted by that building (a pair's second unit is marked
         # invisible), so comparing them raw would refuse every event.
         # The icon too: a room given a new one in another app, or in Sonora,
-        # kept its old one here until the page was reloaded.
+        # kept its old one here until the page was reloaded. And the address:
+        # a player given a new one by the router is subscribed to again
+        # there by the refresh, where this path kept the old address and
+        # never heard from the room again.
         def rooms(zones):
-            return {uuid: (zone.name, zone.primary.icon, tuple(sorted(p.uuid for p in zone.players)))
+            return {uuid: (zone.name, zone.primary.icon, zone.primary.host,
+                           tuple(sorted(p.uuid for p in zone.players)))
                     for uuid, zone in zones.items()}
         if rooms(zones_from_players(players.values())) != rooms(household.zones):
             return False

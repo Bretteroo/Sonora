@@ -106,6 +106,10 @@ def on_own_link(host: str, route_table: Path = Path("/proc/net/route")) -> bool:
     return False
 
 
+#: The route before the first check, so that check is never a change.
+_UNCHECKED = object()
+
+
 def local_ip_for(host: str) -> str:
     """Which of our addresses a speaker will be able to reach us on.
 
@@ -138,6 +142,15 @@ class EventListener:
         self._port = port
         self._runner: web.AppRunner | None = None
         self._subs: dict[tuple[str, str], _Subscription] = {}
+        #: Every subscription asked for and not since given up, live or not.
+        #: One that failed (a speaker unreachable for a moment, or the whole
+        #: network down while a router updated) is taken out again by the
+        #: sweep in _watch_callback; without it a speaker that missed one
+        #: try was never heard from again until Sonora restarted.
+        self._wanted: dict[tuple[str, str], Service] = {}
+        #: This machine's address toward the speakers at the last check, or
+        #: None while there was no route to them at all.
+        self._route: str | None | object = _UNCHECKED
         #: Players that have stopped taking subscriptions, and when that was
         #: last a warning, so a slow player is reported once rather than once
         #: per service per try (see _failed).
@@ -148,6 +161,7 @@ class EventListener:
         self._callback_ip: str | None = None
         self._callback_lock = asyncio.Lock()
         self._watch: asyncio.Task | None = None
+        self._network_watch: asyncio.Task | None = None
         #: Answered at /whoami by this listener alone; see _find_own_address.
         self._token = secrets.token_hex(16)
 
@@ -182,11 +196,15 @@ class EventListener:
         self.bound_port = sockets[0].getsockname()[1] if sockets else self._port
         log.info("event listener on port %s", self.bound_port)
         self._watch = asyncio.create_task(self._watch_callback(), name="callback-watch")
+        self._network_watch = asyncio.create_task(self._watch_network(), name="network-watch")
 
     async def stop(self) -> None:
         if self._watch is not None:
             self._watch.cancel()
             self._watch = None
+        if self._network_watch is not None:
+            self._network_watch.cancel()
+            self._network_watch = None
         await asyncio.gather(
             *(self.unsubscribe(host, name) for host, name in list(self._subs)),
             return_exceptions=True,
@@ -361,13 +379,82 @@ class EventListener:
         while True:
             try:
                 await asyncio.sleep(self.CALLBACK_CHECK_S)
-                host = next((sub.host for sub in self._subs.values()), None)
+                host = next((sub.host for sub in self._subs.values()),
+                            next((h for h, _ in self._wanted), None))
                 if host is not None:
                     await self._check_callback(host)
             except asyncio.CancelledError:
                 return
             except Exception as exc:
                 log.info("callback address check failed: %s", _why(exc))
+            try:
+                await self._restore_missing()
+            except asyncio.CancelledError:
+                return
+            except Exception as exc:
+                log.info("restoring subscriptions failed: %s", _why(exc))
+
+    #: How often the route toward the speakers is looked at. It is a local
+    #: lookup with nothing sent, so it can be frequent: the S1 Windows app
+    #: took out its subscriptions again about 2 s after its network came
+    #: back (measured 2026-11-07, two outages of 20 s and 2 min).
+    NETWORK_CHECK_S = 5.0
+
+    async def _watch_network(self) -> None:
+        """Take out every subscription again when the network changes."""
+        while True:
+            try:
+                await asyncio.sleep(self.NETWORK_CHECK_S)
+                host = next((sub.host for sub in self._subs.values()),
+                            next((h for h, _ in self._wanted), None))
+                if host is None or not self._network_changed(host):
+                    continue
+                # The network went away and came back, or this machine moved
+                # to another one: whatever the speakers held for us may be
+                # gone, so every subscription is taken out again, as the S1
+                # apps do ("network changed, re-subscribing to UPnP services").
+                if not await self._check_callback(host):
+                    log.info("network changed; taking out every subscription again")
+                    async with self._callback_lock:
+                        await self._move_all()
+                await self._restore_missing()
+            except asyncio.CancelledError:
+                return
+            except Exception as exc:
+                log.info("re-subscribing after a network change failed: %s", _why(exc))
+
+    def _network_changed(self, host: str) -> bool:
+        """Whether the route toward the speakers changed since the last
+        check: back after none at all (a router restarting for an update),
+        or out through another address. False while there is none."""
+        try:
+            route: str | None = local_ip_for(host)
+        except OSError:
+            route = None
+        before, self._route = self._route, route
+        if route is None or before is _UNCHECKED:
+            return False
+        return before != route
+
+    async def _restore_missing(self) -> None:
+        """Take out again every wanted subscription that is not live."""
+        missing: dict[str, list[Service]] = defaultdict(list)
+        for (host, name), service in list(self._wanted.items()):
+            if (host, name) not in self._subs:
+                missing[host].append(service)
+        if not missing:
+            return
+        log.info("taking out %d lapsed subscription(s) again on %s",
+                 sum(len(v) for v in missing.values()), ", ".join(sorted(missing)))
+        await asyncio.gather(*(self.subscribe_many(host, tuple(services))
+                               for host, services in missing.items()),
+                             return_exceptions=True)
+
+    def retain(self, hosts: set[str]) -> None:
+        """Stop wanting subscriptions to players not in ``hosts``: one that
+        left the household, or went offline, is not retried every minute."""
+        for key in [k for k in self._wanted if k[0] not in hosts]:
+            del self._wanted[key]
 
     async def subscribe(self, host: str, service: Service, *, why: list | None = None) -> bool:
         """Subscribe to one service on one player, and keep it renewed.
@@ -377,6 +464,7 @@ class EventListener:
         """
         if self.bound_port is None:
             raise RuntimeError("start() the listener before subscribing")
+        self._wanted[(host, service.name)] = service
         if self._callback_ip is None:
             async with self._callback_lock:
                 if self._callback_ip is None:
@@ -472,6 +560,7 @@ class EventListener:
         log.warning(message, *args)
 
     async def unsubscribe(self, host: str, service_name: str) -> None:
+        self._wanted.pop((host, service_name), None)
         sub = self._subs.pop((host, service_name), None)
         if sub is None:
             return
@@ -506,6 +595,15 @@ class EventListener:
                         sub.timeout = _parse_timeout(
                             resp.headers.get("TIMEOUT", ""))
                         continue
+                    if resp.status == 410:
+                        # Gone: the player is going away (the S1 apps stop
+                        # renewing then too). Not taken out again at once;
+                        # the sweep does if it is still wanted and answers.
+                        log.info("renewal for %s %s answered 410 Gone; left to the sweep",
+                                 sub.host, sub.service.name)
+                        if self._subs.get((sub.host, sub.service.name)) is sub:
+                            del self._subs[(sub.host, sub.service.name)]
+                        return
                     log.info("renewal for %s %s rejected (HTTP %s), resubscribing",
                              sub.host, sub.service.name, resp.status)
             except Exception as exc:
@@ -519,10 +617,16 @@ class EventListener:
             return
 
     async def _resubscribe(self, sub: _Subscription) -> None:
-        await self._check_callback(sub.host)
-        if self._subs.get((sub.host, sub.service.name), sub) is not sub:
+        key = (sub.host, sub.service.name)
+        try:
+            await self._check_callback(sub.host)
+        except Exception as exc:  # the network itself down: try anyway
+            log.info("callback address check failed: %s", _why(exc))
+        if self._subs.get(key, sub) is not sub:
             return  # already taken out again, by a move to a new address
-        await self.subscribe(sub.host, sub.service)
+        if not await self.subscribe(sub.host, sub.service) and self._subs.get(key) is sub:
+            # Lapsed: left for the sweep to take out again.
+            del self._subs[key]
 
     # -- inbound NOTIFY ------------------------------------------------------
 

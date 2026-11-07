@@ -43,6 +43,7 @@ def listener(session):
     ears._session = session
     ears._failing = {}
     ears._subs = {}
+    ears._wanted = {}
     ears.bound_port = 1
     ears._callback_ip = "192.168.0.2"
     return ears

@@ -678,3 +678,22 @@ def test_a_room_listed_in_two_groups_during_a_handover_is_drawn_once():
                 ("RINCON_C", [("RINCON_C", "Loft"), ("RINCON_B", "Hall")])])
     _, groups, _ = parse_zone_group_state(xml)
     assert {g.coordinator_uuid: g.zone_uuids for g in groups.values()} == {"RINCON_A": ["RINCON_A"], "RINCON_C": ["RINCON_C", "RINCON_B"]}
+
+
+def test_an_evented_new_address_waits_for_the_refresh():
+    """A player the router gave a new address kept its old one here, so its
+    room was subscribed at an address nothing answered and froze."""
+    import asyncio
+
+    from backend.sonos.models import Household, zones_from_players
+    from backend.sonos.topology import parse_zone_group_state, remap_groups
+
+    before = _zgs([("RINCON_A1", [("RINCON_A1", "Lab")])])
+    players, groups, _ = parse_zone_group_state(before)
+    zones = zones_from_players(players.values())
+    household = Household(id="HH", players=players, zones=zones, groups=remap_groups(groups, zones, players))
+    ctl, sent = _controller_with({"HH": household})
+
+    after = before.replace("http://192.168.1.A1:1400", "http://192.168.1.77:1400")
+    assert asyncio.run(ctl._apply_topology("192.168.1.77", after)) is False
+    assert sent == []

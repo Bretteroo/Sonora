@@ -15,13 +15,20 @@
 // with mediaCollections of itemType "track" (one per copy of the song), and
 // the Windows app draws each with a chevron and opens it onto Play, Shuffle
 // and the copies (2026-10-02). A track that is a plain item still plays.
-const PLAYABLE_KINDS = new Set(['program', 'stream', 'track', 'audiobook'])
+//
+// So does a stream that is a collection. Radio France's stations under ICI >
+// Les directs are mediaCollections of itemType "stream", and the S1 app draws
+// every one with a chevron and opens it onto the live station and its
+// podcasts; Sonora played the collection instead, by queueing it. The
+// collections that cannot be opened are programs: CBC's and Pandora's
+// refuse getMetadata (measured across both households, 2026-11-07, where
+// Radio France's were the only stream collections).
+const PLAYABLE_KINDS = new Set(['program', 'audiobook'])
 
 export function isPlayableLeaf(item) {
   if (!item?.uri) return false
   if (!item.is_container) return true
   if (item.can_enumerate === false && Boolean(item.can_play)) return true
-  if (item.item_type === 'track') return false
   return PLAYABLE_KINDS.has(item.item_type)
 }
 

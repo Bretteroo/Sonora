@@ -503,3 +503,41 @@ def test_a_station_keeps_its_name_and_picture_through_a_bare_track_report():
     SonosController._apply_track_metadata(transport, PLANET_TRACK)
     assert transport.title == "planet radio mit mehr Dance"
     assert transport.album_art_uri == art
+
+
+NTS_STATION = (
+    '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" '
+    'xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" '
+    'xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">'
+    '<item id="10092020nts1" parentID="0" restricted="true">'
+    '<dc:title>NTS - Live on 1</dc:title>'
+    '<upnp:class>object.item.audioItem.audioBroadcast</upnp:class>'
+    '<upnp:albumArtURI>https://media.ntslive.co.uk/resize/800x800/nts1.png</upnp:albumArtURI>'
+    '</item></DIDL-Lite>')
+
+
+def _station_state(media_uri, metadata, metadata_uri):
+    from backend.sonos.controller import ZoneState
+    state = ZoneState(uuid="RINCON_K01400", name="Kitchen", host="192.168.0.20")
+    state.transport.media_uri = media_uri
+    state.transport.track_uri = "x-rincon-mp3radio://https://stream-relay-geo.ntslive.net/stream"
+    state.media_metadata, state.media_metadata_uri = metadata, metadata_uri
+    return state
+
+
+def test_a_station_offers_its_own_picture_beside_the_speakers():
+    """NTS's pictures took the speaker 5 s and then often failed (2026-11-07);
+    the station's own, named in its DIDL, is the second choice."""
+    from backend.sonos.controller import SonosController
+    uri = "x-sonosapi-stream:nts1?sid=230&flags=8224&sn=61"
+    state = _station_state(uri, NTS_STATION, uri)
+    assert SonosController._use_station_art(state)
+    assert state.transport.provider_art_uri == "https://media.ntslive.co.uk/resize/800x800/nts1.png"
+
+
+def test_one_stations_picture_is_never_taken_for_the_next():
+    from backend.sonos.controller import SonosController
+    state = _station_state("x-sonosapi-stream:nts2?sid=230&flags=8224&sn=61", NTS_STATION,
+                           "x-sonosapi-stream:nts1?sid=230&flags=8224&sn=61")
+    assert not SonosController._use_station_art(state)
+    assert state.transport.provider_art_uri == ""

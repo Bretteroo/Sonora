@@ -24,6 +24,7 @@ from dataclasses import asdict, dataclass, field, replace
 from datetime import datetime
 from time import monotonic, time
 from typing import Awaitable, Callable
+from urllib.parse import unquote
 
 import aiohttp
 from defusedxml import ElementTree as DET
@@ -263,6 +264,9 @@ class ZoneState:
     enqueued_seen: bool = False
     queue_emptied: bool = False
     media_metadata: str = ""
+    #: The source ``media_metadata`` describes, so a description read for one
+    #: station is never taken for the next.
+    media_metadata_uri: str = ""
     #: The player's sleep-timer generation, which the transport event carries
     #: whenever the timer is set or cleared, from any controller.
     sleep_generation: str = ""
@@ -1002,8 +1006,37 @@ class SonosController:
         if transport.service_id and smapi_item_id(transport.track_uri or ""):
             self._art_tasks[state.uuid] = asyncio.create_task(
                 self._resolve_provider_art(state, transport.track_uri))
+        elif transport.source in _RADIO_SOURCES:
+            # A station plays a bare stream, which names no item to ask the
+            # service about, so its picture came only through the speaker's
+            # proxy. NTS's often took 5 s there and then failed (404 on half
+            # its stations, 2026-11-07) while the S1 app showed the art at
+            # once. The station's own picture stands in: the one its DIDL
+            # carries (Sonora's and the apps' both name it), or else the
+            # service's answer for the station itself.
+            if self._use_station_art(state):
+                pass
+            elif transport.service_id and _station_id(transport.media_uri or ""):
+                self._art_tasks[state.uuid] = asyncio.create_task(
+                    self._resolve_provider_art(state, transport.track_uri,
+                                               _station_id(transport.media_uri or "")))
 
-    async def _resolve_provider_art(self, state: ZoneState, track_uri: str) -> None:
+    @staticmethod
+    def _use_station_art(state: ZoneState) -> bool:
+        """Give a station with no picture of its own track the one its own
+        DIDL names, if that description is this station's. Whether it did."""
+        transport = state.transport
+        if transport.source not in _RADIO_SOURCES or transport.provider_art_uri:
+            return bool(transport.provider_art_uri)
+        if state.media_metadata_uri != transport.media_uri:
+            return False
+        art = _station_art(state.media_metadata)
+        if art:
+            transport.provider_art_uri = art
+        return bool(art)
+
+    async def _resolve_provider_art(self, state: ZoneState, track_uri: str,
+                                    item_id: str = "") -> None:
         """Ask the service for the playing item's own art.
 
         The speaker offers art through its /getaa proxy, keyed by the track
@@ -1015,7 +1048,7 @@ class SonosController:
         """
         transport = state.transport
         sid = transport.service_id
-        item_id = smapi_item_id(track_uri)
+        item_id = item_id or smapi_item_id(track_uri)
         household = self.household_of(state.uuid)
         if not sid or not item_id or household is None:
             return
@@ -1782,6 +1815,8 @@ class SonosController:
         note_queue_source(state, transport, props)
         if props.get("AVTransportURIMetaData"):
             state.media_metadata = props["AVTransportURIMetaData"]
+            state.media_metadata_uri = transport.media_uri
+            self._use_station_art(state)
         if media_changed:
             # What the event itself says goes out first. The reads below can
             # take seconds while the speaker opens a stream (the actions query
@@ -3711,6 +3746,23 @@ def _uri_like(text: str) -> bool:
 
 #: The source kinds whose "track" is a broadcast rather than a song.
 _RADIO_SOURCES = frozenset({"radio", "service_stream", "service_radio", "service_hls"})
+
+
+def _station_art(didl: str) -> str:
+    """The picture a station's own DIDL names, when it is a web address."""
+    if not didl or didl == "NOT_IMPLEMENTED":
+        return ""
+    items = parse_didl(didl)
+    art = items[0].art_uri if items else ""
+    return art if art.startswith(("http://", "https://")) else ""
+
+
+def _station_id(media_uri: str) -> str:
+    """The service's id for the station a room plays, from its URI."""
+    scheme, _, rest = media_uri.partition(":")
+    if scheme not in ("x-sonosapi-stream", "x-sonosapi-hls", "x-sonosapi-radio"):
+        return ""
+    return unquote(rest.split("?", 1)[0])
 
 
 def _named_by_uri(title: str, uri: str) -> bool:

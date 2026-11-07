@@ -58,6 +58,8 @@ export default function Art({ src, size = 16, alt = '', className, fallback = 'n
   // url -> { tries, down }: how often it has failed, and whether it is
   // waiting out a retry now.
   const [failed, setFailed] = useState(() => new Map())
+  // The URLs that have finished loading here.
+  const [loaded, setLoaded] = useState(() => new Set())
   const timers = useRef(new Set())
   useEffect(() => () => { for (const id of timers.current) clearTimeout(id) }, [])
   const fail = (url) => {
@@ -107,6 +109,17 @@ export default function Art({ src, size = 16, alt = '', className, fallback = 'n
   }
   const usable = candidates.find((url) => !isVector(url) && !failed.get(url)?.down) || ''
   const offered = candidates.length > 0
+  // While the first picture is still on its way, the next one stands in
+  // behind it. A station's art comes first through the speaker's proxy,
+  // which took NTS 5 s and then often failed (2026-11-07), where the S1 app
+  // showed the station's picture at once; its own picture, the next
+  // candidate, now shows meanwhile and the speaker's covers it on arrival.
+  // Only Sonora's own picture URLs stand in: a CSS background is fetched
+  // with a Referer, which some image hosts refuse (AccuRadio's, above).
+  const behind = usable && !loaded.has(usable)
+    ? candidates.slice(candidates.indexOf(usable) + 1)
+      .find((url) => url.startsWith('/api/art?') && !isVector(url) && !failed.get(url)?.down) || ''
+    : ''
 
   if (!usable) {
     // The app keeps a different placeholder per kind of row rather than one
@@ -140,6 +153,9 @@ export default function Art({ src, size = 16, alt = '', className, fallback = 'n
       alt={alt}
       loading="lazy"
       referrerPolicy="no-referrer"
+      style={behind ? { backgroundImage: `url("${sizedArtUrl(behind, want)}")`,
+                        backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+      onLoad={() => setLoaded((prev) => (prev.has(usable) ? prev : new Set(prev).add(usable)))}
       onError={() => fail(usable)}
     />
   )

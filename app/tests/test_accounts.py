@@ -49,6 +49,16 @@ def test_the_accounts_come_out_with_their_names():
     assert by_udn["SA_RINCON3079_X_#Svc3079-b-Token"].nickname == "two"
 
 
+
+def test_each_token_account_has_a_household_id_scoped_to_it():
+    # <household>_<the account number in the logon string, as eight hex
+    # digits>, whatever the service. An account with no logon string has none.
+    by_udn = {a.udn: a for a in accounts.parse(seal(LIST, HOUSEHOLD), HOUSEHOLD)}
+    assert by_udn["SA_RINCON48135_X_#Svc48135-0-Token"].scoped_household(HOUSEHOLD) == "Sonos_test_00000000"
+    assert by_udn["SA_RINCON3079_X_#Svc3079-a-Token"].scoped_household(HOUSEHOLD) == "Sonos_test_0000000a"
+    assert by_udn["SA_RINCON3079_X_#Svc3079-b-Token"].scoped_household(HOUSEHOLD) == "Sonos_test_0000000b"
+    assert by_udn["SA_RINCON77575_"].scoped_household(HOUSEHOLD) == ""
+
 def test_credentials_are_kept_but_never_in_repr():
     # The login lets Sonora browse a service linked only in a Sonos app, so it
     # is kept -- but off the repr, so it can never reach a log line.

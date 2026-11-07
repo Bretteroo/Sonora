@@ -178,13 +178,6 @@ def test_a_login_refused_both_ways_still_fails_and_is_not_kept():
     assert not client._identity
 
 
-def test_an_accounts_scoped_household_id():
-    account = _apple("23", "t")
-    account = Account(udn=account.udn, service_type=account.service_type,
-                      username="X_#Svc52231-1a2b-Token", nickname="", serial="23", token="t")
-    assert account.scoped_household("Sonos_x") == "Sonos_x_00001a2b"
-    assert _apple("23", "t").scoped_household("Sonos_x") == ""
-
 
 # A login the speakers keep after the service stopped honoring it is no
 # better than none, and is asked about once per token.

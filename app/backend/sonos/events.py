@@ -48,12 +48,15 @@ def _why(exc: BaseException) -> str:
     """
     return str(exc) or exc.__class__.__name__
 
-#: Requested subscription lifetime. Sonos honors this but may shorten it, so
-#: the actual timeout is read back from the response.
-SUBSCRIPTION_SECONDS = 600
-
-#: Renew this far ahead of expiry to survive a dropped renewal.
-RENEW_MARGIN = 60
+#: Requested subscription lifetime, and the share of it waited before each
+#: renewal: an hour, renewed every half hour, as the S1 Windows app does
+#: (captured 2026-11-07: TIMEOUT Second-3600 on every SUBSCRIBE, renewals 30
+#: minutes apart). Renewing halfway leaves a failed renewal half an hour to
+#: be noticed and replaced before the speaker lets the subscription go.
+#: Sonos honors the request but may shorten it, so the timeout granted is
+#: read back from the response.
+SUBSCRIPTION_SECONDS = 3600
+RENEW_AT = 0.5
 
 
 @dataclass(slots=True)
@@ -579,7 +582,7 @@ class EventListener:
     async def _renew_loop(self, sub: _Subscription) -> None:
         url = f"http://{sub.host}:{SONOS_PORT}{sub.service.event}"
         while True:
-            delay = max(30, sub.timeout - RENEW_MARGIN)
+            delay = max(30, sub.timeout * RENEW_AT)
             try:
                 await asyncio.sleep(delay)
             except asyncio.CancelledError:

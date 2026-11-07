@@ -466,3 +466,10 @@ async def test_a_network_change_takes_out_every_subscription_again(monkeypatch):
         await session.close()
     assert sorted(asked) == [("127.0.0.3", "AVTransport", "127.0.0.1"), ("127.0.0.3", "RenderingControl", "127.0.0.1"),
                              ("127.0.0.4", "AVTransport", "127.0.0.1")]
+
+
+def test_a_subscription_is_asked_for_an_hour_and_renewed_at_the_half():
+    # As the S1 Windows app keeps its own.
+    from backend.sonos import events
+    assert events.SUBSCRIPTION_SECONDS == 3600
+    assert max(30, 3600 * events.RENEW_AT) == 1800

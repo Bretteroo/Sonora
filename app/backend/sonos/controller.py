@@ -32,7 +32,7 @@ from . import accounts, const
 from .battery import lowest, parse_battery
 from .content import ContentBrowser
 from .credentials import seal
-from .didl import DidlItem, clean_title, escape, keyed_song, parse_didl, saved_queue_didl
+from .didl import DidlItem, _seconds, clean_title, escape, keyed_song, parse_didl, saved_queue_didl
 from .discovery import HouseholdRegistry
 from .events import Event, EventListener
 from .playback import favorite_resmd
@@ -266,6 +266,11 @@ class ZoneState:
     #: The player's sleep-timer generation, which the transport event carries
     #: whenever the timer is set or cleared, from any controller.
     sleep_generation: str = ""
+    #: While the group's sleep timer runs: when it is due (monotonic), and
+    #: each member's volume as it last read before the fade (see
+    #: _follow_sleep_timer).
+    sleep_due: float | None = None
+    sleep_volumes: dict[str, int] = field(default_factory=dict)
     #: Per-speaker volume, independent of the group's volume.
     volume: int = 0
     muted: bool = False
@@ -1384,6 +1389,118 @@ class SonosController:
 
     # -- event handling ------------------------------------------------------
 
+    #: How close to its due time a timer must clear to count as having run out
+    #: rather than been cancelled. The speaker fades the volume to 0 at the
+    #: due time and clears the timer about 7 s later (measured on a Beam,
+    #: 2026-11-07: 4 to 0 in 3.5 s).
+    SLEEP_DUE_SLACK = 2.0
+
+    async def _follow_sleep_timer(self, coordinator: ZoneState) -> None:
+        """Note a sleep timer being set, and act when one runs out on a TV.
+
+        A soundbar on its TV input cannot be stopped, so when the timer runs
+        out it fades the volume to 0 and goes on playing the TV in silence,
+        and the next time the TV is switched on it is silent too. Sonora
+        finishes the job: the TV is put in standby over HDMI CEC and every
+        speaker in the group gets back the volume it had before the fade.
+        """
+        try:
+            result = await self.soap.call(coordinator.host, const.AV_TRANSPORT,
+                                          "GetRemainingSleepTimerDuration", {"InstanceID": 0})
+            remaining = result.args.get("RemainingSleepTimerDuration", "") or ""
+        except Exception as exc:
+            log.info("sleep timer on %s unread: %s", coordinator.uuid, exc)
+            return
+        due = coordinator.sleep_due
+        if remaining and remaining != "00:00:00":
+            coordinator.sleep_due = monotonic() + _seconds(remaining)
+            coordinator.sleep_volumes = {
+                uuid: self.zones[uuid].volume
+                for uuid in (coordinator.group_members or [coordinator.uuid])
+                if uuid in self.zones}
+            return
+        if remaining:
+            return  # at zero and fading; the clear that follows decides
+        volumes, coordinator.sleep_due, coordinator.sleep_volumes = coordinator.sleep_volumes, None, {}
+        if due is None or monotonic() < due - self.SLEEP_DUE_SLACK:
+            return  # cancelled, or set before Sonora was watching
+        if not coordinator.transport.track_uri.startswith("x-sonos-htastream:"):
+            return
+        if not await self._tv_standby(coordinator.host):
+            return  # refused: no CEC, or S1, whose firmware has no such command
+        # Only once the TV has gone quiet: put back at once, the volume had
+        # the TV audible again for the 7 s it took to power down (Beam,
+        # 2026-11-07). A TV that never goes off (no CEC, or on optical) keeps
+        # the silence the timer asked for.
+        if not await self._tv_went_quiet(coordinator.host):
+            log.info("the TV on %s did not go off; its volume is left at 0", coordinator.host)
+            return
+        for uuid, volume in volumes.items():
+            member = self.zones.get(uuid)
+            if member is None or not volume:
+                continue
+            try:
+                await self.soap.call(member.host, const.RENDERING_CONTROL, "SetVolume",
+                                     {"InstanceID": 0, "Channel": "Master",
+                                      "DesiredVolume": volume})
+            except Exception as exc:
+                log.info("volume after the sleep timer not put back on %s: %s", uuid, exc)
+
+    def _note_volume_before_sleep(self, state: ZoneState) -> None:
+        """Keep a member's volume as the one to put back, until the fade."""
+        for coordinator in self.zones.values():
+            due = coordinator.sleep_due
+            if (due is not None and state.uuid in coordinator.sleep_volumes
+                    and monotonic() < due - 0.5):
+                coordinator.sleep_volumes[state.uuid] = state.volume
+
+    #: How long a TV is given to go into standby, and how often it is asked.
+    TV_OFF_WAIT = 30.0
+    TV_OFF_EVERY = 1.0
+
+    async def _tv_went_quiet(self, host: str) -> bool:
+        """Whether the soundbar stops hearing its TV within TV_OFF_WAIT."""
+        end = monotonic() + self.TV_OFF_WAIT
+        while monotonic() < end:
+            await asyncio.sleep(self.TV_OFF_EVERY)
+            try:
+                async with self._session.get(
+                        f"https://{host}:{const.SONOS_TLS_PORT}"
+                        "/api/v1/players/local/homeTheater/tvAudioSignalStatus",
+                        headers={"X-Sonos-Api-Key": const.SONORA_API_KEY},
+                        ssl=_PLAYER_TLS, timeout=aiohttp.ClientTimeout(total=4)) as resp:
+                    if resp.status == 200:
+                        body = await resp.json(content_type=None)
+                        if body.get("signalDetected") is False:
+                            return True
+            except Exception:
+                pass
+        return False
+
+    async def _tv_standby(self, host: str) -> bool:
+        """Ask a soundbar to put its TV in standby over HDMI CEC; whether it
+        took the request.
+
+        UPnP has no such command; the player's own API does, and it takes
+        Sonora's key. A soundbar without CEC (a Ray, or one on optical)
+        answers ERROR_UNSUPPORTED_COMMAND, and S1 firmware has no home
+        theater commands at all (ERROR_UNSUPPORTED_NAMESPACE on 57.23), which
+        is no fault here either.
+        """
+        try:
+            async with self._session.post(
+                    f"https://{host}:{const.SONOS_TLS_PORT}"
+                    "/api/v1/players/local/homeTheater/tvPowerState",
+                    json={"tvPowerState": "STANDBY"},
+                    headers={"X-Sonos-Api-Key": const.SONORA_API_KEY},
+                    ssl=_PLAYER_TLS, timeout=aiohttp.ClientTimeout(total=6)) as resp:
+                log.info("sleep timer ran out on the TV input of %s: TV standby -> HTTP %s",
+                         host, resp.status)
+                return resp.status == 200
+        except Exception as exc:
+            log.info("TV standby on %s failed: %s", host, exc)
+        return False
+
     def _zone_for_host(self, host: str) -> ZoneState | None:
         uuid = self._host_to_zone.get(host)
         return self.zones.get(uuid) if uuid else None
@@ -1702,6 +1819,9 @@ class SonosController:
         if "SleepTimerGeneration" in props and props["SleepTimerGeneration"] != state.sleep_generation:
             state.sleep_generation = props["SleepTimerGeneration"]
             await self._broadcast({"type": "sleep", "zone": state.uuid})
+            task = asyncio.create_task(self._follow_sleep_timer(state),
+                                       name=f"sleep timer {state.uuid}")
+            task.add_done_callback(_note_unwaited_failure)
 
         # Playback that has just started, and every track after it, settles the
         # position: no event carries RelTime, so without this the clients go on
@@ -1771,6 +1891,7 @@ class SonosController:
         props = event.properties
         if "Volume" in master:
             state.volume = _as_int(master["Volume"])
+            self._note_volume_before_sleep(state)
         if "Mute" in master:
             state.muted = master["Mute"] == "1"
         # Balance is the two channels' levels, which set_balance writes and the speaker

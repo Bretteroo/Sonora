@@ -488,6 +488,10 @@ class SonosController:
         #: token, which is persisted too.
         self.linked_services: dict[str, dict[int, dict]] = {}
         self._linked_file = settings.data_dir / "linked_services.json"
+        #: Whether each login borrowed from the speakers opens its service,
+        #: by (household, sid, token). Learned once per token, from a browse
+        #: or from ``system_login_works``.
+        self._system_login_ok: dict[tuple[str, int, str], bool] = {}
         #: What each household has played, for the web theme's home.
         self.recent = RecentlyPlayed(settings.data_dir / "recent.json")
         self._load_linked_services()
@@ -3245,6 +3249,38 @@ class SonosController:
         return {"token": match.token, "key": getattr(match, "key", ""),
                 "from_system": True, "standalone": False,
                 "seen_accounts": [], "system_udn": ""}
+
+    def note_system_login(self, household_id: str, sid: int, token: str, works: bool) -> None:
+        """Record whether a login borrowed from the speakers opened ``sid``."""
+        if token:
+            self._system_login_ok[(household_id, sid, token)] = works
+
+    async def system_login_works(self, household: Household, service, creds: dict) -> bool:
+        """Whether the speakers' login for ``service`` opens it here.
+
+        A Sonos app keeps a login on the speakers after the service stops
+        honoring it (TuneIn (New) answered an S2 one with AuthTokenExpired),
+        and such a login is no better than none: the service still needs
+        linking in Sonora. Asked once per token, at the service's root; any
+        answer but a refusal counts as working.
+        """
+        token = creds.get("token", "")
+        known = self._system_login_ok.get((household.id, service.id, token))
+        if known is not None or not token:
+            return known is not False
+        try:
+            await self.smapi.get_metadata(
+                endpoint=service.endpoint, service_name=service.name,
+                item_id="root", index=0, count=1, household_id=household.id,
+                token=token, key=creds.get("key", ""),
+                device_id=await self.device_serial(household))
+            works = True
+        except SmapiError as exc:
+            works = not exc.needs_auth
+        except Exception:  # unreachable or slow: say nothing either way
+            return True
+        self.note_system_login(household.id, service.id, token, works)
+        return works
 
     def _account_identity(self, household_id: str, token: str) -> str | None:
         """The account-scoped household id of the speakers' account holding ``token``."""

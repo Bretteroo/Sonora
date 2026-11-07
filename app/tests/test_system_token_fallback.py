@@ -184,3 +184,51 @@ def test_an_accounts_scoped_household_id():
                       username="X_#Svc52231-1a2b-Token", nickname="", serial="23", token="t")
     assert account.scoped_household("Sonos_x") == "Sonos_x_00001a2b"
     assert _apple("23", "t").scoped_household("Sonos_x") == ""
+
+
+# A login the speakers keep after the service stopped honoring it is no
+# better than none, and is asked about once per token.
+
+class _Probe:
+    note_system_login = SonosController.note_system_login
+    system_login_works = SonosController.system_login_works
+
+    def __init__(self, fault=None):
+        self._system_login_ok = {}
+        self.calls = 0
+        probe = self
+
+        class _Smapi:
+            async def get_metadata(self, **kwargs):
+                probe.calls += 1
+                if fault:
+                    raise fault
+        self.smapi = _Smapi()
+
+    async def device_serial(self, household):
+        return ""
+
+
+def _check(probe, token="t"):
+    household = SimpleNamespace(id=HH)
+    service = SimpleNamespace(id=SID, name="Apple Music", endpoint="https://x")
+    return asyncio.run(probe.system_login_works(household, service, {"token": token}))
+
+
+def test_a_borrowed_login_the_service_refuses_does_not_count():
+    probe = _Probe(_EXPIRED)
+    assert not _check(probe) and not _check(probe)
+    assert probe.calls == 1
+
+
+def test_a_borrowed_login_the_service_takes_counts():
+    probe = _Probe()
+    assert _check(probe) and _check(probe)
+    assert probe.calls == 1
+
+
+def test_a_new_token_is_asked_about_afresh():
+    probe = _Probe(_EXPIRED)
+    _check(probe, "old")
+    _check(probe, "new")
+    assert probe.calls == 2

@@ -3523,6 +3523,19 @@ async def services(zone: str | None = None) -> dict:
                 log.info("login for service %s on %s attributed to account %s (%s)",
                          s, household.id[:22], target, match[0].get("nickname", ""))
 
+        # Each borrowed login is tried once, all together, so the rows below
+        # read the answers rather than waiting on the services one by one.
+        trials = []
+        for entry in in_use:
+            sid = entry.get("id")
+            account = str(entry.get("account_id", "") or "")
+            held = ctl.credentials_for(household.id, sid, account,
+                                       single_account=account_counts.get(sid, 0) == 1)
+            local = directory.by_id(sid) if sid is not None else None
+            if held is not None and held.get("from_system") and local is not None:
+                trials.append(ctl.system_login_works(household, local, held))
+        await asyncio.gather(*trials)
+
         for entry in in_use:
             # The manifest's logo wins over the signed-in one wherever it has
             # the service, so the same picture is shown whether or not anyone
@@ -3540,12 +3553,17 @@ async def services(zone: str | None = None) -> dict:
                                        single_account=account_counts.get(sid, 0) == 1)
             entry["site"] = catalog_site(sid)
             entry.update(catalog_about(sid))
+            # A login borrowed from the speakers counts only while the service
+            # still takes it; one it turns away needs linking here like none.
+            local = directory.by_id(sid) if sid is not None else None
+            if held is not None and held.get("from_system") and local is not None:
+                if not await ctl.system_login_works(household, local, held):
+                    held = None
             entry["sonora_token"] = entry.get("auth") == "Anonymous" or held is not None
             # A service whose home comes from a browse endpoint may need no
             # credentials at all: Sonos Radio answers anonymously, so marking
             # it "not linked in Sonora" put a caution on a service that opens
             # and browses perfectly well.
-            local = directory.by_id(sid) if sid is not None else None
             entry["public_browse"] = bool(
                 local is not None and local.manifest_uri
                 and await ctl.presentation.public_home(local.manifest_uri))
@@ -3747,6 +3765,8 @@ async def browse_service(
             # A service may word the fault itself (Apple Music's "For You"
             # before the account has chosen any genres): that is shown as the
             # service's message, as the Sonos apps show it, not as a failure.
+            if exc.needs_auth and item == "root" and creds.get("from_system"):
+                ctl.note_system_login(household.id, sid, creds.get("token", ""), False)
             if exc.needs_auth and item == "root" and _system_login_refused(service, creds):
                 payload["error"] = _system_refused_error(service)
                 return payload

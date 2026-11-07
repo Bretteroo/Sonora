@@ -3679,17 +3679,34 @@ async def browse_service(
                     household_id=household.id,
                     filtering=ctl.smapi.filters(household.id))
             except SmapiError as exc:
-                log.info("browse endpoint for %s failed, using SMAPI: %s",
-                         service.name, exc)
-                # The endpoint takes the same bearer token SMAPI does, and
-                # only SMAPI can rotate it -- the provider hands the new pair
-                # back inside a fault. So when the call below refreshes the
-                # token, the endpoint is worth one more try: without it a
-                # rotation left the person looking at the service's plain
-                # SMAPI root, which is not what the app opens on (Spotify,
-                # 2026-09-14: seven personalised rows there, five generic
-                # categories here).
-                retry_endpoint, stale_token = endpoint, creds.get("token", "")
+                page = None
+                # An endpoint that serves anyone may still turn a login away:
+                # Sonos Radio's answers an anonymous caller but refuses the
+                # S2 speakers' own token with a 401, and its SMAPI root is
+                # empty, so the page came up blank on S2. A login borrowed
+                # from the speakers cannot be refreshed here, so ask once
+                # more without it before falling back.
+                if creds.get("token") and creds.get("from_system"):
+                    try:
+                        page = await ctl.contentsvc.home(
+                            endpoint=endpoint, service_name=service.name,
+                            token="", device_id=device_id,
+                            household_id=household.id,
+                            filtering=ctl.smapi.filters(household.id))
+                    except SmapiError:
+                        page = None
+                if page is None:
+                    log.info("browse endpoint for %s failed, using SMAPI: %s",
+                             service.name, exc)
+                    # The endpoint takes the same bearer token SMAPI does, and
+                    # only SMAPI can rotate it -- the provider hands the new pair
+                    # back inside a fault. So when the call below refreshes the
+                    # token, the endpoint is worth one more try: without it a
+                    # rotation left the person looking at the service's plain
+                    # SMAPI root, which is not what the app opens on (Spotify,
+                    # 2026-09-14: seven personalised rows there, five generic
+                    # categories here).
+                    retry_endpoint, stale_token = endpoint, creds.get("token", "")
     # A service the household knows but Sonora has no token for cannot be
     # asked over SMAPI: its account lives encrypted on the speakers and is
     # never handed back. Report that plainly so the client can offer to link

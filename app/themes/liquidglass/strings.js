@@ -91,7 +91,7 @@ const enUS = {
   'sf.moveUp': 'Move up',
   'sf.moveDown': 'Move down',
   'sf.removeSelected': 'Remove {count} selected',
-  'sf.libraryIntro': 'Every source your systems can play, and what is inside each one.',
+  'sf.libraryIntro': 'Every source your systems can play.',
   'sf.editGroup': 'Edit group',
   'sf.addRooms': 'Add rooms',
   'sf.leaveGroup': 'Take {room} out of the group',
@@ -244,7 +244,7 @@ const esES = {
   'sf.moveUp': 'Subir',
   'sf.moveDown': 'Bajar',
   'sf.removeSelected': 'Quitar {count} seleccionadas',
-  'sf.libraryIntro': 'Cada fuente que tus sistemas pueden reproducir, y lo que hay dentro de cada una.',
+  'sf.libraryIntro': 'Cada fuente que tus sistemas pueden reproducir.',
   'sf.editGroup': 'Editar grupo',
   'sf.addRooms': 'Añadir habitaciones',
   'sf.leaveGroup': 'Sacar {room} del grupo',
@@ -398,7 +398,7 @@ const huHU = {
   'sf.moveUp': 'Feljebb',
   'sf.moveDown': 'Lejjebb',
   'sf.removeSelected': '{count} kijelölt eltávolítása',
-  'sf.libraryIntro': 'Minden forrás, amit a rendszereid le tudnak játszani, és ami bennük van.',
+  'sf.libraryIntro': 'Minden forrás, amit a rendszereid le tudnak játszani.',
   'sf.editGroup': 'Csoport szerkesztése',
   'sf.addRooms': 'Szobák hozzáadása',
   'sf.leaveGroup': '{room} kivétele a csoportból',
@@ -564,9 +564,7 @@ const frFR = {
   'sf.moveUp': 'Monter',
   'sf.moveDown': 'Descendre',
   'sf.removeSelected': 'Supprimer les {count} sélectionnés',
-  'sf.libraryIntro':
-    'Toutes les sources que tes systèmes peuvent lire, et ce que chacune '
-    + 'contient.',
+  'sf.libraryIntro': 'Toutes les sources que tes systèmes peuvent lire.',
   'sf.editGroup': 'Modifier le groupe',
   'sf.addRooms': 'Ajouter des pièces',
   'sf.leaveGroup': 'Retirer {room} du groupe',
@@ -739,9 +737,7 @@ const deDE = {
   'sf.moveUp': 'Nach oben',
   'sf.moveDown': 'Nach unten',
   'sf.removeSelected': '{count} ausgewählte entfernen',
-  'sf.libraryIntro':
-    'Alle Quellen, die deine Systeme abspielen können, und was in jeder '
-    + 'steckt.',
+  'sf.libraryIntro': 'Alle Quellen, die deine Systeme abspielen können.',
   'sf.editGroup': 'Gruppe bearbeiten',
   'sf.addRooms': 'Räume hinzufügen',
   'sf.leaveGroup': '{room} aus der Gruppe nehmen',
@@ -913,9 +909,7 @@ const itIT = {
   'sf.moveUp': 'Sposta su',
   'sf.moveDown': 'Sposta giù',
   'sf.removeSelected': 'Rimuovi {count} selezionati',
-  'sf.libraryIntro':
-    'Tutte le sorgenti che i tuoi sistemi possono riprodurre, e cosa '
-    + 'contiene ciascuna.',
+  'sf.libraryIntro': 'Tutte le sorgenti che i tuoi sistemi possono riprodurre.',
   'sf.editGroup': 'Modifica il gruppo',
   'sf.addRooms': 'Aggiungi stanze',
   'sf.leaveGroup': 'Togli {room} dal gruppo',
@@ -1085,9 +1079,7 @@ const ptBR = {
   'sf.moveUp': 'Mover para cima',
   'sf.moveDown': 'Mover para baixo',
   'sf.removeSelected': 'Remover {count} selecionados',
-  'sf.libraryIntro':
-    'Todas as fontes que seus sistemas conseguem tocar, e o que há dentro '
-    + 'de cada uma.',
+  'sf.libraryIntro': 'Todas as fontes que seus sistemas conseguem tocar.',
   'sf.editGroup': 'Editar o grupo',
   'sf.addRooms': 'Adicionar cômodos',
   'sf.leaveGroup': 'Tirar {room} do grupo',
@@ -1256,9 +1248,7 @@ const nlNL = {
   'sf.moveUp': 'Omhoog',
   'sf.moveDown': 'Omlaag',
   'sf.removeSelected': '{count} geselecteerde verwijderen',
-  'sf.libraryIntro':
-    'Alle bronnen die je systemen kunnen afspelen, en wat er in elke bron '
-    + 'zit.',
+  'sf.libraryIntro': 'Alle bronnen die je systemen kunnen afspelen.',
   'sf.editGroup': 'Groep bewerken',
   'sf.addRooms': 'Ruimtes toevoegen',
   'sf.leaveGroup': '{room} uit de groep halen',
@@ -1427,9 +1417,7 @@ const ukUA = {
   'sf.moveUp': 'Вище',
   'sf.moveDown': 'Нижче',
   'sf.removeSelected': 'Вилучити вибрані ({count})',
-  'sf.libraryIntro':
-    'Усі джерела, які можуть відтворювати твої системи, і що в кожному з '
-    + 'них.',
+  'sf.libraryIntro': 'Усі джерела, які можуть відтворювати твої системи.',
   'sf.editGroup': 'Змінити групу',
   'sf.addRooms': 'Додати кімнати',
   'sf.leaveGroup': 'Вивести {room} з групи',
@@ -1576,7 +1564,7 @@ const jaJP = {
   'sf.moveUp': '上へ',
   'sf.moveDown': '下へ',
   'sf.removeSelected': '選択した {count} 件を削除',
-  'sf.libraryIntro': 'システムが再生できるすべてのソースと、その中身。',
+  'sf.libraryIntro': 'システムが再生できるすべてのソース。',
   'sf.editGroup': 'グループを編集',
   'sf.addRooms': '部屋を追加',
   'sf.leaveGroup': '{room} をグループから外す',
@@ -1722,7 +1710,7 @@ const koKR = {
   'sf.moveUp': '위로',
   'sf.moveDown': '아래로',
   'sf.removeSelected': '선택한 {count}개 제거',
-  'sf.libraryIntro': '시스템이 재생할 수 있는 모든 소스와 그 안의 내용.',
+  'sf.libraryIntro': '시스템이 재생할 수 있는 모든 소스.',
   'sf.editGroup': '그룹 편집',
   'sf.addRooms': '방 추가',
   'sf.leaveGroup': '{room}을(를) 그룹에서 빼기',
@@ -1863,7 +1851,7 @@ const zhCN = {
   'sf.moveUp': '上移',
   'sf.moveDown': '下移',
   'sf.removeSelected': '移除选中的 {count} 项',
-  'sf.libraryIntro': '你的系统能播放的所有来源，以及每个来源里的内容。',
+  'sf.libraryIntro': '你的系统能播放的所有来源。',
   'sf.editGroup': '编辑编组',
   'sf.addRooms': '添加房间',
   'sf.leaveGroup': '把 {room} 移出编组',
@@ -2003,7 +1991,7 @@ const zhTW = {
   'sf.moveUp': '上移',
   'sf.moveDown': '下移',
   'sf.removeSelected': '移除選取的 {count} 項',
-  'sf.libraryIntro': '你的系統能播放的所有來源，以及每個來源裡的內容。',
+  'sf.libraryIntro': '你的系統能播放的所有來源。',
   'sf.editGroup': '編輯群組',
   'sf.addRooms': '新增房間',
   'sf.leaveGroup': '把 {room} 移出群組',
@@ -2161,9 +2149,7 @@ const csCZ = {
   'sf.moveUp': 'Posunout nahoru',
   'sf.moveDown': 'Posunout dolů',
   'sf.removeSelected': 'Odebrat vybrané ({count})',
-  'sf.libraryIntro':
-    'Všechny zdroje, které vaše systémy umí přehrát, a co je v každém z '
-    + 'nich.',
+  'sf.libraryIntro': 'Všechny zdroje, které vaše systémy umí přehrát.',
   'sf.editGroup': 'Upravit skupinu',
   'sf.addRooms': 'Přidat místnosti',
   'sf.leaveGroup': 'Vyjmout {room} ze skupiny',
@@ -2331,8 +2317,7 @@ const daDK = {
   'sf.moveUp': 'Flyt op',
   'sf.moveDown': 'Flyt ned',
   'sf.removeSelected': 'Fjern {count} valgte',
-  'sf.libraryIntro':
-    'Alle kilder, dine systemer kan afspille, og hvad der er i hver af dem.',
+  'sf.libraryIntro': 'Alle kilder, dine systemer kan afspille.',
   'sf.editGroup': 'Rediger gruppe',
   'sf.addRooms': 'Tilføj rum',
   'sf.leaveGroup': 'Tag {room} ud af gruppen',
@@ -2505,9 +2490,7 @@ const fiFI = {
   'sf.moveUp': 'Siirrä ylös',
   'sf.moveDown': 'Siirrä alas',
   'sf.removeSelected': 'Poista {count} valittua',
-  'sf.libraryIntro':
-    'Jokainen lähde, jota järjestelmäsi voivat toistaa, ja mitä kussakin '
-    + 'on.',
+  'sf.libraryIntro': 'Jokainen lähde, jota järjestelmäsi voivat toistaa.',
   'sf.editGroup': 'Muokkaa ryhmää',
   'sf.addRooms': 'Lisää huoneita',
   'sf.leaveGroup': 'Poista {room} ryhmästä',
@@ -2674,9 +2657,7 @@ const nbNO = {
   'sf.moveUp': 'Flytt opp',
   'sf.moveDown': 'Flytt ned',
   'sf.removeSelected': 'Fjern {count} valgte',
-  'sf.libraryIntro':
-    'Alle kilder systemene dine kan spille, og hva som finnes i hver av '
-    + 'dem.',
+  'sf.libraryIntro': 'Alle kilder systemene dine kan spille.',
   'sf.editGroup': 'Rediger gruppe',
   'sf.addRooms': 'Legg til rom',
   'sf.leaveGroup': 'Ta {room} ut av gruppen',
@@ -2850,8 +2831,7 @@ const plPL = {
   'sf.moveUp': 'Przenieś w górę',
   'sf.moveDown': 'Przenieś w dół',
   'sf.removeSelected': 'Usuń zaznaczone ({count})',
-  'sf.libraryIntro':
-    'Wszystkie źródła, które mogą odtwarzać Twoje systemy, i ich zawartość.',
+  'sf.libraryIntro': 'Wszystkie źródła, które mogą odtwarzać Twoje systemy.',
   'sf.editGroup': 'Edytuj grupę',
   'sf.addRooms': 'Dodaj pomieszczenia',
   'sf.leaveGroup': 'Usuń z grupy: {room}',
@@ -3023,9 +3003,7 @@ const ptPT = {
   'sf.moveUp': 'Mover para cima',
   'sf.moveDown': 'Mover para baixo',
   'sf.removeSelected': 'Remover {count} selecionados',
-  'sf.libraryIntro':
-    'Todas as origens que os seus sistemas conseguem reproduzir e o que '
-    + 'existe dentro de cada uma.',
+  'sf.libraryIntro': 'Todas as origens que os seus sistemas conseguem reproduzir.',
   'sf.editGroup': 'Editar grupo',
   'sf.addRooms': 'Adicionar divisões',
   'sf.leaveGroup': 'Retirar {room} do grupo',
@@ -3196,9 +3174,7 @@ const svSE = {
   'sf.moveUp': 'Flytta upp',
   'sf.moveDown': 'Flytta ned',
   'sf.removeSelected': 'Ta bort {count} markerade',
-  'sf.libraryIntro':
-    'Alla källor som dina system kan spela upp, och vad som finns i var och '
-    + 'en.',
+  'sf.libraryIntro': 'Alla källor som dina system kan spela upp.',
   'sf.editGroup': 'Redigera grupp',
   'sf.addRooms': 'Lägg till rum',
   'sf.leaveGroup': 'Ta ut {room} ur gruppen',

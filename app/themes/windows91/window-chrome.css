@@ -1067,6 +1067,9 @@
 :where(:root[data-theme='windows91']) .win-root .dk-now-lines { top: 32px; left: 186px; right: 12px; }
 :where(:root[data-theme='windows91']) .win-root .dk-now-rating { top: 158px; left: 230px; }
 :where(:root[data-theme='windows91']) .win-root .dk-now-source { top: 187px; line-height: 13px; }
+/* Room under the 13px lines for a descender: each of the three boxes hides
+   what overflows it, and "Big Shaggy" lost the bottoms of its g's and y. */
+:where(:root[data-theme='windows91']) .win-root .dk-now-source, :where(:root[data-theme='windows91']) .win-root .dk-now-source .dk-marquee, :where(:root[data-theme='windows91']) .win-root .dk-now-source .dk-marquee-rest { padding-bottom: 3px; }
 
 /* Info & Options rows are 46px like the app's; the block sits on a rule. */
 :where(:root[data-theme='windows91']) .win-root .dk-info-block { height: 92px; box-sizing: border-box; align-items: center; gap: 0; padding: 0 16px 0 17px; border-bottom: 1px solid #000000; }

@@ -60,11 +60,17 @@ export function favoriteKey(uri) {
 }
 export function genericArt(item) {
   const kind = item.item_type || ''
-  if (item.playlist || kind === 'playlist' || kind === 'albumList' || item.kind === 'playlist') return 'playlist'
+  if (item.playlist || kind === 'playlist' || item.kind === 'playlist') return 'playlist'
   // A Recently Played entry names its kind, not an item type.
   if (kind === 'stream' || kind === 'program' || item.radio || item.kind === 'station' || item.kind === 'stream'
       || /^x-sonosapi-(radio|stream|hls):/.test(item.uri || '')) return 'station'
-  if (item.is_container || item.container) return kind === 'album' ? 'disc' : (kind === 'container' || !kind ? 'container' : 'multi')
+  if (item.is_container || item.container) {
+    if (kind === 'album') return 'disc'
+    // The S1 app draws a folder for a bare container, a shelf ("collection",
+    // as Apple Music's New and Radio rows are) and a list of albums; any
+    // other list gets the multi-track tile.
+    return ['container', 'collection', 'albumList'].includes(kind) || !kind ? 'container' : 'multiTrack'
+  }
   return kind === 'track' || kind === 'episode' ? 'track' : 'disc'
 }
 // The app's description for a favorite: "<Service> Station", "<Service>

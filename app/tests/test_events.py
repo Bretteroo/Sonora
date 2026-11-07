@@ -473,3 +473,33 @@ def test_a_subscription_is_asked_for_an_hour_and_renewed_at_the_half():
     from backend.sonos import events
     assert events.SUBSCRIPTION_SECONDS == 3600
     assert max(30, 3600 * events.RENEW_AT) == 1800
+
+
+PLANET_TRACK = (
+    '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" '
+    'xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" '
+    'xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" '
+    'xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">'
+    '<item id="-1" parentID="-1" restricted="true">'
+    '<res protocolInfo="aac:*:application/octet-stream:*">'
+    'aac://http://mp3.planetradio.de/plrplus/hqdance.aac?aw_0_req.gdpr=true</res>'
+    '<r:streamContent></r:streamContent><dc:title>hqdance</dc:title>'
+    '<upnp:class>object.item</upnp:class></item></DIDL-Lite>')
+
+
+def test_a_station_keeps_its_name_and_picture_through_a_bare_track_report():
+    """planet radio mit mehr Dance, as Kitchen reported it twice in its first
+    20 s (2026-11-07): titled after the stream file and with no picture. The
+    Windows theme flicked to the empty note and the file name each time."""
+    from backend.sonos.controller import SonosController
+    from backend.sonos.models import TransportState
+
+    art = "/getaa?s=1&u=x-sonosapi-stream%3astream_125%3fsid%3d896%26flags%3d8224"
+    transport = TransportState(
+        media_uri="x-sonosapi-stream:stream_125?sid=896&flags=8224&sn=54",
+        track_uri="aac://http://mp3.planetradio.de/plrplus/hqdance.aac?aw_0_req.gdpr=true",
+        container_title="planet radio mit mehr Dance", album_art_uri=art,
+    )
+    SonosController._apply_track_metadata(transport, PLANET_TRACK)
+    assert transport.title == "planet radio mit mehr Dance"
+    assert transport.album_art_uri == art

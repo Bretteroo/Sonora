@@ -1313,7 +1313,12 @@ class SonosController:
         transport.title = title
         transport.artist = item.display_artist
         transport.album = item.album
-        transport.album_art_uri = item.art_uri
+        # A station's track DIDL may come without its picture: planet radio's
+        # did twice in its first 20 s, and the Windows theme flicked to the
+        # empty note and back each time. The station's own stays until one
+        # arrives; a new station clears it (_forget_track).
+        if item.art_uri or transport.source not in _RADIO_SOURCES:
+            transport.album_art_uri = item.art_uri
         if item.stream_content or item.description:
             transport.stream_content = item.stream_content or item.description
         # A station that announces its song as keyed fields gets that song as
@@ -3714,11 +3719,14 @@ def _named_by_uri(title: str, uri: str) -> bool:
     A player handed a bare stream names the track after the URL's last path
     segment, so a station whose stream ends /stream arrives titled "stream".
     Only whole segments count, so a station really called "Radio Goolarri"
-    (with a space, and not in its own URL) is never mistaken for one.
+    (with a space, and not in its own URL) is never mistaken for one. A
+    segment counts with or without its file extension: planet radio's
+    .../plrplus/hqdance.aac arrives titled "hqdance".
     """
     if not title or not uri:
         return False
     parts = {part for part in re.split(r"[/:?&=#]+", uri.casefold()) if part}
+    parts |= {part.rsplit(".", 1)[0] for part in parts if "." in part}
     return title.strip().casefold() in parts
 
 

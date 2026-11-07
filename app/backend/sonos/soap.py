@@ -76,6 +76,14 @@ ONCE_ONLY = frozenset({
 })
 
 
+#: Actions a player may take a while to answer, with how long each is given
+#: when the caller names no limit. Setting a service's stream as the source
+#: has the player resolve it with the service first: CBC Radio One answered
+#: in 17 s on a Play:5 (measured 2026-11-07), so the default 8 s gave up,
+#: sent it twice more, and reported a source that was in fact taking hold.
+SLOW_ACTIONS: dict[str, float] = {"SetAVTransportURI": 30.0}
+
+
 class SoapFault(Exception):
     """A UPnP fault returned by a speaker."""
 
@@ -212,6 +220,8 @@ class SoapClient:
 
         last_exc: Exception | None = None
         tries = self._retries if retries is None else retries
+        if timeout is None and action in SLOW_ACTIONS:
+            timeout = SLOW_ACTIONS[action]
         limit = self._timeout if timeout is None else aiohttp.ClientTimeout(total=timeout)
         for attempt in range(tries + 1):
             try:

@@ -50,3 +50,29 @@ def test_a_connection_that_never_opened_is_tried_again_even_for_an_add():
     key = SimpleNamespace(host="192.168.0.110", port=1400, ssl=None, is_ssl=False)
     refused = aiohttp.ClientConnectorError(connection_key=key, os_error=OSError(111, "refused"))
     assert _call("AddURIToQueue", refused) == 3
+
+
+class _Timing(_Session):
+    def __init__(self):
+        super().__init__(asyncio.TimeoutError())
+        self.limits = []
+
+    def post(self, *args, **kwargs):
+        self.limits.append(kwargs["timeout"].total)
+        return super().post(*args, **kwargs)
+
+
+def _limits(action, **kw):
+    session = _Timing()
+    client = SoapClient(session, retries=0)
+    with pytest.raises(ConnectionError):
+        asyncio.run(client.call("192.168.0.110", const.AV_TRANSPORT, action, {"InstanceID": 0}, **kw))
+    return session.limits
+
+
+def test_setting_a_source_is_given_time_to_resolve():
+    # A player resolves a service's stream before it answers: CBC Radio took
+    # 17 s, past the usual 8.
+    assert _limits("SetAVTransportURI") == [30.0]
+    assert _limits("GetPositionInfo") == [8.0]
+    assert _limits("SetAVTransportURI", timeout=3) == [3]

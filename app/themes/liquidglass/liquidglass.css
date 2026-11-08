@@ -49,6 +49,7 @@
   --lg-bar-fill: rgba(255, 255, 255, 0.18);
   --lg-bar-halo: rgba(255, 255, 255, 0.85);
   --lg-pill-base: rgba(255, 255, 255, 0.62);
+  --lg-bar-glow: rgba(238, 241, 246, 0.8);
   --lg-pill-edge: rgba(16, 24, 40, 0.1);
   --lg-bar-blur: saturate(180%) blur(5px) brightness(1.05);
   --lg-bar-lens: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.14) 16%, rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, 0.08) 80%, rgba(255, 255, 255, 0.42) 100%);
@@ -81,6 +82,7 @@
   --lg-bar-fill: rgba(30, 32, 40, 0.28);
   --lg-bar-halo: rgba(0, 0, 0, 0.6);
   --lg-pill-base: rgba(255, 255, 255, 0.12);
+  --lg-bar-glow: rgba(11, 13, 18, 0.8);
   --lg-pill-edge: rgba(255, 255, 255, 0.16);
   --lg-bar-blur: saturate(170%) blur(5px) brightness(0.9);
   --lg-bar-lens: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.04) 16%, rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, 0.02) 80%, rgba(255, 255, 255, 0.12) 100%);
@@ -695,6 +697,55 @@
   :root[data-theme='liquidglass'] .sf-toasts { bottom: calc(var(--sf-bar) + 86px); }
 }
 
+/* --- narrow: the tab bar folds away on scroll --------------------------
+   The page fills the whole window behind the bars, and the bars are laid
+   over it at the foot, so folding them moves nothing on the page
+   (RailShell.jsx sets data-tabs as a page scrolls down). Folded, the tab bar
+   shrinks to a circle holding the current tab's icon, the other tabs closing
+   up beside it, and the player bar slides down beside it, letting go of
+   Previous and the queue as Apple's inline player does. Every change is a
+   transition of the bars' own geometry, so the glass stays live and the page
+   keeps scrolling while they move. */
+@media (max-width: 900px) {
+  :root[data-theme='liquidglass'] .sf-main { grid-row: 1 / -1; grid-column: 1 / -1; }
+  :root[data-theme='liquidglass'] .sf-root .sf-rail,
+  :root[data-theme='liquidglass'] .sf-root .sf-nowbar {
+    --lg-fold: 340ms cubic-bezier(0.3, 0.9, 0.3, 1);
+    position: absolute; margin: 0; left: 10px; right: 10px; box-sizing: border-box;
+    transition: left var(--lg-fold), right var(--lg-fold), bottom var(--lg-fold), border-radius var(--lg-fold);
+  }
+  :root[data-theme='liquidglass'] .sf-root .sf-rail { bottom: 10px; height: 64px; }
+  :root[data-theme='liquidglass'] .sf-root .sf-nowbar { bottom: 82px; }
+  :root[data-theme='liquidglass'] .sf-root .sf-now-art { transition: border-radius var(--lg-fold); }
+  :root[data-theme='liquidglass'] .sf-rail-item {
+    max-width: 160px; min-width: 0; overflow: hidden;
+    transition: max-width var(--lg-fold), opacity 200ms ease, padding var(--lg-fold), gap var(--lg-fold), background-color 200ms ease, box-shadow 200ms ease;
+  }
+  :root[data-theme='liquidglass'] .sf-rail-items { transition: gap var(--lg-fold); }
+  :root[data-theme='liquidglass'] .sf-rail-item > span { max-height: 16px; transition: opacity 160ms ease, max-height var(--lg-fold); }
+  :root[data-theme='liquidglass'] .sf-transport > :has(+ .sf-play),
+  :root[data-theme='liquidglass'] .sf-now-right { max-width: 120px; overflow: hidden; transition: max-width var(--lg-fold), opacity 160ms ease; }
+
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-rail { right: calc(100% - 74px); border-radius: 32px; padding: 6px 4px; cursor: pointer; }
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-rail-item:not([aria-current]) { max-width: 0; opacity: 0; padding-inline: 0; }
+  /* The closed tabs leave no gaps behind, nor the hidden name under the
+     icon, or the icon sits off the circle's middle by 2px a tab. */
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-rail-items { gap: 0; }
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-rail-item[aria-current] { gap: 0; align-self: stretch; justify-content: center; padding-block: 0; }
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-rail-item[aria-current] { background-color: transparent; background-image: none; box-shadow: none; }
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-rail-item > span { opacity: 0; max-height: 0; }
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-nowbar { left: 82px; bottom: 10px; border-radius: 32px; }
+  /* The art's corners stay concentric with the bar's, its radius less the
+     10px the art sits in from the edge: 24px makes 14px unfolded, and the
+     folded pill's 32px makes 22px, a circle. */
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-now-art { border-radius: 22px; }
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-transport > :has(+ .sf-play),
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-now-right { max-width: 0; opacity: 0; }
+}
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+  :root[data-theme='liquidglass'] :is(.sf-rail, .sf-nowbar, .sf-rail-item, .sf-rail-item > span, .sf-now-right, .sf-transport > *) { transition: none; }
+}
+
 /* --- when the browser cannot blur, the material becomes frosted paint -- */
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
   :root[data-theme='liquidglass'] .sf-root,
@@ -798,18 +849,12 @@
   :root[data-theme='liquidglass'] .sf-main:has(> .sf-settings) { padding-bottom: 0; }
   :root[data-theme='liquidglass'] .sf-main > .sf-settings > :is(.sf-settings-nav, .sf-settings-page) { padding-bottom: calc(var(--sf-under, 0px) + 24px); }
 }
-/* The scroll edge the bars sit on: the ground's own color rising behind
-   them, with a blur that strengthens toward the foot, so busy content
-   fades before it reaches the glass. It rises 24px above the top bar
-   (RailShell.jsx sizes it) and is at full strength by the bar's edge. Under the bars, over the pages. */
-:root[data-theme='liquidglass'] .sf-bar-fade {
-  position: absolute; bottom: 0; z-index: 2; pointer-events: none;
-  background: linear-gradient(180deg, rgba(238, 241, 246, 0) 0, rgba(238, 241, 246, 0.6) 24px, rgba(238, 241, 246, 0.8) 100%);
-  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
-  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 24px); mask-image: linear-gradient(180deg, transparent 0, #000 24px);
-}
-:root[data-theme='liquidglass'][data-variant='dark'] .sf-bar-fade {
-  background: linear-gradient(180deg, rgba(11, 13, 18, 0) 0, rgba(11, 13, 18, 0.6) 24px, rgba(11, 13, 18, 0.8) 100%);
+/* The scroll edge the bars sit on: a soft glow of the ground's own color
+   around each bar, shaped to its outline, so busy content fades before it
+   reaches the glass and the fade moves with the bars as they fold. */
+:root[data-theme='liquidglass'] :is(.sf-nowbar, .sf-rail)::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 0 26px 14px var(--lg-bar-glow);
 }
 /* Both bars are drawn over the scroller, the tab bar too where it sits under
    the player bar on a narrow window, or the rows ran over it and took its taps. */

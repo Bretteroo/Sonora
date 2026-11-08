@@ -72,22 +72,24 @@ export function Shell() {
   // the bar's height changes with the layout and a phone's tab bar sits
   // below it. The pane already runs on by its last reach, given back as its
   // negative bottom margin.
-  const [foot, setFoot] = useState({ reach: 0, under: 0, left: 0, right: 0 })
+  const [foot, setFoot] = useState({ reach: 0, under: 0 })
+  const readFoot = useRef(() => {})
   useEffect(() => {
     const read = () => {
       const pane = mainRef.current
       const root = pane?.closest('.sf-root')
       const bar = root?.querySelector('.sf-nowbar')
-      if (!pane || !root || !bar) return
+      // Folded or folding, the bars stand lower, but the page keeps the room
+      // it had unfolded: were it to shrink, a page scrolled to its end would
+      // move up and unfold them again.
+      if (!pane || !root || !bar || tabsMinRef.current || tabsMovingRef.current) return
       const bottom = root.getBoundingClientRect().bottom
       const paneBottom = pane.getBoundingClientRect().bottom + (parseFloat(getComputedStyle(pane).marginBottom) || 0)
-      const box = root.getBoundingClientRect()
-      const column = pane.getBoundingClientRect()
       const next = { reach: Math.max(0, Math.round(bottom - paneBottom)),
-                     under: Math.max(0, Math.round(bottom - bar.getBoundingClientRect().top)),
-                     left: Math.round(column.left - box.left), right: Math.round(box.right - column.right) }
-      setFoot((prev) => (Object.keys(next).every((k) => prev[k] === next[k]) ? prev : next))
+                     under: Math.max(0, Math.round(bottom - bar.getBoundingClientRect().top)) }
+      setFoot((prev) => (prev.reach === next.reach && prev.under === next.under ? prev : next))
     }
+    readFoot.current = read
     read()
     const watch = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(read) : null
     const bar = mainRef.current?.closest('.sf-root')?.querySelector('.sf-nowbar')
@@ -95,6 +97,45 @@ export function Shell() {
     window.addEventListener('resize', read)
     return () => { watch?.disconnect(); window.removeEventListener('resize', read) }
   }, [section])
+  // On a phone the tab bar folds away as a page scrolls down, as Apple's do:
+  // it shrinks to a capsule holding the current tab, and the player bar moves
+  // up beside it. Scrolling back up, reaching the top, or tapping the capsule
+  // brings both back. A page's scroll is followed wherever it happens (the
+  // main pane, the library's own list), and a turn needs 32px of travel so a
+  // finger's wobble does not flick it.
+  const [tabsMin, setTabsMin] = useState(false)
+  const tabsMinRef = useRef(false)
+  // The bars slide by CSS transitions (liquidglass.css); while they do, the
+  // page's room under them is not re-measured, and once they settle it is.
+  const tabsMovingRef = useRef(false)
+  const settleTimer = useRef(0)
+  const foldTabs = useCallback((next) => {
+    if (tabsMinRef.current === next) return
+    tabsMinRef.current = next
+    tabsMovingRef.current = true
+    clearTimeout(settleTimer.current)
+    settleTimer.current = setTimeout(() => { tabsMovingRef.current = false; readFoot.current() }, 400)
+    setTabsMin(next)
+  }, [])
+  useEffect(() => {
+    const narrow = window.matchMedia('(max-width: 900px)')
+    const turns = new WeakMap()
+    const onScroll = (event) => {
+      const pane = event.target
+      if (!narrow.matches || !(pane instanceof Element) || !pane.closest('.sf-main')) return
+      const top = pane.scrollTop
+      if (top < 24) { turns.set(pane, top); foldTabs(false); return }
+      const from = turns.has(pane) ? turns.get(pane) : top
+      if (!tabsMinRef.current) {
+        if (top - from > 32) { turns.set(pane, top); foldTabs(true) } else turns.set(pane, Math.min(from, top))
+      } else if (from - top > 32) { turns.set(pane, top); foldTabs(false) } else turns.set(pane, Math.max(from, top))
+    }
+    const onWidth = () => { if (!narrow.matches) foldTabs(false) }
+    document.addEventListener('scroll', onScroll, true)
+    narrow.addEventListener('change', onWidth)
+    return () => { document.removeEventListener('scroll', onScroll, true); narrow.removeEventListener('change', onWidth) }
+  }, [foldTabs])
+  useEffect(() => { foldTabs(false) }, [section, foldTabs])
   const [stageOpen, setStageOpen] = useState(false)
   const [queueOpen, setQueueOpen] = useState(() => readStored('sonora.sf.queue') === '1')
   const [groupSheet, setGroupSheet] = useState(null)
@@ -338,8 +379,11 @@ export function Shell() {
     // the shell under it has nothing to show, and its glass rail and bar were
     // re-blurring behind it on every frame of a volume drag (~150ms
     // frames).
-    <div className="sf-root" data-queue={queueOpen || undefined} data-section={section} data-covered={stageOpen || undefined}>
-      <nav className="sf-rail" aria-label={t('sf.navigation')}>
+    <div className="sf-root" data-queue={queueOpen || undefined} data-section={section} data-covered={stageOpen || undefined} data-tabs={tabsMin ? 'min' : undefined}>
+      {/* While folded, a tap anywhere on the capsule unfolds the bar rather
+          than choosing the one tab it shows. */}
+      <nav className="sf-rail" aria-label={t('sf.navigation')}
+           onClickCapture={tabsMin ? (event) => { event.preventDefault(); event.stopPropagation(); foldTabs(false) } : undefined}>
         {/* The rail names the application, so its wordmark opens About Sonora,
             as an application's name does; the Home rail item below still goes
             home. */}
@@ -383,11 +427,6 @@ export function Shell() {
           column it sits in carries the width and CSS hides it when shut. */}
       <QueueDrawer zone={activeZone} queue={queue} open={queueOpen} onClose={() => setQueueOpen(false)} onMessage={toast} onEdited={() => setQueueEdited(true)}
                    onInfo={(item) => openInfoForItem(item, { hzone: activeZone?.uuid })} />
-
-      {/* The fade the bars sit on, as Apple's bars have: content scrolling
-          down under them dims and softens before it meets the glass. It
-          spans the page's column alone, not the rail or the queue beside it. */}
-      <div className="sf-bar-fade" aria-hidden="true" style={{ height: `${foot.under + 24}px`, left: `${foot.left}px`, right: `${foot.right}px` }} />
 
       <NowBar zone={activeZone} group={activeGroup} zones={zones} onStage={() => setStageOpen(true)} onQueue={() => setQueueOpen((v) => !v)} queueOpen={queueOpen}
               queueCount={queue.total || queue.items.length} onRooms={() => activeGroup && setGroupSheet(activeGroup)} onInfo={openInfoForNow}

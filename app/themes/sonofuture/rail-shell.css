@@ -1135,8 +1135,11 @@
 :where(:root[data-theme='sonofuture']) .sf-theme-preview img { width: 320px; }
 :where(:root[data-theme='sonofuture']) .sf-theme-manage h4 { margin: 18px 0 8px; font-size: 13px; font-weight: 600; }
 :where(:root[data-theme='sonofuture']) .sf-theme-manage .sf-theme-actions { width: auto; }
-:where(:root[data-theme='sonofuture']) .sf-root .theme-pill { background: var(--t-surface-2, rgba(255, 255, 255, 0.08)); }
-:where(:root[data-theme='sonofuture']) .sf-root .theme-pill button[aria-pressed='true'] { background: var(--t-accent, #4f8cf0); color: #fff; }
+/* The theme's appearance is a switch like the page's other segmented
+   controls, so it is drawn as they are: the chosen side raised in the
+   surface, not lit in the accent, which is kept for what acts or plays. */
+:where(:root[data-theme='sonofuture']) .sf-root .theme-pill { background: rgba(148, 163, 184, 0.1); }
+:where(:root[data-theme='sonofuture']) .sf-root .theme-pill button[aria-pressed='true'] { background: var(--t-surface-active); color: var(--t-fg); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }
 
 /* Opening the library shows its tiles and nothing else; picking one slides
    the source list in from the left beside the rows, and the breadcrumb back

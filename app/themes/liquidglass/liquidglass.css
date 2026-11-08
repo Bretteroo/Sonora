@@ -832,7 +832,7 @@
 /* --- the pages run on under the bottom bar -----------------------------
    Its scroller reaches the window's foot, behind the bar, which is drawn
    over it, and its end is padded so the last row scrolls clear (the
-   distances are measured by Library.jsx). The glass bar shows the rows passing behind it. */
+   shell measures the distances). The glass bar shows the rows passing behind it. */
 :root[data-theme='liquidglass'] .sf-main:has(> .sf-library) { overflow: visible; padding-bottom: 0; }
 :root[data-theme='liquidglass'] .sf-main:has(> .sf-library) .sf-content-scroll {
   margin-bottom: calc(-1 * var(--sf-reach, 0px));
@@ -844,6 +844,20 @@
 :root[data-theme='liquidglass'] .sf-main:not(:has(> .sf-library)) {
   margin-bottom: calc(-1 * var(--sf-reach, 0px));
   padding-bottom: calc(var(--sf-under, 0px) + 24px);
+}
+/* Folded on a phone, the player bar stands 72px lower (82px from the foot
+   to 10px), and a page's end follows it down rather than stopping where the
+   bar used to be. RailShell.jsx sets the scroll that this pulls back aside,
+   so it does not read as scrolling up and unfold the bars again. */
+@media (max-width: 900px) {
+  :root[data-theme='liquidglass'] .sf-main:not(:has(> .sf-library)),
+  :root[data-theme='liquidglass'] .sf-main:has(> .sf-library) .sf-content-scroll { transition: padding-bottom 340ms cubic-bezier(0.3, 0.9, 0.3, 1); }
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-main:not(:has(> .sf-library)),
+  :root[data-theme='liquidglass'] .sf-root[data-tabs='min'] .sf-main:has(> .sf-library) .sf-content-scroll { padding-bottom: calc(var(--sf-under, 0px) - 72px + 24px); }
+}
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+  :root[data-theme='liquidglass'] .sf-main:not(:has(> .sf-library)),
+  :root[data-theme='liquidglass'] .sf-main:has(> .sf-library) .sf-content-scroll { transition: none; }
 }
 @media (min-width: 901px) {
   :root[data-theme='liquidglass'] .sf-main:has(> .sf-settings) { padding-bottom: 0; }

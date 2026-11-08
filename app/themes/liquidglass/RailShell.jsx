@@ -79,9 +79,8 @@ export function Shell() {
       const pane = mainRef.current
       const root = pane?.closest('.sf-root')
       const bar = root?.querySelector('.sf-nowbar')
-      // Folded or folding, the bars stand lower, but the page keeps the room
-      // it had unfolded: were it to shrink, a page scrolled to its end would
-      // move up and unfold them again.
+      // Folded or folding, the bars stand lower; the room is still read as it
+      // is unfolded, and liquidglass.css takes the fold's drop off it.
       if (!pane || !root || !bar || tabsMinRef.current || tabsMovingRef.current) return
       const bottom = root.getBoundingClientRect().bottom
       const paneBottom = pane.getBoundingClientRect().bottom + (parseFloat(getComputedStyle(pane).marginBottom) || 0)
@@ -125,6 +124,9 @@ export function Shell() {
       if (!narrow.matches || !(pane instanceof Element) || !pane.closest('.sf-main')) return
       const top = pane.scrollTop
       if (top < 24) { turns.set(pane, top); foldTabs(false); return }
+      // While the bars move, the page's end moves with them (liquidglass.css),
+      // and a page at its end is pulled back by as much: that is not a turn.
+      if (tabsMovingRef.current) { turns.set(pane, top); return }
       const from = turns.has(pane) ? turns.get(pane) : top
       if (!tabsMinRef.current) {
         if (top - from > 32) { turns.set(pane, top); foldTabs(true) } else turns.set(pane, Math.min(from, top))

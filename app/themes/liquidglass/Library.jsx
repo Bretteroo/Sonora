@@ -438,31 +438,11 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
   const letterIndex = useLetterIndex({ rows: lettered ? loose : [], offset: page.offset, total: page.total, more: page.more,
                                        done: page.done, jumpTo: page.jumpTo, source: letterSource, scrollTo: scrollToRow, rowsOf })
   const letterBox = useAlongside(scroller)
-  // The library runs on under the bottom bar, as a list does under a glass
-  // bar: its scroller reaches the window's foot (`reach`, how far that is
-  // below the pane) and pads its end by as much as the bar and anything
-  // under it stand up from that foot (`under`), so the last row scrolls
-  // clear of them. Both are read off the page, since the bar's height
-  // changes with the layout and a phone's tab bar sits below it.
-  const [foot, setFoot] = useState({ reach: 0, under: 0 })
-  useEffect(() => {
-    const read = () => {
-      const pane = scroller.current?.closest('.sf-main')
-      const root = pane?.closest('.sf-root')
-      const bar = root?.querySelector('.sf-nowbar')
-      if (!pane || !root || !bar) return
-      const bottom = root.getBoundingClientRect().bottom
-      const next = { reach: Math.max(0, Math.round(bottom - pane.getBoundingClientRect().bottom)),
-                     under: Math.max(0, Math.round(bottom - bar.getBoundingClientRect().top)) }
-      setFoot((prev) => (prev.reach === next.reach && prev.under === next.under ? prev : next))
-    }
-    read()
-    const watch = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(read) : null
-    const bar = scroller.current?.closest('.sf-root')?.querySelector('.sf-nowbar')
-    if (watch && bar) watch.observe(bar)
-    window.addEventListener('resize', read)
-    return () => { watch?.disconnect(); window.removeEventListener('resize', read) }
-  }, [])
+  // The library runs on under the bottom bar as every page does: the shell
+  // measures how far the bar stands up from the window's foot and sets it
+  // on the pane (--sf-under, RailShell.jsx), holding it steady while a
+  // phone's bars fold. The letter bar ends that far above the foot.
+  const under = (scroller.current && parseFloat(getComputedStyle(scroller.current).getPropertyValue('--sf-under'))) || 0
   useKeepPlace(scroller, page.offset)
   const addHouseholdId = (() => {
     const visible = sections.map((sec) => sec.household.id)
@@ -641,8 +621,7 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
           )}
         </header>
 
-        <div className="sf-content-scroll" ref={scroller} data-letters={(letterIndex.show && !searching) || undefined}
-             style={{ '--sf-reach': `${foot.reach}px`, '--sf-under': `${foot.under}px` }}>
+        <div className="sf-content-scroll" ref={scroller} data-letters={(letterIndex.show && !searching) || undefined}>
           {searching ? (
             <SearchResults allLabel={allLabel} search={search} scope={scope} pickedCategory={pickedCategory} onCategory={setPickedCategory}
                            onOpen={(item, from = scope) => {
@@ -761,7 +740,7 @@ export default function Library({ households, zones, groups, roomGroups, onSelec
           )}
         </div>
         {letterIndex.show && !searching && letterBox && (
-          <LetterBar index={letterIndex} box={{ ...letterBox, height: letterBox.height - foot.under }} label={t('common.jumpToLetter')} loading={t('desk.browse.loading')} />
+          <LetterBar index={letterIndex} box={{ ...letterBox, height: letterBox.height - under }} label={t('common.jumpToLetter')} loading={t('desk.browse.loading')} />
         )}
         {checked.size > 0 && (
           <div className="sf-selection-bar" role="toolbar" aria-label={t('sf.selected', { count: checked.size })}>

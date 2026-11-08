@@ -72,7 +72,7 @@ export function Shell() {
   // the bar's height changes with the layout and a phone's tab bar sits
   // below it. The pane already runs on by its last reach, given back as its
   // negative bottom margin.
-  const [foot, setFoot] = useState({ reach: 0, under: 0 })
+  const [foot, setFoot] = useState({ reach: 0, under: 0, left: 0, right: 0 })
   useEffect(() => {
     const read = () => {
       const pane = mainRef.current
@@ -81,9 +81,12 @@ export function Shell() {
       if (!pane || !root || !bar) return
       const bottom = root.getBoundingClientRect().bottom
       const paneBottom = pane.getBoundingClientRect().bottom + (parseFloat(getComputedStyle(pane).marginBottom) || 0)
+      const box = root.getBoundingClientRect()
+      const column = pane.getBoundingClientRect()
       const next = { reach: Math.max(0, Math.round(bottom - paneBottom)),
-                     under: Math.max(0, Math.round(bottom - bar.getBoundingClientRect().top)) }
-      setFoot((prev) => (prev.reach === next.reach && prev.under === next.under ? prev : next))
+                     under: Math.max(0, Math.round(bottom - bar.getBoundingClientRect().top)),
+                     left: Math.round(column.left - box.left), right: Math.round(box.right - column.right) }
+      setFoot((prev) => (Object.keys(next).every((k) => prev[k] === next[k]) ? prev : next))
     }
     read()
     const watch = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(read) : null
@@ -380,6 +383,11 @@ export function Shell() {
           column it sits in carries the width and CSS hides it when shut. */}
       <QueueDrawer zone={activeZone} queue={queue} open={queueOpen} onClose={() => setQueueOpen(false)} onMessage={toast} onEdited={() => setQueueEdited(true)}
                    onInfo={(item) => openInfoForItem(item, { hzone: activeZone?.uuid })} />
+
+      {/* The fade the bars sit on, as Apple's bars have: content scrolling
+          down under them dims and softens before it meets the glass. It
+          spans the page's column alone, not the rail or the queue beside it. */}
+      <div className="sf-bar-fade" aria-hidden="true" style={{ height: `${foot.under + 24}px`, left: `${foot.left}px`, right: `${foot.right}px` }} />
 
       <NowBar zone={activeZone} group={activeGroup} zones={zones} onStage={() => setStageOpen(true)} onQueue={() => setQueueOpen((v) => !v)} queueOpen={queueOpen}
               queueCount={queue.total || queue.items.length} onRooms={() => activeGroup && setGroupSheet(activeGroup)} onInfo={openInfoForNow}

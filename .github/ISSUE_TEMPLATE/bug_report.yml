@@ -37,6 +37,18 @@ body:
     validations:
       required: true
   - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      description: What you were using to open Sonora when it happened.
+      options:
+        - Desktop or laptop computer
+        - Phone
+        - Tablet
+        - More than one
+    validations:
+      required: true
+  - type: dropdown
     id: platform
     attributes:
       label: Installed on

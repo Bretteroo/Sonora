@@ -163,7 +163,8 @@ export function Knob({ value = 0, min = 0, max = 100, step = 1, onCommit, label,
     event.preventDefault()
     ref.current?.focus()
     ref.current?.setPointerCapture?.(event.pointerId)
-    drag.current = { x: event.clientX, y: event.clientY, start: shown ?? min, last: shown ?? min }
+    drag.current = { x: event.clientX, y: event.clientY, start: shown ?? min, last: shown ?? min, moved: false,
+                     touch: event.pointerType === 'touch' }
     setDragging(true)
   }
   const onPointerMove = (event) => {
@@ -171,13 +172,27 @@ export function Knob({ value = 0, min = 0, max = 100, step = 1, onCommit, label,
     if (!d) return
     // A full sweep is about 200 pixels of travel, whichever way it goes.
     const moved = (event.clientX - d.x) - (event.clientY - d.y)
+    if (Math.hypot(event.clientX - d.x, event.clientY - d.y) > 8) d.moved = true
     const next = clamp(d.start + (moved / 200) * span)
     if (next !== d.last) { d.last = next; live(next) }
   }
   const onPointerUp = () => {
     const d = drag.current
     drag.current = null
-    if (d) finish(d.last)
+    if (!d) return
+    // A finger's tap steps the knob one toward the point of the scale it fell
+    // beside, as the touch sliders do (lib/touchRange.js), rather than
+    // setting it there; a tap by the pointer itself leaves it be.
+    if (d.touch && !d.moved && ref.current) {
+      const box = ref.current.getBoundingClientRect()
+      const turn = (Math.atan2(d.x - (box.left + box.width / 2), (box.top + box.height / 2) - d.y) * 180) / Math.PI
+      const toward = min + Math.max(0, Math.min(1, (turn + 135) / 270)) * span
+      if (Math.abs(toward - d.start) <= span * 0.04) { setDragging(false); return }
+      const next = clamp(d.start + Math.sign(toward - d.start) * step)
+      live(next); finish(next)
+      return
+    }
+    finish(d.last)
   }
   // The wheel is a passive listener in React, so it is bound by hand to be
   // allowed to keep the page from scrolling under the knob.
@@ -229,13 +244,16 @@ export function Knob({ value = 0, min = 0, max = 100, step = 1, onCommit, label,
                   transform={`rotate(${a} 50 50)`} className={Math.abs(a) < 1 && detent ? 'hf-knob-detent' : ''} />
           ))}
           {/* Each pip is a target too: pressing one sets the knob to that
-              point at once. Keyboard users have Home, End and Page keys. */}
+              point at once. Keyboard users have Home, End and Page keys. A
+              finger's press is left to the knob, which steps toward the
+              point on a tap and turns on a drag. */}
           {!disabled && tickMarks.map((a, i) => {
             const at = clamp(min + (i * span) / (ticks - 1))
             return (
               <circle key={`pip${i}`} className="hf-knob-pip" cx="50" cy="6" r="6" transform={`rotate(${a} 50 50)`}
                       onPointerDown={(event) => {
                         if (event.button !== 0) return
+                        if (event.pointerType === 'touch') return
                         event.preventDefault(); event.stopPropagation()
                         ref.current?.focus()
                         live(at); finish(at)

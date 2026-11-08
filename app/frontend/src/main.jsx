@@ -10,6 +10,7 @@ import { ThemeProvider, useTheme } from './lib/theme.jsx'
 import { I18nProvider } from './i18n/index.jsx'
 import './styles/base.css'
 import { installWheelRange } from './lib/wheelRange.js'
+import { installTouchRange } from './lib/touchRange.js'
 
 // A new boundary for each theme, so picking another on the crash screen
 // draws it rather than the crash screen again.
@@ -20,6 +21,8 @@ function Guarded() {
 
 // Volume sliders follow the mouse wheel in every theme (lib/wheelRange.js).
 installWheelRange()
+// and step, rather than jump, when a finger taps beside the thumb (lib/touchRange.js).
+installTouchRange()
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

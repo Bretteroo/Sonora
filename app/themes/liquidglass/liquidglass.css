@@ -46,12 +46,12 @@
      the clearer glass Apple draws its own bars in: a thin fill and a light
      blur, so what passes behind stays recognizable, with the light gathered
      at the edges where a lens would bend it. */
-  --lg-bar-fill: rgba(255, 255, 255, 0.18);
+  --lg-bar-fill: rgba(255, 255, 255, 0.26);
   --lg-bar-halo: rgba(255, 255, 255, 0.85);
   --lg-pill-base: rgba(255, 255, 255, 0.62);
   --lg-bar-glow: rgba(238, 241, 246, 0.8);
   --lg-pill-edge: rgba(16, 24, 40, 0.1);
-  --lg-bar-blur: saturate(180%) blur(5px) brightness(1.05);
+  --lg-bar-blur: saturate(130%) blur(8px) brightness(1.05);
   --lg-bar-lens: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.14) 16%, rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, 0.08) 80%, rgba(255, 255, 255, 0.42) 100%);
   --lg-bar-rim: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 0 0 1px rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(255, 255, 255, 0.55), inset 0 0 14px rgba(255, 255, 255, 0.4);
   --lg-cast: 0 1px 2px rgba(16, 24, 40, 0.06), 0 12px 32px rgba(16, 24, 40, 0.14);
@@ -79,12 +79,12 @@
   --lg-fill-thin: rgba(30, 32, 40, 0.5);
   --lg-lens: linear-gradient(155deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 28%, rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.03) 78%, rgba(255, 255, 255, 0.12) 100%);
   --lg-rim: inset 0 1px 0 rgba(255, 255, 255, 0.24), inset 0 0 0 0.5px rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(255, 255, 255, 0.06);
-  --lg-bar-fill: rgba(30, 32, 40, 0.28);
+  --lg-bar-fill: rgba(30, 32, 40, 0.36);
   --lg-bar-halo: rgba(0, 0, 0, 0.6);
   --lg-pill-base: rgba(255, 255, 255, 0.12);
   --lg-bar-glow: rgba(11, 13, 18, 0.8);
   --lg-pill-edge: rgba(255, 255, 255, 0.16);
-  --lg-bar-blur: saturate(170%) blur(5px) brightness(0.9);
+  --lg-bar-blur: saturate(130%) blur(8px) brightness(0.9);
   --lg-bar-lens: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.04) 16%, rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, 0.02) 80%, rgba(255, 255, 255, 0.12) 100%);
   --lg-bar-rim: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(255, 255, 255, 0.1), inset 0 0 14px rgba(255, 255, 255, 0.06);
   --lg-cast: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 34px rgba(0, 0, 0, 0.45);

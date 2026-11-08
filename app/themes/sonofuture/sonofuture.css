@@ -142,7 +142,7 @@
    points right while the services are hidden and down while they show, a
    Show or Hide pill at the end of the row, and the row lit on hover. */
 :root[data-theme='sonofuture'] .sf-root-fold { padding: 6px 8px; margin-inline: -8px; width: calc(100% + 16px); border-radius: 12px; transition: background 140ms var(--sf-ease), color 140ms var(--sf-ease); }
-:root[data-theme='sonofuture'] .sf-root-fold:hover { background: var(--t-surface-hover); color: var(--t-fg); }
+@media (hover: hover) { :root[data-theme='sonofuture'] .sf-root-fold:hover { background: var(--t-surface-hover); color: var(--t-fg); } }
 :root[data-theme='sonofuture'] .sf-root-fold > .sf-root-fold-mark { width: 16px; height: 16px; color: var(--t-fg); transform: none; transition: transform 160ms var(--sf-ease); }
 :root[data-theme='sonofuture'] .sf-root-fold[aria-expanded='true'] > .sf-root-fold-mark { transform: rotate(90deg); }
 :root[data-theme='sonofuture'] .sf-root-fold-act {
@@ -150,7 +150,7 @@
   font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none;
   color: var(--t-accent); background: var(--t-surface);
 }
-:root[data-theme='sonofuture'] .sf-root-fold:hover .sf-root-fold-act { background: var(--t-surface-hover); }
+@media (hover: hover) { :root[data-theme='sonofuture'] .sf-root-fold:hover .sf-root-fold-act { background: var(--t-surface-hover); } }
 @media (prefers-reduced-motion: reduce) { :root[data-theme='sonofuture'] .sf-root-fold > .sf-root-fold-mark { transition: none; } }
 /* On the light look a white pill all but vanishes into the page: its rim
    keeps it a control. */

@@ -119,7 +119,7 @@ export const MarqueeText = forwardRef(function MarqueeText({ children, className
     for (const animation of running.current) animation.cancel()
     running.current = []
     if (full.current) full.current.style.visibility = 'hidden'
-    if (rest.current) rest.current.style.visibility = ''
+    if (rest.current) { rest.current.style.visibility = ''; rest.current.style.willChange = '' }
   }
 
   useEffect(() => {
@@ -134,6 +134,11 @@ export const MarqueeText = forwardRef(function MarqueeText({ children, className
         const text = full.current.scrollWidth - look.endGap
         full.current.style.visibility = 'visible'
         rest.current.style.visibility = 'hidden'
+        // The cut copy moves too, so it gets a layer of its own for as long
+        // as the line runs, as the whole one always has (shared.css): without
+        // it Firefox for Android redrew the moving text, halo and all, on
+        // every frame, and a long title stuttered across the bar.
+        rest.current.style.willChange = 'transform'
         if (look.bounce) {
           const distance = Math.max(0, text - width)
           const seconds = distance / look.speed

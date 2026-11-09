@@ -137,8 +137,14 @@ export default function InfoPanel({ zone, item = null, hzone = null, serviceName
   const openItem = (id, title, info, kind = '', art = '') => (onOpen && id
     ? () => onOpen(info ? { id: `__info-${id}`, info: true, title, item: { id, title, item_type: kind, service_id: extSid, art: art && !art.startsWith('/api/art?') ? cachedArt(art) : art }, service: extSid, serviceName } : { id, title, item: id, service: extSid, serviceName })
     : null)
+  // The album's songs open as the album's page, with its Play, Shuffle and
+  // menu: the page knows it for an album, and how to play it, only from these.
+  const viewAlbum = onOpen && item?.id
+    ? () => onOpen({ id: item.id, title: meta.title || item.title, item: item.id, service: extSid, serviceName, kind: 'album',
+                     uri: meta.uri || item.uri || '', metadata: meta.metadata || item.metadata || '', art: headerArt, artist: meta.artist || item.artist || '' })
+    : null
   const albumRows = kind === 'album'
-    ? [{ label: t('desk.info.viewAllSongs'), more: true, act: openItem(item?.id, meta.title || item?.title, false) },
+    ? [{ label: t('desk.info.viewAllSongs'), more: true, act: viewAlbum },
        ...(meta.artist_id ? [{ label: t('desk.info.artistInfo'), more: true, act: openItem(meta.artist_id, meta.artist, true, 'artist') }] : [])]
     : []
   const stationUri = item ? (item.uri || '') : (transport.media_uri || '')

@@ -299,7 +299,7 @@ export function Shell() {
             onGroup={setGroupDialog} onRoomSettings={setRoomSettings} onSleep={() => setSleepOpen(true)} onPlayer={() => setPlayerOpen(true)}
             favorites={favorites} playlists={playlists} recent={recent} onPlayItem={playItem} onOpenFavorite={openFavorite} onBrowse={browseSource}
             onRooms={() => setSection('rooms')} onSearch={() => setSearch(true)}
-            onItemMenu={(item, sourceId, event) => setQuickMenu({ item, sourceId, x: event.clientX, y: event.clientY })} />
+            onItemMenu={(item, sourceId, event) => setQuickMenu({ item, sourceId, x: event.clientX, y: event.clientY, anchor: event.type === 'contextmenu' ? null : event.currentTarget })} />
   ) : section === 'browse' ? (
     <Browse {...common} groups={groups} roomGroups={visibleGroups} onSelectRoom={select} roomChosen={Boolean(activeId)}
             servicesByHh={services.byHousehold} servicesRaw={services.raw} libraryByHh={libraryByHh} accountChoice={accountChoice} pickAccount={pickAccount}
@@ -466,7 +466,7 @@ export function Shell() {
       {shortcuts && <ShortcutsSheet onClose={() => setShortcuts(false)} />}
       {confirm && <Confirm title={confirm.title} body={confirm.body} action={confirm.action} onConfirm={() => { setConfirm(null); confirm.onConfirm() }} onClose={() => setConfirm(null)} />}
       {quickMenu && (
-        <Menu x={quickMenu.x} y={quickMenu.y} onClose={() => setQuickMenu(null)} title={quickMenu.item.title}>
+        <Menu x={quickMenu.x} y={quickMenu.y} anchor={quickMenu.anchor || null} align="right" onClose={() => setQuickMenu(null)} title={quickMenu.item.title}>
           <MenuItem icon={<I.Play />} onSelect={() => { setQuickMenu(null); playItem(quickMenu.item, quickMenu.sourceId, 'now') }}>{t('desk.actions.playNow')}</MenuItem>
           {isQueueable(quickMenu.item) && (
             <>

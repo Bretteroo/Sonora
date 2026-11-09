@@ -271,8 +271,16 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
   // --- acting ---------------------------------------------------------------
   const openMenu = (item, event, extra = {}) => {
     event?.stopPropagation?.()
-    const anchor = event?.currentTarget?.closest?.('[data-item]') || null
-    setMenu({ item: { ...item, ...extra }, x: event?.clientX, y: event?.clientY, anchor: event?.type === 'contextmenu' ? null : anchor })
+    // A "..." button holds the menu under itself, its right edge on the
+    // button's; a right-click opens it at the pointer, and a row opened from
+    // the keyboard under the row. Anchored to the row from its button, the
+    // menu opened at the row's far left, away from what was pressed.
+    const target = event?.currentTarget
+    const row = target?.closest?.('[data-item]') || null
+    const button = target?.matches?.('button') && target !== row && event?.type !== 'contextmenu' ? target : null
+    const pointed = Boolean(event?.clientX || event?.clientY)
+    setMenu({ item: { ...item, ...extra }, x: event?.clientX, y: event?.clientY,
+              anchor: button || (pointed ? null : row), align: button ? 'right' : 'left' })
   }
   const serviceOf = (item) => item.service ?? node.service ?? scope?.id ?? null
   const [menuFavorites, setMenuFavorites] = useState({ hzone: '', items: [] })
@@ -679,7 +687,7 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
           ))}
         </Menu>
       )}
-      {menu && <ActionMenu item={menu.item} x={menu.x} y={menu.y} anchor={menu.anchor} onClose={() => setMenu(null)} onAct={(how) => act(menu.item, how)}
+      {menu && <ActionMenu item={menu.item} x={menu.x} y={menu.y} anchor={menu.anchor} align={menu.align} onClose={() => setMenu(null)} onAct={(how) => act(menu.item, how)}
                            canUnselect={checked.size > 0} saved={savedFavorite} t={t} />}
       {addTo && <AddToPlaylistSheet picks={addTo.picks} source={addTo.source} hzone={addTo.hzone} onClose={() => setAddTo(null)} onMessage={onMessage} />}
       {naming?.kind === 'favorite' && (
@@ -992,7 +1000,6 @@ function ItemRow({ item, node, t, displayTypes = {}, place = false, onDelete, nu
 }
 
 function ItemCard({ item, node, t, displayTypes = {}, onOpen, onPlay, onMenu, onDelete }) {
-  const container = item.is_container && !isPlayableLeaf(item)
   const favorite = item.kind === 'favorite'
   const unavailable = favorite && item.available === false
   const sub = subtitleOf(item, node, t, displayTypes)
@@ -1015,7 +1022,6 @@ function ItemCard({ item, node, t, displayTypes = {}, onOpen, onPlay, onMenu, on
       <span className="mg-tile-title">{titleText}{item.explicit && <I.Explicit className="mg-explicit" role="img" aria-label={t('common.explicit')} />}</span>
       {sub && <span className="mg-tile-sub">{sub}</span>}
       <span className="mg-tile-tools" onClick={(event) => event.stopPropagation()}>
-        {container && !dead && <span className="mg-tile-chev" aria-hidden="true"><I.Chevron /></span>}
         <IconButton size="xs" variant="tonal" label={t('desk.browse.actions')} onClick={onMenu}><I.More /></IconButton>
       </span>
     </div>
@@ -1146,10 +1152,10 @@ export function ServiceGrid({ services, onPick, t }) {
 // The row menu, shaped by what the row is: a track offers the queue and the
 // adds; a station only Play Now and the favorite; a Sonos Favorite its
 // rename and removal; a Sonos Playlist its rename and deletion.
-function ActionMenu({ item, x, y, anchor, onClose, onAct, canUnselect, saved = null, t }) {
+function ActionMenu({ item, x, y, anchor, align, onClose, onAct, canUnselect, saved = null, t }) {
   if (item.root) {
     return (
-      <Menu x={x} y={y} anchor={anchor} onClose={onClose}>
+      <Menu x={x} y={y} anchor={anchor} align={align} onClose={onClose}>
         <MenuItem icon={<I.Play />} onSelect={() => onAct('now')}>{t('desk.actions.playNow')}</MenuItem>
       </Menu>
     )
@@ -1167,7 +1173,7 @@ function ActionMenu({ item, x, y, anchor, onClose, onAct, canUnselect, saved = n
   )
   if (item.playlist) {
     return (
-      <Menu x={x} y={y} anchor={anchor} onClose={onClose} title={title}>
+      <Menu x={x} y={y} anchor={anchor} align={align} onClose={onClose} title={title}>
         <MenuItem icon={<I.Play />} onSelect={() => onAct('now')}>{t('desk.actions.playNow')}</MenuItem>
         {queueRows}
         <MenuSep />
@@ -1182,7 +1188,7 @@ function ActionMenu({ item, x, y, anchor, onClose, onAct, canUnselect, saved = n
   }
   if (item.favorite) {
     return (
-      <Menu x={x} y={y} anchor={anchor} onClose={onClose} title={title}>
+      <Menu x={x} y={y} anchor={anchor} align={align} onClose={onClose} title={title}>
         {usable && <MenuItem icon={<I.Play />} onSelect={() => onAct('now')}>{t('desk.actions.playNow')}</MenuItem>}
         {usable && queueable && queueRows}
         {usable && <MenuSep />}
@@ -1199,7 +1205,7 @@ function ActionMenu({ item, x, y, anchor, onClose, onAct, canUnselect, saved = n
     )
   }
   return (
-    <Menu x={x} y={y} anchor={anchor} onClose={onClose} title={title}>
+    <Menu x={x} y={y} anchor={anchor} align={align} onClose={onClose} title={title}>
       {playable && <MenuItem icon={<I.Play />} onSelect={() => onAct('now')}>{t('desk.actions.playNow')}</MenuItem>}
       {playable && queueable && queueRows}
       {item.inPlaylist && <><MenuSep /><MenuItem icon={<I.Trash />} danger onSelect={() => onAct('removeFromPlaylist')}>{t('desk.playlists.removeSong')}</MenuItem></>}

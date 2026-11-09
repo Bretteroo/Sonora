@@ -1473,7 +1473,10 @@
     & .sv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 18px 16px; padding-top: 10px; }
     & .sv-tile { position: relative; display: grid; gap: 4px; align-content: start; cursor: pointer; min-width: 0; outline: none; }
     & .sv-tile-art { width: 100%; aspect-ratio: 1; border: 2px solid var(--sv-ph-line); }
-    & .sv-tile-art[data-round] { border-radius: 50%; }
+    /* A round cover rounds its own picture and the phosphor laid over it, so the play button
+       can stand over the edge of the circle instead of being cut off by it. */
+    & .sv-tile-art[data-round] { border-radius: 50%; overflow: visible; }
+    & .sv-tile-art[data-round] > :not(.sv-tile-play), & .sv-tile-art[data-round]::before, & .sv-tile-art[data-round]::after { border-radius: 50%; overflow: hidden; }
     & .sv-tile-art > svg { width: 50%; height: 50%; }
     & .sv-tile-play {
       position: absolute; right: 6px; bottom: 6px; z-index: 2; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; line-height: 0;

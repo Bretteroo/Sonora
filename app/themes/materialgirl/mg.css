@@ -176,7 +176,7 @@
   & :focus-visible { outline: 3px solid var(--mg-secondary); outline-offset: 2px; }
   /* Every control answers to at least 48 x 48dp (Material's minimum touch target), drawn smaller or
      not: an invisible square around the small ones, as Material's web components add. */
-  & :is(.mg-icon-btn-s, .mg-icon-btn-xs, .mg-icon-btn:not([class*='mg-icon-btn-m']):not([class*='mg-icon-btn-l']), .mg-chip-main, .mg-scope, .mg-crumb, .mg-tile-chev, :is(.mg-seg, .theme-pill) button, .mg-rail-systems button, .mg-btn-xs, .mg-btn-s)::after {
+  & :is(.mg-icon-btn-s, .mg-icon-btn-xs, .mg-icon-btn:not([class*='mg-icon-btn-m']):not([class*='mg-icon-btn-l']), .mg-chip-main, .mg-scope, .mg-crumb, :is(.mg-seg, .theme-pill) button, .mg-rail-systems button, .mg-btn-xs, .mg-btn-s)::after {
     content: ''; position: absolute; left: 50%; top: 50%; width: max(100%, 48px); height: max(100%, 48px); transform: translate(-50%, -50%);
   }
   & button { font: inherit; color: inherit; }
@@ -808,8 +808,12 @@
   & .mg-menu-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   & .mg-menu-gap { display: block; height: 1px; margin: 4px 12px; background: var(--mg-outline-variant); }
   & .mg-menu-item[data-checked] { border-radius: 12px; }
-  & .mg-menu[data-grouped] { display: flex; flex-direction: column; gap: 2px; padding: 0; background: none; box-shadow: none; }
-  & .mg-menu-group { padding: 4px; border-radius: 8px; background: var(--mg-surface-container-low); box-shadow: var(--mg-elev-2); }
+  /* The menu clips what it scrolls, so each section's own shadow was cut off
+     square at the menu's sides; a drop shadow on the whole menu follows the
+     sections' outline, gaps included, and is not clipped. */
+  & .mg-menu[data-grouped] { display: flex; flex-direction: column; gap: 2px; padding: 0; background: none; box-shadow: none;
+                             filter: drop-shadow(0 1px 1px var(--mg-shadow-30)) drop-shadow(0 2px 3px var(--mg-shadow-15)); }
+  & .mg-menu-group { padding: 4px; border-radius: 8px; background: var(--mg-surface-container-low); }
   & .mg-menu-group:first-child { border-top-left-radius: 16px; border-top-right-radius: 16px; }
   & .mg-menu-group:last-child { border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
   /* Never taller than the menu around it (560px less its 4px padding), or in a tall window both
@@ -1181,7 +1185,10 @@
   & .mg-tile-art > img, & .mg-tile-art > span:not(.mg-tile-play) { display: block; width: 100%; height: 100%; object-fit: cover; }
   & .mg-tile-art:has(> svg) { display: grid; place-items: center; color: var(--mg-on-surface-variant); }
   & .mg-tile-art > svg { width: 36%; height: 36%; }
-  & .mg-tile-art[data-round] { border-radius: 50%; }
+  /* A round cover clips its own picture, so the play button can stand over
+     the edge of the circle instead of being cut off by it. */
+  & .mg-tile-art[data-round] { border-radius: 50%; overflow: visible; }
+  & .mg-tile-art[data-round] > :not(.mg-tile-play) { border-radius: 50%; overflow: hidden; }
   & .mg-tile-glyph { display: grid; place-items: center; width: 100%; height: 100%; color: var(--mg-on-surface-variant); }
   & .mg-tile-play { position: absolute; right: 10px; bottom: 10px; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 16px; background: var(--mg-primary); color: var(--mg-on-primary); box-shadow: var(--mg-elev-2);
     opacity: 0; transform: scale(0.6) rotate(-30deg); transition: opacity 200ms var(--mg-effects), transform 450ms var(--mg-spring-fast), border-radius 350ms var(--mg-spring-fast); }
@@ -1192,8 +1199,7 @@
   & .mg-tile-sub { font-size: 14px; line-height: 20px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
   & .mg-tile-tools { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; opacity: 0; transition: opacity 150ms var(--mg-effects-fast); }
   & .mg-tile:hover .mg-tile-tools, & .mg-tile:focus-within .mg-tile-tools { opacity: 1; }
-  & .mg-tile-chev { position: relative; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--mg-secondary-container); color: var(--mg-on-secondary-container); }
-  & .mg-tile-chev svg { width: 18px; height: 18px; }
+  & .mg-tile-tools .mg-icon-btn { box-shadow: var(--mg-elev-2); }
   & .mg-tile[aria-disabled='true'] { opacity: 0.5; cursor: default; }
   & .mg-tile[data-dead] { opacity: 0.45; cursor: default; }
 

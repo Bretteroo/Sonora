@@ -17,6 +17,7 @@ import * as I from './icons.jsx'
 import { IconButton, Button, SplitButton, Menu, MenuItem, MenuSep, Confirm, Empty, Busy, Sheet, SheetBar, Chip, SearchBar,
          TextField, ListItem, ShapeArt, SystemPicker, cx, Skeleton, PageTitle } from './m3.jsx'
 import { KIND_SHAPES, SHAPES } from './shapes.js'
+import { withShuffle, withoutShuffle } from './Player.jsx'
 import { useBrowsePage, useSources, searchScopesOf, playItems, isQueueable, genericArt, describeFavorite, serviceLabelFor,
          TUNEIN_ICONS, readStored, writeStored, VIEW_KEY, householdOf, useSpeakerUpdates, favoriteTarget } from './data.js'
 import { updateBody } from '../../frontend/src/lib/version.js'
@@ -373,6 +374,12 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
                             { uri: node.uri, metadata: node.metadata || '', service: node.service,
                               ...(activeZone?.local ? { from_zone: node.hzone } : {}), replace: true })
   }
+  // The page's shuffle key only turns the room's shuffle on or off, as the
+  // player's does; playing the album shuffled is Shuffle under Play.
+  const playMode = activeZone?.transport?.play_mode || 'NORMAL'
+  const shuffled = playMode.startsWith('SHUFFLE')
+  const canShuffle = Boolean(activeZone && !activeZone.local) && activeZone.transport?.can_shuffle !== false
+  const toggleShuffle = () => actions.setPlayMode(activeZone.uuid, shuffled ? withoutShuffle(playMode) : withShuffle(playMode))
   const albumItem = () => ({ id: `${node.id}#album`, title: node.title, uri: node.uri, metadata: node.metadata || '', art: node.art, artist: node.artist,
                              is_container: true, item_type: node.kind, hzone: node.hzone, service: node.service })
   const toggleCheck = (id) => setChecked((prev) => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next })
@@ -567,6 +574,7 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
             <>
               <PageHead node={node} caution={caution} liveAccount={liveAccount} page={page} t={t} onLinkService={onLinkService}
                         isCollection={isCollection} onPlay={() => playAlbum(false)} onShuffle={() => playAlbum(true)} onAct={(how) => act(albumItem(), how)}
+                        shuffled={shuffled} canShuffle={canShuffle} onToggleShuffle={toggleShuffle}
                         onMenu={(event) => openMenu(albumItem(), event)} count={items.length} />
               {page.error && <p className="mg-error">{page.error}</p>}
               {page.loading && <Skeleton label={t('desk.browse.loading')} kind="list" rows={6} />}
@@ -801,7 +809,7 @@ function SourceCards({ sections, onOpen, onAccounts, onAdd, opened, onFold, addH
   )
 }
 
-function PageHead({ node, caution, liveAccount, page, t, onLinkService, isCollection, onPlay, onShuffle, onAct, onMenu, count }) {
+function PageHead({ node, caution, liveAccount, page, t, onLinkService, isCollection, onPlay, onShuffle, onAct, onMenu, count, shuffled, canShuffle, onToggleShuffle }) {
   const Glyph = GLYPHS[node.glyph] || I.Note
   return (
     <>
@@ -823,7 +831,7 @@ function PageHead({ node, caution, liveAccount, page, t, onLinkService, isCollec
                   </>
                 )}
               </SplitButton>
-              <IconButton variant="tonal" size="m" label={t('common.shuffle')} onClick={onShuffle}><I.Shuffle /></IconButton>
+              <IconButton variant="toggle" size="m" label={t('common.shuffle')} selected={shuffled} disabled={!canShuffle} onClick={onToggleShuffle}><I.Shuffle /></IconButton>
               <IconButton variant="outlined" size="m" label={t('desk.browse.actions')} onClick={onMenu}><I.More /></IconButton>
             </div>
           </div>

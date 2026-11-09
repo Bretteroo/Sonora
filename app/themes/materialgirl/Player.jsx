@@ -29,12 +29,12 @@ function hms(seconds) {
   const pad = (n) => String(n).padStart(2, '0')
   return `${Math.floor(total / 3600)}:${pad(Math.floor((total % 3600) / 60))}:${pad(total % 60)}`
 }
-function withShuffle(mode) {
+export function withShuffle(mode) {
   if (mode.includes('REPEAT_ONE')) return 'SHUFFLE_REPEAT_ONE'
   if (mode.includes('REPEAT_ALL')) return 'SHUFFLE'
   return 'SHUFFLE_NOREPEAT'
 }
-function withoutShuffle(mode) {
+export function withoutShuffle(mode) {
   if (mode === 'SHUFFLE_REPEAT_ONE') return 'REPEAT_ONE'
   if (mode === 'SHUFFLE') return 'REPEAT_ALL'
   return 'NORMAL'

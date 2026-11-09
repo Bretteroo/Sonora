@@ -428,11 +428,11 @@ function pages(fetchPage, size = PAGE) {
     },
     // Carry on from a run of rows read before, rows `from` to `from` +
     // rows.length, as though they had just been read.
-    resume(from, rows, total) {
+    resume(from, rows, total, ended = null) {
       seen = new Set(rows.map(key).filter((k) => k != null))
       top = from
       got = from + rows.length
-      done = got >= total
+      done = ended ?? got >= total
     },
   }
 }
@@ -459,7 +459,28 @@ export const browsePages = (objectId, { pageSize, ...options } = {}) =>
 // from what is in hand, with no request (`jumpTo` answers true then, and the
 // page has been delivered before it returns), and a run that grows into
 // another takes the other's rows on with it.
-export function followPages(pager, onPage, onError) {
+//
+// Given `remember` (the page being shown: its node, or a string naming it)
+// and a `stamp` (whatever would make the page worth reading again: an
+// account, a refresh count), what was read is kept, and a page returned to
+// with the same stamp is handed over at once from what is in hand, with no
+// request, and goes on paging from where it stopped. Going back to a page
+// asked the service for it all over again.
+const keptByNode = new WeakMap()
+const keptByName = new Map()
+const KEEP_NAMED = 40
+function keptFor(remember) {
+  if (remember == null) return null
+  return typeof remember === 'object' ? keptByNode.get(remember) : keptByName.get(remember)
+}
+function keepFor(remember, kept) {
+  if (typeof remember === 'object') { keptByNode.set(remember, kept); return }
+  keptByName.delete(remember)
+  keptByName.set(remember, kept)
+  if (keptByName.size > KEEP_NAMED) keptByName.delete(keptByName.keys().next().value)
+}
+
+export function followPages(pager, onPage, onError, { remember = null, stamp = '' } = {}) {
   let stopped = false
   let busy = false
   let fresh = true
@@ -504,6 +525,8 @@ export function followPages(pager, onPage, onError) {
       }
       pager.resume(shown.from, shown.rows, total)
     }
+    // A page that failed is read again next time, not remembered.
+    if (remember != null && !(replacing && page.error)) keepFor(remember, { stamp, runs, shown, about, total, done: pager.done })
   }
   const run = (ask, where) => {
     busy = true
@@ -549,7 +572,18 @@ export function followPages(pager, onPage, onError) {
     run(() => pager.next(), 'after')
     return false
   }
-  more()
+  const kept = keptFor(remember)
+  if (kept && kept.stamp === stamp && kept.shown) {
+    runs.push(...kept.runs)
+    shown = kept.shown
+    about = kept.about
+    total = kept.total
+    fresh = false
+    pager.resume(shown.from, shown.rows, total, kept.done)
+    onPage({ ...about, items: [...shown.rows], offset: shown.from, total }, true, 'after')
+  } else {
+    more()
+  }
   return {
     more, earlier, jumpTo, stop: () => { stopped = true },
     get done() { return pager.done }, get top() { return pager.top },

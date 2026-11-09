@@ -45,7 +45,7 @@ function rowSub(row, displayTypes) {
 }
 
 export default function ServicePage({ sid, name, summary = '', zone, item, accountId = '',
-                                      preset = null,
+                                      preset = null, view = null,
                                       sonoraLinked = true, onSystem = true, gen, logo, accounts,
                                       auth = '', nickname = '', site = '',
                                       nav, onLink, onRemoved, refresh = 0, art = '', itemType = '',}) {
@@ -83,7 +83,7 @@ export default function ServicePage({ sid, name, summary = '', zone, item, accou
       else setState((prev) => ({ ...prev, items: [...(prev.items || []), ...(data.items ?? [])] }))
     }, (exc, first) => {
       if (!canceled && first) setState({ loading: false, error: { message: exc.message } })
-    })
+    }, { remember: view, stamp: `${refresh}` })
     following.current = follow
     return () => { canceled = true; follow.stop() }
   }, [sid, zone, item, accountId, refresh, preset])

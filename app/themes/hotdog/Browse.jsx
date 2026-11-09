@@ -5,6 +5,7 @@ import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { useSleepTimer, sleepClock } from '../../frontend/src/lib/useSleepTimer.js'
 import { useMyRadioStations } from '../../frontend/src/lib/myRadio.js'
 import { api, browsePages, browseServicePages, followPages } from '../../frontend/src/lib/api.js'
+import { useKeptScroll } from '../../frontend/src/lib/keptScroll.js'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
 import MoreRows from '../../frontend/src/components/MoreRows.jsx'
@@ -102,6 +103,8 @@ export default function Browse({
     // way back, as the app's lists do (TuneIn > iHeartRadio and back;
     // Local Radio after Pick a City, 2026-09-23). Local Radio is marked by
     // what it is, since its id is the location and changes with the city.
+    // The marked page is a copy, and `keptAs` names the page it copies, so
+    // what was kept for that page (its rows, its place) is found on Back.
     const deeper = nextStack.length > stack.length
       && stack.every((entry, index) => nextStack[index]?.id === entry.id)
     if (deeper) {
@@ -111,7 +114,7 @@ export default function Browse({
       // "featured:c100005513--<session>").
       const picked = into.localRadio ? '__local' : into.id
       nextStack = nextStack.map((entry, index) => (index === stack.length - 1
-        ? { ...entry, picked, pickedTitle: into.localRadio ? '' : into.title || '' } : entry))
+        ? { ...entry, picked, pickedTitle: into.localRadio ? '' : into.title || '', keptAs: entry.keptAs || entry } : entry))
     }
     setStack(nextStack)
   }
@@ -129,6 +132,8 @@ export default function Browse({
   const [libraryByHh, setLibraryByHh] = useState({})
   const scroller = useRef(null)
   const node = stack[stack.length - 1]
+  // A page opened starts at its top; one gone back to opens where it was left.
+  useKeptScroll(() => scroller.current, node.keptAs || node)
   // Whether a service keeps playlists of the account's own, per service and
   // account, asked when a song's menu first opens on it: the menu then
   // offers "Add to <service> (<account>) Playlist" as the app's does.
@@ -307,7 +312,6 @@ export default function Browse({
         setFailed(!result.error.needs_auth && !result.error.from_service)
       }
       setLoading(false)
-      if (scroller.current) scroller.current.scrollTop = 0
     }
     const follow = followPages(pager, (result, isFirst, where) => {
       if (canceled) return
@@ -326,7 +330,7 @@ export default function Browse({
       if (canceled || !isFirst) return
       setItems([]); setLoading(false)
       setError(exc?.message || t('notice.error.title')); setFailed(true)
-    })
+    }, { remember: node.keptAs || node, stamp: `${liveAccount}|${servicesVersion}|${refresh}` })
     following.current = follow
     return () => { canceled = true; follow.stop() }
   }, [node, servicesVersion, liveAccount, refresh, t])

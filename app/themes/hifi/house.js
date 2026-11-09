@@ -567,7 +567,7 @@ export function useBrowsePage(node, account, version = 0) {
     }, (exc, first) => {
       // A later page that fails leaves the rows already shown.
       if (!canceled && first) setState({ items: [], loading: false, error: exc?.message || 'Error', needsLink: false })
-    })
+    }, { remember: node, stamp: `${account}|${version}|${tick}` })
     following.current = follow
     return () => { canceled = true; follow.stop() }
   }, [node, account, version, tick])

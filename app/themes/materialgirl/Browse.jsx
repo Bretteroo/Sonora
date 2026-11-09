@@ -3,6 +3,7 @@ import { searchLibrary } from '../../frontend/src/lib/librarySearch.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { api } from '../../frontend/src/lib/api.js'
+import { useKeptScroll } from '../../frontend/src/lib/keptScroll.js'
 import { stationKey } from '../../frontend/src/lib/myRadio.js'
 import { isPlayableLeaf } from '../../frontend/src/lib/items.js'
 import { groupName } from '../../frontend/src/lib/format.js'
@@ -74,7 +75,9 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
     return next
   })
   const scroller = useRef(null)
-  useEffect(() => { setChecked(new Set()); setMenu(null); if (scroller.current) scroller.current.scrollTop = 0 }, [node])
+  useEffect(() => { setChecked(new Set()); setMenu(null) }, [node])
+  // A page opened starts at its top; one gone back to opens where it was left.
+  useKeptScroll(() => scroller.current, node)
   useEffect(() => { writeStored(VIEW_KEY, view) }, [view])
 
   const speakerUpdates = useSpeakerUpdates(households)

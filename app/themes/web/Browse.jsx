@@ -320,7 +320,7 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
   if (nav.view.kind === 'library') {
     return (
       <div className="wb-content wb-content-panel">
-        <LibraryPage item={nav.view.item} name={nav.view.name} uri={nav.view.uri ?? ''} metadata={nav.view.metadata ?? ''}
+        <LibraryPage view={nav.view} item={nav.view.item} name={nav.view.name} uri={nav.view.uri ?? ''} metadata={nav.view.metadata ?? ''}
                      zone={nav.view.zone ?? browseUuid} playZone={activeUuid} nav={nav} />
       </div>
     )
@@ -402,7 +402,7 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
   if (nav.view.kind === 'library-list') {
     return (
       <div className="wb-content wb-content-panel">
-        <ServiceListPage library
+        <ServiceListPage library view={nav.view}
           zone={nav.view.zone ?? browseUuid}
           item={nav.view.item}
           title={nav.view.name}
@@ -421,7 +421,7 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
   if (nav.view.kind === 'service-list') {
     return (
       <div className="wb-content wb-content-panel">
-        <ServiceListPage
+        <ServiceListPage view={nav.view}
           sid={nav.view.sid}
           zone={nav.view.zone ?? browseUuid}
           item={nav.view.item}
@@ -483,7 +483,7 @@ export default function Browse({ activeUuid, query, nav, systemFilter,
     const row = live ?? nav.view
     return (
       <div className="wb-content wb-content-panel">
-        <ServicePage
+        <ServicePage view={nav.view}
           sid={vsid}
           name={nav.view.name}
           summary={nav.view.summary || ''}

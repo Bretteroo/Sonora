@@ -32,7 +32,7 @@ const ROOT = [
   ['S:', 'foldersNode', Icon.Folder],
 ]
 
-export default function LibraryPage({ item = 'A:', name = '', uri = '', metadata = '', zone, playZone = '', nav }) {
+export default function LibraryPage({ item = 'A:', name = '', uri = '', metadata = '', zone, playZone = '', nav, view = null }) {
   const { t } = useI18n()
   const { actions } = useSystem()
   const [state, setState] = useState({ loading: true, items: [] })
@@ -50,7 +50,7 @@ export default function LibraryPage({ item = 'A:', name = '', uri = '', metadata
       if (canceled) return
       if (first) setState({ loading: false, items: data.items ?? [] })
       else setState((prev) => ({ ...prev, items: [...prev.items, ...(data.items ?? [])] }))
-    }, (exc, first) => { if (!canceled && first) setState({ loading: false, items: [], error: exc.message }) })
+    }, (exc, first) => { if (!canceled && first) setState({ loading: false, items: [], error: exc.message }) }, { remember: view })
     following.current = follow
     return () => { canceled = true; follow.stop() }
   }, [item, zone])

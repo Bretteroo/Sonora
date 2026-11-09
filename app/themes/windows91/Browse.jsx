@@ -6,6 +6,7 @@ import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { useSleepTimer, sleepClock } from '../../frontend/src/lib/useSleepTimer.js'
 import { useMyRadioStations } from '../../frontend/src/lib/myRadio.js'
 import { api } from '../../frontend/src/lib/api.js'
+import { useKeptScroll } from '../../frontend/src/lib/keptScroll.js'
 import { orderedHouseholds } from '../../frontend/src/lib/format.js'
 import * as Icon from '../../frontend/src/components/Icons.jsx'
 import { homeZone, playTarget } from '../../frontend/src/lib/browserRoom.js'
@@ -19,6 +20,11 @@ import { ScenesPage } from './Scenes.jsx'
 import { useScenes } from '../../frontend/src/lib/scenes.js'
 import { itemAccount } from '../../frontend/src/lib/itemAccount.js'
 import { versionLabel, updateBody } from '../../frontend/src/lib/version.js'
+
+// The rows of each page read, kept for going back to it: the page it was
+// returns as it was left, with no request, unless something since has asked
+// for it to be read again. Going back asked for every page over again.
+const keptPages = new WeakMap()
 
 // Whether a service can be searched: its capabilities carry the search bit.
 const canSearch = (svc) => ((svc.capabilities ?? 0) & 1) === 1
@@ -133,6 +139,8 @@ export default function Browse({
     // way back, as the app's lists do (TuneIn > iHeartRadio and back;
     // Local Radio after Pick a City, 2026-09-23). Local Radio is marked by
     // what it is, since its id is the location and changes with the city.
+    // The marked page is a copy, and `keptAs` names the page it copies, so
+    // what was kept for that page (its rows, its place) is found on Back.
     const deeper = nextStack.length > stack.length
       && stack.every((entry, index) => nextStack[index]?.id === entry.id)
     if (deeper) {
@@ -142,7 +150,7 @@ export default function Browse({
       // "featured:c100005513--<session>").
       const picked = into.localRadio ? '__local' : into.id
       nextStack = nextStack.map((entry, index) => (index === stack.length - 1
-        ? { ...entry, picked, pickedTitle: into.localRadio ? '' : into.title || '' } : entry))
+        ? { ...entry, picked, pickedTitle: into.localRadio ? '' : into.title || '', keptAs: entry.keptAs || entry } : entry))
     }
     setStack(nextStack)
   }
@@ -160,6 +168,8 @@ export default function Browse({
   const [libraryByHh, setLibraryByHh] = useState({})
   const scroller = useRef(null)
   const node = stack[stack.length - 1]
+  // A page opened starts at its top; one gone back to opens where it was left.
+  useKeptScroll(() => scroller.current, node.keptAs || node)
   // Whether a service keeps playlists of the account's own, per service and
   // account, asked when a song's menu first opens on it: the menu then
   // offers "Add to <service> (<account>) Playlist" as the app's does.
@@ -343,13 +353,26 @@ export default function Browse({
         setFailed(!result.error.needs_auth && !result.error.from_service)
       }
       setLoading(false)
-      if (scroller.current) scroller.current.scrollTop = 0
+    }
+    const stamp = `${liveAccount}|${servicesVersion}|${refresh}`
+    const kept = keptPages.get(node.keptAs || node)
+    if (kept && kept.stamp === stamp) {
+      setItems(kept.items); setDisplayTypes(kept.displayTypes)
+      setError(''); setNeedsLink(false); setFailed(false); setLoading(false)
+      // A window still on its way when the page was left never arrived, so
+      // only the windows whose rows are in hand count as read.
+      const asked = new Set()
+      kept.items.forEach((row, k) => { if (k % WINDOW === 0 && !row?.blank) asked.add(k) })
+      reading.current = { read, asked, live: () => !canceled }
+      return () => { canceled = true }
     }
     read(0).then((result) => {
       if (canceled) return
       const rows = result.items || []
       const total = result.error ? rows.length : Math.max(rows.length, result.total ?? rows.length)
-      first({ ...result, items: rows.length < total ? [...rows, ...blankRows(rows.length, total)] : rows })
+      const all = rows.length < total ? [...rows, ...blankRows(rows.length, total)] : rows
+      if (!result.error) keptPages.set(node.keptAs || node, { stamp, items: all, displayTypes: result.display_types || {} })
+      first({ ...result, items: all })
     }).catch((exc) => {
       if (canceled) return
       setItems([]); setLoading(false)
@@ -358,6 +381,11 @@ export default function Browse({
     reading.current = { read, asked: new Set([0]), live: () => !canceled }
     return () => { canceled = true }
   }, [node, servicesVersion, liveAccount, refresh, t])
+  // Windows read later go into the kept page too.
+  useEffect(() => {
+    const kept = keptPages.get(node.keptAs || node)
+    if (kept && items.length && kept.stamp === `${liveAccount}|${servicesVersion}|${refresh}`) kept.items = items
+  }, [items]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Naming the page after the system it will add to, so "Add Music Services"
   // becomes "Add S1 Music Services" once a system is settled on.

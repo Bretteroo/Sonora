@@ -75,7 +75,7 @@ export default function ServiceListPage({
   sid, zone, item, title, art = '', uri = '', metadata = '', serviceName = '',
   logo = null, itemType = '', summary = '', secondLine = '', artist = '', accountId = '',
   producer = '', semanticType = '',
-  playZone = '', onPlay, nav,
+  playZone = '', onPlay, nav, view = null,
   // A list from the household's music library rather than a service: read
   // off the speaker, drawn as the product draws Songs and an album there
   // (play.sonos.com, 2026-09-30) -- Title and Album columns, no service line.
@@ -117,7 +117,7 @@ export default function ServiceListPage({
       if (canceled) return
       if (first) setState({ items: data.items ?? [], loading: false, error: null })
       else setState((prev) => ({ ...prev, items: [...prev.items, ...(data.items ?? [])] }))
-    }, (exc, first) => { if (!canceled && first) setState({ items: [], loading: false, error: exc.message }) })
+    }, (exc, first) => { if (!canceled && first) setState({ items: [], loading: false, error: exc.message }) }, { remember: view })
     following.current = follow
     return () => { canceled = true; follow.stop() }
   }, [sid, zone, item, accountId, station, library])

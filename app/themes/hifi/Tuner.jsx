@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { api } from '../../frontend/src/lib/api.js'
+import { useKeptScroll } from '../../frontend/src/lib/keptScroll.js'
 import { stationKey } from '../../frontend/src/lib/myRadio.js'
 import { isPlayableLeaf } from '../../frontend/src/lib/items.js'
 import { groupName } from '../../frontend/src/lib/format.js'
@@ -70,14 +71,14 @@ export default function TunerUnit({ households, zones, groups, roomGroups, onSel
     return next
   })
   const scroller = useRef(null)
-  // A new page starts at its top. On a phone the page scrolls in the bay
-  // rather than in its own box, so the bay goes back to its top too.
-  useEffect(() => {
-    setChecked(new Set()); setMenu(null)
-    if (scroller.current) scroller.current.scrollTop = 0
-    const bay = scroller.current?.closest?.('.hf-bay')
-    if (bay) bay.scrollTop = 0
-  }, [node])
+  useEffect(() => { setChecked(new Set()); setMenu(null) }, [node])
+  // A page opened starts at its top; one gone back to opens where it was
+  // left. On a phone the page scrolls in the bay rather than in its own box.
+  useKeptScroll(() => {
+    const box = scroller.current
+    if (box && /auto|scroll/.test(getComputedStyle(box).overflowY)) return box
+    return box?.closest?.('.hf-bay') || box
+  }, node)
   useEffect(() => { writeStored(VIEW_KEY, view) }, [view])
   useEffect(() => {
     if (!sourcesOpen) return undefined

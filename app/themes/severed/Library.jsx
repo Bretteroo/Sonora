@@ -3,6 +3,7 @@ import { searchLibrary } from '../../frontend/src/lib/librarySearch.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { api } from '../../frontend/src/lib/api.js'
+import { useKeptScroll } from '../../frontend/src/lib/keptScroll.js'
 import { stationKey } from '../../frontend/src/lib/myRadio.js'
 import { isPlayableLeaf } from '../../frontend/src/lib/items.js'
 import { groupName } from '../../frontend/src/lib/format.js'
@@ -70,10 +71,9 @@ export default function Library({ households, zones, roomGroups, onSelectRoom, s
     return next
   })
   const top = useRef(null)
-  useEffect(() => {
-    setChecked(new Set()); setMenu(null)
-    top.current?.closest('.sv-crt-scroll')?.scrollTo?.({ top: 0 })
-  }, [node])
+  useEffect(() => { setChecked(new Set()); setMenu(null) }, [node])
+  // A page opened starts at its top; one gone back to opens where it was left.
+  useKeptScroll(() => top.current?.closest('.sv-crt-scroll'), node)
   useEffect(() => { writeStored(VIEW_KEY, view) }, [view])
   // The console's cursor-left key steps back up the path.
   useEffect(() => {

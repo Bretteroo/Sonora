@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
 import { SceneToast, SceneQuietAsk } from './Scenes.jsx'
@@ -18,6 +18,7 @@ import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
 import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import { useNavigation } from './useNavigation.js'
 import { api } from '../../frontend/src/lib/api.js'
+import { useKeptScroll } from '../../frontend/src/lib/keptScroll.js'
 import { tokens } from './tokens.js'
 import './web.css'
 import thumbnail from './thumbnail.webp'
@@ -107,15 +108,14 @@ function Shell() {
     setNowOpen(false)
     if (nav.view.kind !== 'search') nav.push({ kind: 'search' })
   }
-  // Every page starts at its top, a page opened and a page gone back to alike.
-  // They all draw into the one content element, so without this a page
-  // opened from halfway down a search began partway down its own list; the
-  // product opens a result at the top and returns to the top of the search on
-  // Back, with no position kept (play.sonos.com, 2026-09-22).
-  useLayoutEffect(() => {
-    const el = document.querySelector('.wb-content')
-    if (el) el.scrollTop = 0
-  }, [nav.view])
+  // A page opened starts at its top, and one gone back to opens where it was
+  // left. They all draw into the one content element, so without this a page
+  // opened from halfway down a search began partway down its own list. The
+  // product returns to the top on Back (play.sonos.com, 2026-09-22); Sonora
+  // keeps the place instead.
+  // A service's page and a list scroll in their own panel, the rest in the
+  // content element.
+  useKeptScroll(() => document.querySelector('.wb-content :is(.wb-service-page, .wb-list-page)') || document.querySelector('.wb-content'), nav.view)
 
   const sidebarRooms = useMemo(() => {
     // Sonofuture works the same rooms out for its own page; the rule lives in

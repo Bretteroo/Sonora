@@ -13,6 +13,7 @@ import { homeZone, playTarget } from '../../frontend/src/lib/browserRoom.js'
 import { CautionBadge, serviceCaution } from '../../frontend/src/components/CautionBadge.jsx'
 import { readLibraryPrefs, libraryRows } from '../../frontend/src/lib/libraryPrefs.js'
 import { libraryScope, searchLibrary } from '../../frontend/src/lib/librarySearch.js'
+import { sameSearch, localCategories, serviceAnswer, libraryAnswer } from '../../frontend/src/lib/searchChips.js'
 import { canEnqueue, isPlayableLeaf, providerIdOf } from '../../frontend/src/lib/items.js'
 import Art, { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
 import { Confirm } from './Dialogs.jsx'
@@ -639,39 +640,62 @@ export default function Browse({
     const term = query.trim()
     if (!scope || !term) { setSearch({ term: '', available: [], category: '', categories: [], loading: false, error: '' }); return undefined }
     let canceled = false
-    setSearch((prev) => ({ ...prev, loading: true, error: '' }))
+    // The scope bar names the categories the provider searches, and the
+    // "all" some of them declare is not one of them: the app's bar over
+    // Pandora reads Artists, Albums, Genres, Stations, Playlists, Songs, and
+    // opens on the first (the core does the same -- SearchViewModel.
+    // UpdateCategories sets its index to 0). The picked tab is kept where the
+    // service has it.
+    const tabsOf = (offered) => (offered || []).filter((cat) => cat.id !== 'all')
+    const tabFor = (offered) => {
+      const tabs = tabsOf(offered)
+      return tabs.some((cat) => cat.id === pickedCategory) ? pickedCategory : (tabs[0]?.id || '')
+    }
+    const show = (state, tab, rows) => ({ ...state, available: tabsOf(state.offered), category: tab, picked: tab, categories: rows, loading: false })
+    // A tab filters what the search already found (lib/searchChips.js): a
+    // new term is searched in every category at once, and only a tab that
+    // answer does not cover is asked for on its own, once. The app asks for
+    // each tab as it is shown.
+    const same = sameSearch(search, term, scope)
+    if (same) {
+      const tab = scope.library ? pickedCategory : tabFor(search.offered)
+      const local = localCategories(search, scope, tab)
+      if (local) {
+        setSearch((prev) => (scope.library ? { ...prev, categories: local, category: tab || prev.category, loading: false } : show(prev, tab, local)))
+        return undefined
+      }
+    }
+    // Another tab drops the last one's rows at once, so they never stand
+    // under the new tab's name; a changed term keeps them, as typing does.
+    setSearch((prev) => ({ ...prev, loading: true, error: '', ...(same ? { categories: [] } : {}) }))
     const timer = setTimeout(() => {
       if (scope.library) {
         searchLibrary({ zone: scope.hzone, term, picked: pickedCategory, t })
-          .then((result) => { if (!canceled) setSearch({ term, loading: false, error: '', ...result }) })
+          .then((result) => { if (!canceled) setSearch((prev) => libraryAnswer(prev, { q: term, scope, picked: pickedCategory, result })) })
           .catch((exc) => { if (!canceled) setSearch({ term, available: [], category: '', categories: [], loading: false, error: exc?.message || '' }) })
         return
       }
-      api.searchService(scope.id, { zone: scope.hzone, term, account: scope.account, category: pickedCategory })
-        .then((result) => {
-          if (canceled) return
-          // The scope bar names the categories the provider searches, and
-          // the "all" some of them declare is not one of them: the app's
-          // bar over Pandora reads Artists, Albums, Genres, Stations,
-          // Playlists, Songs, and opens on the first (the core does the
-          // same -- SearchViewModel.UpdateCategories sets its index to 0).
-          const available = (result.available || []).filter((cat) => cat.id !== 'all')
-          if (available.length && !available.some((cat) => cat.id === pickedCategory)) {
-            setPickedCategory(available[0].id)
-            return
-          }
-          setSearch({ term, available, loading: false,
-                      category: pickedCategory || available[0]?.id || '',
-                      categories: result.categories || [],
-                      // Results read their lines from the service's own
-                      // DisplayType map, the same one a browse page uses.
-                      displayTypes: result.display_types || {},
-                      error: result.error ? result.error.message : '' })
-        })
-        .catch((exc) => { if (!canceled) setSearch({ term, available: [], category: '', categories: [], loading: false, error: exc?.message || '' }) })
-    }, 450)
+      const fail = (exc) => { if (!canceled) setSearch({ term, available: [], category: '', categories: [], loading: false, error: exc?.message || '' }) }
+      const ask = (category) => api.searchService(scope.id, { zone: scope.hzone, term, account: scope.account, category })
+      // Results read their lines from the service's own DisplayType map, the
+      // same one a browse page uses (serviceAnswer keeps it).
+      const answered = (prev, picked, result) => ({ ...serviceAnswer(prev, { q: term, scope, picked, result }), offered: result.available || prev.offered || [] })
+      const asked = same && search.offered ? tabFor(search.offered) : ''
+      ask(asked).then((result) => {
+        if (canceled) return
+        const next = answered(same ? search : {}, asked, result)
+        const tab = tabFor(next.offered)
+        if (result.error) { setSearch({ ...next, available: tabsOf(next.offered), category: tab }); return }
+        const local = localCategories(next, scope, tab)
+        if (local) { setSearch(show(next, tab, local)); if (tab !== pickedCategory) setPickedCategory(tab); return }
+        // The tab is not in that answer: ask for it on its own.
+        setSearch({ ...next, available: tabsOf(next.offered), category: tab, categories: [], loading: true })
+        if (tab !== pickedCategory) { setPickedCategory(tab); return }
+        ask(tab).then((own) => { if (!canceled) setSearch((prev) => { const done = answered(prev, tab, own); return show(done, tab, own.categories || []) }) }, fail)
+      }, fail)
+    }, same ? 0 : 450)
     return () => { canceled = true; clearTimeout(timer) }
-  }, [query, scope, pickedCategory])
+  }, [query, scope, pickedCategory]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Which system's block carries "Add Music Services": the one the chosen
   // room is on, or the first on show when nothing is chosen. Hidden while a

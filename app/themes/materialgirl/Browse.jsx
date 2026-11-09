@@ -1,5 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { searchLibrary } from '../../frontend/src/lib/librarySearch.js'
+import { sameSearch, localCategories, localAnswer, serviceAnswer, libraryAnswer, kindOf } from '../../frontend/src/lib/searchChips.js'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { api } from '../../frontend/src/lib/api.js'
@@ -140,7 +141,13 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
     const q = term.trim()
     if (!scope || !q) { setSearch({ term: '', available: [], category: '', categories: [], loading: false, error: '' }); return undefined }
     let canceled = false
-    setSearch((prev) => ({ ...prev, loading: true, error: '' }))
+    // A chip filters what the search already found (lib/searchChips.js).
+    const local = sameSearch(search, q, scope) && localCategories(search, scope, pickedCategory)
+    if (local) { setSearch((prev) => localAnswer(prev, pickedCategory, local)); return undefined }
+    // Another chip picked drops the last answer at once: left in place while
+    // the new one loads, a song and its album stood under Albums, unlabeled,
+    // and read as one album twice. A changed term keeps it, as typing does.
+    setSearch((prev) => ({ ...prev, loading: true, error: '', ...(prev.picked === pickedCategory ? {} : { categories: [] }) }))
     const timer = setTimeout(() => {
       if (scope.all) {
         const targets = scopes.filter((s) => !s.all && !s.library)
@@ -164,17 +171,14 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
       }
       if (scope.library) {
         searchLibrary({ zone: scope.hzone, term: q, picked: pickedCategory, count: 30, t })
-          .then((result) => { if (!canceled) setSearch({ term: q, loading: false, error: '', ...result }) })
+          .then((result) => { if (!canceled) setSearch((prev) => libraryAnswer(prev, { q, scope, picked: pickedCategory, result })) })
           .catch((exc) => { if (!canceled) setSearch({ term: q, available: [], category: '', categories: [], loading: false, error: exc?.message || '' }) })
         return
       }
       api.searchService(scope.id, { zone: scope.hzone, term: q, account: scope.account, category: pickedCategory, count: 30 })
         .then((result) => {
           if (canceled) return
-          const available = result.available || []
-          setSearch({ term: q, available, loading: false, category: pickedCategory || available[0]?.id || '',
-                      categories: result.categories || [], displayTypes: result.display_types || {},
-                      error: result.error ? result.error.message : '' })
+          setSearch((prev) => serviceAnswer(prev, { q, scope, picked: pickedCategory, result }))
         })
         .catch((exc) => { if (!canceled) setSearch({ term: q, available: [], category: '', categories: [], loading: false, error: exc?.message || '' }) })
     }, 450)
@@ -947,7 +951,7 @@ function LetterBar({ index, label, loading }) {
   )
 }
 
-function ItemRow({ item, node, t, displayTypes = {}, place = false, onDelete, number = 0, checked, onCheck, selected, onOpen, onPlay, onMenu, reorder = null }) {
+function ItemRow({ item, node, t, displayTypes = {}, place = false, onDelete, number = 0, checked, onCheck, selected, onOpen, onPlay, onMenu, reorder = null, kindLabel = '' }) {
   const favorite = item.kind === 'favorite'
   const unavailable = favorite && item.available === false
   const container = item.is_container && !isPlayableLeaf(item)
@@ -956,7 +960,7 @@ function ItemRow({ item, node, t, displayTypes = {}, place = false, onDelete, nu
   const opens = ((container && !dead) || (favorite && Boolean(item.browse_id) && !unavailable)) && !place
   const radio = node.id === 'R:0/0' || node.id === 'R:0/1'
   const playlist = node.id === 'SQ:'
-  const sub = number ? '' : subtitleOf(item, node, t, displayTypes)
+  const sub = number ? '' : [kindLabel, subtitleOf(item, node, t, displayTypes)].filter(Boolean).join(' · ')
   const typed = number ? null : linesOf(item, displayTypes)
   const titleText = typed?.inline ? `${item.title} / ${typed.second}` : item.title
   const selectable = item.uri && !unavailable && !favorite && item.item_type !== 'audiobook' && isQueueable(item)
@@ -1037,7 +1041,7 @@ function ItemCard({ item, node, t, displayTypes = {}, onOpen, onPlay, onMenu, on
 }
 
 function interleaveCategories(categories) {
-  const lists = categories.map((c) => c.items || [])
+  const lists = categories.map((c) => (c.items || []).map((item) => ({ ...item, searchCategory: { id: c.id, title: c.title } })))
   const out = []
   for (let i = 0; lists.some((l) => i < l.length); i += 1) for (const l of lists) if (i < l.length) out.push(l[i])
   return out
@@ -1062,7 +1066,7 @@ function SearchResults({ search, scope, pickedCategory, onCategory, onOpen, onPl
             </h2>
             <div className="mg-rows">
               {items.slice(0, 6).map((item, index) => (
-                <ItemRow key={`${from.key}-${item.id}-${index}`} item={item} node={{ id: 'search' }} t={t} displayTypes={displayTypes}
+                <ItemRow key={`${from.key}-${item.id}-${index}`} item={item} node={{ id: 'search' }} t={t} displayTypes={displayTypes} kindLabel={kindOf(item, item.searchCategory, t)}
                          onOpen={(event) => (isPlayableLeaf(item) || !item.is_container ? onMenu(item, event, from) : onOpen(item, from))}
                          onPlay={item.uri ? () => onPlay(item, from) : null} onMenu={(event) => onMenu(item, event, from)} />
               ))}
@@ -1074,6 +1078,10 @@ function SearchResults({ search, scope, pickedCategory, onCategory, onOpen, onPl
       </div>
     )
   }
+  // A service searched with no chip picked answers in every category at once,
+  // so no chip is lit; the library always answers in one, the first unless
+  // another is picked.
+  const shownCategory = pickedCategory || (scope?.library ? search.category : '')
   return (
     <div className="mg-results">
       <p className="mg-overline">{t('desk.search.in', { service: scope?.name || '' })}</p>
@@ -1081,7 +1089,7 @@ function SearchResults({ search, scope, pickedCategory, onCategory, onOpen, onPl
       {search.available.length > 0 && (
         <div className="mg-chips">
           {search.available.map((cat) => (
-            <Chip key={cat.id} selected={cat.id === (pickedCategory || search.category)} onClick={() => onCategory(cat.id)}>{categoryLabel(cat, t)}</Chip>
+            <Chip key={cat.id} selected={cat.id === shownCategory} onClick={() => onCategory(cat.id === pickedCategory ? '' : cat.id)}>{categoryLabel(cat, t)}</Chip>
           ))}
         </div>
       )}
@@ -1091,7 +1099,7 @@ function SearchResults({ search, scope, pickedCategory, onCategory, onOpen, onPl
       {search.categories.map((cat) => (
         <div key={cat.id} className="mg-rows">
           {cat.items.map((item, index) => (
-            <ItemRow key={`${cat.id}-${item.id}-${index}`} item={item} node={{ id: 'search' }} t={t} displayTypes={search.displayTypes}
+            <ItemRow key={`${cat.id}-${item.id}-${index}`} item={item} node={{ id: 'search' }} t={t} displayTypes={search.displayTypes} kindLabel={shownCategory ? '' : kindOf(item, cat, t)}
                      onOpen={(event) => (isPlayableLeaf(item) || !item.is_container ? onMenu(item, event) : onOpen(item))}
                      onPlay={item.uri ? () => onPlay(item) : null} onMenu={(event) => onMenu(item, event)} />
           ))}

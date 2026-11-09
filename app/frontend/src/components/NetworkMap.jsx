@@ -147,8 +147,11 @@ export function HealthDonut({ household }) {
   }
   const total = counts.good + counts.watch + counts.problem
   const r = 42
-  const length = 2 * Math.PI * r
-  let offset = 0
+  // Each share is its own open arc, clockwise from 12 o'clock. Dashes on one
+  // closed circle left the last share ending where the circle closes, and
+  // the browser joined it to the start: a wedge of it reached past 12.
+  const at = (turn) => [50 + r * Math.sin(2 * Math.PI * turn), 50 - r * Math.cos(2 * Math.PI * turn)]
+  let from = 0
   return (
     <figure className="nm-donut" role="img" aria-label={`${household?.generation || ''}: ${healthSummary(household, t)}`}>
       <svg viewBox="0 0 100 100" aria-hidden="true">
@@ -156,14 +159,16 @@ export function HealthDonut({ household }) {
         {total > 0 && DONUT_LEVELS.map(({ level, color }) => {
           const share = counts[level] / total
           if (!share) return null
-          const dash = share * length
-          const arc = (
-            <circle key={level} cx="50" cy="50" r={r} fill="none" stroke={color} strokeWidth="12"
-                    strokeDasharray={`${dash} ${length - dash}`} strokeDashoffset={-offset}
-                    transform="rotate(-90 50 50)" data-level={level} />
+          if (share >= 1) {
+            return <circle key={level} cx="50" cy="50" r={r} fill="none" stroke={color} strokeWidth="12" data-level={level} />
+          }
+          const [x0, y0] = at(from)
+          const [x1, y1] = at(from + share)
+          from += share
+          return (
+            <path key={level} fill="none" stroke={color} strokeWidth="12" data-level={level}
+                  d={`M ${x0} ${y0} A ${r} ${r} 0 ${share > 0.5 ? 1 : 0} 1 ${x1} ${y1}`} />
           )
-          offset += dash
-          return arc
         })}
         <text x="50" y="42" className="nm-donut-name">{household?.generation || ''}</text>
         <text x="50" y="65" className="nm-donut-count">{total}</text>

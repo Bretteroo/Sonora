@@ -104,6 +104,52 @@ def test_a_station_that_faulted_is_not_asked_again(monkeypatch):
     assert len(calls) == 1
 
 
+def test_a_station_that_faulted_still_has_its_tracks_asked_about():
+    """AccuRadio faults on its station ids and answers for every track
+    (2026-11-11): a fault on the station must not quiet its tracks."""
+    from backend.sonos import controller as module
+
+    asked = []
+
+    async def answer(*, item_id, **_kw):
+        asked.append(item_id)
+        if item_id.startswith("user_channel:"):
+            raise SmapiError("AccuRadio", "Server.TypeError", "'NoneType' object has no attribute '__getitem__'")
+        return SimpleNamespace(art="http://cdn.example/cover.jpg", explicit=None)
+
+    service = SimpleNamespace(auth="Anonymous", endpoint="https://x", name="AccuRadio")
+    station = "x-sonosapi-radio:user_channel%3A5eb0?sid=188&flags=8300&sn=48"
+    ctl = module.SonosController.__new__(module.SonosController)
+    ctl._art_faults = {}
+    ctl.household_of = lambda _uuid: SimpleNamespace(id="H")
+    ctl.credentials_for = lambda *a, **k: {}
+    ctl.smapi = SimpleNamespace(get_media_metadata=answer)
+
+    async def by_id(_h, _sid):
+        return service
+
+    async def serial(_h):
+        return "S"
+
+    async def publish(_state):
+        return None
+    ctl._service_by_id = by_id
+    ctl.device_serial = serial
+    ctl._publish_zone = publish
+
+    def state(uri):
+        return SimpleNamespace(uuid="Z", name="Office", transport=SimpleNamespace(
+            service_id=188, media_uri=station, track_uri=uri, provider_art_uri="", explicit=None))
+
+    asyncio.run(ctl._resolve_provider_art(state(station), station, "user_channel:5eb0"))
+    asyncio.run(ctl._resolve_provider_art(state(station), station, "user_channel:5eb0"))
+    song = "x-sonosprog-http:song%3a69a0.mp4?sid=188&flags=8224&sn=48"
+    playing = state(song)
+    asyncio.run(ctl._resolve_provider_art(playing, song))
+    assert asked == ["user_channel:5eb0", "song:69a0"]
+    assert playing.transport.provider_art_uri == "http://cdn.example/cover.jpg"
+
+
 def test_shuffle_and_repeat_go_where_the_speaker_says():
     """Measured the same day: only a queue (Plex, Mixcloud) took shuffle,
     repeat or repeat-one, and only a queue announced them."""

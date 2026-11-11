@@ -1048,6 +1048,8 @@ class SonosController:
         """
         transport = state.transport
         sid = transport.service_id
+        # Asked about the station itself rather than its playing track.
+        asks_station = bool(item_id)
         item_id = item_id or smapi_item_id(track_uri)
         household = self.household_of(state.uuid)
         if not sid or not item_id or household is None:
@@ -1057,8 +1059,13 @@ class SonosController:
         # per track change. Once a service faults on a
         # station it is not asked again for that station's tracks for a
         # while; a queue's tracks are each their own question.
+        # A fault on the station itself keeps its own window: AccuRadio
+        # faults on its station ids yet answers for every track
+        # (2026-11-11), and one window for both left a station's tracks
+        # without covers for six hours after it was started.
         media = transport.media_uri or ""
-        fault_key = (sid, track_uri if not media or media.startswith("x-rincon-queue:") else media)
+        fault_key = (sid, track_uri if not media or media.startswith("x-rincon-queue:") else media,
+                     asks_station)
         if self._art_faults.get(fault_key, 0) > monotonic():
             return
         try:

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { MarqueeProvider, MarqueeText } from '../../frontend/src/lib/marquee.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
-import { formatDuration } from '../../frontend/src/lib/format.js'
+import { formatDuration, parseDuration } from '../../frontend/src/lib/format.js'
 import { useElapsed } from '../../frontend/src/lib/useElapsed.js'
 import { useSleepTimers, clockText } from '../../frontend/src/lib/useSleepTimer.js'
 import Art, { nowPlayingArt, cachedArt } from '../../frontend/src/components/Art.jsx'
@@ -65,12 +65,33 @@ export function useModes(zone) {
   }
 }
 
-// How far into the track, as a whole percent, for the screen's heading.
-export function useProgress(zone) {
+// What the screen's heading reports as complete. A queue of more than one song is measured as a
+// whole, by time: the lengths of the songs behind the playing one, plus how far into it the room
+// is, over the length of the whole queue. The speakers give no length for a music library's songs
+// until they play, so a row without one is taken to run as long as the average of the rows that
+// have one. Without the queue's rows in hand (a queue longer than the page reads, or one still
+// loading) every song counts the same. One song on its own, a station's song that has a length,
+// and a shuffled queue (whose playing order the speaker does not tell) are measured by the song.
+// A broadcast has no length to measure, so it reads as live.
+export function useProgress(zone, queue) {
   const tr = zone?.transport || {}
   const { elapsed, duration, live } = useElapsed(tr)
-  if (!duration || live) return null
-  return Math.max(0, Math.min(100, Math.floor((elapsed / duration) * 100)))
+  if (live) return { live: isLoaded(tr), pct: 0 }
+  const part = duration ? Math.max(0, Math.min(1, elapsed / duration)) : 0
+  const at = Number(tr.track_number) || 0
+  const length = Number(tr.queue_length) || 0
+  const shuffled = (tr.play_mode ?? 'NORMAL').startsWith('SHUFFLE')
+  const whole = tr.source === 'queue' && length > 1 && at >= 1 && at <= length && !shuffled
+  if (!whole) return { live: false, pct: Math.floor(part * 100) }
+  const rows = queue?.items?.length === length && queue.total === length ? queue.items : null
+  const known = rows ? rows.map((row, index) => (index === at - 1 && duration) || parseDuration(row.duration) || 0) : []
+  const timed = known.filter(Boolean)
+  if (!timed.length) return { live: false, pct: Math.floor(((at - 1 + part) / length) * 100) }
+  const mean = timed.reduce((sum, seconds) => sum + seconds, 0) / timed.length
+  const lengths = known.map((seconds) => seconds || mean)
+  const behind = lengths.slice(0, at - 1).reduce((sum, seconds) => sum + seconds, 0)
+  const total = lengths.reduce((sum, seconds) => sum + seconds, 0)
+  return { live: false, pct: Math.floor(((behind + part * lengths[at - 1]) / total) * 100) }
 }
 
 // The progress bar, which also seeks. Inert where the track refuses Seek; a live stream shows

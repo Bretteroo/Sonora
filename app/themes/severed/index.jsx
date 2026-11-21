@@ -268,7 +268,7 @@ export function Shell() {
   const modes = useModes(activeZone)
   // Lyrics on or off: one switch for the key on the console and the button on the screen.
   const lyrics = useLyricsOpen()
-  const progress = useProgress(activeZone)
+  const progress = useProgress(activeZone, queue)
   useEffect(() => { setQueueEdited(false) }, [activeZone?.uuid])
 
   const say = useCallback((text) => {
@@ -814,7 +814,7 @@ export function Shell() {
             <header className="sv-crt-head">
               <span className="sv-crt-room">{activeZone ? groupLabel : t('desk.browse.selectRoom')}</span>
               <span className="sv-crt-program">{t(`sv.prog.${program}`)}</span>
-              <span className="sv-crt-complete">{t('sv.complete', { pct: progress ?? 0 })}</span>
+              <span className="sv-crt-complete">{progress.live ? t('common.live') : t('sv.complete', { pct: progress.pct })}</span>
               <button type="button" className="sv-crt-mark" onClick={() => setAbout(true)} title={t('about.menu')} aria-label={t('about.menu')}>
                 <i className="sv-crt-logo" aria-hidden="true" style={{ '--sv-logo': `url(${logo})` }} />Sonora
               </button>

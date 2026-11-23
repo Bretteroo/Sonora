@@ -835,6 +835,7 @@ export default {
   'notice.cannotPlay.connect': 'The speaker could not reach it.',
   'notice.cannotPlay.refused': 'The service refused to play it.',
   'notice.cannotPlay.missing': 'It is no longer there.',
+  'notice.cannotPlay.streamLimit': 'This account is already playing on as many devices as its service allows. Stop it on one of them, then try again.',
   'notice.cannotPlay.permission': 'This account is not allowed to play it.',
   'notice.notPlaying.title': 'Nothing started playing',
   'notice.notPlaying.detail': '{room} accepted Play but stopped again. Its current source could not be played; choose something else from the music pane.',

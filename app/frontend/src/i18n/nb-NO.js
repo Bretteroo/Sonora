@@ -925,6 +925,7 @@ export default {
   'notice.cannotPlay.connect': 'Høyttaleren fikk ikke kontakt med den.',
   'notice.cannotPlay.refused': 'Tjenesten nektet å spille det av.',
   'notice.cannotPlay.missing': 'Det finnes ikke lenger.',
+  'notice.cannotPlay.streamLimit': 'Denne kontoen spiller allerede på så mange enheter som tjenesten tillater. Stopp den på én av dem, og prøv igjen.',
   'notice.cannotPlay.permission':
     'Denne kontoen har ikke lov til å spille det av.',
   'notice.notPlaying.title': 'Ingenting startet',

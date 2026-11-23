@@ -836,6 +836,7 @@ export default {
   'notice.cannotPlay.connect': '扬声器无法连接到它。',
   'notice.cannotPlay.refused': '服务拒绝播放。',
   'notice.cannotPlay.missing': '它已经不存在了。',
+  'notice.cannotPlay.streamLimit': '此账号已在其服务允许的最多设备上播放。请在其中一台设备上停止播放后再试。',
   'notice.cannotPlay.permission': '此账号无权播放。',
   'notice.notPlaying.title': '没有开始播放',
   'notice.notPlaying.detail': '{room} 接受了播放指令后又停了下来。当前来源无法播放；请在音乐面板里换一个。',

@@ -919,6 +919,7 @@ export default {
   'notice.cannotPlay.connect': 'De speaker kon het niet bereiken.',
   'notice.cannotPlay.refused': 'De dienst weigerde het af te spelen.',
   'notice.cannotPlay.missing': 'Het is er niet meer.',
+  'notice.cannotPlay.streamLimit': 'Dit account speelt al op zoveel apparaten als de dienst toestaat. Stop het op een daarvan en probeer het opnieuw.',
   'notice.cannotPlay.permission': 'Dit account mag het niet afspelen.',
   'notice.notPlaying.title': 'Er begon niets',
   'notice.notPlaying.detail':

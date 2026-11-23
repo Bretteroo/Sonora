@@ -1048,7 +1048,10 @@ class SonosCloud:
                 url, headers={"Origin": APP}, protocols=[MUSE_PROTOCOL],
                 heartbeat=30)
         except aiohttp.ClientError as exc:
-            raise CloudError(f"Could not open the Sonos websocket: {exc}") from exc
+            # The error's text carries the URL, and the URL the one-time ticket: name the
+            # failure by its status (or its kind) so the ticket never reaches the log.
+            why = getattr(exc, "status", None) or exc.__class__.__name__
+            raise CloudError(f"Could not open the Sonos websocket: {why}") from exc
 
 
 #: The content kinds the web app's add list filters by, in its order.

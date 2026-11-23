@@ -37,6 +37,7 @@ log = logging.getLogger(__name__)
 
 RECONNECT_MIN = 5.0
 RECONNECT_MAX = 300.0
+HEALTHY_S = 300  # a connection up this long counts as healthy when it drops
 REPLY_TIMEOUT = 20.0
 
 HOME_THEATER_PREFIX = "linein.homeTheater"
@@ -110,6 +111,7 @@ class MuseFeed:
     async def _run(self) -> None:
         delay = RECONNECT_MIN
         while True:
+            began = asyncio.get_running_loop().time()
             try:
                 await self._session()
                 delay = RECONNECT_MIN
@@ -122,6 +124,10 @@ class MuseFeed:
             except Exception as exc:  # noqa: BLE001 - keep the feed alive
                 self.last_error = str(exc) or exc.__class__.__name__
                 log.warning("muse feed: %s; retrying in %.0fs", self.last_error, delay)
+            # A feed that stayed up a good while before it dropped starts its retries over: Sonos
+            # closes a healthy connection now and then, and that is not a failure to back off from.
+            if asyncio.get_running_loop().time() - began >= HEALTHY_S:
+                delay = RECONNECT_MIN
             self.connected = False
             await asyncio.sleep(delay)
             delay = min(delay * 2, RECONNECT_MAX)

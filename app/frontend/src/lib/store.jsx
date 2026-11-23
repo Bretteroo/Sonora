@@ -26,6 +26,21 @@ const SystemContext = createContext(null)
 // differing reports before theirs is believed.
 const GROUP_VOLUME_HOLD_MS = 3000
 
+// The speakers scale a group's rooms from the levels they held when the
+// adjustment began, and begin a new adjustment after this long without one.
+const GROUP_VOLUME_GESTURE_MS = 1500
+
+// Where a room lands when its group's level moves from `g0` to `level`, having
+// been at `v0` when the adjustment began. Going up, a room covers the same
+// share of its own headroom as the group does of the group's; going down, it
+// keeps its share of the group's level. Measured on S2 speakers 2026-11-16.
+function groupScaled(v0, g0, level) {
+  const scaled = level >= g0
+    ? (g0 >= 100 ? v0 : v0 + (100 - v0) * (level - g0) / (100 - g0))
+    : v0 * level / g0
+  return Math.max(0, Math.min(100, Math.floor(scaled + 0.5)))
+}
+
 const initialState = {
   connected: false,
   loading: true,
@@ -58,6 +73,7 @@ const initialState = {
   // uuid -> { level, at } while a local change is outstanding
   pendingVolume: {},
   pendingGroupVolume: {},
+  groupGesture: {},
   notices: [],
   // A rescan has no percentage to report: discovery is a fixed multicast
   // listen followed by enrichment. What can be shown is that one is running,
@@ -106,20 +122,28 @@ function reducer(state, action) {
         // A fresh snapshot is authoritative, so outstanding local guesses go.
         pendingVolume: {},
         pendingGroupVolume: {},
+        groupGesture: {},
       }
     }
 
     case 'zone': {
       const incoming = stamped(action.data)
       const pending = state.pendingVolume[incoming.uuid]
-      // Ignore a stale volume from the speaker while our own change is in
-      // flight, otherwise a dragged slider jumps backwards.
-      let zone = pending && pending.level !== incoming.volume
-        ? { ...incoming, volume: pending.level }
-        : incoming
       const pendingVolume = { ...state.pendingVolume }
-      if (pending && pending.level === incoming.volume) {
-        delete pendingVolume[incoming.uuid]
+      // Ignore a stale volume from the speaker while our own change is in
+      // flight, otherwise a dragged slider jumps backwards. A level worked
+      // out from the group's (a guess) can be a step off where the speaker
+      // lands, so it also gives way with age, and what the speaker last said
+      // is kept for the moment it does.
+      let zone = incoming
+      if (pending) {
+        const over = pending.level === incoming.volume
+          || (pending.guess && Date.now() - pending.at > GROUP_VOLUME_HOLD_MS)
+        if (over) delete pendingVolume[incoming.uuid]
+        else {
+          zone = { ...incoming, volume: pending.level }
+          if (pending.guess) pendingVolume[incoming.uuid] = { ...pending, seen: incoming.volume }
+        }
       }
       // The same for a group's volume, which the speakers report on the
       // coordinator. A group can settle a step or two from the level asked
@@ -197,20 +221,64 @@ function reducer(state, action) {
         },
       }
 
-    case 'localGroupVolume':
+    case 'localGroupVolume': {
+      const lead = state.zones[action.uuid]
+      if (!lead) return state
+      const now = Date.now()
+      const zones = { ...state.zones, [action.uuid]: { ...lead, group_volume: action.level } }
+      const pendingVolume = { ...state.pendingVolume }
+      const groupGesture = { ...state.groupGesture }
+      // The rooms' own levels are moved along with the group's, to where the
+      // speakers will put them, so their sliders follow the drag instead of
+      // trailing it one report at a time.
+      const rooms = (state.groups.find((g) => g.coordinator === action.uuid)?.members || [])
+        .filter((uuid) => state.zones[uuid] && !state.zones[uuid].fixed_output && state.zones[uuid].volume != null)
+      if (rooms.length > 1) {
+        let gesture = groupGesture[action.uuid]
+        const same = gesture && rooms.length === Object.keys(gesture.base).length && rooms.every((uuid) => uuid in gesture.base)
+        if (!same || now - gesture.at > GROUP_VOLUME_GESTURE_MS) {
+          const base = Object.fromEntries(rooms.map((uuid) => [uuid, state.zones[uuid].volume]))
+          const mean = rooms.reduce((sum, uuid) => sum + base[uuid], 0) / rooms.length
+          gesture = { base, g0: lead.group_volume ?? Math.floor(mean + 0.5) }
+        }
+        groupGesture[action.uuid] = { ...gesture, at: now }
+        for (const uuid of rooms) {
+          const level = groupScaled(gesture.base[uuid], gesture.g0, action.level)
+          const before = pendingVolume[uuid]
+          zones[uuid] = { ...zones[uuid], volume: level }
+          pendingVolume[uuid] = { level, at: now, guess: true, seen: before?.guess ? before.seen : state.zones[uuid].volume }
+        }
+      }
       return {
         ...state,
-        zones: state.zones[action.uuid]
-          ? {
-              ...state.zones,
-              [action.uuid]: { ...state.zones[action.uuid], group_volume: action.level },
-            }
-          : state.zones,
+        zones,
+        pendingVolume,
+        groupGesture,
         pendingGroupVolume: {
           ...state.pendingGroupVolume,
-          [action.uuid]: { level: action.level, at: Date.now() },
+          [action.uuid]: { level: action.level, at: now },
         },
       }
+    }
+
+    // A group adjustment has been over for a while: any room still shown at
+    // a worked-out level goes to what its speaker last reported.
+    case 'settleGroupVolume': {
+      const gesture = state.groupGesture[action.uuid]
+      if (!gesture) return state
+      const now = Date.now()
+      const zones = { ...state.zones }
+      const pendingVolume = { ...state.pendingVolume }
+      let changed = false
+      for (const uuid of Object.keys(gesture.base)) {
+        const pending = pendingVolume[uuid]
+        if (!pending?.guess || now - pending.at < GROUP_VOLUME_HOLD_MS) continue
+        delete pendingVolume[uuid]
+        if (zones[uuid] && pending.seen != null) zones[uuid] = { ...zones[uuid], volume: pending.seen }
+        changed = true
+      }
+      return changed ? { ...state, zones, pendingVolume } : state
+    }
 
     case 'notice':
       // One at a time: the newest replaces the one before, the same words again included.
@@ -240,6 +308,9 @@ function reducer(state, action) {
 // listed keeps its own name rather than being flattened to "failed": a status
 // this does not know yet is still better read than hidden.
 function playbackReason(status) {
+  // A service that is already streaming to as many places as the account allows. Sonos names
+  // it per service (ERROR_SONOS_STREAM_LIMIT, and its kin), so it is told by its ending.
+  if (/_STREAM_LIMIT$/.test(status || '')) return 'notice.cannotPlay.streamLimit'
   return PLAYBACK_REASONS[status] || ''
 }
 
@@ -289,6 +360,7 @@ export function SystemProvider({ children }) {
   useEffect(() => browserSleep.subscribe(() => dispatch({ type: 'sleep' })), [])
   const noticeId = useRef(0)
   const socketRef = useRef(null)
+  const settleTimers = useRef({})
 
   // The latest state for run(), which is memoised once.
   const stateRef = useRef(state)
@@ -491,6 +563,8 @@ export function SystemProvider({ children }) {
     },
     setGroupVolume: (uuid, level) => {
       dispatch({ type: 'localGroupVolume', uuid, level })
+      clearTimeout(settleTimers.current[uuid])
+      settleTimers.current[uuid] = setTimeout(() => dispatch({ type: 'settleGroupVolume', uuid }), GROUP_VOLUME_HOLD_MS + 50)
       return run(() => api.volume(uuid, level, true), { describe: 'notice.conflict.title', uuid })
     },
     nudgeVolume: (uuid, delta) => run(() => api.nudgeVolume(uuid, delta), { uuid }),

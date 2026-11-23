@@ -855,6 +855,7 @@ export default {
   'notice.cannotPlay.connect': 'スピーカーが接続できませんでした。',
   'notice.cannotPlay.refused': 'サービスが再生を拒否しました。',
   'notice.cannotPlay.missing': 'すでに存在しません。',
+  'notice.cannotPlay.streamLimit': 'このアカウントは、サービスが許可する台数のデバイスですでに再生中です。どれかで停止してから、もう一度お試しください。',
   'notice.cannotPlay.permission': 'このアカウントには再生の許可がありません。',
   'notice.notPlaying.title': '再生が始まりませんでした',
   'notice.notPlaying.detail':

@@ -923,6 +923,7 @@ export default {
   'notice.cannotPlay.connect': 'Högtalaren kunde inte nå det.',
   'notice.cannotPlay.refused': 'Tjänsten vägrade spela upp det.',
   'notice.cannotPlay.missing': 'Det finns inte längre kvar.',
+  'notice.cannotPlay.streamLimit': 'Det här kontot spelar redan på så många enheter som tjänsten tillåter. Stoppa det på någon av dem och försök igen.',
   'notice.cannotPlay.permission': 'Det här kontot får inte spela upp det.',
   'notice.notPlaying.title': 'Ingenting började spelas',
   'notice.notPlaying.detail':

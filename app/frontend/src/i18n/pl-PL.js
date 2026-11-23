@@ -938,6 +938,7 @@ export default {
   'notice.cannotPlay.connect': 'Głośnik nie mógł się z tym połączyć.',
   'notice.cannotPlay.refused': 'Serwis odmówił odtworzenia.',
   'notice.cannotPlay.missing': 'Tego już tam nie ma.',
+  'notice.cannotPlay.streamLimit': 'To konto gra już na tylu urządzeniach, na ile pozwala jego serwis. Zatrzymaj odtwarzanie na jednym z nich i spróbuj ponownie.',
   'notice.cannotPlay.permission':
     'To konto nie ma uprawnień do odtwarzania tej pozycji.',
   'notice.notPlaying.title': 'Nic nie zaczęło grać',

@@ -3,7 +3,7 @@ import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n, LANGUAGES } from '../../frontend/src/i18n/index.jsx'
 import { useTheme } from '../../frontend/src/lib/theme.jsx'
 import { api } from '../../frontend/src/lib/api.js'
-import { orderedHouseholds } from '../../frontend/src/lib/format.js'
+import { orderedHouseholds, logStamp } from '../../frontend/src/lib/format.js'
 import { zoneLabel } from '../../frontend/src/lib/timezones.js'
 import { useServiceLink } from '../../frontend/src/lib/useServiceLink.js'
 import { useNarrow, SF_NARROW } from '../../frontend/src/lib/useNarrow.js'
@@ -726,7 +726,7 @@ function LogPage() {
               <tbody>
                 {[...entries].reverse().map((e, i) => (
                   <tr key={i} data-level={e.level}>
-                    <td className="sf-mono">{new Date(e.time * 1000).toLocaleTimeString()}</td>
+                    <td className="sf-mono">{logStamp(e.time)}</td>
                     <td><span className="sf-level" data-level={e.level}>{e.level}</span></td>
                     <td className="sf-muted">{e.source}</td>
                     <td>{e.message}</td>

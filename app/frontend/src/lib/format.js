@@ -279,3 +279,10 @@ export function controllerTitle(households, systemFilter, t) {
   if (!visible.length) return t('desk.window.title')
   return t('desk.window.controller', { systems: visible.map((h) => h.generation).join(' · ') })
 }
+
+// When an entry in Sonora's error log happened: the time of day, then the date as MM/DD/YYYY.
+export function logStamp(seconds) {
+  const d = new Date(seconds * 1000)
+  const two = (n) => String(n).padStart(2, '0')
+  return `${d.toLocaleTimeString()} ${two(d.getMonth() + 1)}/${two(d.getDate())}/${d.getFullYear()}`
+}

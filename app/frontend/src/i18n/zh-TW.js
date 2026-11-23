@@ -836,6 +836,7 @@ export default {
   'notice.cannotPlay.connect': '喇叭無法連上它。',
   'notice.cannotPlay.refused': '服務拒絕播放。',
   'notice.cannotPlay.missing': '它已經不在了。',
+  'notice.cannotPlay.streamLimit': '這個帳號已在其服務允許的最多裝置上播放。請在其中一台裝置上停止播放後再試一次。',
   'notice.cannotPlay.permission': '這個帳號沒有播放權限。',
   'notice.notPlaying.title': '沒有開始播放',
   'notice.notPlaying.detail': '{room} 接受了播放指令後又停了下來。目前的來源無法播放；請在音樂面板中換一個。',

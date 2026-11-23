@@ -935,6 +935,7 @@ export default {
   'notice.cannotPlay.connect': 'L’enceinte n’a pas pu l’atteindre.',
   'notice.cannotPlay.refused': 'Le service a refusé de le lire.',
   'notice.cannotPlay.missing': 'Ce contenu n’existe plus.',
+  'notice.cannotPlay.streamLimit': 'Ce compte joue déjà sur autant d’appareils que son service le permet. Arrêtez-le sur l’un d’eux, puis réessayez.',
   'notice.cannotPlay.permission': 'Ce compte n’est pas autorisé à le lire.',
   'notice.notPlaying.title': 'Rien ne s’est lancé',
   'notice.notPlaying.detail':

@@ -820,6 +820,7 @@ export default {
   'notice.cannotPlay.connect': 'A hangsz\u00f3r\u00f3 nem \u00e9rte el.',
   'notice.cannotPlay.refused': 'A szolg\u00e1ltat\u00e1s megtagadta a lej\u00e1tsz\u00e1st.',
   'notice.cannotPlay.missing': 'M\u00e1r nincs ott.',
+  'notice.cannotPlay.streamLimit': 'Ez a fiók már annyi eszközön szól, amennyit a szolgáltatása enged. Állítsd le valamelyiken, majd próbáld újra.',
   'notice.cannotPlay.permission': 'Ez a fi\u00f3k nem j\u00e1tszhatja le.',
   'notice.notPlaying.title': 'Semmi nem indult el',
   'notice.notPlaying.detail': '{room} elfogadta a Lejátszást, de újra leállt. A jelenlegi forrását nem lehetett lejátszani; válassz mást a zene panelen.',

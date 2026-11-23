@@ -822,6 +822,7 @@ export default {
   'notice.cannotPlay.connect': 'El altavoz no pudo conectarse.',
   'notice.cannotPlay.refused': 'El servicio se neg\u00f3 a reproducirlo.',
   'notice.cannotPlay.missing': 'Ya no est\u00e1 ah\u00ed.',
+  'notice.cannotPlay.streamLimit': 'Esta cuenta ya está sonando en tantos dispositivos como permite su servicio. Detenla en alguno de ellos y vuelve a intentarlo.',
   'notice.cannotPlay.permission': 'Esta cuenta no puede reproducirlo.',
   'notice.notPlaying.title': 'No empezó a sonar nada',
   'notice.notPlaying.detail': '{room} aceptó Reproducir pero volvió a detenerse. No se pudo reproducir su fuente actual; elige otra cosa en el panel de música.',

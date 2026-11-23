@@ -905,6 +905,7 @@ export default {
   'notice.cannotPlay.connect': 'Колонка не змогла до нього достукатися.',
   'notice.cannotPlay.refused': 'Сервіс відмовився це відтворювати.',
   'notice.cannotPlay.missing': 'Цього більше немає.',
+  'notice.cannotPlay.streamLimit': 'Цей обліковий запис уже грає на стількох пристроях, скільки дозволяє його сервіс. Зупиніть відтворення на одному з них і спробуйте ще раз.',
   'notice.cannotPlay.permission':
     'Цьому обліковому запису не дозволено це відтворювати.',
   'notice.notPlaying.title': 'Нічого не почалося',

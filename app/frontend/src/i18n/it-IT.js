@@ -927,6 +927,7 @@ export default {
   'notice.cannotPlay.connect': 'Lo speaker non è riuscito a raggiungerlo.',
   'notice.cannotPlay.refused': 'Il servizio ne ha rifiutato la riproduzione.',
   'notice.cannotPlay.missing': 'Non è più disponibile.',
+  'notice.cannotPlay.streamLimit': 'Questo account sta già suonando su tutti i dispositivi consentiti dal suo servizio. Interrompilo su uno di essi, poi riprova.',
   'notice.cannotPlay.permission':
     'Questo account non è autorizzato a riprodurlo.',
   'notice.notPlaying.title': 'Non è partito nulla',

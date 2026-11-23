@@ -921,6 +921,7 @@ export default {
   'notice.cannotPlay.connect': 'Højttaleren kunne ikke nå den.',
   'notice.cannotPlay.refused': 'Tjenesten nægtede at afspille det.',
   'notice.cannotPlay.missing': 'Det findes ikke længere.',
+  'notice.cannotPlay.streamLimit': 'Denne konto spiller allerede på så mange enheder, som tjenesten tillader. Stop den på en af dem, og prøv igen.',
   'notice.cannotPlay.permission':
     'Denne konto har ikke tilladelse til at afspille det.',
   'notice.notPlaying.title': 'Intet begyndte at spille',

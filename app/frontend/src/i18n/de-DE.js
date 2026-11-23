@@ -928,6 +928,7 @@ export default {
   'notice.cannotPlay.connect': 'Der Lautsprecher konnte es nicht erreichen.',
   'notice.cannotPlay.refused': 'Der Dienst hat die Wiedergabe abgelehnt.',
   'notice.cannotPlay.missing': 'Es ist nicht mehr vorhanden.',
+  'notice.cannotPlay.streamLimit': 'Dieses Konto spielt schon auf so vielen Geräten, wie sein Dienst erlaubt. Stopp es auf einem davon und versuch es dann noch einmal.',
   'notice.cannotPlay.permission': 'Dieses Konto darf es nicht abspielen.',
   'notice.notPlaying.title': 'Es hat nichts begonnen',
   'notice.notPlaying.detail':

@@ -923,6 +923,7 @@ export default {
   'notice.cannotPlay.connect': 'A caixa de som não conseguiu alcançá-lo.',
   'notice.cannotPlay.refused': 'O serviço recusou a reprodução.',
   'notice.cannotPlay.missing': 'Não está mais lá.',
+  'notice.cannotPlay.streamLimit': 'Esta conta já está tocando no máximo de dispositivos que o serviço permite. Pare em um deles e tente de novo.',
   'notice.cannotPlay.permission':
     'Esta conta não tem permissão para reproduzir isso.',
   'notice.notPlaying.title': 'Nada começou a tocar',

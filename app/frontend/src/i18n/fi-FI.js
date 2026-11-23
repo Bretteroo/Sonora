@@ -925,6 +925,7 @@ export default {
   'notice.cannotPlay.connect': 'Kaiutin ei saanut siihen yhteyttä.',
   'notice.cannotPlay.refused': 'Palvelu kieltäytyi toistamasta sitä.',
   'notice.cannotPlay.missing': 'Sitä ei ole enää olemassa.',
+  'notice.cannotPlay.streamLimit': 'Tällä tilillä toistetaan jo niin monella laitteella kuin palvelu sallii. Pysäytä toisto jollakin niistä ja yritä uudelleen.',
   'notice.cannotPlay.permission': 'Tällä tilillä ei ole lupaa toistaa sitä.',
   'notice.notPlaying.title': 'Mitään ei alkanut soida',
   'notice.notPlaying.detail':

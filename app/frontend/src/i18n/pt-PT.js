@@ -957,6 +957,7 @@ export default {
   'notice.cannotPlay.connect': 'O altifalante não o conseguiu contactar.',
   'notice.cannotPlay.refused': 'O serviço recusou reproduzi-lo.',
   'notice.cannotPlay.missing': 'Já não existe.',
+  'notice.cannotPlay.streamLimit': 'Esta conta já está a tocar no máximo de dispositivos que o serviço permite. Pare num deles e tente novamente.',
   'notice.cannotPlay.permission':
     'Esta conta não tem permissão para o reproduzir.',
   'notice.notPlaying.title': 'Nada começou a ser reproduzido',

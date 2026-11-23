@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { api } from '../../frontend/src/lib/api.js'
-import { orderedHouseholds } from '../../frontend/src/lib/format.js'
+import { orderedHouseholds, logStamp } from '../../frontend/src/lib/format.js'
 import { zoneLabel } from '../../frontend/src/lib/timezones.js'
 import { useServiceLink } from '../../frontend/src/lib/useServiceLink.js'
 import { useCloudAccount } from '../../frontend/src/lib/useCloudAccount.js'
@@ -678,7 +678,7 @@ function LogPage() {
               <tbody>
                 {[...entries].reverse().map((e, i) => (
                   <tr key={i} data-level={e.level}>
-                    <td>{new Date(e.time * 1000).toLocaleTimeString()}</td>
+                    <td>{logStamp(e.time)}</td>
                     <td><span className="sv-level" data-level={e.level}>{e.level}</span></td>
                     <td className="sv-dim">{e.source}</td>
                     <td>{e.message}</td>

@@ -928,6 +928,7 @@ export default {
   'notice.cannotPlay.connect': 'Reproduktor se k tomu nemohl připojit.',
   'notice.cannotPlay.refused': 'Služba přehrání odmítla.',
   'notice.cannotPlay.missing': 'Už to není k dispozici.',
+  'notice.cannotPlay.streamLimit': 'Tento účet už hraje na tolika zařízeních, kolik jeho služba dovoluje. Zastavte ho na jednom z nich a zkuste to znovu.',
   'notice.cannotPlay.permission': 'Tento účet nemá oprávnění to přehrát.',
   'notice.notPlaying.title': 'Nic se nezačalo přehrávat',
   'notice.notPlaying.detail':

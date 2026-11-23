@@ -3,7 +3,7 @@ import { useSystem } from '../../frontend/src/lib/store.jsx'
 import { useI18n, LANGUAGES } from '../../frontend/src/i18n/index.jsx'
 import { useTheme } from '../../frontend/src/lib/theme.jsx'
 import { api } from '../../frontend/src/lib/api.js'
-import { orderedHouseholds, systemChoiceMatters } from '../../frontend/src/lib/format.js'
+import { orderedHouseholds, systemChoiceMatters, logStamp } from '../../frontend/src/lib/format.js'
 import { zoneLabel } from '../../frontend/src/lib/timezones.js'
 import { useServiceLink } from '../../frontend/src/lib/useServiceLink.js'
 import { useCloudAccount } from '../../frontend/src/lib/useCloudAccount.js'
@@ -718,7 +718,7 @@ function LogPage() {
               <tbody>
                 {[...entries].reverse().map((e, i) => (
                   <tr key={i} data-level={e.level}>
-                    <td className="hf-mono">{new Date(e.time * 1000).toLocaleTimeString()}</td>
+                    <td className="hf-mono">{logStamp(e.time)}</td>
                     <td><span className="hf-level" data-level={e.level}>{e.level}</span></td>
                     <td className="hf-muted">{e.source}</td>
                     <td>{e.message}</td>

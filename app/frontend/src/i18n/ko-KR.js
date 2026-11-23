@@ -865,6 +865,7 @@ export default {
   'notice.cannotPlay.connect': '스피커가 접근하지 못했습니다.',
   'notice.cannotPlay.refused': '서비스가 재생을 거부했습니다.',
   'notice.cannotPlay.missing': '더 이상 존재하지 않습니다.',
+  'notice.cannotPlay.streamLimit': '이 계정은 서비스가 허용하는 기기 수만큼 이미 재생 중입니다. 그중 하나에서 재생을 멈춘 뒤 다시 시도하세요.',
   'notice.cannotPlay.permission': '이 계정에는 재생 권한이 없습니다.',
   'notice.notPlaying.title': '아무것도 시작되지 않았습니다',
   'notice.notPlaying.detail':

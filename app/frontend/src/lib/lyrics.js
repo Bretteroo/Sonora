@@ -5,6 +5,7 @@ import { findLyrics } from './lrclib.js'
 import { positionNow } from './format.js'
 import { readStored, writeStored } from './shellSelection.js'
 import { lineAt, lyricsSong } from './lyricsSong.js'
+import { useSystem } from './store.jsx'
 
 export { lineAt, lyricsSong }
 
@@ -103,10 +104,31 @@ export function useLyrics(transport, open) {
 
 /** The line the music is on, kept up to date four times a second while it
  * plays. -1 before the first line, and whenever there are no timings. */
+// The line a press on the lyrics sent the song to. The players take whole seconds, so the song
+// lands a little before the line starts, in the line ahead of it, and the room reports its new
+// place a moment after the press. Until the song is seen in the line pressed (or a few seconds
+// pass), that line is the one shown, rather than the one before it or the one it came from.
+let jumped = null
+const JUMP_HOLD_MS = 3000
+const jumpWatchers = new Set()
+function noteJump(uri, index) {
+  jumped = { uri, index, until: Date.now() + JUMP_HOLD_MS }
+  jumpWatchers.forEach((fn) => fn())
+}
+
 export function useLyricsLine(transport, lines) {
   const latest = useRef(transport)
   latest.current = transport
-  const read = () => (lines?.length ? lineAt(lines, positionNow(latest.current, { exact: true })) : -1)
+  const read = () => {
+    if (!lines?.length) return -1
+    const at = lineAt(lines, positionNow(latest.current, { exact: true }))
+    const j = jumped
+    if (!j || j.uri !== (latest.current?.track_uri || '') || Date.now() >= j.until) return at
+    // Held until the song is seen in the line pressed, whether it was ahead or behind; from
+    // there the song is followed as usual.
+    if (at === j.index) { jumped = null; return at }
+    return j.index
+  }
   const [index, setIndex] = useState(read)
   const tr = transport || {}
   const playing = tr.state === 'PLAYING' || tr.state === 'TRANSITIONING'
@@ -116,6 +138,12 @@ export function useLyricsLine(transport, lines) {
     const timer = setInterval(() => setIndex(read()), 250)
     return () => clearInterval(timer)
   }, [playing, lines]) // eslint-disable-line react-hooks/exhaustive-deps
+  // A press on a line shows it at once.
+  useEffect(() => {
+    const now = () => setIndex(read())
+    jumpWatchers.add(now)
+    return () => { jumpWatchers.delete(now) }
+  }, [lines]) // eslint-disable-line react-hooks/exhaustive-deps
   // A hidden window's timers are slowed to a tick a second or less, so the
   // line is read afresh the moment it shows again.
   useEffect(() => {
@@ -158,6 +186,9 @@ export function useFollowLine(ref, index, { lead } = {}) {
     box.addEventListener('touchmove', hold, { passive: true })
     box.addEventListener('keydown', keys)
     box.addEventListener('pointerdown', press)
+    // A line pressed to go to it lets go of any hold, so the lyrics follow the song to it at once.
+    const release = () => { heldUntil.current = 0; clearTimeout(timer); setTick((n) => n + 1) }
+    box.addEventListener('lyrics-release', release)
     // Back in view: straight to the line being sung, without an animation.
     const shown = () => {
       if (document.visibilityState !== 'visible') return
@@ -172,6 +203,7 @@ export function useFollowLine(ref, index, { lead } = {}) {
       box.removeEventListener('touchmove', hold)
       box.removeEventListener('keydown', keys)
       box.removeEventListener('pointerdown', press)
+      box.removeEventListener('lyrics-release', release)
     }
   }, [ref])
   // Before the frame is drawn, so a pane that has just opened shows the line
@@ -195,6 +227,53 @@ export function useFollowLine(ref, index, { lead } = {}) {
     box.scrollTo({ top: Math.max(0, top), behavior: still ? 'auto' : 'smooth' })
     first.current = false
   }, [ref, index, tick, lead])
+}
+
+/**
+ * Makes each timed line in the scrolling element `ref` names (marked with
+ * `data-line`) a way into the song: a press on a line sends the room playing
+ * `transport` to where that line begins. Nothing happens where the room cannot
+ * be moved through its song (a station, a stopped room), or when the press
+ * was the end of selecting words.
+ */
+export function useSeekLines(ref, transport, lines) {
+  const { zones, actions } = useSystem()
+  const tr = transport || {}
+  // The room is found by its transport: every theme hands its lyrics the
+  // transport of the room in view, as the store holds it.
+  const zone = Object.values(zones || {}).find((z) => z.transport === transport)
+    || Object.values(zones || {}).find((z) => z.transport?.track_uri && z.transport.track_uri === tr.track_uri
+      && z.transport.received_at === tr.received_at)
+  const seekable = Boolean(zone && lines?.length && tr.can_seek !== false && tr.state !== 'STOPPED')
+  const latest = useRef(null)
+  latest.current = { zone, lines, actions, seekable }
+  useEffect(() => {
+    const box = ref.current
+    if (!box) return undefined
+    const press = (event) => {
+      const line = event.target instanceof Element && event.target.closest('[data-line]')
+      const { zone: room, lines: timed, actions: act, seekable: ok } = latest.current
+      if (!line || !box.contains(line) || !ok) return
+      if (String(window.getSelection?.() || '').trim()) return
+      const at = timed[Number(line.getAttribute('data-line'))]?.[0]
+      if (at == null || !Number.isFinite(at)) return
+      // The players take whole seconds: the song goes to the second the line starts in.
+      const whole = Math.max(0, Math.floor(at))
+      const two = (n) => String(n).padStart(2, '0')
+      noteJump(room.transport?.track_uri || '', Number(line.getAttribute('data-line')))
+      act.seek(room.uuid, `${Math.floor(whole / 3600)}:${two(Math.floor(whole / 60) % 60)}:${two(whole % 60)}`)
+      box.dispatchEvent(new Event('lyrics-release'))
+    }
+    box.addEventListener('click', press)
+    return () => box.removeEventListener('click', press)
+  }, [ref])
+  // A line that can be pressed looks it.
+  useLayoutEffect(() => {
+    const box = ref.current
+    if (!box) return
+    box.toggleAttribute('data-lyrics-seek', seekable)
+    for (const line of box.querySelectorAll('[data-line]')) line.style.cursor = seekable ? 'pointer' : ''
+  })
 }
 
 const OPEN_KEY = 'sonora.lyrics'

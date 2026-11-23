@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
-import { useFollowLine, useLyrics, useLyricsLine } from '../../frontend/src/lib/lyrics.js'
+import { useFollowLine, useLyrics, useLyricsLine, useSeekLines } from '../../frontend/src/lib/lyrics.js'
 
 // The lyrics, in the queue's place under Now Playing: the line being sung lit
 // and held third from the top, the ones sung dimmed, a hand on them holding them
@@ -39,6 +39,8 @@ function Timed({ transport, lines }) {
   const box = useRef(null)
   // The line being sung is held third from the top, two sung lines above it.
   useFollowLine(box, index, { lead: 2 })
+  // A press on a line takes the song to it.
+  useSeekLines(box, transport, lines)
   return (
     <div className="dk-lyrics-scroll dk-lyrics-timed" ref={box} tabIndex={0}>
       {lines.map(([, words], i) => (

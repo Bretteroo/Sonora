@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
-import { useFollowLine, useLyrics, useLyricsLine } from '../../frontend/src/lib/lyrics.js'
+import { useFollowLine, useLyrics, useLyricsLine, useSeekLines } from '../../frontend/src/lib/lyrics.js'
 import * as G from './glyphs.jsx'
 
 // The words, in the Player's cover's place: the line being sung in inverse
@@ -49,6 +49,8 @@ function Timed({ transport, lines }) {
   const index = useLyricsLine(transport, lines)
   const box = useRef(null)
   useFollowLine(box, index)
+  // A press on a line takes the song to it.
+  useSeekLines(box, transport, lines)
   return (
     <div className="sv-lyrics-scroll sv-lyrics-timed" ref={box} tabIndex={0}>
       {lines.map(([, words], i) => (

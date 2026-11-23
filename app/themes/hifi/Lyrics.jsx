@@ -1,11 +1,12 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
-import { lyricsSong, useLyrics, useLyricsLine, useLyricsOpen } from '../../frontend/src/lib/lyrics.js'
+import { lyricsSong, useFollowLine, useLyrics, useLyricsLine, useLyricsOpen, useSeekLines } from '../../frontend/src/lib/lyrics.js'
 import { Panel, PanelHead, Button } from './controls.jsx'
 
 // Lyrics on the amplifier's display, the way a CD player shows its disc's
 // text or a tuner its station's: the line being sung where the title stands,
-// in the display's large lettering, and the two lines after it dim beneath. The
+// in the display's large lettering, and the lines after it dim beneath, in a
+// window that scrolls through the song. The
 // Lyrics key beside Sleep, Info and Link switches the display between its
 // usual reading and this. Three lines are all it holds, so words with no
 // timings that fit this recording are not shown there; the display says so.
@@ -81,34 +82,21 @@ function Words({ transport, text, onClose }) {
   )
 }
 
+// The whole song in the display's window, scrolled so the line being sung stands at the top in the
+// title's lettering with the lines after it dim beneath. The window can be scrolled by hand to see
+// further on (it comes back to the song after a moment), and a press on a line takes the song to it.
 function Timed({ transport, lines }) {
   const index = useLyricsLine(transport, lines)
-  // Before the first line the display waits with the opening line dim.
-  const now = index >= 0 ? lines[index][1] || '♪' : ''
-  const after = [1, 2].map((n) => (lines[index + n] ? lines[index + n][1] || '♪' : ''))
-  // A line too long for the display runs on to a second line, and the last
-  // of the lines after it gives up its place, so the display keeps its height.
-  const current = useRef(null)
-  const [wrapped, setWrapped] = useState(false)
-  useLayoutEffect(() => {
-    const el = current.current
-    if (!el) return undefined
-    const measure = () => {
-      const height = parseFloat(getComputedStyle(el).lineHeight) || 0
-      setWrapped(height > 0 && el.scrollHeight > height * 1.5)
-    }
-    measure()
-    const watch = new ResizeObserver(measure)
-    watch.observe(el)
-    return () => watch.disconnect()
-  }, [now])
+  const box = useRef(null)
+  useFollowLine(box, index, { lead: 0 })
+  useSeekLines(box, transport, lines)
   return (
-    <div className="hf-vfd-lines hf-vfd-lyrics">
-      {/* Keyed by the line, so each new one comes up on the display rather
-          than being swapped in place. */}
-      <p key={`now-${index}`} ref={current} className="hf-vfd-title hf-vfd-lyric" title={now}>{now || '♪'}</p>
-      {(wrapped ? after.slice(0, 1) : after).map((words, n) => (
-        <p key={`next-${index}-${n}`} className="hf-vfd-sub hf-vfd-lyric-next" title={words}>{words}</p>
+    <div className="hf-vfd-lines hf-vfd-lyrics hf-vfd-lyrics-scroll" ref={box} tabIndex={0}>
+      {lines.map(([, words], i) => (
+        <p key={i} data-line={i} data-at={i === index ? 'now' : i < index ? 'past' : undefined}
+           className={i === index ? 'hf-vfd-title hf-vfd-lyric' : 'hf-vfd-sub hf-vfd-lyric-next'} title={words || undefined}>
+          {words || '♪'}
+        </p>
       ))}
     </div>
   )

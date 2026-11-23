@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
-import { useFollowLine, useLyrics, useLyricsLine } from '../../frontend/src/lib/lyrics.js'
+import { useFollowLine, useLyrics, useLyricsLine, useSeekLines } from '../../frontend/src/lib/lyrics.js'
 
 // The lyrics, on the stage, in the artwork's place: the line being sung lit and held
 // in the middle, the ones sung dimmed, a hand on them holding them still for
@@ -38,6 +38,8 @@ function Timed({ transport, lines }) {
   const index = useLyricsLine(transport, lines)
   const box = useRef(null)
   useFollowLine(box, index)
+  // A press on a line takes the song to it.
+  useSeekLines(box, transport, lines)
   return (
     <div className="sf-lyrics-scroll sf-lyrics-timed" ref={box} tabIndex={0}>
       {lines.map(([, words], i) => (

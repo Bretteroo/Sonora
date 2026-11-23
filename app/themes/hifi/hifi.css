@@ -2177,6 +2177,14 @@
 :root[data-theme='hifi'] .hf-lyrics-untimed { margin: 0; color: var(--hf-engrave-dim); font-size: 12px; }
 :root[data-theme='hifi'] .hf-lyrics-words { margin: 0; white-space: pre-line; font-size: 15px; line-height: 1.55; }
 :root[data-theme='hifi'] .hf-lyrics-panel .hf-lyrics-credit { position: static; margin: 4px 0 0; align-self: flex-end; }
+/* The song in the display's window, three lines tall as the title and its two lines were: it
+   scrolls with no bar showing, the line being sung held at its top. */
+:root[data-theme='hifi'] .hf-vfd-lyrics-scroll { height: 75px; overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain; }
+:root[data-theme='hifi'] .hf-vfd-lyrics-scroll::-webkit-scrollbar { display: none; }
+:root[data-theme='hifi'] .hf-main-display-compact .hf-vfd-lyrics-scroll { height: 61px; }
+:root[data-theme='hifi'] .hf-vfd-lyrics-scroll:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: 2px; }
+:root[data-theme='hifi'] .hf-vfd-lyrics-scroll > p { flex: none; }
+:root[data-theme='hifi'] .hf-vfd-lyrics-scroll > p[data-at='past'] { opacity: 0.35; }
 @keyframes hf-lyric-in { from { opacity: 0; transform: translateY(4px); } }
 @media (prefers-reduced-motion: reduce) { :root[data-theme='hifi'] .hf-vfd-lyric, :root[data-theme='hifi'] .hf-vfd-lyric-next, :root[data-theme='hifi'] .hf-vfd-lyric-note, :root[data-theme='hifi'] .hf-vfd-lines[data-back] { animation: none; } :root[data-theme='hifi'] .hf-lyrics-credit { transition: none; } }
 

@@ -964,23 +964,20 @@ async def revert(controller, commands, before: dict) -> dict:
 
     await asyncio.gather(*(restore_transport(u) for u in leads))
 
+    # Written whether or not they look changed: a scene ended a moment after it began has
+    # changed them on the speaker before the speaker's event says so, and a room it unmuted
+    # would still read as muted here and be left unmuted.
     async def level(uuid: str) -> None:
         room = rooms[uuid]
-        state = controller.zone(uuid)
         try:
-            if state.volume != room["volume"]:
-                await commands.set_volume(uuid, room["volume"])
-            if state.muted != room["muted"]:
-                await commands.set_mute(uuid, room["muted"])
+            await commands.set_volume(uuid, room["volume"])
+            await commands.set_mute(uuid, room["muted"])
         except Exception as exc:                      # noqa: BLE001
             fail(uuid, "volume", exc)
         try:
-            if state.bass != room["bass"]:
-                await commands.set_bass(uuid, room["bass"])
-            if state.treble != room["treble"]:
-                await commands.set_treble(uuid, room["treble"])
-            if state.loudness != room["loudness"]:
-                await commands.set_loudness(uuid, room["loudness"])
+            await commands.set_bass(uuid, room["bass"])
+            await commands.set_treble(uuid, room["treble"])
+            await commands.set_loudness(uuid, room["loudness"])
         except Exception as exc:                      # noqa: BLE001
             fail(uuid, "tone", exc)
         if room.get("eq"):

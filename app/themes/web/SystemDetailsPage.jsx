@@ -109,13 +109,13 @@ export default function SystemDetailsPage({ onClose, systemFilter = 'all' }) {
         <section key={household.id} className="wb-sysdetails-section">
           <h2>{many ? t('web.settings.aboutSystemGen', { generation: household.generation }) : t('web.settings.aboutSystem')}</h2>
           <div className="wb-sysdetails-card">
-          {(updates[household.id]?.pending || updates[household.id]?.started) && (
+          {(updates[household.id]?.pending || updates[household.id]?.started || updates[household.id]?.updating?.length > 0) && (
             <div className="wb-sysdetails-filter wb-sysdetails-update">
               <span className="wb-sysdetails-glyph"><Icon.Update width={24} height={24} /></span>
               <span className="wb-sysdetails-text">
                 <span className="wb-sysdetails-filter-label">{t('desk.browse.updateNow')}</span>
                 <span className="wb-sysdetails-product">
-                  {updates[household.id].started ? t('desk.update.started') : versionLabel(updates[household.id].display, updates[household.id].version)}
+                  {updates[household.id].started || updates[household.id].updating?.length > 0 ? t('desk.update.started') : versionLabel(updates[household.id].display, updates[household.id].version)}
                 </span>
               </span>
               {updates[household.id].pending && (

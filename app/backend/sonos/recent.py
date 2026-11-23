@@ -30,7 +30,7 @@ class RecentlyPlayed:
         try:
             data = json.loads(path.read_text())
             if isinstance(data, dict):
-                self._items = {k: [e for e in v if isinstance(e, dict) and e.get("uri")]
+                self._items = {k: [e for e in v if isinstance(e, dict) and e.get("uri") and not _misnamed(e)]
                                for k, v in data.items() if isinstance(v, list)}
         except (OSError, ValueError):
             pass
@@ -88,6 +88,13 @@ class RecentlyPlayed:
             self._path.write_text(json.dumps(self._items, ensure_ascii=False))
         except OSError as exc:
             log.warning("could not save the recently played list: %s", exc)
+
+
+def _misnamed(entry: dict) -> bool:
+    """Whether ``entry`` is a queued item noted with no description of its
+    own before such items were named after the track itself: it carries the
+    name of whatever had been queued before it, and no picture."""
+    return bool(entry.get("replace")) and not entry.get("metadata") and not entry.get("track")
 
 
 def is_announcement(uri: str) -> bool:

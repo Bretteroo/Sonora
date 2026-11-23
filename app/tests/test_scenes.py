@@ -425,12 +425,25 @@ def test_revert_puts_the_rooms_back():
     assert ("set_volume", "C", 15) in cmd.calls and ("set_mute", "C", True) in cmd.calls
     assert ("set_bass", "C", 2) in cmd.calls and ("set_loudness", "C", False) in cmd.calls
     assert ("set_eq", "C", "NightMode", 1) in cmd.calls and ("set_eq", "C", "DialogLevel", 0) in cmd.calls
-    # Levels that did not change are left alone.
-    assert ("set_volume", "A", 20) in cmd.calls and ("set_loudness", "A", True) not in cmd.calls
+    # Every level is written back, even one that reads as unchanged: the reading may be older than
+    # the scene's own change, as when a scene is ended a moment after it began.
+    assert ("set_volume", "A", 20) in cmd.calls and ("set_loudness", "A", True) in cmd.calls
     # Nothing is sent for a room that is gone; a refusal is reported and the rest goes on.
     cmd = _Commands(refuse={("set_volume", "C")})
     report = asyncio.run(scenes.revert(ctl, cmd, before))
     assert report["failed"] == [{"room": "Patio", "step": "volume"}] and ("set_bass", "C", 2) in cmd.calls
+
+
+def test_revert_mutes_a_room_whose_unmute_has_not_been_heard_yet():
+    # The scene unmuted the room, but no event has said so yet: the room still reads as muted.
+    before = {"name": "Quick", "household": "HH", "at": 1e12, "rooms": {
+        "A": {"name": "Kitchen", "coordinator": "A", "volume": 20, "muted": True, "bass": 0, "treble": 0, "loudness": True,
+              "eq": None, "queue": None, "transport": None}}}
+    stale = _zone("A", "Kitchen", volume=20)
+    stale.muted = True
+    cmd = _Commands()
+    asyncio.run(scenes.revert(_Controller(stale), cmd, before))
+    assert ("set_mute", "A", True) in cmd.calls and ("set_volume", "A", 20) in cmd.calls
 
 
 def test_revert_leaves_music_that_carried_on_alone():
@@ -444,7 +457,9 @@ def test_revert_leaves_music_that_carried_on_alone():
     ctl = _Controller(_zone("A", "Kitchen", media_uri="x-sonosapi-stream:x", state="PLAYING"), groups=(("A", ["A"]),))
     cmd = _Commands()
     asyncio.run(scenes.revert(ctl, cmd, before))
-    assert [c[0] for c in cmd.calls] == ["sleep_timer_remaining"]
+    # Only the levels are written back, which they always are.
+    levels = {"set_volume", "set_mute", "set_bass", "set_treble", "set_loudness"}
+    assert [c[0] for c in cmd.calls if c[0] not in levels] == ["sleep_timer_remaining"]
 
 
 def test_capture_reads_the_rooms_as_they_stand():

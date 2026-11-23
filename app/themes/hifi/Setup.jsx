@@ -536,15 +536,18 @@ function SystemUpdate({ household, households, update, onStarted }) {
   const { t } = useI18n()
   const [ask, setAsk] = useState(false)
   const [started, setStarted] = useState(false)
-  if (!update?.pending && !started) return null
+  // Asked of the controller too, so the notice is still here when the
+  // page is left and come back to while rooms are installing.
+  const installing = started || update?.updating?.length > 0
+  if (!update?.pending && !installing) return null
   return (
     <div className="hf-status-row">
       <G.Update />
-      {started ? <span>{t('desk.update.started')}</span> : (
+      {installing ? <span>{t('desk.update.started')}</span> : (
         <span><strong>{t('desk.update.title')}</strong> <span className="hf-muted">{versionLabel(update.display, update.version)}</span></span>
       )}
       <span className="hf-grow" />
-      {!started && <Button primary small onClick={() => setAsk(true)}>{t('desk.update.start')}</Button>}
+      {!installing && <Button primary small onClick={() => setAsk(true)}>{t('desk.update.start')}</Button>}
       {ask && (
         <Confirm title={t('desk.update.title')} body={updateBody(t, households, household.id, versionLabel(update.display, update.version))}
                  action={t('desk.update.start')} cancelLabel={t('desk.update.notNow')} onClose={() => setAsk(false)}

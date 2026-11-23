@@ -515,6 +515,9 @@ class SonosController:
         self._radio_locations: dict[str, tuple[float, dict]] = {}
         #: household id -> (when, the software_update answer)
         self._software_updates: dict[str, tuple[float, dict]] = {}
+        # Updates started from here and not yet seen finished, per
+        # household: player uuid -> (name, target version, when started).
+        self._updates_started: dict[str, dict[str, tuple[str, str, float]]] = {}
         #: manifest URL -> the parsed update manifest; a revision has a URL
         #: of its own, so one is read once
         self._update_manifests: dict[str, dict] = {}
@@ -989,6 +992,11 @@ class SonosController:
             self._apply_track_metadata(transport, position.get("TrackMetaData", ""))
         else:
             self._forget_track(transport)
+        if transport.track_uri != prev_track:
+            # The badge is the service's word on one track; the next track
+            # has none until its own answer arrives, and a library file
+            # never gets one.
+            transport.explicit = None
         if transport.track_uri != prev_track or not transport.provider_art_uri:
             self._track_changed(state)
 
@@ -1317,6 +1325,7 @@ class SonosController:
         transport.album = ""
         transport.album_art_uri = ""
         transport.provider_art_uri = ""
+        transport.explicit = None
         transport.stream_show = ""
         transport.stream_show_id = ""
         transport.rating = 0
@@ -1705,15 +1714,28 @@ class SonosController:
             return
         items = parse_didl(metadata) if metadata else []
         item = items[0] if items else None
-        title = (item.title if item else "") or transport.container_title
-        if not title and not replace:
+        # A single track handed to the queue is its own source, and what the
+        # speaker says of the playing track is what there is to say of it.
+        # Without a description of its own (a library file queued bare) it
+        # is noted once it is the track playing: the container name still
+        # held then belongs to whatever was queued before it.
+        single = replace and uri == transport.track_uri
+        if replace and item is None:
+            if not single:
+                return
             title = transport.title
-        art = (item.art_uri if item else "") or ("" if replace else transport.album_art_uri)
+        else:
+            title = (item.title if item else "") or transport.container_title
+            if not title and not replace:
+                title = transport.title
+        art = (item.art_uri if item else "") or (transport.album_art_uri if single or not replace else "")
         entry = {
             "uri": uri, "metadata": metadata, "title": title, "replace": replace,
             "kind": kind_of(item.upnp_class if item else "", uri),
             "art": art, "host": state.host, "service_id": transport.service_id,
         }
+        if single:
+            entry["track"] = True
         if catch_up and self.recent.knows(household.id, uri):
             return
         if self.recent.note(household.id, entry) or self.recent.fill_art(household.id, uri, art):
@@ -3164,21 +3186,54 @@ class SonosController:
                      manifest.get("revision", "")[:8], manifest.get("default"), len(manifest.get("images", [])))
         return manifest
 
+    #: Seconds a started update is taken to be still installing. One that
+    #: has not shown its new version by then is offered again.
+    UPDATE_INSTALL_LIMIT = 1800.0
+
+    def updating_players(self, household: "Household") -> dict[str, str]:
+        """The players an update was started on from here that have not
+        yet come back on the version they were sent to, uuid to name. A
+        player restarting is off the network for a while and still counts.
+        An update started from a Sonos app is not known here."""
+        started = self._updates_started.get(household.id)
+        if not started:
+            return {}
+        now = monotonic()
+        still = {}
+        for uuid, (name, to, at) in started.items():
+            if now - at > self.UPDATE_INSTALL_LIMIT:
+                continue
+            p = household.players.get(uuid)
+            if (p is not None and p.online and p.software_version
+                    and version_key(p.software_version) == version_key(to)):
+                continue
+            still[uuid] = (name, to, at)
+        if still:
+            self._updates_started[household.id] = still
+        else:
+            self._updates_started.pop(household.id, None)
+        return {uuid: entry[0] for uuid, entry in still.items()}
+
     async def begin_software_update(self, household: "Household") -> dict:
         """Start the speaker update the household has waiting: each player
         that is behind is told to fetch and install the build the manifest
         names for its model (ZoneGroupTopology#BeginSoftwareUpdate with
         that image's URL, or the item's UpdateURL without a manifest)."""
         status = await self.software_update(household, fresh=True)
-        if not status["pending"]:
+        # A player already installing is not told twice.
+        updating = self.updating_players(household)
+        waiting = [p for p in status["players"] if p["uuid"] not in updating]
+        if not waiting:
             return {"started": [], "pending": False}
         started, failed = [], []
-        for player in status["players"]:
+        for player in waiting:
             try:
                 await self.soap.call(
                     player["host"], const.ZONE_GROUP_TOPOLOGY, "BeginSoftwareUpdate",
                     {"UpdateURL": player.get("url") or status["url"], "Flags": 0, "ExtraOptions": ""})
                 started.append(player["name"])
+                self._updates_started.setdefault(household.id, {})[player["uuid"]] = (
+                    player["name"], player["to"], monotonic())
             except Exception as exc:
                 log.warning("update did not start on %s: %s", player["name"], exc)
                 failed.append(player["name"])

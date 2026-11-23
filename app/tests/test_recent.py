@@ -111,3 +111,61 @@ def test_a_source_played_while_sonora_was_not_listening_is_caught_up(tmp_path):
         room("x-sonosapi-stream:stream_100?sid=894&flags=8232&sn=9", "80er Kultnight"), catch_up=True))
     assert ctl.recent.items("H")[0]["title"] == "80er Kultnight"
     assert sent == [{"type": "recent", "household": "H"}]
+
+
+def test_a_bare_queued_track_is_named_and_pictured_after_itself(tmp_path):
+    """A library file queued with no description of its own took the name of
+    whatever had been queued before it, and no picture: several different
+    files all read as one earlier song. It is the track playing, so it takes
+    that track's title and cover, and is not noted until it plays."""
+    import asyncio
+    import json
+    from types import SimpleNamespace
+
+    from backend.sonos.controller import SonosController, ZoneState
+
+    path = tmp_path / "recent.json"
+    path.write_text(json.dumps({"H": [
+        {"uri": "x-file-cifs://nas/Music/old.flac", "title": "Earlier Song", "replace": True, "metadata": "", "art": ""},
+        {"uri": "x-rincon-cpcontainer:1", "title": "An Album", "replace": True, "metadata": "<DIDL-Lite/>", "art": ""},
+    ]}))
+    ctl = SonosController.__new__(SonosController)
+    ctl.recent = RecentlyPlayed(path)
+    # The entry misnamed before the rule is dropped on load.
+    assert [e["title"] for e in ctl.recent.items("H")] == ["An Album"]
+    ctl.household_of = lambda _uuid: SimpleNamespace(id="H")
+
+    async def broadcast(_message):
+        pass
+
+    ctl._broadcast = broadcast
+    state = ZoneState(uuid="RINCON_A1", name="Playroom", host="192.168.1.9")
+    tr = state.transport
+    tr.media_uri = "x-rincon-queue:RINCON_A1#0"
+    tr.state = "PLAYING"
+    tr.container_title = "Earlier Song"
+    state.enqueued_uri = "x-file-cifs://nas/Music/b.flac"
+    state.enqueued_metadata = ""
+    # Still on the track before it: nothing to say of it yet.
+    tr.track_uri = "x-file-cifs://nas/Music/a.flac"
+    tr.title = "Song A"
+    asyncio.run(ctl._note_recently_played(state))
+    assert [e["title"] for e in ctl.recent.items("H")] == ["An Album"]
+    tr.track_uri = "x-file-cifs://nas/Music/b.flac"
+    tr.title = "Song B"
+    tr.album_art_uri = "/getaa?u=x-file-cifs%3a%2f%2fnas%2fMusic%2fb.flac"
+    asyncio.run(ctl._note_recently_played(state))
+    first = ctl.recent.items("H")[0]
+    assert (first["title"], first["art"]) == ("Song B", tr.album_art_uri)
+    # And it survives a reload.
+    assert RecentlyPlayed(path).items("H")[0]["title"] == "Song B"
+
+
+def test_the_explicit_badge_does_not_outlive_its_track():
+    """The service's explicit flag was never cleared, so a library file that
+    followed an explicit service track wore its badge."""
+    import inspect
+
+    from backend.sonos.controller import SonosController
+
+    assert "transport.explicit = None" in inspect.getsource(SonosController._forget_track)

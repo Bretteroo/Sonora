@@ -20,6 +20,7 @@ def test_the_update_item_is_read():
 def _controller(players, item, calls):
     ctl = SonosController.__new__(SonosController)
     ctl._software_updates = {}
+    ctl._updates_started = {}
     ctl.any_host = lambda household: "192.168.0.105"
 
     async def call(host, service, action, args, **kw):
@@ -241,3 +242,33 @@ def test_without_the_manifest_the_item_stands_for_every_player():
     status = asyncio.run(ctl.software_update(hh))
     assert status["pending"] is True and [p["uuid"] for p in status["players"]] == ["P2"]
     assert status["version"] == "97.2-81220"
+
+
+# --- an update that is installing -----------------------------------------------------------
+
+def test_a_started_update_is_installing_until_the_player_shows_its_new_version():
+    calls = []
+    ctl, hh = _controller([_player("P1", "57.23-74170"), _player("P2", "57.23-80060")], ITEM, calls)
+    assert ctl.updating_players(hh) == {}
+    asyncio.run(ctl.begin_software_update(hh))
+    assert ctl.updating_players(hh) == {"P1": "P1"}
+    # Asked again while it installs: the player is not told twice.
+    assert asyncio.run(ctl.begin_software_update(hh))["started"] == []
+    assert len([c for c in calls if c[1] == "BeginSoftwareUpdate"]) == 1
+    # Restarting, it is off the network and still counted.
+    hh.players["P1"].online = False
+    assert ctl.updating_players(hh) == {"P1": "P1"}
+    hh.players["P1"].online = True
+    hh.players["P1"].software_version = "57.23-80060"
+    assert ctl.updating_players(hh) == {}
+    assert ctl._updates_started == {}
+
+
+def test_an_update_that_never_finishes_is_offered_again(monkeypatch):
+    calls = []
+    ctl, hh = _controller([_player("P1", "57.23-74170")], ITEM, calls)
+    asyncio.run(ctl.begin_software_update(hh))
+    from backend.sonos import controller as module
+    later = module.monotonic() + SonosController.UPDATE_INSTALL_LIMIT + 1
+    monkeypatch.setattr(module, "monotonic", lambda: later)
+    assert ctl.updating_players(hh) == {}

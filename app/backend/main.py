@@ -2741,8 +2741,12 @@ async def software_update(household_id: str) -> dict:
     if household is None:
         raise HTTPException(404, f"unknown household {household_id}")
     status = await ctl.software_update(household)
-    return {k: status.get(k) for k in ("pending", "version", "display")} | {
-        "players": [p["name"] for p in status.get("players", [])]}
+    # Players an update was started on are installing, not waiting: they
+    # are named apart so a page can say so for as long as it lasts.
+    updating = ctl.updating_players(household)
+    waiting = [p["name"] for p in status.get("players", []) if p["uuid"] not in updating]
+    return {"pending": bool(waiting), "version": status.get("version"), "display": status.get("display"),
+            "players": waiting, "updating": list(updating.values())}
 
 
 @app.post("/api/households/{household_id}/software-update")

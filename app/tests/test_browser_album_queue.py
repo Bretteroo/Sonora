@@ -256,3 +256,91 @@ def test_a_sonos_playlist_of_library_files_or_an_unlinked_service_says_why(monke
     # Anything else is not a Sonos playlist and is left to the other routes.
     assert asyncio.run(main._speaker_list_stream("x-rincon-cpcontainer:1004206calbum?sid=212", "RINCON_X")) is None
     assert main._didl_seconds("1:02:03") == 3723 and main._didl_seconds("") == 0
+
+
+# --- A whole playlist or album added ------------------------------------------------------------
+
+def test_a_sonos_playlist_added_to_the_list_adds_each_of_its_tracks(monkeypatch):
+    rows = [_row(f"x-sonos-http:track%3a{n}.flac?sid=212", f"Song {n}") for n in (7, 8)]
+    _playlist_household(monkeypatch, rows)
+    session = _session(3, pos=1)
+    listing = _edit(session, action="add", uri="file:///jffs/settings/savedqueues.rsq#17", zone="RINCON_X")
+    assert [t["title"] for t in listing["queue"]] == ["Song 1", "Song 2", "Song 3", "Song 7", "Song 8"]
+    assert listing["index"] == 1 and listing.get("reason", "") == ""
+    assert main._track_context(session, session["tracks"][4]) == {"endpoint": "ctx"}
+    # Play Next puts them after the playing track, in the playlist's order.
+    listing = _edit(session, action="add", uri="file:///jffs/settings/savedqueues.rsq#17", zone="RINCON_X", next=True)
+    assert [t["title"] for t in listing["queue"]][2:4] == ["Song 7", "Song 8"]
+
+
+def test_a_sonos_playlist_with_nothing_this_room_can_fetch_says_why(monkeypatch):
+    _playlist_household(monkeypatch, [_row("x-file-cifs://nas/music/a.flac", "On the share")])
+    listing = _edit(_session(2, pos=0), action="add", uri="file:///jffs/settings/savedqueues.rsq#17", zone="RINCON_X")
+    assert listing["reason"] == "needs-speaker" and len(listing["queue"]) == 2
+
+
+def test_a_service_album_added_to_the_list_adds_each_of_its_tracks(monkeypatch):
+    _playlist_household(monkeypatch, [])
+
+    async def listing(session):
+        assert session["station"] == "album:5" and session["smapi"] == {"endpoint": "ctx"}
+        return [_item(n) for n in (5, 6)]
+
+    monkeypatch.setattr(main, "_album_tracks", listing)
+    started = asyncio.run(main.stream_queue_start(main.BrowserQueueStart(
+        uri="x-rincon-cpcontainer:1004206calbum%3a5?sid=212", zone="RINCON_X")))
+    try:
+        assert [t["title"] for t in started["queue"]] == ["Song 5", "Song 6"] and started["playing"] is False
+    finally:
+        main._RADIO_SESSIONS.pop(started["session"], None)
+
+
+# --- The page's list given back after a reload ---------------------------------------------------
+
+def test_a_list_restored_with_the_page_is_rebuilt_from_its_rows(monkeypatch):
+    rows = [_row(f"x-sonos-http:track%3a{n}.flac?sid=212", f"Song {n}") for n in (1, 2)]
+    _playlist_household(monkeypatch, rows)
+    playlist = "file:///jffs/settings/savedqueues.rsq#17"
+    page = [main.BrowserQueueRow(uri="track:1", title="Song 1", art="/api/art?u=https%3A%2F%2Fart.example%2F1.jpg",
+                                 duration="0:03:23"),                       # saved before rows named a sid
+            main.BrowserQueueRow(uri="track:2", sid=212, title="Song 2"),
+            main.BrowserQueueRow(uri="x-sonos-http:track%3a9.flac?sid=212", title="Song 9"),   # added on the page
+            main.BrowserQueueRow(uri=playlist, title="Screenshots")]       # a playlist left as one row
+    answer = asyncio.run(main.stream_queue_rebuild(main.BrowserQueueRebuild(
+        rows=page, zone="RINCON_X", source=playlist, index=1)))
+    held = main._RADIO_SESSIONS.pop(answer["session"])
+    assert [t["title"] for t in answer["queue"]] == ["Song 1", "Song 2", "Song 9", "Song 1", "Song 2"]
+    assert answer["index"] == 1 and answer["playing"] is False and answer["reason"] == ""
+    assert all(t["sid"] == 212 for t in answer["queue"])
+    assert held["tracks"][0].art == "https://art.example/1.jpg" and held["tracks"][0].duration == 203
+    assert held["tracks"][2].id == "track:9"
+    assert main._track_context(held, held["tracks"][2]) == {"endpoint": "ctx"}
+
+
+def test_a_row_with_no_service_to_fetch_it_leaves_the_page_its_copy(monkeypatch):
+    _playlist_household(monkeypatch, [])
+    answer = asyncio.run(main.stream_queue_rebuild(main.BrowserQueueRebuild(
+        rows=[main.BrowserQueueRow(uri="track:1")], zone="RINCON_X")))
+    assert answer == {"reason": "needs-speaker"}
+    _playlist_household(monkeypatch, [], token="")
+    answer = asyncio.run(main.stream_queue_rebuild(main.BrowserQueueRebuild(
+        rows=[main.BrowserQueueRow(uri="track:1", sid=212)], zone="RINCON_X")))
+    assert answer == {"reason": "needs-link", "service": "Plex"}
+
+
+def test_a_jump_to_a_track_the_service_will_not_serve_leaves_the_place_and_names_the_service(monkeypatch):
+    session = _session(n=5, pos=3)
+    session["smapi"] = {"service_name": "Tonewell"}
+    main._RADIO_SESSIONS["list"] = session
+
+    async def refused(held):
+        held["pos"] += 1
+        return None
+
+    monkeypatch.setattr(main, "_album_track", refused)
+    try:
+        answer = asyncio.run(main.stream_jump("list", 4))
+    finally:
+        main._RADIO_SESSIONS.pop("list", None)
+    assert answer == {"url": "", "reason": "service-refused", "service": "Tonewell", "session": "list"}
+    assert session["pos"] == 3

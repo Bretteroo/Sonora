@@ -377,7 +377,7 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
   // player's does; playing the album shuffled is Shuffle under Play.
   const playMode = activeZone?.transport?.play_mode || 'NORMAL'
   const shuffled = playMode.startsWith('SHUFFLE')
-  const canShuffle = Boolean(activeZone && !activeZone.local) && activeZone.transport?.can_shuffle !== false
+  const canShuffle = Boolean(activeZone) && activeZone.transport?.can_shuffle !== false
   const toggleShuffle = () => actions.setPlayMode(activeZone.uuid, shuffled ? withoutShuffle(playMode) : withShuffle(playMode))
   const albumItem = () => ({ id: `${node.id}#album`, title: node.title, uri: node.uri, metadata: node.metadata || '', art: node.art, artist: node.artist,
                              is_container: true, item_type: node.kind, hzone: node.hzone, service: node.service })

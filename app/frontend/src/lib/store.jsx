@@ -626,6 +626,11 @@ export function SystemProvider({ children }) {
   // things it cannot do say so rather than failing quietly.
   // The request the browser room is playing, which a reload replays.
   const recallBody = useRef(null)
+  // The request the room's list came from. It is the same as recallBody while
+  // the room plays through the list, and stays behind when a station starts
+  // beside it, so the list can be opened again. Null for a list built by Add
+  // to Queue, which no one request describes.
+  const listBody = useRef(null)
   const localActions = useMemo(() => {
     const refuseGrouping = () => {
       notify({ kind: 'warning', titleKey: 'local.cannotGroup.title',
@@ -696,6 +701,10 @@ export function SystemProvider({ children }) {
         artist,
         album,
         art: track?.art || body.art || artFrom(body),
+        // How long the service says the track is, in seconds. The room has a
+        // length from this before the audio's own header arrives, and where
+        // the browser never reports one; a station's answer has no track.
+        duration: Number(track?.duration) || 0,
         // The service's name. The stream's answer names it; a caller may
         // pass a sid here instead, and Hi-Fi's display then read "188" over
         // AccuRadio, so a bare number never stands for a name.
@@ -723,11 +732,22 @@ export function SystemProvider({ children }) {
         session: Array.isArray(answer.queue) ? answer.session : undefined,
         jump: Array.isArray(answer.queue) && answer.session
           ? async (index) => {
-            const more = await api.streamJump(answer.session, index).catch(() => null)
+            const more = await jumped(answer.session, index)
             return more && more.url ? fromAnswer(more, body) : null
           }
           : undefined,
+        // The list's source again, begun at one of its tracks: the way back
+        // into the list when the server has let its session go.
+        reopen: Array.isArray(answer.queue) ? (start) => local.setSource({ ...body, start }) : undefined,
       }
+    }
+    // One track of the room's list, asked of the server by its place. A track the service
+    // will not serve comes back with the reason, and the reader is told it: the room goes on
+    // with what it was playing, and saying nothing would leave a click with no answer.
+    const jumped = async (session, index) => {
+      const more = await api.streamJump(session, index).catch(() => null)
+      if (more && !more.url && more.reason && more.reason !== 'ended') local.refuseSource(more)
+      return more
     }
     // Named, because one of these is built out of another.
     const local = {
@@ -742,7 +762,12 @@ export function SystemProvider({ children }) {
       // A double-click in the queue: the album or playlist's track at that
       // place (the panes count from 1, as a speaker's queue does).
       seekTrack: (n) => localOut.jump(Number(n) - 1),
-      setPlayMode: () => null,
+      setPlayMode: (mode) => localOut.setPlayMode(mode),
+      setAlbumShuffle: (shuffle) => {
+        const want = albumMode(localOut.state.playMode || 'NORMAL', shuffle)
+        if (want) localOut.setPlayMode(want)
+        return Promise.resolve(null)
+      },
       setVolume: (level) => localOut.setVolume(level),
       setGroupVolume: (level) => localOut.setVolume(level),
       nudgeVolume: (delta) => localOut.setVolume(localOut.state.volume + delta),
@@ -764,7 +789,13 @@ export function SystemProvider({ children }) {
       // An album or playlist's list takes a speaker queue's edits; the panes
       // count from 1, the session from 0. Clearing stops the room, as it
       // stops a speaker; Save writes a Sonos playlist through a speaker.
-      clearQueue: () => run(async () => { const done = await localOut.clearQueue(); recallBody.current = null; forgetLast(); return done },
+      clearQueue: () => run(async () => {
+        const done = await localOut.clearQueue()
+        recallBody.current = null
+        listBody.current = null
+        forgetLast()
+        return done
+      },
         { describe: 'notice.conflict.title' }),
       reorderQueue: (start, insertBefore, count = 1) => run(() => localOut.editQueue(
         { action: 'move', start: Number(start) - 1, count, insert_before: Number(insertBefore) - 1 }),
@@ -797,8 +828,45 @@ export function SystemProvider({ children }) {
       // a speaker's queue would take it. A room holding no list (a single
       // track or a station playing, or nothing) starts one, headed by the
       // track playing; a station playing keeps playing beside the list.
-      enqueueTrack: async (body) => {
+      // A list the page holds with no session on the server (restored after a reload) given
+      // back to the server as it stands, so an add or a play goes by the rows the reader sees
+      // and not by the source the list first came from. True when the server took it.
+      relist: async () => {
         const held = localOut.state
+        if (held.session || !Array.isArray(held.queue) || !held.queue.length) return false
+        const zone = held.fromZone || listBody.current?.from_zone || ''
+        const answer = await api.streamRebuild({ rows: held.queue.map((r) => ({
+          uri: r.uri || '', sid: Number(r.sid) || 0, title: r.title || '', artist: r.artist || '', album: r.album || '',
+          art: r.art || '', duration: r.duration || '' })), zone, source: listBody.current?.uri || '',
+          index: held.queueIndex ?? -1 }).catch(() => null)
+        if (!answer || answer.reason || !answer.session || localOut.state.session) return false
+        const session = answer.session
+        const asked = { uri: listBody.current?.uri || '', from_zone: zone }
+        localOut.adopt({ session, queue: answer.queue, queueIndex: held.queueIndex ?? -1, playing: false,
+                         service: answer.service || '',
+                         next: async () => { const more = await api.streamNext(session).catch(() => null); return more && more.url ? fromAnswer(more, asked) : null },
+                         jump: async (index) => { const more = await jumped(session, index); return more && more.url ? fromAnswer(more, asked) : null } })
+        return true
+      },
+      enqueueTrack: async (body) => {
+        if (await local.relist()) return local.enqueueTrack(body)
+        const held = localOut.state
+        // A list the page holds with no session on the server that the server would not take
+        // back: the track joins the page's own copy of it, where it stands, rather than
+        // starting a new list. A whole album or playlist cannot be one row, so it is refused.
+        if (!held.session && Array.isArray(held.queue) && held.queue.length) {
+          if (/^object\.container/.test(classFrom(body.metadata)) || /^x-rincon-cpcontainer:|savedqueues\.rsq#/i.test(body.uri || '')) {
+            return local.refuseSource({ reason: 'needs-queue' })
+          }
+          const field = (tag) => {
+            const found = new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`).exec(body.metadata || '')
+            return found ? found[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'") : ''
+          }
+          const row = { id: `local:${body.uri}`, title: body.title || field('dc:title'), artist: field('dc:creator'), album: field('upnp:album'),
+                        art: field('upnp:albumArtURI'), kind: 'track', is_container: false, uri: body.uri }
+          const added = localOut.addRow(row, Boolean(body.next))
+          return { queue: added.queue, index: added.index, playing: added.index >= 0 }
+        }
         const zone = body.from_zone || held.fromZone || ''
         const listed = Boolean(held.session && Array.isArray(held.queue))
         const track = held.url && !held.queue && !held.station ? held.mediaUri : ''
@@ -812,27 +880,94 @@ export function SystemProvider({ children }) {
         const session = answer.session || held.session
         const follow = answer.session ? {
           next: async () => { const more = await api.streamNext(session).catch(() => null); return more && more.url ? fromAnswer(more, asked) : null },
-          jump: async (index) => { const more = await api.streamJump(session, index).catch(() => null); return more && more.url ? fromAnswer(more, asked) : null },
+          jump: async (index) => { const more = await jumped(session, index); return more && more.url ? fromAnswer(more, asked) : null },
         } : {}
-        localOut.adopt({ session, queue: answer.queue, queueIndex: answer.playing ? answer.index : -1,
-                         playing: Boolean(answer.playing), ...follow })
+        // The server's place is the list's last track played. That is the
+        // one playing unless a station is on beside the list.
+        const marked = Boolean(answer.playing) && (!listed || held.inList)
+        if (answer.session) listBody.current = null
+        localOut.adopt({ session, queue: answer.queue, queueIndex: marked ? answer.index : -1,
+                         playing: marked, service: answer.service || '', ...follow })
         return answer
+      },
+      // Play Now on a single track while the room holds a list: the track
+      // goes into the list after the one last played there and plays from
+      // it, which is what a speaker's Play Now does with its queue. With
+      // `at_end` it goes to the end of the list instead and plays from
+      // there. Null where there is no list to take it or the list will not,
+      // and the track then plays on its own.
+      playInList: async (asked) => {
+        const held = localOut.state
+        if (!held.session || !Array.isArray(held.queue)) return null
+        // A song asked for at the end (a song reserved from the karaoke songbook) is a single
+        // track whatever its metadata says; a library's often says nothing.
+        if (!asked.at_end && !/object\.item\.audioItem\.musicTrack/.test(classFrom(asked.metadata))) return null
+        const zone = asked.from_zone || held.fromZone || ''
+        const answer = await api.streamQueueEdit(held.session, { action: 'add', uri: asked.uri, zone, next: !asked.at_end }).catch(() => null)
+        if (!answer || answer.reason || !Array.isArray(answer.queue)) return null
+        // The first of what was added: an album or a playlist adds all its tracks.
+        const at = asked.at_end ? held.queue.length : answer.index + 1
+        localOut.adopt({ session: held.session, queue: answer.queue,
+                         queueIndex: held.inList && answer.playing ? answer.index : -1 })
+        await localOut.jump(at)
+        const now = localOut.state
+        return now.inList && now.queueIndex === at ? answer : null
       },
       setSource: async (body) => {
         if (body.enqueue && !body.replace) return local.enqueueTrack(body)
         // `start`: a track of the album to begin at (a restored queue).
         const { start = '', ...asked } = body
+        if (!start && !body.replace) {
+          // A song started from the room's list is what a reload comes back to: the request
+          // kept for it is the song's own, not that of a station or album played before it.
+          const keep = () => {
+            recallBody.current = asked
+            saveLast(asked, localOut.state, listBody.current)
+          }
+          const placed = await local.playInList(asked)
+          if (placed) { keep(); return placed }
+          // Played from the end with no list on the server to join: the room starts one with it,
+          // as a speaker's empty queue takes it, and plays it from there. A list held only on the
+          // page (after a reload) is not added to here: a jump into it would replay its saved
+          // request, which is no way to play a song just added.
+          if (asked.at_end && !(Array.isArray(localOut.state.queue) && localOut.state.queue.length && !localOut.state.session)) {
+            const listed = await local.enqueueTrack({ ...asked, enqueue: true })
+            if (listed && Array.isArray(listed.queue) && listed.queue.length && localOut.state.session) {
+              await localOut.jump(listed.queue.length - 1)
+              if (localOut.state.inList) keep()
+              return listed
+            }
+          }
+        }
         const answer = await run(() => api.streamUrl(asked.uri, asked.from_zone || '', start), { describe: 'notice.error.title' })
         if (!answer) return null
         if (!answer.url) return local.refuseSource(answer)
-        // A new source: a station or a single track brings no list, so the
-        // one from before goes.
-        const loaded = { ...fromAnswer(answer, asked), ...(Array.isArray(answer.queue) ? {} : { queue: null, jump: null }) }
+        // An album or a playlist brings its list, which becomes the room's.
+        // A station, a stream, or a lone track brings none and plays beside
+        // the list the room holds, which stays as it was: a speaker's queue
+        // is still there after radio, and so is this one.
+        const listed = Array.isArray(answer.queue)
+        // A list begun with shuffle on opens on any of its tracks, not always
+        // its first. The list and its session are the first answer's.
+        let first = answer
+        if (listed && !start && body.play !== false && answer.session && answer.queue.length > 1
+            && String(localOut.state.playMode || '').startsWith('SHUFFLE')) {
+          const at = Math.floor(Math.random() * answer.queue.length)
+          if (at !== answer.index) {
+            const more = await api.streamJump(answer.session, at).catch(() => null)
+            if (more && more.url) first = { ...more, queue: answer.queue, session: answer.session }
+          }
+        }
+        const loaded = { ...fromAnswer(first, asked), ...(listed ? {} : { inList: false }) }
         recallBody.current = asked
+        if (listed) listBody.current = asked
         await localOut.load(loaded)
+        // A queue loaded without being started (Replace Queue with play: false) waits, paused.
+        if (body.play === false) localOut.pause()
+        if (!localOut.state.queue) listBody.current = null
         // The length may have arrived while it loaded, and was saved then;
         // this save comes after and must not take it away.
-        saveLast(asked, { ...loaded, duration: localOut.state.duration || 0 })
+        saveLast(asked, localOut.state, listBody.current)
         return answer
       },
     }
@@ -845,10 +980,29 @@ export function SystemProvider({ children }) {
     const saved = readLast()
     if (!saved) return
     recallBody.current = saved.body
-    // Play resumes the track the album was on; a double-click in the restored
-    // queue names its own.
-    const at = saved.shown?.queue?.[saved.shown.queueIndex]?.uri || ''
-    localOut.restore(saved.shown, (start) => localActions.setSource({ ...saved.body, start: start || at }))
+    const shown = saved.shown || {}
+    // Where the list came from: its own request where one was kept, and what
+    // was playing otherwise (a save from before the two were told apart).
+    const list = shown.queue ? (saved.listBody === undefined ? saved.body : saved.listBody) : null
+    listBody.current = list
+    const inList = shown.inList === undefined ? shown.queueIndex >= 0 : shown.inList
+    // Play resumes the track the album was on, or the station that was on
+    // beside it; a double-click in the restored queue names its own track.
+    const at = shown.queue?.[shown.queueIndex]?.uri || ''
+    localOut.restore(shown,
+      async (start, index) => {
+        // The list is played from as the page shows it, rows added after its source included,
+        // and a list built a song at a time, which has no source of its own, as much as an album's.
+        const place = index ?? (inList ? shown.queueIndex : -1)
+        if (shown.queue?.length && place >= 0 && await localActions.relist()) {
+          await localOut.jump(place)
+          return Boolean(localOut.state.url)
+        }
+        return (list && (start || inList)
+          ? localActions.setSource({ ...list, start: start || at })
+          : localActions.setSource(saved.body))
+      },
+      list ? (start) => localActions.setSource({ ...list, start }) : null)
   }, [localActions])
 
   // Kept as it moves on, not only when it starts: a new track, a jump, or an
@@ -856,8 +1010,19 @@ export function SystemProvider({ children }) {
   // and the list as they were.
   useEffect(() => {
     let seen = null
+    // The list of a room playing nothing, as it was last seen: `undefined` until the first look.
+    let idle
     return localOut.subscribe((now) => {
-      if (!recallBody.current || !now.url) return
+      if (!now.url) {
+        // A list that came back with the page plays nothing until Play is pressed. A song taken
+        // out of it, moved, or added is kept all the same, or a reload would undo the edit.
+        const edited = idle !== undefined && idle !== now.queue && Array.isArray(now.queue)
+        idle = now.queue
+        if (edited && recallBody.current) saveLast(recallBody.current, now, listBody.current)
+        return
+      }
+      idle = now.queue
+      if (!recallBody.current) return
       const key = `${now.url}|${now.queueIndex}`
       const timed = now.duration > 0
       const same = seen && seen.key === key && seen.queue === now.queue
@@ -866,7 +1031,7 @@ export function SystemProvider({ children }) {
       // page unloads and the element is emptied.
       if (same && (seen.timed || !timed)) return
       seen = { key, queue: now.queue, timed: timed || Boolean(same && seen.timed) }
-      saveLast(recallBody.current, now)
+      saveLast(recallBody.current, now, listBody.current)
     })
   }, [])
 

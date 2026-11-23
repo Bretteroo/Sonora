@@ -1613,7 +1613,7 @@ async def _radio_track(session: dict) -> dict | None:
 _ALBUM_LIMIT = 2000
 
 
-def _queue_entry(item, position: int) -> dict:
+def _queue_entry(item, position: int, sid: int = 0) -> dict:
     """A track of the browser room's list, shaped like a speaker's queue item."""
     seconds = int(item.duration or 0)
     # The art goes through Sonora's cache, as a speaker queue's does, so the
@@ -1624,7 +1624,7 @@ def _queue_entry(item, position: int) -> dict:
         art = "/api/art?u=" + quote(item.art, safe="")
     return {"id": f"BQ:{position}", "title": item.title, "artist": item.artist,
             "album": item.album, "art": art, "kind": "track", "is_container": False,
-            "uri": item.id, "track_number": position,
+            "uri": item.id, "track_number": position, **({"sid": sid} if sid else {}),
             "duration": f"{seconds // 3600}:{seconds % 3600 // 60:02d}:{seconds % 60:02d}" if seconds else ""}
 
 
@@ -1696,7 +1696,7 @@ async def _radio_session(uri: str, household, service, context: dict, station: s
     Guardians of the Zone played a track at a time under an empty queue).
     """
     _sweep_radio_sessions()
-    session = {"station": station, "smapi": context, "queue": [], "index": 0,
+    session = {"station": station, "smapi": context, "queue": [], "index": 0, "sid": getattr(service, "id", 0) or 0,
                "service": service.name, "household": household.id,
                "uri": uri, "at": time.time()}
     if container:
@@ -1716,7 +1716,7 @@ async def _radio_session(uri: str, household, service, context: dict, station: s
         return None
     key = secrets.token_urlsafe(18)
     _RADIO_SESSIONS[key] = session
-    listing = ({"queue": [_queue_entry(t, n + 1) for n, t in enumerate(session["tracks"])]}
+    listing = ({"queue": [_queue_entry(t, n + 1, session.get("sid", 0)) for n, t in enumerate(session["tracks"])]}
                if session.get("tracks") is not None else {})
     return {**first, **listing, "reason": "", "service": service.name, "session": key}
 
@@ -1751,6 +1751,38 @@ async def _speaker_list_stream(uri: str, zone: str | None, start: str = "") -> d
     login, so it is opened the same way (``tracks``, ``pos``, a ``queue`` in
     the answer). A track only a speaker can fetch, a music library file say,
     is left out of the list; a playlist of nothing else says so.
+    """
+    read = await _saved_queue_tracks(uri, zone)
+    if read is None:
+        return None
+    tracks, contexts, sids, services = read["tracks"], read["contexts"], read["sids"], read["services"]
+    if not tracks:
+        if read["unlinked"]:
+            return {"url": "", "reason": "needs-link", "service": read["unlinked"]}
+        return {"url": "", "reason": "needs-speaker"} if read["rows"] else None
+    _sweep_radio_sessions()
+    name = services[sids[tracks[0].id]][0].name
+    session = {"station": read["object_id"], "smapi": {}, "queue": [], "index": 0,
+               "service": name, "household": read["household"].id, "uri": uri, "at": time.time(),
+               "tracks": tracks, "pos": -1, "contexts": contexts, "sids": sids}
+    if start:
+        at = next((n for n, t in enumerate(tracks) if t.id == start), None)
+        if at is not None:
+            session["pos"] = at - 1
+    first = await _radio_track(session)
+    if first is None:
+        return {"url": "", "reason": "service-refused", "service": name}
+    key = secrets.token_urlsafe(18)
+    _RADIO_SESSIONS[key] = session
+    return {**first, **_album_listing(session), "reason": "", "service": name, "session": key}
+
+
+async def _saved_queue_tracks(uri: str, zone: str | None) -> dict | None:
+    """The tracks of a Sonos playlist the browser room can fetch, read off the speakers.
+
+    Each comes with the SMAPI context and sid it is fetched by. ``rows`` is how many the
+    playlist holds in all and ``unlinked`` names a service Sonora has no login for, which
+    together say why a playlist gave no tracks. None when the speakers could not be asked.
     """
     found = _SAVED_QUEUE.match(uri or "")
     if not found or not zone:
@@ -1794,25 +1826,8 @@ async def _speaker_list_stream(uri: str, zone: str | None, start: str = "") -> d
                          duration=_didl_seconds(row.duration))
         tracks.append(item)
         contexts[item_id], sids[item_id] = context, sid
-    if not tracks:
-        if unlinked:
-            return {"url": "", "reason": "needs-link", "service": unlinked}
-        return {"url": "", "reason": "needs-speaker"} if rows else None
-    _sweep_radio_sessions()
-    name = services[sids[tracks[0].id]][0].name
-    session = {"station": object_id, "smapi": {}, "queue": [], "index": 0,
-               "service": name, "household": household.id, "uri": uri, "at": time.time(),
-               "tracks": tracks, "pos": -1, "contexts": contexts, "sids": sids}
-    if start:
-        at = next((n for n, t in enumerate(tracks) if t.id == start), None)
-        if at is not None:
-            session["pos"] = at - 1
-    first = await _radio_track(session)
-    if first is None:
-        return {"url": "", "reason": "service-refused", "service": name}
-    key = secrets.token_urlsafe(18)
-    _RADIO_SESSIONS[key] = session
-    return {**first, **_album_listing(session), "reason": "", "service": name, "session": key}
+    return {"tracks": tracks, "contexts": contexts, "sids": sids, "services": services,
+            "unlinked": unlinked, "rows": len(rows), "household": household, "object_id": object_id}
 
 
 async def _service_stream(uri: str, zone: str | None, start: str = "") -> dict | None:
@@ -2051,10 +2066,16 @@ async def stream_jump(session: str, index: int) -> dict:
         raise HTTPException(404, "that album is no longer playing here")
     if not 0 <= index < len(held["tracks"]):
         raise HTTPException(400, "no such track")
+    before = held["pos"]
     held["pos"] = index - 1
     answer = await _album_track(held)
     if answer is None:
-        return {"url": "", "reason": "ended", "session": session}
+        # The track asked for would not be served, so the list's place is
+        # where it was: what was playing plays on in the page, and its Next
+        # is still the track after it. The page is told whose refusal it was.
+        held["pos"] = before
+        name = _track_context(held, held["tracks"][index]).get("service_name", "")
+        return {"url": "", "reason": "service-refused", "service": name, "session": session}
     if answer["url"] and not answer.get("upstream"):
         answer = {**answer, **await _followed(answer["url"])}
     answer = _through_sonora_if_titled(answer)
@@ -2111,6 +2132,48 @@ async def _browser_track(uri: str, zone: str) -> dict:
     return {"item": found, "context": context, "sid": sid, "service": service, "household": household}
 
 
+async def _browser_tracks(uri: str, zone: str) -> dict:
+    """What an add to the browser room's list puts in it: one track, or every track of
+    a service's album or playlist, or of a Sonos playlist, the way a speaker's Add to
+    Queue takes a whole container. ``{"items": [...]}`` in the shape ``_browser_track``
+    answers with, or ``reason`` (and ``service``) when there is nothing to add."""
+    if _SAVED_QUEUE.match(uri or ""):
+        read = await _saved_queue_tracks(uri, zone)
+        if read is None:
+            return {"reason": "needs-speaker"}
+        if not read["tracks"]:
+            if read["unlinked"]:
+                return {"reason": "needs-link", "service": read["unlinked"]}
+            return {"reason": "needs-speaker"}
+        return {"items": [{"item": t, "context": read["contexts"][t.id], "sid": read["sids"][t.id],
+                           "service": read["services"][read["sids"][t.id]][0], "household": read["household"]}
+                          for t in read["tracks"]]}
+    sid, item_id = smapi_container_ref(uri)
+    if not sid or not item_id:
+        got = await _browser_track(uri, zone)
+        return {"items": [got]} if "item" in got else got
+    ctl = controller()
+    household = ctl.household_of(zone) if zone else None
+    if household is None:
+        household = next(iter(ctl.ordered_households()), None)
+    service = await _cached_service(ctl, household, sid) if household is not None else None
+    if service is None:
+        return {"reason": "needs-speaker"}
+    creds = ctl.credentials_for(household.id, sid, "", single_account=True) or {}
+    if service.auth != "Anonymous" and not creds.get("token"):
+        return {"reason": "needs-link", "service": service.name}
+    context = await _service_context(household, service, ctl)
+    try:
+        tracks = await _album_tracks({"station": item_id, "smapi": context})
+    except Exception as exc:
+        log.info("could not list %s: %s", item_id, exc)
+        tracks = []
+    if not tracks:
+        return {"reason": "service-refused", "service": service.name}
+    return {"items": [{"item": t, "context": context, "sid": sid, "service": service, "household": household}
+                      for t in tracks]}
+
+
 def _hold_track(session: dict, got: dict, at: int) -> None:
     """Put a resolved track into a session's list at ``at``, with the
     context and service it is fetched by, which may not be the list's own:
@@ -2148,14 +2211,16 @@ async def stream_queue_start(body: BrowserQueueStart) -> dict:
     never as an error: nothing was playing that could be hurt.
     """
     _sweep_radio_sessions()
-    got = await _browser_track(body.uri, body.zone)
-    if "item" not in got:
-        return {"reason": got["reason"], "service": got.get("service", "")}
+    read = await _browser_tracks(body.uri, body.zone)
+    if "items" not in read:
+        return {"reason": read["reason"], "service": read.get("service", "")}
+    got = read["items"][0]
     session = {"station": got["item"].id, "smapi": got["context"], "queue": [], "index": 0,
                "service": got["service"].name, "household": got["household"].id,
                "uri": body.now_uri or body.uri, "at": time.time(),
                "tracks": [], "pos": -1, "playing": False}
-    _hold_track(session, got, 0)
+    for n, each in enumerate(read["items"]):
+        _hold_track(session, each, n)
     if body.now_uri:
         now = await _browser_track(body.now_uri, body.now_zone or body.zone)
         if "item" in now:
@@ -2172,8 +2237,103 @@ def _album_listing(session: dict) -> dict:
     ``playing`` is False once the track playing has been taken out of the
     list: it plays on, nothing is marked, and Next goes to what followed it.
     """
-    return {"queue": [_queue_entry(t, n + 1) for n, t in enumerate(session["tracks"])],
+    sids = session.get("sids", {})
+    return {"queue": [_queue_entry(t, n + 1, sids.get(t.id) or session.get("sid", 0))
+                      for n, t in enumerate(session["tracks"])],
             "index": session["pos"], "playing": session.get("playing", True)}
+
+
+class BrowserQueueRow(BaseModel):
+    #: A row of the list as the page shows it: the service's own track id with the service's
+    #: sid, or a track's Sonos URI (a row added to the page's copy), and what it shows.
+    uri: str
+    sid: int = 0
+    title: str = ""
+    artist: str = ""
+    album: str = ""
+    art: str = ""
+    duration: str = ""
+
+
+class BrowserQueueRebuild(BaseModel):
+    rows: list[BrowserQueueRow]
+    #: The room the list was browsed through, and the source it came from (a Sonos playlist,
+    #: an album), which names the service of rows saved without one.
+    zone: str = ""
+    source: str = ""
+    #: The place the room is at in the list, from 0, or -1.
+    index: int = -1
+
+
+@app.post("/api/stream/rebuild")
+async def stream_queue_rebuild(body: BrowserQueueRebuild) -> dict:
+    """Give the server the browser room's list again, as the page shows it.
+
+    After a reload the page holds the list it had, with no session behind it. Opening its
+    source again would bring back the source and lose what was added to it; this makes a
+    session of the rows themselves, so a song added or a row played goes by the list the
+    reader sees. A row that cannot be fetched here makes it ``reason``, and the page keeps
+    its own copy.
+    """
+    ctl = controller()
+    household = ctl.household_of(body.zone) if body.zone else None
+    if household is None:
+        household = next(iter(ctl.ordered_households()), None)
+    if household is None or not body.rows:
+        return {"reason": "needs-speaker"}
+    # The source names the service of rows from a list saved before rows carried one.
+    known: dict[str, int] = {}
+    fallback = 0
+    if body.source:
+        if _SAVED_QUEUE.match(body.source):
+            read = await _saved_queue_tracks(body.source, body.zone)
+            known = dict(read["sids"]) if read else {}
+        else:
+            fallback = smapi_container_ref(body.source)[0] or smapi_media_ref(body.source)[0]
+    contexts: dict[int, dict] = {}
+    services: dict[int, object] = {}
+    session = {"station": "", "smapi": {}, "queue": [], "index": 0, "household": household.id,
+               "uri": body.source, "at": time.time(), "tracks": [], "pos": -1, "playing": False,
+               "contexts": {}, "sids": {}}
+    for row in body.rows:
+        # A whole playlist or album held as one row (as an add after a reload once left it)
+        # is its tracks.
+        if _SAVED_QUEUE.match(row.uri) or smapi_container_ref(row.uri)[0]:
+            read = await _browser_tracks(row.uri, body.zone)
+            if "items" not in read:
+                return {"reason": read["reason"], **({"service": read["service"]} if read.get("service") else {})}
+            for each in read["items"]:
+                services.setdefault(each["sid"], each["service"])
+                contexts.setdefault(each["sid"], each["context"])
+                _hold_track(session, each, len(session["tracks"]))
+            continue
+        sid, item_id = smapi_media_ref(row.uri)
+        if not sid:
+            item_id, sid = row.uri, row.sid or known.get(row.uri) or fallback
+        if not sid or not item_id:
+            return {"reason": "needs-speaker"}
+        if sid not in contexts:
+            service = await _cached_service(ctl, household, sid)
+            if service is None:
+                return {"reason": "needs-speaker"}
+            creds = ctl.credentials_for(household.id, sid, "", single_account=True) or {}
+            if service.auth != "Anonymous" and not creds.get("token"):
+                return {"reason": "needs-link", "service": service.name}
+            contexts[sid], services[sid] = await _service_context(household, service, ctl), service
+        art = row.art
+        if art.startswith("/api/art?u="):
+            art = unquote(art[len("/api/art?u="):])
+        item = SmapiItem(id=item_id, title=row.title, item_type="track", art=art, can_play=True,
+                         artist=row.artist, album=row.album, duration=_didl_seconds(row.duration))
+        _hold_track(session, {"item": item, "context": contexts[sid], "sid": sid}, len(session["tracks"]))
+    first = services[session["sids"][session["tracks"][0].id]]
+    session["service"] = first.name
+    session["smapi"] = contexts[session["sids"][session["tracks"][0].id]]
+    session["pos"] = body.index if 0 <= body.index < len(session["tracks"]) else -1
+    _sweep_radio_sessions()
+    key = secrets.token_urlsafe(18)
+    _RADIO_SESSIONS[key] = session
+    return {**_album_listing(session), "session": key, "service": first.name, "reason": ""}
 
 
 @app.post("/api/stream/{session}/queue")
@@ -2191,10 +2351,12 @@ async def stream_queue_edit(session: str, body: BrowserQueueEdit) -> dict:
     tracks, pos = held["tracks"], held["pos"]
     playing = held.get("playing", True)
     if body.action == "add":
-        got = await _browser_track(body.uri, body.zone)
-        if "item" not in got:
-            return {**_album_listing(held), "reason": got["reason"], "service": got.get("service", "")}
-        _hold_track(held, got, pos + 1 if body.next else len(tracks))
+        read = await _browser_tracks(body.uri, body.zone)
+        if "items" not in read:
+            return {**_album_listing(held), "reason": read["reason"], "service": read.get("service", "")}
+        at = pos + 1 if body.next else len(tracks)
+        for n, each in enumerate(read["items"]):
+            _hold_track(held, each, at + n)
     elif body.action == "clear":
         held["tracks"], held["pos"], held["playing"] = [], -1, False
     elif body.action == "remove":

@@ -139,13 +139,25 @@ function liveActions(out) {
 }
 
 export function browserTransport(out) {
+  // Whether the room is playing through its list. A station or a stream
+  // playing beside the list leaves it held and out of use, which is the
+  // shape a speaker reports with radio on and a queue waiting: the source is
+  // the radio, and the queue's length is still there.
+  const viaList = Boolean(out.queue) && (out.inList || (!out.url && !out.restored))
   return {
     state: out.state,
     status: out.error ? 'ERROR' : 'OK',
-    play_mode: 'NORMAL',
+    play_mode: out.playMode || 'NORMAL',
+    // The modes are the list's: offered while the room plays through it, and
+    // not for a station beside it or an empty room, as a speaker reports them.
+    can_shuffle: viaList,
+    can_repeat: viaList,
+    can_repeat_one: viaList,
+    // A list held beside a station keeps its mode for when it next plays.
+    queue_play_mode: !viaList && Array.isArray(out.queue) && out.queue.length ? (out.playMode || 'NORMAL') : '',
     crossfade: false,
     // An album or playlist counts its tracks as a speaker's queue does.
-    track_number: out.queue ? out.queueIndex + 1 : (out.url ? 1 : 0),
+    track_number: viaList ? out.queueIndex + 1 : (out.url ? 1 : 0),
     // A remembered item has no stream yet; its service URI stands in, so the
     // panes count the room as loaded and offer Play, which resolves it again.
     track_uri: out.url || (out.restored ? out.mediaUri : ''),
@@ -157,6 +169,9 @@ export function browserTransport(out) {
     track_duration: out.duration ? hms(out.duration) : '0:00:00',
     rel_time: hms(out.position),
     position: out.position,
+    // When that second began, as a speaker's report carries when it was read: the place in the
+    // song is then exact between reports, not half a second either way.
+    ...(out.positionAt != null ? { received_at: out.positionAt, position_age: 0, position_exact: true } : {}),
     title: out.title,
     // A live stream, presented the way a station is everywhere else: the name
     // on the station line, with the host it comes from as the stream's own
@@ -181,7 +196,7 @@ export function browserTransport(out) {
     // Playing through an album or playlist is playing from a queue, which is
     // what puts the panes' queue in use with the playing track marked.
     // A remembered album's list counts too, stopped, with its track marked.
-    source: out.queue ? 'queue' : (out.url ? 'radio' : 'idle'),
+    source: viaList ? 'queue' : (out.url ? 'radio' : 'idle'),
     service: out.service,
     // The service's name under the key a speaker's transport uses, which is
     // what every theme reads; without it Hi-Fi's display read "Radio" over
@@ -195,7 +210,8 @@ export function browserTransport(out) {
     item_id: out.url ? out.itemId || '' : '',
     // The speaker the item was browsed through, which homeZone reads.
     from_zone: out.url ? out.fromZone || '' : '',
-    // Radio does not fill a queue, here or on a speaker; an album does.
+    // Radio does not fill a queue, here or on a speaker; an album does, and
+    // the list is still counted while radio plays beside it.
     queue_length: out.queue ? out.queue.length : 0,
     // A station or a book has a next track to ask the service for; a live
     // stream has nowhere to go. Seeking works wherever there is a duration.

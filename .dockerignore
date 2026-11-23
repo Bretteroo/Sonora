@@ -16,6 +16,7 @@ app/frontend/node_modules
 # Local secrets. The key reaches the container through env_file at run time,
 # never through a layer.
 .env
+**/.env.local
 
 # Docs and tests: none of it is served.
 docs

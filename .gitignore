@@ -4,6 +4,7 @@ __pycache__/
 node_modules/
 app/frontend/dist/
 .env
+.env.local
 *.log
 .pytest_cache/
 

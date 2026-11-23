@@ -261,7 +261,9 @@
 :where(:root[data-theme='sonofuture']) .sf-layer-center { place-items: center; padding: 20px; }
 /* The scene editor grows as groups and rooms are added. Its top is pinned so it grows downward only, and its body keeps room for a typical scene so the usual additions do not resize it at all. */
 :where(:root[data-theme='sonofuture']) .sf-layer-center:has(> .sf-scene-editor) { align-items: start; padding-top: 6vh; }
-:where(:root[data-theme='sonofuture']) .sf-scene-editor .sf-sheet-body { min-height: min(720px, 80vh); }
+/* The room is kept on the sheet, against the space the layer gives it: a body held to 80vh outgrew the sheet in a phone browser whose
+   toolbar was showing, since vh counts the screen behind the toolbar, and the sheet cut off its Save and Cancel. */
+:where(:root[data-theme='sonofuture']) .sf-scene-editor { min-height: min(790px, 100%); }
 :where(:root[data-theme='sonofuture']) .sf-layer-palette { place-items: start center; padding: 12vh 20px 20px; }
 :where(:root[data-theme='sonofuture']) .sf-layer-side { justify-items: end; }
 :where(:root[data-theme='sonofuture']) .sf-layer-full { background: var(--t-bg); backdrop-filter: none; }

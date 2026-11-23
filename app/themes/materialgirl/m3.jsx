@@ -504,7 +504,7 @@ export function Confirm({ title, body, action, cancelLabel, onConfirm, onClose, 
 
 // --- menus -----------------------------------------------------------------------
 
-export function Menu({ x, y, anchor = null, align = 'left', onClose, children, title = '', width = 0 }) {
+export function Menu({ x, y, anchor = null, align = 'left', onClose, children, title = '', width = 0, fit = false }) {
   const ref = useRef(null)
   // Measured at the window's left edge, hidden, then placed: measured where it
   // was opened, near the right edge, it had shrunk to the room left there and
@@ -553,7 +553,7 @@ export function Menu({ x, y, anchor = null, align = 'left', onClose, children, t
   }
   return createPortal(
     <div className="mg-menu" ref={ref} role="menu" data-ready={pos.ready || undefined} data-above={pos.above || undefined} data-exiting={exiting || undefined} onKeyDown={onKeyDown}
-         style={{ left: pos.left, top: pos.top, minWidth: width || undefined, visibility: pos.ready ? undefined : 'hidden' }}
+         style={{ left: pos.left, top: pos.top, minWidth: width || undefined, visibility: pos.ready ? undefined : 'hidden', ...(fit ? { width: 'max-content', maxWidth: 'calc(100vw - 16px)' } : null) }}
          data-grouped={groups.length > 1 || undefined}
          onContextMenu={(event) => event.preventDefault()}>
       {groups.length > 1 ? groups.map((group, i) => (
@@ -635,8 +635,10 @@ export function Select({ value, onChange, disabled = false, children, label = ''
         </span>
         <I.ChevronDown className="mg-select-chev" />
       </button>
+      {/* A dropdown's menu is at least as wide as its box, and wider where a choice needs it, so no
+          choice is cut short: past the 280px a menu otherwise keeps to. */}
       {open && (
-        <Menu anchor={open} width={open.getBoundingClientRect().width} onClose={() => setOpen(null)}>
+        <Menu anchor={open} width={open.getBoundingClientRect().width} fit onClose={() => setOpen(null)}>
           <div className="mg-menu-scroll">
             {options.map((o) => (
               <MenuItem key={o.value} checked={o.value === current?.value} disabled={o.disabled} onSelect={() => pick(o.value)}>{o.label}</MenuItem>

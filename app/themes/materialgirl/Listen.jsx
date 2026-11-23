@@ -61,7 +61,7 @@ function Tile({ item, kind, onPlay, onOpen, onMenu }) {
   const unavailable = item.available === false
   const opens = kind === 'favorite' && item.browse_id && item.service_id && !unavailable
   return (
-    <div className="mg-tile" role="button" tabIndex={0} aria-disabled={unavailable || undefined} title={item.title}
+    <div className="mg-tile" data-id={item.uri || item.id} role="button" tabIndex={0} aria-disabled={unavailable || undefined} title={item.title}
          onClick={() => (unavailable ? null : onPlay(item))}
          onKeyDown={(event) => { if (event.key === 'Enter' && !unavailable) onPlay(item) }}
          onContextMenu={(event) => { event.preventDefault(); onMenu(item, event) }}>
@@ -127,9 +127,50 @@ function useMultiBrowse(ref) {
   })
 }
 
-function Carousel({ label, icon, sub = '', action = null, children, empty = null }) {
+// A list that changes while it is on the page moves to its new order rather
+// than snapping there: each tile travels from where it stood, at the size it
+// had, on the spatial spring, and a tile that was not there before grows in
+// from the leading edge while its picture fades up. Nothing moves the first
+// time a list is drawn.
+const SPATIAL = { duration: 500, easing: 'cubic-bezier(0.38, 1.21, 0.22, 1)' }
+const EFFECTS = { duration: 200, easing: 'cubic-bezier(0.34, 0.8, 0.34, 1)' }
+function useListMotion(ref, on) {
+  const before = useRef(null)
+  useLayoutEffect(() => {
+    const row = ref.current
+    if (!on || !row) { before.current = null; return }
+    const now = new Map()
+    for (const tile of row.children) {
+      if (tile.dataset.id) now.set(tile.dataset.id, { tile, x: tile.offsetLeft, w: tile.offsetWidth })
+    }
+    const was = before.current
+    before.current = new Map([...now].map(([id, { x, w }]) => [id, { x, w }]))
+    if (!was || !was.size || typeof row.animate !== 'function') return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    // Another list altogether (a room in another household) is not a change
+    // to this one.
+    if (![...now.keys()].some((id) => was.has(id))) return
+    const rtl = getComputedStyle(row).direction === 'rtl'
+    for (const [id, { tile, x, w }] of now) {
+      const old = was.get(id)
+      if (!old) {
+        tile.animate([{ transform: 'scale(0.4)' }, { transform: 'none' }],
+          SPATIAL)
+        tile.animate([{ opacity: 0 }, { opacity: 1 }], EFFECTS)
+        continue
+      }
+      // Right to left a tile is anchored at its right edge.
+      const dx = rtl ? (old.x + old.w) - (x + w) : old.x - x
+      if (!dx && old.w === w) continue
+      tile.animate([{ transform: `translateX(${dx}px) scale(${w ? old.w / w : 1})` }, { transform: 'none' }], SPATIAL)
+    }
+  })
+}
+
+function Carousel({ label, icon, sub = '', action = null, children, empty = null, moves = false }) {
   const row = useRef(null)
   useMultiBrowse(row)
+  useListMotion(row, moves)
   return (
     <section className="mg-shelf" aria-label={label}>
       <header className="mg-shelf-head">
@@ -231,9 +272,9 @@ export default function Listen({ groups, zones, households, activeId, activeZone
       {activeZone && (
         <>
           {recent?.items?.length > 0 && (
-            <Carousel label={t('mg.recent')} icon={<I.Clock />} sub={t('mg.forRoom', { room: activeZone.name })}>
+            <Carousel moves label={t('mg.recent')} icon={<I.Clock />} sub={t('mg.forRoom', { room: activeZone.name })}>
               {recent.items.slice(0, 24).map((item) => (
-                <Tile key={item.id} item={item} kind="recent" onPlay={(it) => onPlayItem(it, 'recent')} onOpen={() => {}}
+                <Tile key={item.uri || item.id} item={item} kind="recent" onPlay={(it) => onPlayItem(it, 'recent')} onOpen={() => {}}
                       onMenu={(it, event) => onItemMenu(it, 'recent', event)} />
               ))}
             </Carousel>

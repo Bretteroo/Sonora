@@ -64,16 +64,19 @@ const WEIGHTS = { xs: 0.7, s: 0.85, m: 1, l: 1.2, xl: 1.5, bar: 1.7 }
 export function Key({ absent = false, disabled = false, lit = null, ...props }) {
   // The cap's shade is drawn only while it shows (severed.css, --k-shade-layer): while the key is
   // out of use, and for the fade back into use after.
+  // The fade is marked in the same draw that brings the key back, not after it: a draw between
+  // the two would show the cap with no shade at all, a flash of full light before the fade.
   const [fading, setFading] = useState(false)
-  const was = useRef(absent)
+  const [was, setWas] = useState(absent)
+  if (was !== absent) {
+    setWas(absent)
+    setFading(was && !absent)
+  }
   useEffect(() => {
-    const back = was.current && !absent
-    was.current = absent
-    if (!back) return undefined
-    setFading(true)
+    if (!fading) return undefined
     const id = setTimeout(() => setFading(false), KEY_FADE_MS + 100)
     return () => clearTimeout(id)
-  }, [absent])
+  }, [fading])
   return <LiveKey {...props} disabled={absent || disabled} lit={lit === null ? null : lit && !absent} data-dim={absent || undefined}
                   data-shade={absent || fading || undefined} />
 }

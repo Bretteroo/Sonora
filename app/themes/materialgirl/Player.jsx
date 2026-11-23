@@ -9,7 +9,7 @@ import { nowPlayingArt, cachedArt } from '../../frontend/src/components/Art.jsx'
 import { isLarge } from './layout.js'
 import * as I from './icons.jsx'
 import { IconButton, ButtonGroup, Slider, Chip, Segmented, ShapeArt, Menu, MenuItem, cx } from './m3.jsx'
-import { SHAPES, KIND_SHAPES } from './shapes.js'
+import { SHAPES } from './shapes.js'
 import { canSkip, canNext, canPrevious, isLoaded, nextTransport, togglePlay, canAct, nowSummary, nowLines, useProviderMetadata, groupTitle, readStored, writeStored } from './data.js'
 import { QueueList, QueueActions, queueSummary } from './Queue.jsx'
 import { useOptimisticRatings } from '../../frontend/src/lib/optimisticRatings.js'
@@ -319,7 +319,7 @@ export function NowToolbar({ zone, group, zones, compact, onOpen, onQueue, queue
         {/* The big player's shape (cookie12) at this size: the two players are one thing, so they
             share a silhouette. Each keeps the motion its size can carry: a slow turn here, where
             the big player's breath would move a pixel, and a breath there, where a turn is busy. */}
-        <ShapeArt src={art} shape={playing ? SHAPES.cookie12 : SHAPES.squircle} size={compact ? 44 : 48} fallback="note" className="mg-toolbar-art" spin={playing} />
+        <ShapeArt src={art} shape={playing ? SHAPES.cookie12 : SHAPES.circle} size={compact ? 44 : 48} fallback="note" className="mg-toolbar-art" spin={playing} />
         {/* a line too long for the bar scrolls, one at a time (lib/marquee.jsx) */}
         <MarqueeProvider enabled style="sonora">
           <span className="mg-toolbar-text">
@@ -439,7 +439,6 @@ export function PlayerView({ zone, group, zones, groups = [], onSelect, queue, c
   // line of none. It then reads as a room with no music.
   const shown = loaded && lines.length > 0
   const [title, ...rest] = shown ? lines : [[t('desk.now.noMusic'), t('desk.now.noMusic')]]
-  const artShape = playing ? SHAPES.cookie12 : KIND_SHAPES.room
   const panelFor = (which) => (which === 'queue' ? (
     <>
       {/* The queue's length, and Save and Clear for the whole of it, as the queue sheet has. */}
@@ -528,7 +527,12 @@ export function PlayerView({ zone, group, zones, groups = [], onSelect, queue, c
             {showLyrics ? <Lyrics transport={tr} />
               : tr.source === 'tv'
                 ? <span className="mg-player-tv" style={{ clipPath: SHAPES.squircle }}><I.Tv /></span>
-                : <ShapeArt src={art} shape={artShape} size={compact ? 300 : 420} fallback="note" className="mg-player-cover" />}
+                : (
+                  <span className="mg-player-cover">
+                    <span className="mg-player-cover-frame" style={{ clipPath: SHAPES.cookie12 }} aria-hidden="true" />
+                    <ShapeArt src={art} shape="inset(0 round 9%)" size={compact ? 300 : 420} fallback="note" />
+                  </span>
+                )}
           </div>
           <div className="mg-player-lines">
             {shown && <p className="mg-player-over">{title[0]}</p>}

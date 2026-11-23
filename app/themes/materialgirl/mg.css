@@ -916,7 +916,10 @@
   & .mg-toolbar-transport { display: flex; align-items: center; gap: 4px; }
   & .mg-toolbar-seek { min-width: 0; padding: 0 8px; }
   & .mg-toolbar-actions { display: flex; align-items: center; gap: 2px; }
-  & .mg-size-compact .mg-toolbar { left: 16px; right: 80px; grid-template-columns: minmax(0, 1fr) auto; bottom: calc(var(--mg-nav-h) + 16px); padding: 0 4px; height: 56px; }
+  /* The 44px cover sits 6px in on every side, so it shares the round end's center. The bar
+     runs to Material's 16dp margin on both sides: its text wants the room, and the space a
+     paired FAB would take stays free only where a page shows one, which none does. */
+  & .mg-size-compact .mg-toolbar { left: 16px; right: 16px; grid-template-columns: minmax(0, 1fr) auto; bottom: calc(var(--mg-nav-h) + 16px); padding: 0 6px; height: 56px; }
   & .mg-size-medium .mg-toolbar { grid-template-columns: minmax(0, 1fr) auto auto; }
   & .mg-size-medium .mg-toolbar-seek { display: none; }
 
@@ -971,13 +974,18 @@
   & .mg-player-wide .mg-player-main { flex: 1 1 0; }
   & .mg-player-main { display: flex; flex-direction: column; align-items: center; gap: 24px; min-width: 0; overflow: auto; padding-bottom: 8px; }
   & .mg-player-art { display: grid; place-items: center; }
-  & .mg-player-cover { width: min(420px, 62vw, 46vh); height: min(420px, 62vw, 46vh); }
-  & .mg-player[data-playing] .mg-player-cover { animation: mg-breathe 6s var(--mg-effects) infinite alternate; }
-  /* The shape breathes; the cover inside it holds still, the shape a crop moving over it
-     (shape: "photography cropping"), as the toolbar's turning cookie keeps its art upright.
-     The breath is inward, from the box down to 97.5%, so the turned shape always lies inside the
-     circle the box holds and never reaches past the picture. */
-  & .mg-player[data-playing] .mg-player-cover img { animation: mg-breathe-still 6s var(--mg-effects) infinite alternate; }
+  /* The whole cover, square, on a cookie that turns and breathes behind it: the shape is the
+     frame, so it crops nothing. The box is the cookie's; the cover is the square whose edges the
+     scallops clear, and its corners reach past them. */
+  & .mg-player-cover { position: relative; display: grid; place-items: center; width: min(420px, 62vw, 46vh); height: min(420px, 62vw, 46vh); }
+  /* The strong primary, not its container: the player's own ground starts as primary-container,
+     and a cookie in that color could not be told from it. */
+  & .mg-player-cover-frame { position: absolute; inset: 0; background: var(--mg-primary); }
+  & .mg-player-cover .mg-shape-art { width: 78.125%; height: 78.125%; }
+  /* The animation is always there and only runs while music plays, so a pause holds the cookie
+     where it had got to and playing again carries on from there. */
+  & .mg-player-cover-frame { animation: mg-breathe 6s var(--mg-effects) infinite alternate paused; }
+  & .mg-player[data-playing] .mg-player-cover-frame { animation-play-state: running; }
   & .mg-player-tv { display: grid; place-items: center; width: min(360px, 60vw); aspect-ratio: 1; background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
   & .mg-player-tv svg { width: 30%; height: 30%; }
   /* The lyrics in the cover's place: a rounded pane as tall as the cover and wider, since words need
@@ -1138,7 +1146,11 @@
   & .mg-hero-item[data-active] { flex: 1 0 min(560px, 70%); }
   & .mg-hero-bg { position: absolute; inset: 0; display: grid; place-items: center; background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
   & .mg-hero-bg img, & .mg-hero-bg > span { width: 100%; height: 100%; object-fit: cover; }
-  & .mg-hero-bg > svg { width: 26%; height: 26%; max-width: 96px; max-height: 96px; margin-bottom: 18%; opacity: 0.8; }
+  /* The placeholder sits in the room above the text. A percentage margin
+     is a share of the card's width, and on a wide card it lifted the note
+     out through the top. */
+  & .mg-hero-bg:has(> svg) { box-sizing: border-box; padding-bottom: 84px; }
+  & .mg-hero-bg > svg { width: 96px; height: 96px; max-width: 60%; max-height: 80%; opacity: 0.8; }
   & .mg-hero-glyph { display: grid; place-items: center; width: 100%; height: 100%; background: var(--mg-tertiary-container); color: var(--mg-on-tertiary-container); }
   & .mg-hero-glyph svg { width: 48px; height: 48px; }
   & .mg-hero-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, oklch(0 0 0 / 0.7)); }
@@ -1175,6 +1187,8 @@
      one's extra width, --mg-grow set from the scroll. The first tile starts large. */
   /* As tall as the large tile with its two lines (4 + 24 + 4 + 20) and the row's padding (16) at every scroll position: while
      the large size is shared between two tiles neither is that tall, and the page below bobbed. */
+  & .mg-carousel-multi > .mg-tile { transform-origin: 0 0; }
+  & .mg-carousel-multi:dir(rtl) > .mg-tile { transform-origin: 100% 0; }
   & .mg-carousel-multi { --mg-tile-w: 160px; --mg-tile-big-w: 232px; align-items: flex-start; min-height: calc(var(--mg-tile-big-w) + 68px); }
   & .mg-carousel-multi > .mg-tile { --mg-w: calc(var(--mg-tile-w) + var(--mg-grow, 0) * (var(--mg-tile-big-w) - var(--mg-tile-w)));
     flex-basis: var(--mg-w); width: var(--mg-w); }
@@ -1679,7 +1693,7 @@
     & :is(.mg-main, [data-motion], .mg-player-panel, .mg-sheet, .mg-menu[data-ready], .mg-snack, .mg-fabmenu-list li, .mg-dest-indicator, .mg-chip-icon, .mg-player, .mg-player > *) {
       animation: mg-fade 150ms var(--mg-effects-fast) both !important; }
     & .mg-layer[data-exiting] .mg-sheet, & .mg-menu[data-exiting], & .mg-player[data-transform='out'], & .mg-snack[data-leaving], & .mg-li[data-removing='leaving'] { animation: mg-fade-out 150ms var(--mg-effects-fast) both !important; }
-    & :is(.mg-player-cover, .mg-player-cover img, .mg-shape-spin, .mg-shape-spin img, .mg-sleep-badge, .mg-sleep-badge svg, .mg-skel-row, .mg-skel-card, .mg-wavy-phase) { animation: none !important; }
+    & :is(.mg-player-cover-frame, .mg-shape-spin, .mg-shape-spin img, .mg-sleep-badge, .mg-sleep-badge svg, .mg-skel-row, .mg-skel-card, .mg-wavy-phase) { animation: none !important; }
   }
 }
 
@@ -1720,8 +1734,7 @@
 @keyframes mg-tip { from { opacity: 0; } }
 @keyframes mg-rail-in { from { transform: translateX(-60%); opacity: 0; } }
 @keyframes mg-drawer-up { from { opacity: 0; transform: translateY(24px); } }
-@keyframes mg-breathe { to { transform: scale(0.975) rotate(4deg); } }
-@keyframes mg-breathe-still { to { transform: rotate(-4deg) scale(1.02564); } }
+@keyframes mg-breathe { to { transform: scale(0.96) rotate(30deg); } }
 @keyframes mg-open-search { from { opacity: 0; transform: scaleX(0.8) scaleY(0.4); } to { opacity: 1; transform: none; } }
 
 /* A rating the service gives no way to undo: lit, and not pressable. */

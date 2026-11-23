@@ -1805,7 +1805,7 @@ export function Shortcuts({ onClose }) {
     ['⌘→', t('common.next')],
     ['⌘←', t('common.previous')],
     ['⌘]', t('desk.shortcuts.nextZone')],
-    ['⌘[', t('desk.shortcuts.prevZone')],
+    ['⌘[', t('desk.shortcuts.prevZone')], ['⌘Y', t('common.themeSwitch')],
     ['⌘,', t('desk.menu.settings')],
   ]
   return (

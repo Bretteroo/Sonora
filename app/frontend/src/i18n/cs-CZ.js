@@ -9,6 +9,7 @@ export default {
 
   // --- shared ------------------------------------------------------------
   'common.theme': 'Motiv',
+  'common.themeSwitch': 'Rychlé přepnutí motivu',
   'common.language': 'Jazyk',
   'common.back': 'Zpět',
   'common.cancel': 'Zrušit',

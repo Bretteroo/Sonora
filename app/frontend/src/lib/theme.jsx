@@ -26,6 +26,8 @@ const APPEARANCE_KEY = 'sonora.appearance'
 //: Set when a theme is chosen from the theme chooser, cleared by the theme it
 //: names once it has opened its own theme page (useThemeLanding below).
 const LANDING_KEY = 'sonora.themeLanding'
+// The same, for a theme chosen from the fast theme switch: it opens on its main page.
+const HOME_KEY = 'sonora.themeHome'
 
 // The themes that come with Sonora are as new as the Sonora serving them, so each
 // shows its version; a theme installed from a file keeps the version it carries.
@@ -228,10 +230,11 @@ export function ThemeProvider({ children }) {
 
   // `land`: chosen from the theme chooser, so the new theme opens on its own
   // theme page rather than wherever it was last left.
-  const selectTheme = useCallback((id, { land = false } = {}) => {
+  // `home`: chosen from the fast theme switch, so the new theme opens on its main page.
+  const selectTheme = useCallback((id, { land = false, home = false } = {}) => {
     if (!all[id]) return
-    if (land) {
-      try { window.sessionStorage.setItem(LANDING_KEY, id) } catch { /* it opens where it was */ }
+    if (land || home) {
+      try { window.sessionStorage.setItem(land ? LANDING_KEY : HOME_KEY, id) } catch { /* it opens where it was */ }
     }
     setThemeId(id)
     try {
@@ -290,14 +293,28 @@ export function useTheme() {
  * opens as it was left.
  */
 export function useThemeLanding(open) {
+  useArrival(LANDING_KEY, open)
+}
+
+/**
+ * Show this theme's main page, once, when it has just been chosen from the
+ * fast theme switch. A theme that remembers which of its pages was open calls
+ * it with whatever shows the main one; a theme that always opens on its main
+ * page has no need to.
+ */
+export function useThemeHome(open) {
+  useArrival(HOME_KEY, open)
+}
+
+function useArrival(key, open) {
   const { themeId } = useTheme()
   const latest = useRef(open)
   latest.current = open
   useEffect(() => {
     let wanted = null
-    try { wanted = window.sessionStorage.getItem(LANDING_KEY) } catch { return }
+    try { wanted = window.sessionStorage.getItem(key) } catch { return }
     if (!wanted || wanted !== themeId) return
-    try { window.sessionStorage.removeItem(LANDING_KEY) } catch { /* fine */ }
+    try { window.sessionStorage.removeItem(key) } catch { /* fine */ }
     latest.current()
-  }, [themeId])
+  }, [themeId, key])
 }

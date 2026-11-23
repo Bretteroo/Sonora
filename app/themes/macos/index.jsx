@@ -14,7 +14,7 @@ import Browse from './Browse.jsx'
 import PaneSwitch, { isNarrowShell, usePaneDirection } from './PaneSwitch.jsx'
 import { Window, About, AddServices, Confirm, GroupRooms, Preferences, Shortcuts, SleepTimer, Alarms, AddRadioStation, ClearQueueConfirm } from './Dialogs.jsx'
 import S2Upgrade from '../../frontend/src/components/S2Upgrade.jsx'
-import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import AboutSonora, { useAboutRequest } from '../../frontend/src/components/AboutSonora.jsx'
 import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import { SceneWindow, SceneQuietAsk } from './Scenes.jsx'
 import ErrorLog from '../../frontend/src/components/ErrorLog.jsx'
@@ -83,6 +83,8 @@ function Shell() {
   const [infoSignal, setInfoSignal] = useState(0)
   const [infoItem, setInfoItem] = useState(null)
   const [dialog, setDialog] = useState(null)
+  // About Sonora asked for from outside the theme opens here, as the theme's own.
+  useAboutRequest(() => setDialog({ kind: 'aboutSonora' }))
   // Chosen just now from the theme chooser: open on this theme's own theme page.
   useThemeLanding(() => setDialog({ kind: 'prefs', page: 'basic' }))
   // Bumped when a service is linked, so the Music pane lists it.

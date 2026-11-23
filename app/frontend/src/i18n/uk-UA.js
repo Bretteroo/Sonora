@@ -9,6 +9,7 @@ export default {
 
   // --- shared ------------------------------------------------------------
   'common.theme': 'Тема',
+  'common.themeSwitch': 'Швидка зміна теми',
   'common.language': 'Мова',
   'common.back': 'Назад',
   'common.cancel': 'Скасувати',

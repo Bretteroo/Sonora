@@ -9,6 +9,7 @@ export default {
 
   // --- shared ------------------------------------------------------------
   'common.theme': '主题',
+  'common.themeSwitch': '快速切换主题',
   'common.language': '语言',
   'common.back': '返回',
   'common.cancel': '取消',

@@ -9,6 +9,7 @@ export default {
 
   // --- shared ------------------------------------------------------------
   'common.theme': 'Teema',
+  'common.themeSwitch': 'Teeman pikavaihto',
   'common.language': 'Kieli',
   'common.back': 'Takaisin',
   'common.cancel': 'Peruuta',

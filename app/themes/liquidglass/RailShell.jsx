@@ -13,7 +13,7 @@ import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds, systemChoiceMatters } from '../../frontend/src/lib/format.js'
 import { useSleepTimer } from '../../frontend/src/lib/useSleepTimer.js'
-import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import AboutSonora, { useAboutRequest } from '../../frontend/src/components/AboutSonora.jsx'
 import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import logo from '../../frontend/src/assets/sonora.png'
 import * as I from './icons.jsx'
@@ -35,7 +35,7 @@ import ScenesSection, { SceneQuietAsk } from './Scenes.jsx'
 import SettingsSection, { LinkServiceSheet, ShortcutsSheet } from './Settings.jsx'
 import Palette from './Palette.jsx'
 import Mini, { isMiniWindow, openMiniPip, openMiniWindow } from './Mini.jsx'
-import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
+import { useThemeLanding, useThemeHome } from '../../frontend/src/lib/theme.jsx'
 import './rail-shell.css'
 
 // Sonofuture: the controller thought out again around what people do with a
@@ -59,6 +59,8 @@ export function Shell() {
   const [settingsPage, setSettingsPage] = useState('services')
   // Chosen just now from the theme chooser: open on this theme's own theme page.
   useThemeLanding(() => { setSettingsPage('appearance'); setSection('settings') })
+  // Chosen from the fast theme switch: open on the main page.
+  useThemeHome(() => setSection('home'))
   // Every settings page opens at its top. They share the one scrolling main,
   // which is keyed by section alone, so a page that drew tall at once kept
   // the last page's scroll.
@@ -150,6 +152,8 @@ export function Shell() {
   const [linking, setLinking] = useState(null)
   const [addTo, setAddTo] = useState(null)
   const [about, setAbout] = useState(false)
+  // About Sonora asked for from outside the theme opens here, as the theme's own.
+  useAboutRequest(() => setAbout(true))
   const [shortcuts, setShortcuts] = useState(false)
   const [confirm, setConfirm] = useState(null)
   const [quickMenu, setQuickMenu] = useState(null)

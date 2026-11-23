@@ -14,7 +14,7 @@ import NowPlaying from './NowPlaying.jsx'
 import QueuePanel from './QueuePanel.jsx'
 import GroupPanel from './GroupPanel.jsx'
 import LinkServiceModal from './LinkServiceModal.jsx'
-import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import AboutSonora, { useAboutRequest } from '../../frontend/src/components/AboutSonora.jsx'
 import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import { useNavigation } from './useNavigation.js'
 import { api } from '../../frontend/src/lib/api.js'
@@ -94,6 +94,8 @@ function Shell() {
     try { window.localStorage.setItem(GROUP_KEY, uuid) } catch { /* private window */ }
   }, [])
   const [aboutOpen, setAboutOpen] = useState(false)
+  // About Sonora asked for from outside the theme opens here, as the theme's own.
+  useAboutRequest(() => setAboutOpen(true))
   const nav = useNavigation()
   // Chosen just now from the theme chooser: open on this theme's own theme page.
   useThemeLanding(() => nav.push({ kind: 'settings' }))

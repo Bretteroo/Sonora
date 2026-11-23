@@ -5,11 +5,11 @@ import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds, systemChoiceMatters, isLiveStream, parseDuration, positionNow } from '../../frontend/src/lib/format.js'
 import { useSleepTimer } from '../../frontend/src/lib/useSleepTimer.js'
-import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import AboutSonora, { useAboutRequest } from '../../frontend/src/components/AboutSonora.jsx'
 import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import { useShellSelection } from '../../frontend/src/lib/shellSelection.js'
 import { isTyping, isCommand, keyOf, shuffleToggled, repeatCycled } from '../../frontend/src/lib/keys.js'
-import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
+import { useThemeLanding, useThemeHome } from '../../frontend/src/lib/theme.jsx'
 import logo from '../../frontend/src/assets/sonora.png'
 import * as G from './glyphs.jsx'
 import * as L from './legends.jsx'
@@ -149,6 +149,8 @@ export function Shell() {
   const [setupPage, setSetupPage] = useState('')
   // Chosen just now from the theme chooser: open on this theme's own theme page.
   useThemeLanding(() => { setProgram('setup'); setSetupPage('appearance') })
+  // Chosen from the fast theme switch: open on the main page.
+  useThemeHome(() => setProgram('player'))
   const [groupWindow, setGroupWindow] = useState(null)
   const [roomSettings, setRoomSettings] = useState(null)
   const [info, setInfo] = useState(null)
@@ -159,6 +161,8 @@ export function Shell() {
   const [linking, setLinking] = useState(null)
   const [addTo, setAddTo] = useState(null)
   const [about, setAbout] = useState(false)
+  // About Sonora asked for from outside the theme opens here, as the theme's own.
+  useAboutRequest(() => setAbout(true))
   const [shortcuts, setShortcuts] = useState(false)
   const [quickMenu, setQuickMenu] = useState(null)
   const [roomMenu, setRoomMenu] = useState(null)

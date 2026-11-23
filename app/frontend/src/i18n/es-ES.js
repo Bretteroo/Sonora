@@ -12,6 +12,8 @@
 export default {
 
   'common.theme': 'Tema',
+
+  'common.themeSwitch': 'Cambio rápido de tema',
   'common.language': 'Idioma',
   'common.back': 'Atrás',
   'common.cancel': 'Cancelar',

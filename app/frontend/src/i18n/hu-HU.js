@@ -11,6 +11,8 @@
 export default {
 
   'common.theme': 'Téma',
+
+  'common.themeSwitch': 'Gyors témaváltás',
   'common.language': 'Nyelv',
   'common.back': 'Vissza',
   'common.cancel': 'Mégse',

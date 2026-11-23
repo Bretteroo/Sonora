@@ -4,7 +4,7 @@ import { useOneAlert } from '../../frontend/src/lib/oneAlert.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 import { orderedHouseholds, systemChoiceMatters } from '../../frontend/src/lib/format.js'
 import { useSleepTimer } from '../../frontend/src/lib/useSleepTimer.js'
-import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import AboutSonora, { useAboutRequest } from '../../frontend/src/components/AboutSonora.jsx'
 import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import { nowPlayingArt } from '../../frontend/src/components/Art.jsx'
 import { useShellSelection } from '../../frontend/src/lib/shellSelection.js'
@@ -32,7 +32,7 @@ import './mg.css'
 import thumbnail from './thumbnail.webp'
 import darkThumbnail from './thumbnail-dark.webp'
 import strings from './strings.js'
-import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
+import { useThemeLanding, useThemeHome } from '../../frontend/src/lib/theme.jsx'
 
 // Material Girl: the Sonos controller rebuilt on Material 3 Expressive.
 //
@@ -94,6 +94,8 @@ export function Shell() {
   }, [settingsPage])
   // Chosen just now from the theme chooser: open on this theme's own theme page.
   useThemeLanding(() => { setSection('settings'); setSettingsPage('appearance') })
+  // Chosen from the fast theme switch: open on the main page.
+  useThemeHome(() => { setSection('listen'); setSettingsPage('') })
   useLayoutEffect(() => {
     if (mainRef.current) mainRef.current.scrollTop = settingsPage ? 0 : listScroll.current
   }, [settingsPage])
@@ -110,6 +112,8 @@ export function Shell() {
   const [linking, setLinking] = useState(null)
   const [addTo, setAddTo] = useState(null)
   const [about, setAbout] = useState(false)
+  // About Sonora asked for from outside the theme opens here, as the theme's own.
+  useAboutRequest(() => setAbout(true))
   const [shortcuts, setShortcuts] = useState(false)
   const [confirm, setConfirm] = useState(null)
   const [quickMenu, setQuickMenu] = useState(null)

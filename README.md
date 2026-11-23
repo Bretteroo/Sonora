@@ -251,7 +251,7 @@ Docker's `network_mode: host` is required for the same reason: the speakers have
 
 ## 🎨 Themes
 
-Sonora ships several themes. Six of them, Hi-Fi, Liquid Glass, Material Girl, Severed, Solarized, and Sonofuture, come in both light and dark.
+Sonora ships with over a dozen themes, selectable from within the Settings menu.  Ctrl+Y (Command+Y on a Mac) also opens up a floating theme selector for quick changes.
 
 You can make your own themes, too! [THEMES.md](THEMES.md) shows how.
 

@@ -689,7 +689,7 @@ export function ShortcutsSheet({ onClose }) {
     [t('desk.shortcuts.playPause'), 'Space'], [t('common.next'), 'Ctrl →'], [t('common.previous'), 'Ctrl ←'],
     [t('desk.shortcuts.volUp'), 'Ctrl ↑'], [t('desk.shortcuts.volDown'), 'Ctrl ↓'], [t('desk.shortcuts.mute'), 'Ctrl M'], [t('win.shortcuts.muteAll'), 'Ctrl ⇧ M'],
     [t('win.shortcuts.toggleShuffle'), 'Ctrl E'], [t('win.shortcuts.toggleRepeat'), 'Ctrl R'], [t('win.shortcuts.toggleCrossfade'), 'Ctrl ⇧ X'],
-    [t('desk.shortcuts.nextZone'), 'Ctrl .'], [t('desk.shortcuts.prevZone'), 'Ctrl ,'],
+    [t('desk.shortcuts.nextZone'), 'Ctrl .'], [t('desk.shortcuts.prevZone'), 'Ctrl ,'], [t('common.themeSwitch'), 'Ctrl Y'],
     [t('common.search'), 'Ctrl K'], [t('win.shortcuts.jumpSearch'), 'Ctrl F'], [t('common.queue'), 'Ctrl G'], [t('mg.openPlayer'), 'Ctrl J'],
     [t('mg.nav.listen'), 'Ctrl 1'], [t('mg.nav.browse'), 'Ctrl 2'], [t('mg.nav.rooms'), 'Ctrl 3'], [t('mg.nav.scenes'), 'Ctrl 4'], [t('mg.nav.clock'), 'Ctrl 5'], [t('mg.nav.settings'), 'Ctrl 6'],
     [t('win.shortcuts.favorites'), 'Ctrl *'], [t('desk.shortcuts.title'), '?'], [t('win.shortcuts.closeWindow'), 'Esc'],

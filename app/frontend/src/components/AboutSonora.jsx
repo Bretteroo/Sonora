@@ -25,6 +25,26 @@ import { playUnlockChime } from '../lib/unlockChime.js'
 // The Konami code, then Enter.
 const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a', 'Enter']
 
+// The event that asks the theme on screen to open About Sonora. A theme answers it with
+// useAboutRequest, so the card comes up where the theme itself puts it and looks as it does
+// from the theme's own menu.
+const ABOUT_REQUEST = 'sonora:about'
+
+export function useAboutRequest(open) {
+  const latest = useRef(open)
+  latest.current = open
+  useEffect(() => {
+    const on = (event) => { event.preventDefault(); latest.current() }
+    window.addEventListener(ABOUT_REQUEST, on)
+    return () => window.removeEventListener(ABOUT_REQUEST, on)
+  }, [])
+}
+
+// True when a theme took the request; false leaves the opening to the caller.
+export function requestAbout() {
+  return !window.dispatchEvent(new Event(ABOUT_REQUEST, { cancelable: true }))
+}
+
 export default function AboutSonora({ onClose }) {
   const { t } = useI18n()
 

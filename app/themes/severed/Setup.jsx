@@ -698,7 +698,7 @@ export function ShortcutsWindow({ onClose }) {
     [t('desk.shortcuts.playPause'), 'Space'], [t('common.next'), 'Ctrl →'], [t('common.previous'), 'Ctrl ←'],
     [t('desk.shortcuts.volUp'), 'Ctrl ↑'], [t('desk.shortcuts.volDown'), 'Ctrl ↓'], [t('desk.shortcuts.mute'), 'Ctrl M'], [t('win.shortcuts.muteAll'), 'Ctrl ⇧ M'],
     [t('win.shortcuts.toggleShuffle'), 'Ctrl E'], [t('win.shortcuts.toggleRepeat'), 'Ctrl R'], [t('win.shortcuts.toggleCrossfade'), 'Ctrl ⇧ X'],
-    [t('desk.shortcuts.nextZone'), 'Ctrl .'], [t('desk.shortcuts.prevZone'), 'Ctrl ,'],
+    [t('desk.shortcuts.nextZone'), 'Ctrl .'], [t('desk.shortcuts.prevZone'), 'Ctrl ,'], [t('common.themeSwitch'), 'Ctrl Y'],
     [t('common.search'), 'Ctrl K'], [t('win.shortcuts.jumpSearch'), 'Ctrl F'],
     [t('sv.prog.player'), '1'], [t('sv.prog.queue'), '2'], [t('sv.prog.library'), '3'], [t('sv.prog.rooms'), '4'],
     [t('sv.prog.scenes'), '5'], [t('sv.prog.clock'), '6'], [t('sv.prog.setup'), '7'],

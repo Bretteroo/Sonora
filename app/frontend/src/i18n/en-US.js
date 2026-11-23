@@ -11,6 +11,7 @@ export default {
 
   // --- shared ------------------------------------------------------------
   'common.theme': 'Theme',
+  'common.themeSwitch': 'Fast Theme Switch',
   'common.language': 'Language',
   'common.back': 'Back',
   'common.cancel': 'Cancel',

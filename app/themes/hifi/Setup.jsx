@@ -738,7 +738,7 @@ export function ShortcutsSheet({ onClose }) {
     [t('desk.shortcuts.playPause'), 'Space'], [t('common.next'), 'Ctrl →'], [t('common.previous'), 'Ctrl ←'],
     [t('desk.shortcuts.volUp'), 'Ctrl ↑'], [t('desk.shortcuts.volDown'), 'Ctrl ↓'], [t('desk.shortcuts.mute'), 'Ctrl M'], [t('win.shortcuts.muteAll'), 'Ctrl ⇧ M'],
     [t('win.shortcuts.toggleShuffle'), 'Ctrl E'], [t('win.shortcuts.toggleRepeat'), 'Ctrl R'], [t('win.shortcuts.toggleCrossfade'), 'Ctrl ⇧ X'],
-    [t('desk.shortcuts.nextZone'), 'Ctrl .'], [t('desk.shortcuts.prevZone'), 'Ctrl ,'],
+    [t('desk.shortcuts.nextZone'), 'Ctrl .'], [t('desk.shortcuts.prevZone'), 'Ctrl ,'], [t('common.themeSwitch'), 'Ctrl Y'],
     [t('win.shortcuts.jumpSearch'), 'Ctrl F'], [t('common.queue'), 'Ctrl G'],
     [t('hifi.fn.zones'), 'Ctrl 1'], [t('hifi.fn.tuner'), 'Ctrl 2'], [t('hifi.fn.tape'), 'Ctrl 3'], [t('hifi.fn.scenes'), 'Ctrl 4'], [t('hifi.fn.timer'), 'Ctrl 5'], [t('hifi.fn.setup'), 'Ctrl 6'],
     [t('win.shortcuts.favorites'), 'Ctrl *'], [t('desk.shortcuts.title'), '?'], [t('win.shortcuts.closeWindow'), 'Esc'],

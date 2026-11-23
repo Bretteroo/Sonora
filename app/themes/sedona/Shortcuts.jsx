@@ -24,6 +24,7 @@ export default function Shortcuts({ onClose }) {
     [t('desk.shortcuts.volUp'), 'Ctrl + +'],
     [t('desk.shortcuts.nextZone'), 'Ctrl + .'],
     [t('desk.shortcuts.prevZone'), 'Ctrl + ,'],
+    [t('common.themeSwitch'), 'Ctrl + Y'],
     [t('win.shortcuts.playNext'), 'Shift + Enter'],
     [t('win.shortcuts.replaceQueue'), 'Ctrl + Shift + Q'],
     [t('win.shortcuts.playLater'), 'Ctrl + Q'],

@@ -9,6 +9,7 @@ export default {
 
   // --- shared ------------------------------------------------------------
   'common.theme': 'Tema',
+  'common.themeSwitch': 'Snabbt temabyte',
   'common.language': 'Språk',
   'common.back': 'Tillbaka',
   'common.cancel': 'Avbryt',

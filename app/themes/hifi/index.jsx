@@ -7,7 +7,7 @@ import { useSleepTimer } from '../../frontend/src/lib/useSleepTimer.js'
 import { useNarrow } from '../../frontend/src/lib/useNarrow.js'
 import { useShellSelection } from '../../frontend/src/lib/shellSelection.js'
 import { isTyping, isCommand, keyOf, shuffleToggled, repeatCycled } from '../../frontend/src/lib/keys.js'
-import AboutSonora from '../../frontend/src/components/AboutSonora.jsx'
+import AboutSonora, { useAboutRequest } from '../../frontend/src/components/AboutSonora.jsx'
 import UpdateNotice from '../../frontend/src/components/UpdateNotice.jsx'
 import * as G from './glyphs.jsx'
 import { IconKey, Menu, MenuItem, MenuSep, Confirm } from './controls.jsx'
@@ -27,7 +27,7 @@ import thumbnail from './thumbnail.webp'
 import lightThumbnail from './thumbnail-light.webp'
 import strings from './strings.js'
 import { applyZoom, shortScreenZoom, pt } from './scale.js'
-import { useThemeLanding } from '../../frontend/src/lib/theme.jsx'
+import { useThemeLanding, useThemeHome } from '../../frontend/src/lib/theme.jsx'
 
 // Hi-Fi: the house as a rack of audio components.
 //
@@ -85,6 +85,8 @@ export function Shell() {
   const [setupPage, setSetupPage] = useState('services')
   // Chosen just now from the theme chooser: open on this theme's own theme page.
   useThemeLanding(() => { setSetupPage('appearance'); setFn('setup') })
+  // Chosen from the fast theme switch: open on the main page.
+  useThemeHome(() => setFn('zones'))
   const [linkSheet, setLinkSheet] = useState(null)
   const [tone, setTone] = useState(null)
   const [info, setInfo] = useState(null)
@@ -94,6 +96,8 @@ export function Shell() {
   const [linking, setLinking] = useState(null)
   const [addTo, setAddTo] = useState(null)
   const [about, setAbout] = useState(false)
+  // About Sonora asked for from outside the theme opens here, as the theme's own.
+  useAboutRequest(() => setAbout(true))
   const [shortcuts, setShortcuts] = useState(false)
   const [confirm, setConfirm] = useState(null)
   const [quickMenu, setQuickMenu] = useState(null)

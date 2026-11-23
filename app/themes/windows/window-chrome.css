@@ -1411,7 +1411,7 @@
    over the artist alone, no duration; the current track's art slot shows the
    transport state (play or pause glyph) on a #262626 square instead. The
    row checkbox hides while that row's menu is open (only the caret stays). */
-:where(:root[data-theme='windows']) .win-root .dk-row-album, :where(:root[data-theme='windows']) .win-root .dk-row-dur { display: none; }
+:where(:root[data-theme='windows']) .win-root .dk-row-album { display: none; }
 :where(:root[data-theme='windows']) .win-root .dk-row[aria-current='true'] .dk-row-art { display: none; }
 :where(:root[data-theme='windows']) .win-root .dk-row[aria-current='true'] .dk-row-num { display: grid; place-items: center; width: 40px; height: 40px; flex: none; background: #262626; color: #ffffff; }
 :where(:root[data-theme='windows']) .win-root .dk-row[aria-current='true'] .dk-row-num svg { width: 16px; height: 16px; }

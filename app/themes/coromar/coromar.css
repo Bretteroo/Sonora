@@ -233,7 +233,7 @@
 .co-root .dk-browse-row:hover, .co-root .dk-row:hover { background: rgba(12, 44, 58, 0.05); }
 .co-root .dk-browse-row[aria-selected='true'], .co-root .dk-row[aria-selected='true'], .co-root .dk-row[aria-checked='true'] { background: rgba(15, 95, 127, 0.16); color: var(--t-fg); box-shadow: inset 3px 0 0 var(--t-glass-lit); }
 .co-root .dk-row[aria-current='true'] { background: rgba(91, 143, 212, 0.13); box-shadow: inset 3px 0 0 var(--t-sky); }
-.co-root .dk-browse-sub, .co-root .dk-row-sub, .co-root .dk-row-num, .co-root .dk-row-dur, .co-root .dk-browse-note, .co-root .dk-browse-prose { color: var(--t-fg-muted); }
+.co-root .dk-browse-sub, .co-root .dk-row-sub, .co-root .dk-row-num, .co-root .dk-browse-note, .co-root .dk-browse-prose { color: var(--t-fg-muted); }
 .co-root .dk-browse-disclosure, .co-root .dk-browse-actions, .co-root .dk-browse-check { color: var(--t-fg-dim); }
 /* section labels in the stone of the entry piers */
 .co-root .dk-browse-section { color: var(--t-sandstone-deep); letter-spacing: 0.04em; }

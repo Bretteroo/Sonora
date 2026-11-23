@@ -64,7 +64,7 @@
 .sz-root .dk-browse-row:hover, .sz-root .dk-row:hover { background: rgba(88, 110, 117, 0.25); }
 .sz-root .dk-browse-row[aria-selected='true'], .sz-root .dk-row[aria-selected='true'], .sz-root .dk-row[aria-checked='true'] { background: rgba(38, 139, 210, 0.28); color: #eee8d5; }
 .sz-root .dk-row[aria-current='true'] { background: rgba(42, 161, 152, 0.22); }
-.sz-root .dk-browse-sub, .sz-root .dk-row-sub, .sz-root .dk-row-num, .sz-root .dk-row-dur, .sz-root .dk-browse-note, .sz-root .dk-browse-prose { color: #839496; }
+.sz-root .dk-browse-sub, .sz-root .dk-row-sub, .sz-root .dk-row-num, .sz-root .dk-browse-note, .sz-root .dk-browse-prose { color: #839496; }
 .sz-root .dk-browse-disclosure, .sz-root .dk-browse-actions, .sz-root .dk-browse-check { color: #586e75; }
 .sz-root .dk-browse-section { color: #b58900; }
 .sz-root .dk-scopebar-tabs button { color: #839496; }
@@ -281,7 +281,7 @@
 :root[data-variant='light'] .sz-root .dk-browse-row:hover, :root[data-variant='light'] .sz-root .dk-row:hover { background: rgba(147, 161, 161, 0.22); }
 :root[data-variant='light'] .sz-root .dk-browse-row[aria-selected='true'], :root[data-variant='light'] .sz-root .dk-row[aria-selected='true'], :root[data-variant='light'] .sz-root .dk-row[aria-checked='true'] { background: rgba(38, 139, 210, 0.18); color: #073642; }
 :root[data-variant='light'] .sz-root .dk-row[aria-current='true'] { background: rgba(42, 161, 152, 0.18); }
-:root[data-variant='light'] .sz-root .dk-browse-sub, :root[data-variant='light'] .sz-root .dk-row-sub, :root[data-variant='light'] .sz-root .dk-row-num, :root[data-variant='light'] .sz-root .dk-row-dur, :root[data-variant='light'] .sz-root .dk-browse-note, :root[data-variant='light'] .sz-root .dk-browse-prose, :root[data-variant='light'] .sz-root .dk-browse-empty { color: #657b83; }
+:root[data-variant='light'] .sz-root .dk-browse-sub, :root[data-variant='light'] .sz-root .dk-row-sub, :root[data-variant='light'] .sz-root .dk-row-num, :root[data-variant='light'] .sz-root .dk-browse-note, :root[data-variant='light'] .sz-root .dk-browse-prose, :root[data-variant='light'] .sz-root .dk-browse-empty { color: #657b83; }
 :root[data-variant='light'] .sz-root .dk-browse-disclosure, :root[data-variant='light'] .sz-root .dk-browse-actions, :root[data-variant='light'] .sz-root .dk-browse-check { color: #93a1a1; }
 :root[data-variant='light'] .sz-root .dk-scopebar-tabs button { color: #657b83; }
 :root[data-variant='light'] .sz-root .dk-scopebar-tabs button[aria-selected='true'] { color: #073642; }

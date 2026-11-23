@@ -745,7 +745,6 @@
 :where(:root[data-theme='liquidglass']) .sf-qrow-text { display: flex; flex-direction: column; min-width: 0; }
 :where(:root[data-theme='liquidglass']) .sf-qrow-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 :where(:root[data-theme='liquidglass']) .sf-qrow-sub { font-size: 11px; color: var(--t-fg-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-:where(:root[data-theme='liquidglass']) .sf-qrow-dur { font-size: 11px; color: var(--t-fg-dim); font-variant-numeric: tabular-nums; }
 :where(:root[data-theme='liquidglass']) .sf-qrow-tools { display: flex; align-items: center; gap: 2px; opacity: 0; transition: opacity 120ms; }
 :where(:root[data-theme='liquidglass']) .sf-qrow:hover .sf-qrow-tools, :where(:root[data-theme='liquidglass']) .sf-qrow[aria-checked='true'] .sf-qrow-tools, :where(:root[data-theme='liquidglass']) .sf-qrow:focus-within .sf-qrow-tools { opacity: 1; }
 :where(:root[data-theme='liquidglass']) .sf-queue-ghost { position: fixed; left: 50%; transform: translateX(-50%); z-index: 99; display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border-radius: 10px; background: var(--t-bg-raised); box-shadow: var(--t-shadow); border: 1px solid var(--t-border-strong); pointer-events: none; font-size: 13px; }

@@ -13,7 +13,6 @@ import { isConnectSession } from '../../frontend/src/lib/transport.js'
 // standard side sheet on a large window and comes up as a modal sheet on
 // anything smaller.
 
-function trim(value) { return (value || '').replace(/^0:0?/, '') }
 
 export function QueueList({ zone, queue, onInfo, onEdited, dense = false }) {
   const { actions } = useSystem()
@@ -99,7 +98,6 @@ export function QueueList({ zone, queue, onInfo, onEdited, dense = false }) {
               <span className="mg-qrow-title">{item.title}</span>
               <span className="mg-qrow-sub">{[item.artist, item.album].filter(Boolean).join(' · ')}</span>
             </span>
-            {item.duration && <span className="mg-qrow-dur">{trim(item.duration)}</span>}
             <span className="mg-qrow-tools" onClick={(event) => event.stopPropagation()}>
               <label className="mg-check" title={t('desk.browse.select')}>
                 <input type="checkbox" checked={checked.has(n)} onChange={() => toggle(n)} aria-label={t('desk.browse.select')} />

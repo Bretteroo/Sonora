@@ -54,7 +54,6 @@ function CassetteLabel({ text }) {
   return <span ref={ref} className="hf-cassette-label" style={{ fontSize: `${size}px` }}>{text}</span>
 }
 
-function trimDuration(value) { return (value || '').replace(/^0:0?/, '') }
 
 // `name` is what the room selector calls the zone: a group is "<room> + 1".
 function Cassette({ zone, name, count, current, inUse }) {
@@ -179,7 +178,6 @@ export function QueueList({ zone, queue, onInfo, onEdited, jumpTo = 0 }) {
                 <span className="hf-qrow-title">{item.title}</span>
                 <span className="hf-qrow-sub">{[item.artist, item.album].filter(Boolean).join(' · ')}</span>
               </span>
-              {item.duration && <span className="hf-qrow-dur">{trimDuration(item.duration)}</span>}
               <span className="hf-qrow-tools">
                 <IconKey label={t('common.play')} onClick={() => play(n)}><G.Play /></IconKey>
                 <IconKey label={t('desk.browse.actions')} onClick={(event) => setMenu({ n, item, x: pt(event.clientX), y: pt(event.clientY) })}><G.Ellipsis /></IconKey>

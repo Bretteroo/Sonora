@@ -142,7 +142,7 @@
 .sd-root .dk-browse-row:hover, .sd-root .dk-row:hover { background: var(--t-row-hover); }
 .sd-root .dk-browse-row[aria-selected='true'], .sd-root .dk-row[aria-selected='true'], .sd-root .dk-row[aria-checked='true'] { background: var(--t-row-selected); color: var(--t-ink); }
 .sd-root .dk-row[aria-current='true'] { background: var(--t-row-playing); }
-.sd-root .dk-browse-sub, .sd-root .dk-row-sub, .sd-root .dk-row-num, .sd-root .dk-row-dur { color: var(--t-ink-muted); }
+.sd-root .dk-browse-sub, .sd-root .dk-row-sub, .sd-root .dk-row-num { color: var(--t-ink-muted); }
 .sd-root .dk-browse-title, .sd-root .dk-row-text { color: var(--t-ink); }
 .sd-root .dk-browse-disclosure, .sd-root .dk-browse-actions, .sd-root .dk-browse-check { color: var(--t-ink-faint); }
 .sd-root .dk-browse-section { color: var(--t-rock-red); font-family: var(--t-font); }

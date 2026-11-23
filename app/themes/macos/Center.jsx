@@ -529,7 +529,6 @@ export function Queue({ zone, expanded = false, onExpand, SaveDialog = SaveQueue
                   {item.album && <span className="dk-row-album">{item.artist ? ' – ' : ''}{item.album}</span>}
                 </p>
               </span>
-              {item.duration && <span className="dk-row-dur">{trimDuration(item.duration)}</span>}
               <button type="button" className="dk-browse-actions" title={t('desk.browse.actions')}
                       onClick={(event) => { event.stopPropagation(); setMenu({ n, item, x: event.clientX, y: event.clientY }) }}>
                 <Icon.CaretDown />
@@ -584,11 +583,6 @@ export function Queue({ zone, expanded = false, onExpand, SaveDialog = SaveQueue
       </div>}
     </section>
   )
-}
-
-// "0:03:45" as the speakers report it reads better as "3:45".
-function trimDuration(value) {
-  return value.replace(/^0:0?/, '')
 }
 
 // The queue row menu as the app draws it (observed 2026-09-05): Play Song,

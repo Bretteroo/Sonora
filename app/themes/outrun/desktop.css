@@ -842,12 +842,6 @@
   text-overflow: ellipsis;
 }
 
-:where(:root[data-theme='outrun']) .dk-row-dur {
-  flex: none;
-  font-size: 11px;
-  color: var(--t-fg-muted);
-  font-variant-numeric: tabular-nums;
-}
 
 /* --- browse ----------------------------------------------------------------- */
 
@@ -1518,11 +1512,15 @@
    over every pane, the wordmark at the top, then a 290px band centring a
    364px column of 14px white text; the transport strip above stays drawn. */
 :where(:root[data-theme='outrun']) .dk-lc {
-  position: absolute; inset: 0; z-index: 30;
+  /* Over everything in the panes and under the menu bar, whose menus hang
+     down across it. */
+  position: absolute; inset: 0; z-index: 20;
   /* It is the panes' first child, so the outer panes' side margins
      (window-chrome.css) would land on it and let them show at its edge. */
   margin: 0 !important;
-  display: grid; grid-template-rows: auto 290px 1fr; justify-items: center;
+  /* One column the overlay's own width: left to size itself it took the
+     words' 615px and ran them off the side of a phone. */
+  display: grid; grid-template: auto 290px 1fr / minmax(0, 1fr); justify-items: center;
   background: var(--t-bg); color: var(--t-fg);
 }
 /* The replicas wear their app's own ground -- #0A0A0A in Windows, the

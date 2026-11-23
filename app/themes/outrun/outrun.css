@@ -205,7 +205,7 @@
 .or-root .dk-browse-row:hover, .or-root .dk-row:hover { background: rgba(25, 230, 255, 0.1); }
 .or-root .dk-browse-row[aria-selected='true'], .or-root .dk-row[aria-selected='true'], .or-root .dk-row[aria-checked='true'] { background: rgba(255, 43, 214, 0.28); color: #fff; }
 .or-root .dk-row[aria-current='true'] { background: rgba(59, 139, 255, 0.22); }
-.or-root .dk-browse-sub, .or-root .dk-row-sub, .or-root .dk-row-num, .or-root .dk-row-dur, .or-root .dk-browse-note, .or-root .dk-browse-prose { color: var(--t-fg-muted); }
+.or-root .dk-browse-sub, .or-root .dk-row-sub, .or-root .dk-row-num, .or-root .dk-browse-note, .or-root .dk-browse-prose { color: var(--t-fg-muted); }
 .or-root .dk-browse-disclosure, .or-root .dk-browse-actions, .or-root .dk-browse-check { color: var(--t-cyan); }
 .or-root .dk-browse-section { color: var(--t-magenta); letter-spacing: 0.1em; text-transform: uppercase; }
 .or-root .dk-scopebar-tabs button { color: var(--t-fg-muted); }

@@ -87,7 +87,7 @@
 .hd-root .dk-browse-row:hover, .hd-root .dk-row:hover { background: #cc0000; }
 .hd-root .dk-browse-row[aria-selected='true'], .hd-root .dk-row[aria-selected='true'], .hd-root .dk-row[aria-checked='true'] { background: #000000; color: #ffffff; }
 .hd-root .dk-row[aria-current='true'] { background: #990000; }
-.hd-root .dk-browse-sub, .hd-root .dk-row-sub, .hd-root .dk-row-num, .hd-root .dk-row-dur, .hd-root .dk-browse-note, .hd-root .dk-browse-prose { color: #ffd0d0; }
+.hd-root .dk-browse-sub, .hd-root .dk-row-sub, .hd-root .dk-row-num, .hd-root .dk-browse-note, .hd-root .dk-browse-prose { color: #ffd0d0; }
 .hd-root .dk-browse-title, .hd-root .dk-row-text { color: #ffffff; }
 .hd-root .dk-browse-disclosure, .hd-root .dk-browse-actions, .hd-root .dk-browse-check, .hd-root .dk-browse-section { color: #ffffff; }
 .hd-root .dk-scopebar-tabs button { color: #ffd0d0; }

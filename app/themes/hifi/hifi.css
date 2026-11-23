@@ -1380,7 +1380,6 @@
 :root[data-theme='hifi'] .hf-qrow-text { display: flex; flex-direction: column; min-width: 0; }
 :root[data-theme='hifi'] .hf-qrow-title { font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 :root[data-theme='hifi'] .hf-qrow-sub { font-size: 11.5px; color: var(--hf-card-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-:root[data-theme='hifi'] .hf-qrow-dur { font-family: var(--t-mono); font-size: 11.5px; color: var(--hf-card-dim); }
 :root[data-theme='hifi'] .hf-qrow-tools { display: flex; align-items: center; gap: 4px; opacity: 0; }
 :root[data-theme='hifi'] .hf-qrow:hover .hf-qrow-tools, :root[data-theme='hifi'] .hf-qrow:focus-within .hf-qrow-tools,
 :root[data-theme='hifi'] .hf-qrow[aria-checked='true'] .hf-qrow-tools { opacity: 1; }
@@ -1981,7 +1980,6 @@
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-tape-keys .hf-legend { display: none; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-jcard { min-height: 320px; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-qrow { grid-template-columns: 34px 32px minmax(0, 1fr) auto; gap: 8px; }
-  :root[data-theme='hifi']:not([data-desktop-mode]) .hf-qrow-dur { display: none; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-qrow-tools { opacity: 1; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-qrow-tools .hf-ikey:first-child { display: none; }
   :root[data-theme='hifi']:not([data-desktop-mode]) .hf-jcard { background:

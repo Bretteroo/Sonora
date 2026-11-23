@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useSystem } from '../../frontend/src/lib/store.jsx'
+import useOnline from '../../frontend/src/lib/useOnline.js'
 import { useI18n } from '../../frontend/src/i18n/index.jsx'
 
 // What the S1 desktop apps put over their panes when they cannot reach the
@@ -14,17 +15,14 @@ import { useI18n } from '../../frontend/src/i18n/index.jsx'
 // Sonora shows it for the same reason the app does, the computer being off
 // the network, and for the one the app never has: the page losing Sonora
 // itself. The wordmark is Sonora's, set the way the web theme sets its own.
+//
+// Whether the computer is off the network is lib/useOnline.js's to say: a
+// browser that calls itself offline is believed only while Sonora is not
+// answering it.
 export default function ConnectionOverlay() {
   const { connected } = useSystem()
   const { t } = useI18n()
-  const [online, setOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine !== false))
-  useEffect(() => {
-    const up = () => setOnline(true)
-    const down = () => setOnline(false)
-    window.addEventListener('online', up)
-    window.addEventListener('offline', down)
-    return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down) }
-  }, [])
+  const online = useOnline(connected)
   if (online && connected) return null
   return (
     <div className="dk-lc" role="alert">

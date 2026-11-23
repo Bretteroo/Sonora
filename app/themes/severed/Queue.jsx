@@ -13,7 +13,6 @@ import { Btn, IconBtn, Menu, MenuItem, MenuSep, Confirm, Empty, Tick, cx } from 
 // to a new place, a box to tick it with others, and a menu; Save and Clear act
 // on the whole of it.
 
-function trim(value) { return (value || '').replace(/^0:0?/, '') }
 
 // What the queue is: its length, and whether the room is playing from it.
 export function queueSummary(t, zone, queue) {
@@ -103,7 +102,6 @@ export function QueueList({ zone, queue, onInfo, onEdited }) {
               <span className="sv-qrow-title">{item.title}</span>
               <span className="sv-qrow-sub">{[item.artist, item.album].filter(Boolean).join(' · ')}</span>
             </span>
-            {item.duration && <span className="sv-qrow-dur">{trim(item.duration)}</span>}
             <span className="sv-qrow-tools" onClick={(event) => event.stopPropagation()}>
               <Tick checked={checked.has(n)} onChange={() => toggle(n)} label={t('desk.browse.select')} />
               <IconBtn size="s" label={t('desk.browse.actions')} onClick={(event) => setMenu({ n, item, anchor: event.currentTarget })}><G.More size={24} /></IconBtn>

@@ -189,7 +189,6 @@
 .mac-root .dk-row-num { display: none; }
 .mac-root .dk-row-title { font-size: 13px; color: #ffffff; }
 .mac-root .dk-row-sub { font-size: 11px; color: #8a8a8a; }
-.mac-root .dk-row-dur { display: none; }
 .mac-root .dk-row .dk-browse-actions, .mac-root .dk-row .dk-browse-check { opacity: 0; }
 .mac-root .dk-row:hover .dk-browse-actions, .mac-root .dk-row:hover .dk-browse-check,
 .mac-root .dk-row[aria-checked='true'] .dk-browse-check { opacity: 1; }

@@ -11,7 +11,6 @@ import { isConnectSession } from '../../frontend/src/lib/transport.js'
 // menu to reorder, ticks to remove several at once, Save and Clear. Shown as
 // a panel beside the content on a wide screen and over it on a narrow one.
 
-function trimDuration(value) { return (value || '').replace(/^0:0?/, '') }
 
 export function QueueList({ zone, queue, onInfo, onEdited, compact = false }) {
   const { actions } = useSystem()
@@ -101,7 +100,6 @@ export function QueueList({ zone, queue, onInfo, onEdited, compact = false }) {
               <span className="sf-qrow-title">{item.title}</span>
               <span className="sf-qrow-sub">{[item.artist, item.album].filter(Boolean).join(' · ')}</span>
             </span>
-            {item.duration && <span className="sf-qrow-dur">{trimDuration(item.duration)}</span>}
             <span className="sf-qrow-tools">
               <IconButton size="sm" label={t('common.play')} onClick={() => play(n)}><I.Play /></IconButton>
               <IconButton size="sm" label={t('desk.browse.actions')} onClick={(event) => setMenu({ n, item, x: event.clientX, y: event.clientY })}><I.Ellipsis /></IconButton>

@@ -1609,7 +1609,7 @@
     }
     & .sv-qrow:hover { background: var(--sv-ph-wash); }
     & .sv-qrow:focus-visible { outline: none; background: var(--sv-ph); color: var(--sv-scr); text-shadow: none; }
-    & .sv-qrow:focus-visible :is(.sv-qrow-sub, .sv-qrow-n, .sv-qrow-dur) { color: rgb(var(--sv-scr-rgb) / 0.75); }
+    & .sv-qrow:focus-visible :is(.sv-qrow-sub, .sv-qrow-n) { color: rgb(var(--sv-scr-rgb) / 0.75); }
     & .sv-qrow[aria-current] { background: var(--sv-ph-wash-strong); }
     & .sv-qrow[aria-current] .sv-qrow-title { text-decoration: underline; text-underline-offset: 4px; }
     & .sv-qrow[data-playing] .sv-qrow-cursor { animation: sv-blink 1s steps(2, jump-none) infinite; }
@@ -1622,7 +1622,6 @@
     & :is(.sv-qrow-title, .sv-qrow-sub) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     & .sv-qrow-title { font-size: 21px; }
     & .sv-qrow-sub { font-size: 17px; color: var(--sv-ph-dim); }
-    & .sv-qrow-dur { color: var(--sv-ph-dim); }
     & .sv-qrow-tools { display: flex; align-items: center; }
 
     /* Library */
@@ -2089,7 +2088,6 @@
     & .sv-crt .sv-collection { grid-template-columns: minmax(0, 1fr); }
     & .sv-crt .sv-collection-art { width: 160px; height: 160px; }
     & .sv-crt .sv-qrow { grid-template-columns: 10px 3ch 22px 28px minmax(0, 1fr) auto; }
-    & .sv-crt .sv-qrow-dur { display: none; }
     & .sv-crt .sv-scope { max-width: 46%; }
     & .sv-crt .sv-prompt input { font-size: 22px; }
   }

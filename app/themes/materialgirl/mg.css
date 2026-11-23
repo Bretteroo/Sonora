@@ -1122,7 +1122,6 @@
   & .mg-qrow-title { font-size: 16px; line-height: 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   & .mg-qrow-sub { font-size: 14px; line-height: 20px; color: var(--mg-on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   & .mg-qrow[aria-current] .mg-qrow-sub { color: inherit; opacity: 0.8; }
-  & .mg-qrow-dur { font-size: 12px; color: var(--mg-on-surface-variant); font-variant-numeric: tabular-nums; }
   & .mg-qrow-tools { display: flex; align-items: center; }
   & .mg-qrow-tools .mg-check { width: 32px; }
   & .mg-qghost { position: fixed; left: 50%; z-index: 99; display: flex; align-items: center; gap: 12px; padding: 8px 16px 8px 8px; border-radius: 16px; background: var(--mg-surface-container-highest); box-shadow: var(--mg-elev-3); transform: translateX(-50%); pointer-events: none; }

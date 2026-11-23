@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useSystem } from '../lib/store.jsx'
 import { useI18n } from '../i18n/index.jsx'
 import { orderedHouseholds } from '../lib/format.js'
@@ -312,7 +312,7 @@ export default function S2Upgrade({ onClose = null }) {
 
       {/* The fold shows the old answer while it shuts and the new one as it
           opens, so the markup is for the fold's choice, not the radio's. */}
-      <div className="s2-switch" data-phase={fold.phase} onTransitionEnd={fold.onEnd}>
+      <div className="s2-switch" ref={fold.ref} data-phase={fold.phase}>
         <div className="s2-switch-body">{answerFor(fold.shown)}</div>
       </div>
     </>
@@ -351,12 +351,29 @@ export default function S2Upgrade({ onClose = null }) {
 }
 
 // The answer's fold: it shuts on the old choice, swaps, and opens on the new
-// one, and the markup follows the phase. Each phase ends when the fold's
-// transition does, with a timer behind that for when no transition runs
-// (reduced motion, or a theme that turned it off).
-const FOLD_MS = 240
+// one, and the markup follows the phase. Both halves move only the part of the
+// answer inside the window, each for its whole time; whatever hangs below the
+// window snaps where nobody sees it. Grown by its whole height, an answer
+// taller than a phone's screen put the part anyone sees in place within a few
+// frames and spent the rest below the screen, so it popped open, and the
+// shutting half looked done long before it ended, leaving a pause between the
+// two. Each phase ends when its animation does, with a timer behind that for
+// when none runs (reduced motion, or no room in the window to show it).
+// Both halves take the same time on the same curve.
+const FOLD_MS = 360
+const FOLD_EASE = 'cubic-bezier(0.4, 0, 0.2, 1)'
+// Where the answer stops being seen: the bottom of the window, or of the
+// scrolling pane that holds the page if that ends higher (above a bottom bar).
+function seenBottom(el) {
+  let bottom = window.visualViewport?.height || window.innerHeight
+  for (let up = el.parentElement; up && up !== document.body; up = up.parentElement) {
+    if (/(auto|scroll)/.test(getComputedStyle(up).overflowY)) { bottom = Math.min(bottom, up.getBoundingClientRect().bottom); break }
+  }
+  return bottom
+}
 function useFoldSwap(key) {
   const [fold, setFold] = useState({ shown: key, phase: 'open' })
+  const ref = useRef(null)
   useEffect(() => {
     setFold((f) => {
       if (key === f.shown) return f.phase === 'closing' ? { ...f, phase: 'opening' } : f
@@ -370,11 +387,24 @@ function useFoldSwap(key) {
         : f)
   useEffect(() => {
     if (fold.phase === 'open') return undefined
-    const timer = setTimeout(() => setFold(advance), FOLD_MS + 80)
+    const timer = setTimeout(() => setFold(advance), FOLD_MS + 120)
     return () => clearTimeout(timer)
   }, [fold.phase, fold.shown, key])
-  const onEnd = (event) => {
-    if (event.target === event.currentTarget && event.propertyName === 'grid-template-rows') setFold(advance)
-  }
-  return { shown: fold.shown, phase: fold.phase, onEnd }
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (fold.phase === 'open' || !el?.animate) return undefined
+    const box = el.getBoundingClientRect()
+    const seen = Math.min(box.height, Math.max(0, seenBottom(el) - box.top))
+    const phase = fold.phase
+    const done = () => setFold((f) => (f.phase === phase ? advance(f) : f))
+    if (seen < 1) { done(); return undefined }
+    const full = { height: `${seen}px`, opacity: 1 }
+    const none = { height: '0px', opacity: 0 }
+    const run = phase === 'closing'
+      ? el.animate([full, none], { duration: FOLD_MS, easing: FOLD_EASE, fill: 'forwards' })
+      : el.animate([none, full], { duration: FOLD_MS, easing: FOLD_EASE })
+    run.finished.then(done, () => {})
+    return () => run.cancel()
+  }, [fold.phase, fold.shown])
+  return { ref, shown: fold.shown, phase: fold.phase }
 }

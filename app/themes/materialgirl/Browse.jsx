@@ -368,12 +368,7 @@ export default function Browse({ households, zones, groups, roomGroups, onSelect
     if (!node.hzone || !node.uri) return
     if (queueEdited && !force) { setReplaceAsk({ shuffle }); return }
     onQueueReplaced?.()
-    const mode = activeZone?.transport?.play_mode || 'NORMAL'
-    const repeatOn = /REPEAT/.test(mode) && mode !== 'SHUFFLE_NOREPEAT'
-    if (!activeZone?.local) {
-      if (shuffle) await actions.setPlayMode(node.hzone, repeatOn ? 'SHUFFLE' : 'SHUFFLE_NOREPEAT')
-      else if (/SHUFFLE/.test(mode)) await actions.setPlayMode(node.hzone, repeatOn ? 'REPEAT_ALL' : 'NORMAL')
-    }
+    await actions.setAlbumShuffle(playTarget(activeZone, node.hzone), shuffle)
     await actions.setSource(playTarget(activeZone, node.hzone),
                             { uri: node.uri, metadata: node.metadata || '', service: node.service,
                               ...(activeZone?.local ? { from_zone: node.hzone } : {}), replace: true })

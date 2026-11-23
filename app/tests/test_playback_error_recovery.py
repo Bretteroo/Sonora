@@ -125,3 +125,46 @@ def test_a_room_with_nothing_to_play_raises_no_notice():
         await asyncio.sleep(0.1)
     asyncio.run(run())
     assert sent == []
+
+
+def test_an_old_failure_sent_again_with_later_events_is_told_once():
+    """A speaker repeats its last failure with every later event. Told once,
+    it is not told again for a seek or a change of play mode on another song,
+    nor from a subscription's opening message; trying the same source again
+    is a fresh failure."""
+    lead = SimpleNamespace(uuid="RINCON_P", name="Terrace", transport=SimpleNamespace(
+        state="STOPPED", media_uri="x-rincon-queue:RINCON_P#0", track_uri="x-file-cifs://a/b.mp3"))
+    ctl = SonosController.__new__(SonosController)
+    ctl._last_play_error = {}
+    ctl.household_of = lambda uuid: None
+    told = []
+
+    async def report(lead, message, item):
+        told.append(item)
+    ctl._report_playback_error = report
+    gone = {"TransportStatus": "ERROR_RESOURCE_NO_LONGER_AVAILABLE",
+            "TransportErrorURI": "x-rincon-cpcontainer:gone",
+            "TransportErrorDescription": "8,0,Gone,Service,,"}
+
+    async def run():
+        import backend.sonos.controller as module
+        clock = [100.0]
+        real, module.monotonic = module.monotonic, lambda: clock[0]
+        try:
+            await ctl._note_playback_error(SimpleNamespace(properties=dict(gone), seq=4), lead)
+            clock[0] += 60
+            await ctl._note_playback_error(
+                SimpleNamespace(properties={**gone, "CurrentPlayMode": "SHUFFLE"}, seq=5), lead)
+            clock[0] += 60
+            await ctl._note_playback_error(
+                SimpleNamespace(properties={**gone, "AVTransportURI": "x-rincon-cpcontainer:gone"},
+                                seq=6), lead)
+            other = SonosController.__new__(SonosController)
+            other._last_play_error = {}
+            other._report_playback_error = report
+            await other._note_playback_error(SimpleNamespace(properties=dict(gone), seq=0), lead)
+            await asyncio.sleep(0)
+        finally:
+            module.monotonic = real
+    asyncio.run(run())
+    assert told == ["Gone", "Gone"]

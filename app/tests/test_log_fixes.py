@@ -181,7 +181,9 @@ def test_a_grouped_room_answers_with_its_coordinators_word():
     ctl._service_names = {}
     ctl.coordinator_of = lambda uuid: lead
     out = ctl._zone_payload(member)["transport"]
-    assert out == {"can_crossfade": False, "can_shuffle": False, "can_repeat": False, "can_repeat_one": False}
+    # The queue's waiting mode is the coordinator's word too.
+    assert out == {"can_crossfade": False, "can_shuffle": False, "can_repeat": False, "can_repeat_one": False,
+                   "queue_play_mode": "NORMAL"}
 
 
 def test_balance_is_offered_where_the_apps_offer_it():

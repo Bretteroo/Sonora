@@ -192,6 +192,26 @@ def test_a_position_carries_how_old_it_is():
     assert state.as_dict()["transport"]["position_age"] == 0.0
 
 
+def test_a_pause_is_not_counted_into_the_positions_age():
+    """A room that starts again is where it was paused, not the pause further on.
+
+    Resuming goes PAUSED_PLAYBACK, TRANSITIONING, PLAYING, and only PLAYING
+    reads the position again. In between, the reading taken at the pause went
+    out with the whole pause as its age, and a client carrying it forward put
+    the song that far ahead for a moment: timed lyrics leapt to another line
+    and back.
+    """
+    from backend.sonos.controller import left_a_halt
+
+    assert left_a_halt("PAUSED_PLAYBACK", "TRANSITIONING")
+    assert left_a_halt("PAUSED_PLAYBACK", "PLAYING")
+    assert left_a_halt("STOPPED", "TRANSITIONING")
+    assert not left_a_halt("PLAYING", "TRANSITIONING")
+    assert not left_a_halt("TRANSITIONING", "PLAYING")
+    assert not left_a_halt("PLAYING", "PAUSED_PLAYBACK")
+    assert not left_a_halt("PAUSED_PLAYBACK", "STOPPED")
+
+
 # -- the callback address -----------------------------------------------------
 
 ROUTES = (

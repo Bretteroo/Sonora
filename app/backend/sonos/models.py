@@ -179,6 +179,12 @@ class TransportState:
     #: said it would take (Sonos Radio's stations, 2026-10-02); it stands
     #: until something else is loaded.
     crossfade_refused_uri: str = ""
+    #: The play mode asked for the room's queue while the room could not take
+    #: one (a station was its source, or the queue was empty). It is set on
+    #: the speaker when the queue is next what plays.
+    queue_mode_wanted: str = ""
+    #: The play mode last reported while the room's queue was its source.
+    queue_mode_seen: str = ""
     track_number: int = 0
     track_duration: str = "0:00:00"
     track_uri: str = ""
@@ -190,6 +196,11 @@ class TransportState:
     #: the speaker on 2026-09-14. Serialized as an age in seconds, which needs
     #: no agreement between the server's clock and the browser's.
     position_read_at: float = 0.0
+    #: ``rel_time`` was read at the moment the speaker's count of seconds
+    #: ticked over, so it is the position to a tenth of a second or so, not
+    #: whole seconds cut short. A client counting from it adds nothing for the
+    #: cut-off part of a second.
+    position_exact: bool = False
     title: str = ""
     artist: str = ""
     album: str = ""
@@ -306,6 +317,46 @@ class TransportState:
         source app owns it.
         """
         return self.track_uri.startswith("x-sonos-vli:")
+
+    @property
+    def plays_own_queue(self) -> bool:
+        """Whether the room's own queue is its source. A Spotify Connect
+        session is a queue by its URI (``...#vli``) and is not the room's."""
+        return self.media_uri.startswith("x-rincon-queue:") and not self.media_uri.endswith("#vli")
+
+    @property
+    def queue_play_mode(self) -> str:
+        """The mode the room's queue will play in when it is next the source,
+        and "" while it is the source, where ``play_mode`` says.
+
+        A speaker takes a play mode only for a queue it is playing from
+        (SetPlayMode answers 712 beside a station, measured 2026-10-02), so a
+        mode asked for a queue held beside a station is kept here and set when
+        the queue takes over. With nothing asked it is the mode the queue was
+        last seen in, and before any was seen, what the speaker reports now.
+        """
+        if self.queue_mode_wanted:
+            return self.queue_mode_wanted
+        if self.plays_own_queue:
+            return ""
+        return self.queue_mode_seen or self.play_mode or "NORMAL"
+
+    def note_queue_mode(self) -> str:
+        """After the speaker has reported: with the room's queue as its
+        source, remember the mode the queue plays in, and hand back a kept
+        mode that is due to be set ("" for none). A kept mode waits for a
+        queue that announces it takes one and holds something to order: an
+        empty queue refuses a mode as a station does."""
+        if not self.plays_own_queue:
+            return ""
+        due = ""
+        wanted = self.queue_mode_wanted
+        if wanted and self.can_shuffle and self.queue_length > 0:
+            self.queue_mode_wanted = ""
+            if wanted != self.play_mode:
+                due = wanted
+        self.queue_mode_seen = self.play_mode
+        return due
 
     def _takes(self, mode: str) -> bool:
         """Whether the speaker announced ``mode`` for what it plays; before it

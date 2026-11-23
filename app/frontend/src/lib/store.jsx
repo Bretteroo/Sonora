@@ -266,6 +266,15 @@ function roomLabel(state, uuid) {
   return zone?.name || ''
 }
 
+// The mode an album's Play (shuffle off) or Shuffle (shuffle on) key leaves a
+// queue in, repeat staying as it was; '' when the queue is in it already.
+function albumMode(mode, shuffle) {
+  const repeats = mode !== 'NORMAL' && mode !== 'SHUFFLE_NOREPEAT'
+  const want = shuffle ? (repeats ? 'SHUFFLE' : 'SHUFFLE_NOREPEAT')
+    : (/SHUFFLE/.test(mode) ? (repeats ? 'REPEAT_ALL' : 'NORMAL') : mode)
+  return want === mode ? '' : want
+}
+
 export function SystemProvider({ children }) {
   // "This browser": the page's own audio output, presented as a room. It is
   // built here rather than in a theme so every theme gets it, and so the one
@@ -501,9 +510,11 @@ export function SystemProvider({ children }) {
     // Not asked for where the speaker says it will not take it: an S2
     // soundbar on its TV input lists only "Set, Play" and answers Stop with
     // 701, whichever button, menu or "pause all" reached for it.
-    stop: (uuid) => {
+    // `tv` asks that a soundbar go back to its television input as it stops;
+    // the server decides whether the room is one.
+    stop: (uuid, { tv = false } = {}) => {
       if (stateRef.current.zones?.[uuid]?.transport?.can_stop === false) return Promise.resolve(false)
-      return run(() => api.transport(uuid, 'stop'), { describe: 'notice.conflict.title', uuid })
+      return run(() => api.transport(uuid, tv ? 'stop-tv' : 'stop'), { describe: 'notice.conflict.title', uuid })
     },
     next: (uuid) => run(() => api.transport(uuid, 'next'), { uuid, skip: true }),
     previous: (uuid) => run(() => api.transport(uuid, 'previous'), { uuid, skip: true }),
@@ -512,14 +523,27 @@ export function SystemProvider({ children }) {
     seekTrack: (uuid, track) => run(() => api.seek(uuid, { track }),
                                     { describe: 'notice.conflict.title', uuid }),
     // A mode the speaker said it will not take for what it plays is not
-    // asked for: the keyboard shortcuts reach past a dimmed key.
-    setPlayMode: (uuid, mode) => {
+    // asked for: the keyboard shortcuts reach past a dimmed key. `held` says
+    // the mode is for the room's queue rather than for what plays: a queue
+    // waiting beside a station takes it when it next plays
+    // (transport.queue_play_mode is what it waits with).
+    setPlayMode: (uuid, mode, { held = false } = {}) => {
       const tr = stateRef.current.zones?.[uuid]?.transport || {}
-      const refused = (/SHUFFLE/.test(mode) && tr.can_shuffle === false)
+      const refused = !held && ((/SHUFFLE/.test(mode) && tr.can_shuffle === false)
         || (/REPEAT_ONE/.test(mode) ? tr.can_repeat_one === false
-          : (/REPEAT_ALL/.test(mode) || mode === 'SHUFFLE') && tr.can_repeat === false)
+          : (/REPEAT_ALL/.test(mode) || mode === 'SHUFFLE') && tr.can_repeat === false))
       return refused ? Promise.resolve(null)
-        : run(() => api.playMode(uuid, mode), { describe: 'notice.conflict.title', uuid })
+        : run(() => api.playMode(uuid, mode, held), { describe: 'notice.conflict.title', uuid })
+    },
+    // Before an album replaces a room's queue: its Shuffle key turns shuffle
+    // on and its Play key turns it off. The mode is the queue's, so it goes
+    // to the room the album goes to, and is kept for the queue where a
+    // station is what plays there now.
+    setAlbumShuffle: (uuid, shuffle) => {
+      const tr = stateRef.current.zones?.[uuid]?.transport || {}
+      const want = albumMode(tr.queue_play_mode || tr.play_mode || 'NORMAL', shuffle)
+      return want ? run(() => api.playMode(uuid, want, true), { describe: 'notice.conflict.title', uuid })
+        : Promise.resolve(null)
     },
     setTone: (uuid, patch) => run(() => api.tone(uuid, patch),
                                   { describe: 'notice.conflict.title', uuid }),

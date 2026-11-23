@@ -180,7 +180,7 @@ export default function ServiceListPage({
   const shuffleList = () => {
     if (!uri) return
     play({ uri, metadata, title })
-    actions.setPlayMode(room, 'SHUFFLE_NOREPEAT')
+    actions.setPlayMode(room, 'SHUFFLE_NOREPEAT', { held: true })
   }
   const playTrack = (row) => row.uri && play({ uri: row.uri, metadata: row.metadata || '', title: row.title })
 

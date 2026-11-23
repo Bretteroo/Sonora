@@ -144,8 +144,10 @@ export const api = {
     request(`/api/zones/${uuid}/transport/${action}`, { method: 'POST' }),
   seek: (uuid, body) =>
     request(`/api/zones/${uuid}/seek`, { method: 'POST', body }),
-  playMode: (uuid, mode) =>
-    request(`/api/zones/${uuid}/playmode`, { method: 'POST', body: { mode } }),
+  // `held`: the mode is for the room's queue, kept until the queue plays
+  // where the room takes none now (a station beside it).
+  playMode: (uuid, mode, held = false) =>
+    request(`/api/zones/${uuid}/playmode`, { method: 'POST', body: held ? { mode, held: true } : { mode } }),
   createStereoPair: (uuid, rightUuid) => request(`/api/zones/${uuid}/stereo-pair`, { method: 'POST', body: { right_uuid: rightUuid } }),
   separateStereoPair: (uuid) => request(`/api/zones/${uuid}/separate`, { method: 'POST' }),
   // A room's settings need a room: an empty id (a pane open before any room

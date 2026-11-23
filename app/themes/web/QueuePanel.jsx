@@ -31,7 +31,9 @@ export default function QueuePanel({ zone, onClose }) {
   const { shuffled, repeat, cycleRepeat, toggleShuffle, connect } = useTransport(zone)
   const transport = zone?.transport || {}
 
-  const current = zone?.transport?.track_number ?? 0
+  // The playing row is marked only while the room plays from its queue: with
+  // radio on, the track number a room reports is the station's, not a row's.
+  const current = transport.source === 'queue' || transport.source === 'external_session' ? (transport.track_number ?? 0) : 0
   const tint = useTint(zone ? (nowPlayingArt(zone.host, zone.transport || {})[0] || '') : '')
   // The queue opens on the track playing, not on the first: with 47 queued
   // and the 25th up, the product's panel shows "Lolo - Intro" at the top of

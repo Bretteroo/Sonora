@@ -229,6 +229,10 @@ def player_update_target(manifest: dict, hardware_version: str, software_version
     return step["version"], step["url"]
 
 
+def left_a_halt(before: str, after: str) -> bool:
+    """Whether a paused or stopped room has started to move again."""
+    return before in ("PAUSED_PLAYBACK", "STOPPED") and after in ("PLAYING", "TRANSITIONING")
+
 
 @dataclass(slots=True)
 class ZoneState:
@@ -345,6 +349,7 @@ class ZoneState:
             "can_shuffle": self.transport.can_shuffle,
             "can_repeat": self.transport.can_repeat,
             "can_repeat_one": self.transport.can_repeat_one,
+            "queue_play_mode": self.transport.queue_play_mode,
             # The input's presence of signal is knowable locally; its name is
             # not (see TransportState) and comes from the cloud feed when one
             # is running. None means "no reading", so the interface stays
@@ -371,6 +376,20 @@ def _note_unwaited_failure(task: "asyncio.Task") -> None:
     exc = task.exception()
     if exc is not None:
         log.info("%s failed: %s", task.get_name(), exc)
+
+#: When a playing track's position is pinned to the speaker's count: once the
+#: music has had time to start after buffering, and again a little later.
+SETTLE_AFTER = (2.0, 6.0)
+
+
+def _clock_seconds(text: str) -> int | None:
+    """Seconds in an "H:MM:SS" reading, or None for anything else."""
+    try:
+        h, m, sec = (int(part) for part in text.split(":"))
+    except ValueError:
+        return None
+    return h * 3600 + m * 60 + sec
+
 
 class SonosController:
     """Owns the live view of every household and issues commands to it."""
@@ -405,6 +424,8 @@ class SonosController:
         # One provider-art lookup per zone at a time, and the service
         # directory each household answered with (see ``service_directory``).
         self._art_tasks: dict[str, asyncio.Task] = {}
+        #: Per room: the reading that settles a track's position once it plays.
+        self._settling: dict[str, asyncio.Task] = {}
         #: Stations (or single tracks) whose service faulted on the art
         #: lookup, until when not to ask again (see _resolve_provider_art).
         self._art_faults: dict[tuple[int, str], float] = {}
@@ -986,6 +1007,7 @@ class SonosController:
         self._name_service(transport)
         transport.rel_time = position.get("RelTime", "")
         transport.position_read_at = monotonic()
+        transport.position_exact = False
         (transport.can_pause, transport.can_seek,
          transport.can_next, transport.can_previous, transport.can_stop) = await self._transport_actions(state.host)
         if position.get("TrackMetaData") or transport.track_uri:
@@ -1298,6 +1320,7 @@ class SonosController:
                 self._apply_track_metadata(transport, position["TrackMetaData"])
             transport.rel_time = position.get("RelTime", transport.rel_time)
             transport.position_read_at = monotonic()
+            transport.position_exact = False
 
     @staticmethod
     def _apply_media_metadata(transport: TransportState, metadata: str) -> None:
@@ -1608,6 +1631,26 @@ class SonosController:
         self._last_play_error[state.uuid] = (signature, now)
         if before == signature and now - when < 3.0:
             return
+        # A speaker keeps the last failure in its status long after it has
+        # gone on to play other things, and sends it again with every later
+        # event: a seek, a change of play mode, the next song. Office told of
+        # one item five times in two hours that way, each time something
+        # else was done to it. So a subscription's opening message, which is
+        # the state as it stands, raises nothing, and a failure already told
+        # is told again only while its source is what the room is on or was
+        # just given.
+        failed = signature[1]
+        if getattr(event, "seq", None) == 0:
+            log.info("%s still carries an old failure (%s)", state.name, status)
+            return
+        if before == signature and failed:
+            props = event.properties
+            asked = {props.get("CurrentTrackURI"), props.get("AVTransportURI"),
+                     props.get("EnqueuedTransportURI"),
+                     getattr(state.transport, "track_uri", ""),
+                     getattr(state.transport, "media_uri", "")}
+            if failed not in asked:
+                return
         # "<code>,<service type>,<title>,<service>,<resolved uri>,"
         parts = [p.strip() for p in
                  (event.properties.get("TransportErrorDescription", "") or "").split(",")]
@@ -1764,6 +1807,14 @@ class SonosController:
             # app).
             halted = (props["TransportState"] in ("PAUSED_PLAYBACK", "STOPPED")
                       and transport.state in ("PLAYING", "TRANSITIONING"))
+            # A halted room has not moved since its position was read, so the
+            # reading is as fresh as the moment the room moves off again. Left
+            # with its old stamp it went out aged by the whole pause, and until
+            # the next reading every client counted the song that far ahead: a
+            # resume passes through TRANSITIONING, where nothing reads it.
+            if left_a_halt(transport.state, props["TransportState"]) and transport.position_read_at:
+                transport.position_read_at = monotonic()
+                transport.position_exact = False
             transport.state = props["TransportState"]
         if "CurrentPlayMode" in props:
             transport.play_mode = props["CurrentPlayMode"]
@@ -1806,6 +1857,12 @@ class SonosController:
             transport.next_artist = ""
         if "NumberOfTracks" in props:
             transport.queue_length = _as_int(props["NumberOfTracks"])
+        # Commands that hand the transport to the queue set a kept play mode
+        # themselves; this is for a switch made anywhere else (the Sonos app
+        # starting a queue row).
+        due = transport.note_queue_mode()
+        if due:
+            asyncio.get_running_loop().create_task(self._set_held_mode(state, due))
         if props.get("CurrentTrackMetaData"):
             self._apply_track_metadata(transport, props["CurrentTrackMetaData"])
         elif "CurrentTrackMetaData" in props and not transport.track_uri:
@@ -1903,9 +1960,13 @@ class SonosController:
         if "SleepTimerGeneration" in props and props["SleepTimerGeneration"] != state.sleep_generation:
             state.sleep_generation = props["SleepTimerGeneration"]
             await self._broadcast({"type": "sleep", "zone": state.uuid})
-            task = asyncio.create_task(self._follow_sleep_timer(state),
-                                       name=f"sleep timer {state.uuid}")
-            task.add_done_callback(_note_unwaited_failure)
+            # A speaker joining a group takes the group's generation, and only
+            # the coordinator answers for the timer (a member refuses the read
+            # with UPnP error 800), and the coordinator's timer is followed already.
+            if state.is_coordinator:
+                task = asyncio.create_task(self._follow_sleep_timer(state),
+                                           name=f"sleep timer {state.uuid}")
+                task.add_done_callback(_note_unwaited_failure)
 
         # Playback that has just started, and every track after it, settles the
         # position: no event carries RelTime, so without this the clients go on
@@ -1921,12 +1982,80 @@ class SonosController:
                     {"InstanceID": 0})
                 transport.rel_time = position.get("RelTime", "")
                 transport.position_read_at = monotonic()
+                transport.position_exact = False
                 transport.track_duration = position.get(
                     "TrackDuration", transport.track_duration)
             except Exception:
                 pass
 
         await self._publish_zone(state)
+
+        if began or (track_changed and transport.state in ("PLAYING", "TRANSITIONING")):
+            self._settle_soon(state)
+
+    def _settle_soon(self, state: ZoneState) -> None:
+        held = self._settling.pop(state.uuid, None)
+        if held and not held.done():
+            held.cancel()
+        task = asyncio.create_task(self._settle_position(state, state.transport.track_uri),
+                                   name=f"settle position {state.uuid}")
+        task.add_done_callback(_note_unwaited_failure)
+        self._settling[state.uuid] = task
+
+    async def _settle_position(self, state: ZoneState, uri: str) -> None:
+        """Pin a playing track's position to the speaker's own count.
+
+        The reading taken when a track begins is often taken while the
+        speaker is still filling its buffer, and the music starts a moment
+        after it: a client counting from that reading runs ahead of what is
+        heard by however long the buffering took, which the karaoke words show
+        plainly. Once the music has had time to start, the position is read
+        until the speaker's count of seconds ticks over, which places it to a
+        tenth of a second or so, and once more a little later in case the
+        start stumbled. A dozen small calls on the local network per track.
+        """
+        for wait in SETTLE_AFTER:
+            await asyncio.sleep(wait)
+            transport = state.transport
+            if transport.track_uri != uri or transport.state != "PLAYING":
+                return
+            if await self._read_tick(state, uri):
+                await self._publish_zone(state)
+
+    async def _read_tick(self, state: ZoneState, uri: str) -> bool:
+        """Read the position until its whole second changes; True once placed."""
+        first = None
+        last_mid = 0.0
+        deadline = monotonic() + 1.4
+        while monotonic() < deadline:
+            sent = monotonic()
+            try:
+                position = await self.soap.call(
+                    state.host, const.AV_TRANSPORT, "GetPositionInfo", {"InstanceID": 0})
+            except Exception:
+                return False
+            got = monotonic()
+            transport = state.transport
+            if transport.track_uri != uri or transport.state != "PLAYING":
+                return False
+            rel = position.get("RelTime", "")
+            seconds = _clock_seconds(rel)
+            mid = (sent + got) / 2
+            if seconds is None:
+                return False
+            if first is None:
+                first = seconds
+            elif seconds == first + 1:
+                # The second turned over between the last reading and this one.
+                transport.rel_time = rel
+                transport.position_read_at = (last_mid + mid) / 2
+                transport.position_exact = True
+                return True
+            elif seconds != first:
+                return False
+            last_mid = mid
+            await asyncio.sleep(0.08)
+        return False
 
     async def repost_position(self, zone_uuid: str) -> None:
         """Re-read a coordinator's position and tell the browsers.
@@ -1949,6 +2078,7 @@ class SonosController:
             return
         state.transport.rel_time = position.get("RelTime", "")
         state.transport.position_read_at = monotonic()
+        state.transport.position_exact = False
         state.transport.track_number = position.int_("Track")
         state.transport.track_duration = position.get("TrackDuration", "")
         await self._publish_zone(state)
@@ -2831,6 +2961,22 @@ class SonosController:
         except ValueError:
             return None
 
+    def hold_queue_mode(self, state: ZoneState, mode: str) -> None:
+        """Keep a play mode for a room's queue until the queue is what plays,
+        and say so to every page."""
+        state.transport.queue_mode_wanted = mode
+        asyncio.get_running_loop().create_task(self._publish_zone(state))
+
+    async def _set_held_mode(self, state: ZoneState, mode: str) -> None:
+        """Set a kept play mode on a room whose queue has just become its
+        source. A refusal is nothing to tell anyone: the queue plays in the
+        mode it had."""
+        try:
+            await self.soap.call(state.host, const.AV_TRANSPORT, "SetPlayMode",
+                                 {"InstanceID": 0, "NewPlayMode": mode})
+        except Exception as exc:                      # noqa: BLE001
+            log.info("%s did not take the play mode kept for its queue: %s", state.name, exc)
+
     def crossfade_refused_for(self, state: ZoneState) -> None:
         """The speaker refused crossfade for what it has loaded: say so to
         every page, until something else is loaded."""
@@ -2839,7 +2985,7 @@ class SonosController:
         asyncio.get_running_loop().create_task(self._publish_zone(state))
 
     #: What a room may be asked to do follows the room that plays for it.
-    _MODE_FLAGS = ("can_crossfade", "can_shuffle", "can_repeat", "can_repeat_one")
+    _MODE_FLAGS = ("can_crossfade", "can_shuffle", "can_repeat", "can_repeat_one", "queue_play_mode")
 
     def _zone_payload(self, state: ZoneState) -> dict:
         """A zone as the pages get it. A room grouped under another reports
@@ -3954,6 +4100,24 @@ class Commands:
         await self.soap.call(target.host, const.AV_TRANSPORT, "Stop",
                              {"InstanceID": 0})
 
+    async def stop_to_tv(self, zone_uuid: str) -> None:
+        """Stop, and where the group is led by a soundbar playing something
+        other than its television, hand it back to the television.
+
+        A soundbar is a player that lists HT_PLAYBACK among its capabilities.
+        Pointing its transport at the television input ends the music as Stop
+        would, so the one call does both. Any other group is only stopped.
+        """
+        target = self._c.coordinator_of(zone_uuid)
+        state = self._c.zones.get(target.uuid)
+        media = state.transport.media_uri if state is not None else ""
+        if (not media.startswith("x-sonos-htastream:")
+                and "HT_PLAYBACK" in await self._c.device_capabilities(target.uuid)):
+            await self.play_tv(target.uuid)
+            await self.play(target.uuid)
+            return
+        await self.stop(zone_uuid)
+
     async def next_track(self, zone_uuid: str) -> None:
         """The next track. A UPnP 800 here is what Sonos' own apps read as a
         skip limit reached (SC_NP_ERR_SKIP_LIMIT in the S1 Android app): a
@@ -4013,6 +4177,7 @@ class Commands:
                                  {"InstanceID": 0,
                                   "CurrentURI": f"x-rincon-queue:{target.uuid}#0",
                                   "CurrentURIMetaData": ""})
+            await self._queue_took_over(target)
         await self.soap.call(target.host, const.AV_TRANSPORT, "Seek",
                              {"InstanceID": 0, "Unit": "TRACK_NR",
                               "Target": index})
@@ -4025,12 +4190,40 @@ class Commands:
                                  {"InstanceID": 0, "Speed": 1})
         await self._c.repost_position(target.uuid)
 
-    async def set_play_mode(self, zone_uuid: str, mode: str) -> None:
+    async def set_play_mode(self, zone_uuid: str, mode: str, *, held: bool = False) -> None:
+        """Set shuffle and repeat for what the room plays.
+
+        ``held`` says the mode is meant for the room's queue whether or not
+        the queue is what plays: beside a station, or on an empty queue, where
+        the speaker refuses any mode (712), it is kept and set when the queue
+        takes over. Without it the speaker's refusal is the answer.
+        """
         if mode not in const.PLAY_MODES:
             raise ValueError(f"unknown play mode {mode!r}")
         target = self._c.coordinator_of(zone_uuid)
-        await self.soap.call(target.host, const.AV_TRANSPORT, "SetPlayMode",
-                             {"InstanceID": 0, "NewPlayMode": mode})
+        if held and not target.transport.plays_own_queue:
+            self._c.hold_queue_mode(target, mode)
+            return
+        try:
+            await self.soap.call(target.host, const.AV_TRANSPORT, "SetPlayMode",
+                                 {"InstanceID": 0, "NewPlayMode": mode})
+        except SoapFault as exc:
+            if not held or exc.code != "712":
+                raise
+            self._c.hold_queue_mode(target, mode)
+            return
+        if target.transport.queue_mode_wanted:
+            # Set outright, so nothing older is left waiting to undo it.
+            self._c.hold_queue_mode(target, "")
+
+    async def _queue_took_over(self, target: ZoneState) -> None:
+        """The transport has just been pointed at the room's queue: a play
+        mode kept for it is set before anything is played from it."""
+        wanted = target.transport.queue_mode_wanted
+        if not wanted:
+            return
+        target.transport.queue_mode_wanted = ""
+        await self._c._set_held_mode(target, wanted)
 
     async def set_crossfade(self, zone_uuid: str, enabled: bool) -> None:
         target = self._c.coordinator_of(zone_uuid)
@@ -5377,9 +5570,17 @@ class Commands:
         if self._queueable(uri) and kind != "audiobook":
             result = await self.add_to_queue(zone_uuid, uri, metadata, next_=True)
             first = int(result.get("FirstTrackNumberEnqueued", "0") or 0)
-            await self.soap.call(target.host, const.AV_TRANSPORT, "SetAVTransportURI",
-                                 {"InstanceID": 0, "CurrentURI": f"x-rincon-queue:{target.uuid}#0",
-                                  "CurrentURIMetaData": ""})
+            # A transport already on the queue is left there. Pointed at it
+            # again, the speaker goes back to the queue's first track until
+            # the seek below lands, and every page showed that track's name
+            # and cover for a moment before the one that was asked for.
+            state = self._c.zones.get(target.uuid)
+            media = state.transport.media_uri if state is not None else ""
+            if not media.startswith("x-rincon-queue:"):
+                await self.soap.call(target.host, const.AV_TRANSPORT, "SetAVTransportURI",
+                                     {"InstanceID": 0, "CurrentURI": f"x-rincon-queue:{target.uuid}#0",
+                                      "CurrentURIMetaData": ""})
+                await self._queue_took_over(target)
             if first:
                 await self.soap.call(target.host, const.AV_TRANSPORT, "Seek",
                                      {"InstanceID": 0, "Unit": "TRACK_NR", "Target": str(first)})
@@ -5395,6 +5596,7 @@ class Commands:
         await self.soap.call(target.host, const.AV_TRANSPORT, "SetAVTransportURI",
                              {"InstanceID": 0, "CurrentURI": f"x-rincon-queue:{target.uuid}#0",
                               "CurrentURIMetaData": ""})
+        await self._queue_took_over(target)
         await self.soap.call(target.host, const.AV_TRANSPORT, "Seek",
                              {"InstanceID": 0, "Unit": "TRACK_NR", "Target": "1"})
         await self.play(zone_uuid)

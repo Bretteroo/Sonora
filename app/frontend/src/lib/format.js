@@ -39,9 +39,11 @@ export function formatDuration(seconds) {
 // figure and stay behind for the whole track (measured 2026-09-14 at a
 // constant 29 seconds behind the speaker). Only a playing room has moved on
 // since; a paused one is exactly where it was left.
-export function positionNow(transport, { exact = false } = {}) {
+// `buffering: false` holds the count while the speaker says it is filling its
+// buffer, as words sung to the music must: the music has not started.
+export function positionNow(transport, { exact = false, buffering = true } = {}) {
   const base = parseDuration(transport?.rel_time)
-  const playing = transport?.state === 'PLAYING' || transport?.state === 'TRANSITIONING'
+  const playing = transport?.state === 'PLAYING' || (buffering && transport?.state === 'TRANSITIONING')
   // The reading's age when sent, plus how long this page has held it (the
   // store stamps received_at), so the figure is right whenever it is read.
   const held = playing && transport?.received_at
@@ -49,8 +51,10 @@ export function positionNow(transport, { exact = false } = {}) {
   const age = playing ? (Number(transport?.position_age) || 0) + held : 0
   // RelTime is whole seconds, truncated, so a playing track is on average
   // half a second past it; `exact` hands back that unrounded figure for a
-  // clock to run from. A paused one is exactly where the reading says.
-  return exact ? Math.max(0, base + age + (playing ? 0.5 : 0)) : Math.max(0, Math.round(base + age))
+  // clock to run from. A paused one is exactly where the reading says, and so
+  // is one the server read as the speaker's second ticked over.
+  const part = playing && !transport?.position_exact ? 0.5 : 0
+  return exact ? Math.max(0, base + age + part) : Math.max(0, Math.round(base + age))
 }
 
 export function isLiveStream(duration, uri = '') {

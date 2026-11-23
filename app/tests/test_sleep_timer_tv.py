@@ -124,3 +124,41 @@ def test_a_soundbar_that_refuses_the_standby_is_not_waited_on(monkeypatch):
     _run(ctl, bar, "00:01:00", monkeypatch, now=1000.0)
     calls = _run(ctl, bar, "", monkeypatch, now=1067.0)
     assert waited == [] and _volumes_set(calls) == set()
+
+
+def _generation_event(ctl, state, monkeypatch):
+    """Send `state` a transport event carrying a new sleep-timer generation; return the reads it started."""
+    followed = []
+
+    async def follow(zone):
+        followed.append(zone.uuid)
+
+    async def nothing(*a, **kw):
+        return None
+
+    ctl._follow_sleep_timer = follow
+    ctl._zone_for_host = lambda host: state
+    for name in ("_note_playback_error", "_broadcast", "_publish_zone", "_note_recently_played"):
+        setattr(ctl, name, nothing)
+    event = SimpleNamespace(host=state.host, seq=5, properties={"SleepTimerGeneration": "7"})
+
+    async def go():
+        await ctl._on_transport(event)
+        await asyncio.sleep(0)
+
+    asyncio.run(go())
+    return followed
+
+
+def test_a_group_member_is_not_asked_for_the_timer(monkeypatch):
+    # A member takes the group's generation on joining and refuses the read (UPnP error 800).
+    ctl, bar, sub = _controller()
+    bar.is_coordinator, sub.is_coordinator = True, False
+    assert _generation_event(ctl, sub, monkeypatch) == []
+    assert sub.sleep_generation == "7"
+
+
+def test_a_coordinator_is_asked_for_the_timer(monkeypatch):
+    ctl, bar, sub = _controller()
+    bar.is_coordinator = True
+    assert _generation_event(ctl, bar, monkeypatch) == [bar.uuid]

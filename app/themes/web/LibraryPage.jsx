@@ -113,7 +113,7 @@ export default function LibraryPage({ item = 'A:', name = '', uri = '', metadata
                 <Icon.Play width={20} height={20} />
               </button>
               <button type="button" className="wb-item-dots" title={t('web.shuffleTitle', { title })}
-                      onClick={async () => { await actions.setSource(room, { uri, metadata }); actions.setPlayMode(room, 'SHUFFLE_NOREPEAT') }}>
+                      onClick={async () => { await actions.setSource(room, { uri, metadata }); actions.setPlayMode(room, 'SHUFFLE_NOREPEAT', { held: true }) }}>
                 <Icon.Shuffle width={20} height={20} />
               </button>
               <span className="wb-item-more">

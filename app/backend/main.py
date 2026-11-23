@@ -391,6 +391,7 @@ TRANSPORT_ACTIONS = {
     "play": "play",
     "pause": "pause",
     "stop": "stop",
+    "stop-tv": "stop_to_tv",
     "next": "next_track",
     "previous": "previous_track",
 }
@@ -649,12 +650,15 @@ async def seek(uuid: str, body: SeekBody) -> dict:
 
 class PlayModeBody(BaseModel):
     mode: str
+    #: The mode is for the room's queue, to be kept until the queue plays if
+    #: the room takes none now.
+    held: bool = False
 
 
 @app.post("/api/zones/{uuid}/playmode")
 async def set_play_mode(uuid: str, body: PlayModeBody) -> dict:
     try:
-        await commands().set_play_mode(uuid, body.mode)
+        await commands().set_play_mode(uuid, body.mode, held=body.held)
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
     return {"ok": True}

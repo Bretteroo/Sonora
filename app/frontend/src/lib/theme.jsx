@@ -95,7 +95,7 @@ export function thumbnailFor(theme, appearance, systemDark) {
 
 // Themes that were renamed (Hi-Fi 2 became Hi-Fi when the first Hi-Fi was
 // retired): a browser that saved the old id lands on the new one.
-const RENAMED = { strata: 'sedona', nocturne: 'outrun', desktop: 'macos', hifi2: 'hifi' }
+const RENAMED = { strata: 'sedona', nocturne: 'outrun', desktop: 'macos', hifi2: 'hifi', km2: 'karaoke' }
 
 function readStoredTheme() {
   try {

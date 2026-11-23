@@ -533,6 +533,71 @@ def remove(theme_id: str) -> bool:
     return True
 
 
+# -- what a theme keeps on this machine ---------------------------------------
+#
+# A theme may have settings of its own that belong to the house and not to one
+# browser: a list its reader typed, say. They are kept here, by theme id, as
+# short named values. Nothing in them is run or fetched by Sonora; the theme
+# that wrote them is the only reader.
+
+KEPT_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9]{0,39}$")
+#: The most one theme may keep: names, and the whole of it written out.
+KEPT_NAMES = 32
+KEPT_BYTES = 64 * 1024
+
+
+def _kept_path() -> Path:
+    return settings.data_dir / "theme-settings.json"
+
+
+def _all_kept() -> dict:
+    try:
+        data = json.loads(_kept_path().read_text())
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def kept(theme_id: str) -> dict:
+    """What one theme has kept, or nothing."""
+    if not ID.match(theme_id or ""):
+        raise ThemeError("that is not a theme id")
+    values = _all_kept().get(theme_id)
+    return values if isinstance(values, dict) else {}
+
+
+def keep(theme_id: str, changes: dict) -> dict:
+    """Lay ``changes`` over what a theme has kept and save it: a name given
+    as ``None`` is dropped, any other is set. Returns the whole of it."""
+    values = dict(kept(theme_id))
+    if not isinstance(changes, dict):
+        raise ThemeError("settings are an object of named values")
+    for name, value in changes.items():
+        if not isinstance(name, str) or not KEPT_NAME.match(name):
+            raise ThemeError("a setting's name is letters and digits, starting with a letter")
+        if value is None:
+            values.pop(name, None)
+        elif isinstance(value, (str, bool, int, float)):
+            values[name] = value
+        else:
+            raise ThemeError("a setting is text, a number, or true or false")
+    if len(values) > KEPT_NAMES:
+        raise ThemeError("that is more settings than a theme may keep")
+    if len(json.dumps(values, ensure_ascii=False).encode()) > KEPT_BYTES:
+        raise ThemeError("that is more than a theme may keep")
+    everything = _all_kept()
+    if values:
+        everything[theme_id] = values
+    else:
+        everything.pop(theme_id, None)
+    path = _kept_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(everything, ensure_ascii=False, indent=1))
+    tmp.replace(path)
+    return values
+
+
 # -- what a theme author can ask for ----------------------------------------
 #
 # A theme is written against this file's rules by someone who has none of it:

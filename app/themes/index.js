@@ -40,6 +40,7 @@ import solarized from './solarized/index.jsx'
 import materialgirl from './materialgirl/index.jsx'
 import hifi from './hifi/index.jsx'
 import severed from './severed/index.jsx'
+import karaoke from './karaoke/index.jsx'
 
 export const THEMES = {
   [coromar.id]: coromar,
@@ -56,6 +57,7 @@ export const THEMES = {
   [materialgirl.id]: materialgirl,
   [hifi.id]: hifi,
   [severed.id]: severed,
+  [karaoke.id]: karaoke,
 }
 
 export const DEFAULT_THEME = coromar.id

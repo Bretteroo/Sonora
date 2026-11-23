@@ -208,6 +208,10 @@ export const api = {
   errorLog: () => request('/api/log'),
   dropouts: () => request('/api/dropouts'),
   alarms: (zone) => request(`/api/alarms?zone=${encodeURIComponent(zone)}`),
+  // What a theme keeps on the server for every browser that wears it: named
+  // values, read whole and written by name (null drops one).
+  themeSettings: (id) => request(`/api/themes/${encodeURIComponent(id)}/settings`),
+  keepThemeSettings: (id, changes) => request(`/api/themes/${encodeURIComponent(id)}/settings`, { method: 'PUT', body: changes }),
   // Scenes are Sonora's own (backend/sonos/scenes.py): every household's,
   // with the rooms a scene is built from and which are on.
   scenes: () => request('/api/scenes'),
@@ -263,6 +267,25 @@ export const api = {
   favorites: (zone) => (zone === 'SONORA_BROWSER' ? Promise.resolve({ items: [] })
     : request(`/api/favorites${zone ? `?zone=${zone}` : ''}`)),
   createPlaylist: (body) => request('/api/playlists', { method: 'POST', body }),
+  // The songbook: the sources that list their artists, an artist's songs, and
+  // the number Sonora keeps against each song.
+  songbookTabs: (zone) => request(`/api/songbook/tabs${zone ? `?zone=${encodeURIComponent(zone)}` : ''}`),
+  songbookArtists: (tab, zone, start = 0, count = 100) => request(
+    `/api/songbook/artists?tab=${encodeURIComponent(tab)}&start=${start}&count=${count}${zone ? `&zone=${encodeURIComponent(zone)}` : ''}`),
+  songbookSongs: (tab, artist, name, zone) => request(
+    `/api/songbook/songs?tab=${encodeURIComponent(tab)}&artist=${encodeURIComponent(artist)}&name=${encodeURIComponent(name || '')}${zone ? `&zone=${encodeURIComponent(zone)}` : ''}`),
+  // A tab's write-in line: what a name finds, then the artist filed or the
+  // song numbered when one is picked.
+  // `quick` asks for what the service answers without opening a folder; the
+  // answer's `more` says whether asking again without it would find more.
+  songbookSearch: (tab, term, zone, quick) => request(
+    `/api/songbook/search?tab=${encodeURIComponent(tab)}&term=${encodeURIComponent(term)}${zone ? `&zone=${encodeURIComponent(zone)}` : ''}${quick ? '&quick=1' : ''}`),
+  songbookFile: (tab, id, name, zone) => request('/api/songbook/file', {
+    method: 'POST', body: { tab, id, name, zone: zone || null } }),
+  songbookReserve: (tab, id, zone) => request('/api/songbook/reserve', {
+    method: 'POST', body: { tab, id, zone: zone || null } }),
+  songbookFavorites: (zone) => request(`/api/songbook/favorites${zone ? `?zone=${encodeURIComponent(zone)}` : ''}`),
+  songbookNumber: (number, zone) => request(`/api/songbook/number/${Number(number)}${zone ? `?zone=${encodeURIComponent(zone)}` : ''}`),
   addToPlaylist: (body) => request('/api/playlists/add', { method: 'POST', body }),
   removePlaylistTrack: (body) => request('/api/playlists/remove-track', { method: 'POST', body }),
   movePlaylistTrack: (body) => request('/api/playlists/move-track', { method: 'POST', body }),

@@ -86,7 +86,12 @@ def test_no_picture_is_in_the_repository_that_is_not_accounted_for():
     # and on a phone.
     screenshots = {f for f in pictures
                    if re.fullmatch(r"docs/screenshots/[a-z]+/((mobile-)?(home|nowplaying|service|player)(-dark)?|spread(-dark|-mobile)?)\.webp", f)}
-    assert pictures - thumbnails - screenshots - set(THIRD_PARTY_FILES) == OWN_PICTURES
+    # The still laid behind the Karaoke Machine's lyrics in its screenshots, chosen by the author.
+    screenshots |= {f for f in pictures if f == "docs/screenshots/karaoke/backdrop.webp"}
+    # Karaoke Machine's hardware, in both its designs, and its songbook binder: renders of scenes
+    # modeled for the theme, with nothing in them traced or taken from a photograph.
+    renders = {f for f in pictures if re.fullmatch(r"app/themes/karaoke/img/[a-z]+(-[a-z]+)*\.webp", f)}
+    assert pictures - thumbnails - screenshots - renders - set(THIRD_PARTY_FILES) == OWN_PICTURES
 
 
 #: Files that are someone else's work, each with the name it is credited
@@ -102,6 +107,16 @@ THIRD_PARTY_FILES = {
     "app/themes/severed/fonts/michroma-latin.woff2": "Michroma",
     "app/themes/severed/fonts/michroma-latin-ext.woff2": "Michroma",
     "app/themes/severed/sounds/keys.ogg": "Keyboard Soundpack #1",
+    "app/themes/karaoke/fonts/blackhansans-keys.woff2": "Black Han Sans",
+    "app/themes/karaoke/fonts/blackhansans-hangul.woff2": "Black Han Sans",
+    "app/themes/karaoke/fonts/robotocondensed-latin.woff2": "Roboto Condensed",
+    "app/themes/karaoke/fonts/robotocondensed-latin-ext.woff2": "Roboto Condensed",
+    "app/themes/karaoke/fonts/robotocondensed-cyrillic.woff2": "Roboto Condensed",
+    "app/themes/karaoke/fonts/robotocondensed-cyrillic-ext.woff2": "Roboto Condensed",
+    "app/themes/karaoke/fonts/robotocondensed-latin-400.woff2": "Roboto Condensed",
+    "app/themes/karaoke/fonts/robotocondensed-latin-ext-400.woff2": "Roboto Condensed",
+    "app/themes/karaoke/fonts/robotocondensed-cyrillic-400.woff2": "Roboto Condensed",
+    "app/themes/karaoke/fonts/robotocondensed-cyrillic-ext-400.woff2": "Roboto Condensed",
 }
 
 

@@ -24,9 +24,12 @@ Bundled into the JavaScript every browser loads:
 | [Material Design Icons](https://pictogrammers.com/library/mdi/), "movie-open-outline" | 7.x | Apache-2.0 | Sonofuture's, Liquid Glass's and Material Girl's Scenes glyph (`Clapper` in each theme's `icons.jsx`), and Hi-Fi's function key (`ScenesOutline` in `app/themes/hifi/glyphs.jsx`). |
 | [Material Design Icons](https://pictogrammers.com/library/mdi/), "infinity" | 7.x | Apache-2.0 | A scene that plays until it is ended (`Infinity` in `app/frontend/src/components/Icons.jsx`, in Sonofuture's, Liquid Glass's and Material Girl's `icons.jsx`, and in `app/themes/hifi/glyphs.jsx`). |
 | [Roboto Flex](https://fonts.google.com/specimen/Roboto+Flex), by Font Bureau and Google | v30 | OFL-1.1 | Material Girl's typeface (`app/themes/materialgirl/fonts/`), its Latin and Cyrillic subsets as Google Fonts serves them, WOFF2. |
+| [Roboto Condensed](https://fonts.google.com/specimen/Roboto+Condensed), by Christian Robertson and Google | 5.1.0 (Fontsource) | OFL-1.1 | The song titles in Karaoke Machine's songbook (`app/themes/karaoke/fonts/robotocondensed-*.woff2`), weights 400 and 500, its Latin and Cyrillic subsets as Fontsource packages them, WOFF2. |
 | [Permanent Marker](https://fonts.google.com/specimen/Permanent+Marker), by Font Diner | 1.0 | Apache-2.0 | Hi-Fi's cassette label (`app/themes/hifi/permanent-marker.woff2`), its Latin letters, converted to WOFF2. |
 | [VT323](https://fonts.google.com/specimen/VT323), by Peter Hull | v18 | OFL-1.1 | Severed's screen type (`app/themes/severed/fonts/vt323-*.woff2`), its Latin subsets as Google Fonts serves them, WOFF2. |
 | [Michroma](https://fonts.google.com/specimen/Michroma), by Vernon Adams | v21 | OFL-1.1 | The lettering on Severed's console (`app/themes/severed/fonts/michroma-*.woff2`), its Latin subsets as Google Fonts serves them, WOFF2. |
+| [Black Han Sans](https://fonts.google.com/specimen/Black+Han+Sans), by Zess Type | 1.001 | OFL-1.1 | Karaoke Machine's display lettering (`app/themes/karaoke/fonts/blackhansans-*.woff2`): the Latin letters and the syllables on its keys and nameplate as one small subset and the rest of its Hangul as another, WOFF2. |
+| [Bungee](https://fonts.google.com/specimen/Bungee), by David Jonathan Ross | 2.000 | OFL-1.1 | The lettering on the cover of Karaoke Machine's songbook, set into the picture of the binder (`app/themes/karaoke/img/book-cover.webp`); the font itself is not shipped. |
 | [Keyboard Soundpack #1](https://opengameart.org/content/keyboard-soundpack-1-typing-and-single-keystrokes), by unicaegames | 1.0 | CC0-1.0 | Severed's key sounds (`app/themes/severed/sounds/keys.ogg`): eight of its single keystrokes, each cut into its press and its release, joined into one file, Opus. |
 | [WPF](https://github.com/dotnet/wpf), Aero2 theme | main | MIT | The Windows theme's checkbox tick (`app/frontend/src/parts/window-chrome.css`), the path from `Aero2.NormalColor.xaml`. |
 | [SoCo](https://github.com/SoCo/SoCo), `AUDIO_INPUT_FORMATS` | master, 18effdc | MIT | The names of the audio formats a soundbar reports on its TV input, by HTAudioIn code (`app/frontend/src/lib/tvFormat.js` and the `tvFormat.*` strings). |
@@ -303,6 +306,14 @@ icons are either redistributed under their respective licenses or are
 distributed under the Apache 2.0 license.
 ```
 
+### Roboto Condensed
+
+```
+Copyright 2011 Google Inc. All Rights Reserved.
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1; the text is under Roboto Flex, below.
+```
+
 ### Roboto Flex
 
 ```
@@ -413,6 +424,22 @@ This Font Software is licensed under the SIL Open Font License, Version 1.1; the
 
 ```
 Copyright 2011 The Michroma Project Authors (https://github.com/googlefonts/Michroma-font)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1; the text is under Roboto Flex, above.
+```
+
+### Black Han Sans
+
+```
+Copyright 2015 The Black Han Sans Project Authors (https://github.com/zesstype/Black-Han-Sans)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1; the text is under Roboto Flex, above.
+```
+
+### Bungee
+
+```
+Copyright 2023 The Bungee Project Authors (https://github.com/djrrb/Bungee)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1; the text is under Roboto Flex, above.
 ```

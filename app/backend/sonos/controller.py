@@ -5548,7 +5548,7 @@ class Commands:
         return not (uri.startswith("x-sonosapi-hls:"))
 
     async def play_now(self, zone_uuid: str, uri: str, metadata: str = "",
-                       kind: str = "") -> None:
+                       kind: str = "", *, at_end: bool = False) -> None:
         """Play a source at once, as the apps' Play Now does.
 
         Anything the queue can hold -- a track, an album, a playlist -- goes
@@ -5560,6 +5560,9 @@ class Commands:
         seek within its queue, which is where Sonora's 701 on a double-clicked
         Plex track came from. A station or a live stream
         has no queue to join and becomes the transport's source.
+
+        ``at_end`` puts the item at the end of the queue instead of after
+        what is playing, and plays from there.
         """
         target = self._c.coordinator_of(zone_uuid)
         # An audiobook is the exception among containers: Sonos' SMAPI
@@ -5569,7 +5572,7 @@ class Commands:
         # (Libby by OverDrive, 2026-09-08). Its reference looks like any
         # playlist container, so the kind has to say so.
         if self._queueable(uri) and kind != "audiobook":
-            result = await self.add_to_queue(zone_uuid, uri, metadata, next_=True)
+            result = await self.add_to_queue(zone_uuid, uri, metadata, next_=not at_end)
             first = int(result.get("FirstTrackNumberEnqueued", "0") or 0)
             # A transport already on the queue is left there. Pointed at it
             # again, the speaker goes back to the queue's first track until
@@ -5589,8 +5592,11 @@ class Commands:
             await self.set_source(zone_uuid, uri, metadata)
         await self.play(zone_uuid)
 
-    async def replace_queue(self, zone_uuid: str, uri: str, metadata: str = "") -> None:
-        """The apps' Replace Queue: empty the queue, add the source, play it."""
+    async def replace_queue(self, zone_uuid: str, uri: str, metadata: str = "", *, play: bool = True) -> None:
+        """The apps' Replace Queue: empty the queue, add the source, play it.
+
+        With ``play`` False the queue is loaded at its first track and left to wait.
+        """
         target = self._c.coordinator_of(zone_uuid)
         await self.clear_queue(zone_uuid)
         await self.add_to_queue(zone_uuid, uri, metadata)
@@ -5600,7 +5606,8 @@ class Commands:
         await self._queue_took_over(target)
         await self.soap.call(target.host, const.AV_TRANSPORT, "Seek",
                              {"InstanceID": 0, "Unit": "TRACK_NR", "Target": "1"})
-        await self.play(zone_uuid)
+        if play:
+            await self.play(zone_uuid)
 
     async def remove_share(self, zone_uuid: str, object_id: str) -> None:
         host = self._household_host(zone_uuid)

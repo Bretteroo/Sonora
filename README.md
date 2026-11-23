@@ -364,6 +364,27 @@ Your house as a rack of audio components: a turning record, a glowing display, k
 </details>
 
 <details>
+<summary><b>Karaoke Machine</b></summary>
+<br>
+The karaoke aesthetic as foretold by 1990s LaserDisc players. A three-ring binder full of songs. Huge, chunky lyrics. Non sequitur video backgrounds.
+<br>
+<br>
+This theme contains only the core elements needed to provide a solid karaoke experience. It is basic, yet emotionally powerful.
+<br>
+<br>
+The songbook lists only your music library and any of your signed-in services that allow you to select songs by artist.
+<br>
+<br>
+<img src="docs/screenshots/karaoke/spread.webp" alt="Karaoke Machine theme: the queue, the lyrics over a video, and the songbook">
+<br>
+<br>
+<img src="docs/screenshots/karaoke/spread-dark.webp" alt="Karaoke Machine theme in dark: the queue, the lyrics over a video, and the songbook">
+<br>
+<br>
+<img src="docs/screenshots/karaoke/spread-mobile.webp" width="70%" alt="Karaoke Machine theme on a phone: the lyrics with the full panel, and the songbook, light and dark">
+</details>
+
+<details>
 <summary><b>Material Girl</b></summary>
 <br>
 Built on Google's Material 3 Expressive design system. Shape-shifting covers, a floating player tinted by what's playing, and wavy lines in all the right places.

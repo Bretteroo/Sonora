@@ -42,9 +42,11 @@ from .sonos.artcache import upsized
 from .sonos import const
 from .sonos import scenes
 from .sonos import scene_alarms
+from .sonos import songbook
 from .sonos import smb
 from . import ingress, origin
 from . import release
+from . import video_deal
 from . import locale as locales
 from .errorlog import ErrorLog
 from .sonos import fetchguard, localplay
@@ -3427,6 +3429,52 @@ async def delete_theme(theme_id: str) -> dict:
     return {"ok": True}
 
 
+@app.get("/api/themes/{theme_id}/settings")
+async def theme_settings(theme_id: str) -> dict:
+    """What a theme keeps on this machine, for every browser that wears it."""
+    try:
+        return {"settings": theme_store.kept(theme_id)}
+    except theme_store.ThemeError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+
+@app.put("/api/themes/{theme_id}/settings")
+async def keep_theme_settings(theme_id: str, request: Request) -> dict:
+    """Set some of a theme's kept settings, by name; ``null`` drops one."""
+    raw = await request.body()
+    if len(raw) > 2 * theme_store.KEPT_BYTES:
+        raise HTTPException(413, "that is more than a theme may keep")
+    try:
+        body = json.loads(raw)
+    except ValueError as exc:
+        raise HTTPException(400, "settings are an object of named values") from exc
+    try:
+        return {"settings": theme_store.keep(theme_id, body)}
+    except theme_store.ThemeError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    except OSError as exc:
+        raise HTTPException(500, f"could not save the settings: {exc}") from exc
+
+
+class VideoDealBody(BaseModel):
+    room: str = ""
+    song: str
+    pool: list[str]
+    skip: list[str] = []
+
+
+@app.post("/api/karaoke/video")
+async def karaoke_video(body: VideoDealBody) -> dict:
+    """The video for a song in a room, for the karaoke themes: dealt so every
+    video plays once before any plays again, and the same for every browser
+    showing the room (video_deal.py)."""
+    if (len(body.pool) > video_deal.MOST_VIDEOS or len(body.skip) > video_deal.MOST_VIDEOS
+            or any(len(v) > video_deal.LONGEST_ID for v in body.pool + body.skip)
+            or len(body.song) > video_deal.LONGEST_KEY or len(body.room) > video_deal.LONGEST_KEY):
+        raise HTTPException(413, "that is more than a video list holds")
+    return {"video": video_deal.deal(body.room, body.song, body.pool, body.skip)}
+
+
 @app.get("/api/services/labs")
 async def labs_services(zone: str = "") -> dict:
     """The Sonos Labs services a household is offered.
@@ -3813,8 +3861,13 @@ async def browse_service(
     count: int = Query(default=100, le=200),
     account: str = "",
     art: int = Query(default=0, le=2048),
+    plain: bool = False,
 ) -> dict:
     """Browse a music service, talking to the provider rather than to Sonos.
+
+    ``plain`` asks for the service's own tree at the root, not the home
+    document some services open on: the tree is where a service keeps its
+    lists (its artists, its albums), and the document is shelves of picks.
 
     ``account`` names which of the household's accounts for the service to
     browse as, when a service has several; each is linked in Sonora on its own.
@@ -3864,7 +3917,7 @@ async def browse_service(
     # endpoint answers with no credentials at all, and its SMAPI root is
     # empty, so without this its page in Sonora was blank.
     retry_endpoint, stale_token = "", ""
-    if item == "root":
+    if item == "root" and not plain:
         endpoint = await ctl.presentation.browse_endpoint(service.manifest_uri)
         if endpoint:
             try:
@@ -5769,9 +5822,15 @@ class SourceBody(BaseModel):
     next: bool = False
     #: The apps' Replace Queue: empty the queue, add this, play it.
     replace: bool = False
+    #: With replace: False loads the new queue without starting it.
+    play: bool = True
     #: The item's SMAPI kind. An "audiobook" is never queued: the transport is
     #: pointed at the book itself, as the apps do.
     kind: str = ""
+    #: Play Now from the end of the queue: the item joins the end, as Add to
+    #: End of Queue puts it, and the queue plays from it. Without this, Play
+    #: Now puts it after the track playing.
+    at_end: bool = False
     #: Where an enqueued item should land, 1-based. 0 means the end, which is
     #: what "Add to End of Queue" asks for; a drop between two rows names the
     #: row it should take the place of.
@@ -5782,7 +5841,7 @@ class SourceBody(BaseModel):
 async def set_source(uuid: str, body: SourceBody) -> dict:
     cmd = commands()
     if body.replace:
-        await cmd.replace_queue(uuid, body.uri, body.metadata)
+        await cmd.replace_queue(uuid, body.uri, body.metadata, play=body.play)
         return {"ok": True}
     if body.enqueue:
         result = await cmd.add_to_queue(uuid, body.uri, body.metadata,
@@ -5797,7 +5856,7 @@ async def set_source(uuid: str, body: SourceBody) -> dict:
             controller().account_udn(
                 controller().household_of(uuid).id if controller().household_of(uuid) else "",
                 smapi_sid(body.uri), smapi_account_serial(body.uri)))
-    await cmd.play_now(uuid, body.uri, metadata, kind=body.kind)
+    await cmd.play_now(uuid, body.uri, metadata, kind=body.kind, at_end=body.at_end)
     return {"ok": True}
 
 
@@ -6121,6 +6180,878 @@ async def _scene_alarm_clock() -> None:
             fired = {f for f in fired if f[1] >= (datetime.now(timezone.utc) - timedelta(days=2)).strftime("%Y-%m-%d")}
         except Exception:                             # noqa: BLE001 - the clock keeps going
             log.exception("scene alarm clock")
+
+
+# -- songbook ------------------------------------------------------------------
+#
+# The binder a karaoke room keeps: a tab for each source that lists its
+# artists or can be searched for them, the artists behind it, and a number
+# against every song (backend/sonos/songbook.py). The numbers are Sonora's own
+# and kept on disk.
+
+_SONGBOOK = songbook.Songbook(settings.data_dir / "songbook.json")
+#: A source being looked through for its artist list, by its key.
+_SONGBOOK_LOOKING: dict[str, asyncio.Task] = {}
+#: A source that would not answer when it was looked through, and when:
+#: asked again after a while, not on every turn of the binder's poll.
+_SONGBOOK_REFUSED: dict[str, float] = {}
+_SONGBOOK_REFUSED_S = 3600.0
+#: An artist's songs as last read, so a page leafed back to is not read again.
+_SONGBOOK_SONGS: dict[tuple, tuple[float, list[dict]]] = {}
+_SONGBOOK_SONGS_S = 1800.0
+#: The artists of what an account has saved, as last read from its saved
+#: lists, by the source's key.
+_SONGBOOK_SAVED: dict[str, tuple[float, dict[str, str]]] = {}
+_SONGBOOK_SAVED_S = 3600.0
+#: The songs a write-in has found, so the one picked is numbered from what the
+#: service answered and is not asked for again.
+_SONGBOOK_FOUND: dict[tuple, SmapiItem] = {}
+#: How many songs of a search's answer are read: each further page is another
+#: wait, and every song found takes a number.
+_SONGBOOK_SEARCH_ROWS = 100
+#: The found rows a search has read again on their own, each asked for once.
+_SONGBOOK_READ: dict[tuple, SmapiItem] = {}
+#: What the folders a search answered with turned out to hold, by tab.
+_SONGBOOK_COPIES: dict[str, dict[str, dict]] = {}
+#: One search of a tab at a time.
+_SONGBOOK_ASKING: dict[str, asyncio.Lock] = {}
+#: The last search a tab answered without opening its folders, kept for the ask
+#: that opens them, and dropped at the tab's next search of any kind.
+_SONGBOOK_ASKED: dict[str, dict] = {}
+#: The search categories a write-in looks in, by what they find: the ids a
+#: service's presentation map or its own search tree may give each.
+_SONGBOOK_FINDS = {"artists": ("artists", "artist"),
+                   "tracks": ("tracks", "track", "songs", "song")}
+_LIBRARY_ARTISTS = ("A:ALBUMARTIST", "A:ARTIST")
+
+
+class SongbookPickBody(BaseModel):
+    tab: str
+    id: str
+    name: str = ""
+    zone: str | None = None
+
+
+def _songbook_household(zone: str | None):
+    ctl = controller()
+    household = (ctl.household_of(zone) if zone
+                 else next(iter(ctl.ordered_households()), None))
+    if household is None:
+        raise HTTPException(503, "no household available")
+    return household
+
+
+def _songbook_tab(tab: str) -> tuple[int, str]:
+    """The service and account a tab's id names (``svc:<sid>:<account>``)."""
+    parts = tab.split(":", 2)
+    if len(parts) < 2 or parts[0] != "svc" or not parts[1].isdigit():
+        raise HTTPException(404, "no such tab")
+    return int(parts[1]), parts[2] if len(parts) > 2 else ""
+
+
+def _songbook_row(item: SmapiItem) -> dict:
+    return {"id": item.id, "title": item.title, "item_type": item.item_type,
+            "is_container": item.is_container, "can_play": item.can_play,
+            "artist": item.artist, "album": item.album, "artist_id": item.artist_id,
+            "summary": item.summary, "user_content": item.user_content, "item": item}
+
+
+def _songbook_creds(household, sid: int, account: str) -> dict:
+    """The household's own login for a tab's account, or none."""
+    ctl = controller()
+    only = ctl.credentials_for(household.id, sid, "", single_account=True)
+    return ((ctl.credentials_for(household.id, sid, account) or only) if account
+            else only) or {}
+
+
+async def _songbook_opener(household, sid: int, account: str):
+    """The service behind a tab and a way to read its tree a page at a time,
+    as the household's account for it.
+
+    The login is looked up on every call, not once: a provider may hand back
+    a new one in the middle of a walk, and the old one is then refused.
+    """
+    ctl = controller()
+    service = await _cached_service(ctl, household, sid)
+    if service is None:
+        raise HTTPException(404, f"service {sid} not in this household")
+    device_id = await ctl.device_serial(household)
+
+    async def open_page(item: str, index: int) -> tuple[list[dict], int]:
+        creds = _songbook_creds(household, sid, account)
+        if service.auth != "Anonymous" and not creds.get("token"):
+            raise SmapiError(service.name, "NotLinked", "no login for this account")
+        page = await ctl.smapi.get_metadata(
+            endpoint=service.endpoint, service_name=service.name, item_id=item,
+            index=index, count=100, household_id=household.id,
+            token=creds.get("token", ""), key=creds.get("key", ""),
+            device_id=device_id)
+        return [_songbook_row(row) for row in page.items], page.total
+
+    return service, open_page
+
+
+async def _songbook_serial(household, zone: str | None, service, account: str) -> tuple[str, str]:
+    """The serial and the descriptor the speakers know a tab's account by,
+    which is what a song from it is played with."""
+    ctl = controller()
+    sn = account
+    if not sn and service.in_use:
+        sn = (await _household_serials(zone)).get(service.id) or "0"
+    sn = sn or "0"
+    return sn, ctl.account_udn(household.id, service.id, sn)
+
+
+async def _songbook_finds(household, service, sid: int, account: str) -> dict[str, str]:
+    """Which of a service's search categories find artists and which find
+    songs: the id to search for each, under ``artists`` and ``tracks``.
+
+    The categories are the ones the service's presentation map declares, or
+    without a map the children of its own ``search`` item. A service that
+    names neither is not searched from the binder: the usual ids tried blind
+    would put a line on a page that may never answer.
+    """
+    ctl = controller()
+    try:
+        declared = await ctl.presentation.search_categories(service.manifest_uri)
+    except Exception as exc:  # noqa: BLE001 - no map is not an error
+        log.debug("songbook: no search map for %s: %s", service.name, exc)
+        declared = []
+    if declared:
+        listed = [(str(cat.get("id") or ""), str(cat.get("mapped_id") or ""))
+                  for cat in declared]
+    else:
+        creds = _songbook_creds(household, sid, account)
+        if service.auth != "Anonymous" and not creds.get("token"):
+            return {}
+        try:
+            page = await ctl.smapi.get_metadata(
+                endpoint=service.endpoint, service_name=service.name, item_id="search",
+                count=20, household_id=household.id, token=creds.get("token", ""),
+                key=creds.get("key", ""), device_id=await ctl.device_serial(household))
+        except SmapiError:
+            return {}
+        listed = [(item.id, item.id) for item in page.items if item.id]
+    finds: dict[str, str] = {}
+    for found, names in _SONGBOOK_FINDS.items():
+        mapped = next((mapped for ident, mapped in listed
+                       if ident.lower() in names and mapped), "")
+        if mapped:
+            finds[found] = mapped
+    return finds
+
+
+def _songbook_entry(household_id: str, sid: int, account: str, item) -> tuple[str, dict]:
+    """What a song found on a service is numbered under, and the facts kept
+    with the number."""
+    return (songbook.song_key(household_id, f"svc:{sid}", account, item.id),
+            {"h": household_id, "src": f"svc:{sid}", "acct": account, "id": item.id,
+             "t": item.title, "a": item.artist, "al": item.album, "m": item.mime_type})
+
+
+def _songbook_writes(shelf: dict | None) -> dict[str, str]:
+    """The search categories a tab's write-in line looks in, or none when the
+    tab has no such line: a service has to be searchable for artists or songs
+    and to have songs that are asked for by name."""
+    if not shelf or not shelf.get("on_demand"):
+        return {}
+    return shelf.get("search") or {}
+
+
+#: How many of a service's home shelves are opened to find the one of artists followed, and
+#: how long that shelf may be: a few followed artists, not a catalog of them.
+_SONGBOOK_HOME_SHELVES = 25
+_SONGBOOK_HOME_MOST = 200
+
+
+async def _songbook_home_follows(household, sid: int, account: str, open_page) -> list[str] | None:
+    """The shelves of a service's home page that hold nothing but artists, or
+    None for a service with no home page.
+
+    A service need not keep the artists an account follows in its own tree:
+    Spotify shows them only on its home page, as a shelf of artists and
+    nothing else (2026-11-22; the account's own follows, its owner says). A
+    shelf of picks mixes artists with albums and playlists, so a shelf of
+    artists alone is taken as the account's. The home page is read afresh
+    each time, as its shelves are given new ids."""
+    ctl = controller()
+    service = await _cached_service(ctl, household, sid)
+    if service is None:
+        return None
+    endpoint = await ctl.presentation.browse_endpoint(service.manifest_uri)
+    if not endpoint:
+        return None
+    creds = _songbook_creds(household, sid, account)
+    try:
+        page = await ctl.contentsvc.home(
+            endpoint=endpoint, service_name=service.name, token=creds.get("token", ""),
+            device_id=await ctl.device_serial(household), household_id=household.id,
+            filtering=ctl.smapi.filters(household.id))
+    except SmapiError as exc:
+        log.debug("songbook: service %s's home page was not read: %s", sid, exc)
+        return []
+    return await songbook.artist_shelves(
+        open_page, [i.id for i in page.items if i.is_container and i.id],
+        shelves=_SONGBOOK_HOME_SHELVES, most=_SONGBOOK_HOME_MOST)
+
+
+async def _songbook_look(key: str, household, sid: int, account: str) -> None:
+    """Look through one service for what it has for the binder and keep the
+    answer."""
+    try:
+        service, open_page = await _songbook_opener(household, sid, account)
+        found = await songbook.survey(open_page, shut=_SONGBOOK.shut(key))
+        found["search"] = await _songbook_finds(household, service, sid, account)
+        home = await _songbook_home_follows(household, sid, account, open_page)
+        found["home"] = home is not None
+        home = home or []
+        if found["saved"] or found.get("follows") or home:
+            _SONGBOOK_SAVED[key] = (time.monotonic(),
+                                    await songbook.saved_artists(open_page, found["saved"],
+                                                                 follows=[*(found.get("follows") or []), *home]))
+    except Exception as exc:  # noqa: BLE001 - one service's refusal is its own
+        log.info("songbook: service %s would not be looked through: %s", sid, exc)
+        _SONGBOOK_REFUSED[key] = time.monotonic()
+    else:
+        _SONGBOOK.keep_shelf(key, found)
+    finally:
+        _SONGBOOK_LOOKING.pop(key, None)
+
+
+async def _songbook_read_saved(key: str, household, sid: int, account: str,
+                               lists: list[str], follows: list[str] = (),
+                               home_page: bool = False) -> dict[str, str]:
+    """Read the artists of what an account has saved, and keep them a while.
+    A reading that fails leaves the last one standing."""
+    try:
+        _service, open_page = await _songbook_opener(household, sid, account)
+        home = (await _songbook_home_follows(household, sid, account, open_page) or []) if home_page else []
+        found = await songbook.saved_artists(open_page, lists, follows=[*follows, *home])
+    except Exception as exc:  # noqa: BLE001 - the tab opens without them
+        log.info("songbook: service %s's saved lists were not read: %s", sid, exc)
+        found = _SONGBOOK_SAVED.get(key, (0.0, {}))[1]
+    finally:
+        _SONGBOOK_LOOKING.pop(f"{key}#saved", None)
+    _SONGBOOK_SAVED[key] = (time.monotonic(), found)
+    return found
+
+
+def _songbook_saved(key: str, household, sid: int, account: str,
+                    shelf: dict) -> dict[str, str] | None:
+    """The artists of what a tab's account has saved or follows, as last read, or None
+    while they are being read for the first time. A reading an hour old is
+    still answered with, and read again behind the answer."""
+    lists = shelf.get("saved") or []
+    follows = shelf.get("follows") or []
+    if not lists and not follows and not shelf.get("home"):
+        return {}
+    hit = _SONGBOOK_SAVED.get(key)
+    fresh = hit is not None and time.monotonic() - hit[0] < _SONGBOOK_SAVED_S
+    if not fresh and f"{key}#saved" not in _SONGBOOK_LOOKING:
+        _SONGBOOK_LOOKING[f"{key}#saved"] = asyncio.create_task(
+            _songbook_read_saved(key, household, sid, account, lists, follows, bool(shelf.get("home"))),
+            name=f"songbook saved {sid}")
+    return hit[1] if hit is not None else None
+
+
+@app.get("/api/songbook/tabs")
+async def songbook_tabs(zone: str | None = None) -> dict:
+    """The binder's tabs: every source of the household that lists artists,
+    or has artists to show for what its account has saved, or can be searched
+    for them.
+
+    The speakers' own music library is asked on the spot. A service is looked
+    through once, behind this answer, and what was found is kept; ``pending``
+    says some are still being looked through, and asking again shows them as
+    they are found. Which services get a tab is decided by what each one
+    answers (rows it types ``artist``, lists of saved songs and albums whose
+    rows name their artist's id, a search category for artists or songs
+    beside rows that are asked for by name), never by which service it is.
+    ``search`` on a tab says it takes write-ins.
+    """
+    ctl = controller()
+    household = _songbook_household(zone)
+    tabs: list[dict] = []
+    for object_id in _LIBRARY_ARTISTS:
+        try:
+            result, _host = await _browse_household(zone, object_id, start=0, count=1)
+        except Exception as exc:  # noqa: BLE001 - no library is not an error
+            log.debug("songbook: no library list %s: %s", object_id, exc)
+            continue
+        if result.total > 0:
+            tabs.append({"id": "library", "kind": "library", "object": object_id,
+                         "total": result.total})
+            break
+
+    try:
+        listing = await services(zone)
+    except HTTPException:
+        listing = {"households": []}
+    in_use = next((h.get("in_use") or [] for h in listing.get("households", [])
+                   if h.get("household") == household.id), [])
+    pending = False
+    now = time.monotonic()
+    met: set[str] = set()
+    for entry in in_use:
+        sid = entry.get("id")
+        if not isinstance(sid, int):
+            continue
+        account = str(entry.get("account_id") or "")
+        key = f"{household.id}|svc:{sid}:{account}"
+        if key in met:
+            continue
+        met.add(key)
+        shelf = _SONGBOOK.shelf(key)
+        if shelf is None:
+            if key in _SONGBOOK_LOOKING:
+                pending = True
+                continue
+            if now - _SONGBOOK_REFUSED.get(key, -_SONGBOOK_REFUSED_S) < _SONGBOOK_REFUSED_S:
+                continue
+            has_login = bool(ctl.credentials_for(household.id, sid, account)
+                             or ctl.credentials_for(household.id, sid, "",
+                                                    single_account=True))
+            if entry.get("auth") != "Anonymous" and not has_login:
+                continue
+            _SONGBOOK_LOOKING[key] = asyncio.create_task(
+                _songbook_look(key, household, sid, account),
+                name=f"songbook look {sid}")
+            pending = True
+            continue
+        saved = _songbook_saved(key, household, sid, account, shelf)
+        if saved is None:
+            # Being read: the tab is shown now if it has something else, and
+            # with these artists counted when it is asked for again.
+            pending = True
+            saved = {}
+        filed = _SONGBOOK.filed(key)
+        writes = bool(_songbook_writes(shelf))
+        if shelf.get("item") or saved or filed or writes:
+            beside = len({songbook.fold(name) for name in (*saved.values(), *filed.values())})
+            tabs.append({"id": f"svc:{sid}:{account}", "kind": "service", "sid": sid,
+                         "account": account, "name": entry.get("name") or "",
+                         "nickname": entry.get("nickname") or "",
+                         "icon": entry.get("icon") or "",
+                         "total": shelf.get("total", 0) or beside,
+                         "search": writes, "own": bool(shelf.get("own"))})
+    return {"household": household.id, "tabs": tabs, "pending": pending}
+
+
+#: What each tab holds, as its ids tell it (``songbook.scope_of``): the tab's
+#: whole list of artist ids, kept while the list's length and first page stay
+#: as they were.
+_SONGBOOK_SCOPE: dict[str, dict] = {}
+
+
+async def _songbook_scope(key: str, shelf: dict | None, open_page,
+                          first: tuple[list[dict], int] | None = None):
+    """What a tab holds, or None where its ids do not say. ``first`` is the
+    first page of the tab's own list where the caller has just read it."""
+    item = (shelf or {}).get("item")
+    if not item:
+        return None
+    return await songbook.scope_of(open_page, item, first=first,
+                                   kept=_SONGBOOK_SCOPE.setdefault(key, {}))
+
+
+#: When each tab was last looked through again because its list had moved.
+_SONGBOOK_MOVED: dict[str, float] = {}
+_SONGBOOK_MOVED_S = 600.0
+
+
+async def _songbook_where_it_was(key: str, household, sid: int, account: str,
+                                 shelf: dict, open_page) -> dict:
+    """The tab's shelf, looked through again where its list has moved.
+
+    A list that was a row of the service's root is the whole of what the
+    service shows. Where the root no longer has that row the service is
+    showing something else (a server with several libraries has been turned
+    to another one, say), and the old id may well still open, onto a list
+    that is no longer the one in front of the listener. A service whose ids
+    do not hold from one reading to the next is looked through again no more
+    than once in a while.
+    """
+    if shelf.get("own") or not shelf.get("item"):
+        return shelf
+    try:
+        rows, _total = await open_page("root", 0)
+    except Exception as exc:  # noqa: BLE001 - an unread root says nothing
+        log.info("songbook: the root would not open: %s", exc)
+        return shelf
+    if any(row.get("id") == shelf["item"] for row in rows):
+        return shelf
+    now = time.monotonic()
+    if now - _SONGBOOK_MOVED.get(key, -_SONGBOOK_MOVED_S) < _SONGBOOK_MOVED_S:
+        return shelf
+    _SONGBOOK_MOVED[key] = now
+    looking = _SONGBOOK_LOOKING.get(key)
+    if looking is None:
+        _SONGBOOK.forget_shelf(key)
+        _SONGBOOK_SCOPE.pop(key, None)
+        looking = _SONGBOOK_LOOKING[key] = asyncio.create_task(
+            _songbook_look(key, household, sid, account), name=f"songbook look {sid}")
+    await asyncio.shield(looking)
+    return _SONGBOOK.shelf(key) or shelf
+
+
+@app.get("/api/songbook/artists")
+async def songbook_artists(tab: str, zone: str | None = None, start: int = 0,
+                           count: int = Query(default=100, le=500)) -> dict:
+    """One page of a tab's artists, in the order the source keeps them.
+
+    The first page of a service's tab also carries ``extra``: the artists that
+    are not on the source's own list, which are the ones of what the account
+    has saved and the ones written in (``filed``). A tab without a list of
+    its own answers with those alone. A written-in artist that is not in what
+    the tab holds as things stand (``songbook.Scope``) is left off, as is one
+    the tab's own list has under another id; both stay filed.
+    """
+    household = _songbook_household(zone)
+    if tab == "library":
+        for object_id in _LIBRARY_ARTISTS:
+            result, host = await _browse_household(zone, object_id, start=start, count=count)
+            if result.total > 0:
+                rows = result.as_dict(host).get("items", [])
+                return {"total": result.total, "start": start, "read": len(rows),
+                        "items": [{"id": row["id"], "title": row.get("title") or ""}
+                                  for row in rows if row.get("kind") == "artist"]}
+        return {"total": 0, "start": start, "read": 0, "items": []}
+    sid, account = _songbook_tab(tab)
+    key = f"{household.id}|svc:{sid}:{account}"
+    shelf = _SONGBOOK.shelf(key)
+    if not shelf:
+        raise HTTPException(404, "no such tab")
+    _service, open_page = await _songbook_opener(household, sid, account)
+    if start == 0:
+        shelf = await _songbook_where_it_was(key, household, sid, account, shelf, open_page)
+    rows: list[dict] = []
+    total = 0
+    if shelf.get("item"):
+        try:
+            rows, total = await open_page(shelf["item"], start)
+        except SmapiError as exc:
+            # The list is not where it was: look for it again next time.
+            _SONGBOOK.forget_shelf(key)
+            raise HTTPException(502, "the service did not open its artists") from exc
+    extra: list[dict] = []
+    if start == 0:
+        saved = _songbook_saved(key, household, sid, account, shelf)
+        if saved is None:
+            reading = _SONGBOOK_LOOKING.get(f"{key}#saved")
+            saved = await asyncio.shield(reading) if reading else {}
+        filed = _SONGBOOK.filed(key)
+        scope = (await _songbook_scope(key, shelf, open_page, first=(rows, total))
+                 if filed else None)
+        extra = [{"id": ident, "title": title, "filed": False}
+                 for ident, title in saved.items() if ident not in filed]
+        extra += [{"id": ident, "title": title, "filed": True}
+                  for ident, title in filed.items()
+                  if scope is None or scope.home(ident) == ident]
+    if not shelf.get("item"):
+        return {"total": 0, "start": start, "read": 0, "items": [], "extra": extra}
+    return {"total": total, "start": start, "read": len(rows),
+            "items": [{"id": row["id"], "title": row["title"]}
+                      for row in rows if row["item_type"] == "artist"],
+            "extra": extra}
+
+
+async def _library_songs(zone: str | None, artist: str) -> list[dict]:
+    """Every track the library files under an artist: the artist's id with a
+    trailing slash is the list of them all."""
+    rows: list[dict] = []
+    start = 0
+    while start < 3000:
+        result, host = await _browse_household(zone, artist.rstrip("/") + "/",
+                                               start=start, count=500)
+        page = result.as_dict(host).get("items", [])
+        rows.extend(row for row in page if row.get("kind") == "track" and row.get("uri"))
+        start += len(page)
+        if not page or start >= result.total:
+            break
+    seen: set[str] = set()
+    out = []
+    for row in sorted(rows, key=lambda r: songbook.fold(r.get("title") or "")):
+        title = songbook.fold(row.get("title") or "")
+        if title and title not in seen:
+            seen.add(title)
+            out.append(row)
+    return out
+
+
+@app.get("/api/songbook/songs")
+async def songbook_songs(tab: str, artist: str, name: str = "",
+                         zone: str | None = None) -> dict:
+    """An artist's songs, each with its number and what plays it.
+
+    A song is numbered the first time it is listed here and keeps the number.
+    A service's artist is read through: every album and list under the artist
+    is opened, to a few hundred requests, so the page is the artist's songs
+    and not the handful a service puts at the top.
+    """
+    household = _songbook_household(zone)
+    cache_key = (household.id, tab, artist)
+    hit = _SONGBOOK_SONGS.get(cache_key)
+    if hit is not None and time.monotonic() - hit[0] < _SONGBOOK_SONGS_S:
+        return {"artist": name, "items": hit[1]}
+    songs: list[dict] = []
+    filed: list[tuple[str, dict]] = []
+    if tab == "library":
+        for row in await _library_songs(zone, artist):
+            songs.append({"id": row["id"], "title": row.get("title") or "",
+                          "album": row.get("album") or "", "uri": row["uri"],
+                          "metadata": row.get("metadata") or "", "item_type": "track"})
+            filed.append((songbook.song_key(household.id, "library", "", row["uri"]),
+                          {"h": household.id, "src": "library", "id": row["uri"],
+                           "t": row.get("title") or "", "a": name,
+                           "al": row.get("album") or ""}))
+    else:
+        sid, account = _songbook_tab(tab)
+        service, open_page = await _songbook_opener(household, sid, account)
+        try:
+            tracks = await songbook.walk_songs(open_page, artist, name, budget=300, lanes=6)
+        except SmapiError as exc:
+            raise HTTPException(502, "the service did not open this artist") from exc
+        sn, udn = await _songbook_serial(household, zone, service, account)
+        for row in tracks:
+            built = playable(row["item"], sid, sn, udn=udn)
+            if not built:
+                continue
+            item = row["item"]
+            songs.append({"id": item.id, "title": item.title, "album": item.album,
+                          "uri": built[0], "metadata": built[1], "item_type": "track"})
+            filed.append((songbook.song_key(household.id, f"svc:{sid}", account, item.id),
+                          {"h": household.id, "src": f"svc:{sid}", "acct": account,
+                           "id": item.id, "t": item.title, "a": item.artist or name,
+                           "al": item.album, "m": item.mime_type}))
+    for song, number in zip(songs, _SONGBOOK.number(filed)):
+        song["number"] = number
+    _SONGBOOK_SONGS[cache_key] = (time.monotonic(), songs)
+    if len(_SONGBOOK_SONGS) > 200:
+        oldest = min(_SONGBOOK_SONGS, key=lambda k: _SONGBOOK_SONGS[k][0])
+        _SONGBOOK_SONGS.pop(oldest, None)
+    return {"artist": name, "items": songs}
+
+
+@app.get("/api/songbook/search")
+async def songbook_search(tab: str, term: str, zone: str | None = None,
+                          quick: bool = False) -> dict:
+    """What a tab's write-in line finds: the artists and the songs the service
+    answers a name with, in its own order.
+
+    Every song found is numbered here, as one listed on an artist's page is:
+    no song is shown in the binder without its number, and a song met before
+    keeps the one it has. A song found after the last number has gone is left
+    out. Nothing is filed: an artist is filed when it is picked
+    (``/api/songbook/file``), and a found song's artist when the song is
+    (``/api/songbook/reserve``). The first artists found are opened before
+    they are answered with, and one with no page to turn to is left out. So
+    is an artist, and a song by an artist, kept somewhere the tab does not
+    list: a service with several libraries finds what is in all of them, and
+    the tab holds one (``songbook.Scope``). A song found without its artist is
+    read again for it, and a folder that holds the copies of one song or one
+    artist is answered as that song or that artist (``songbook.found_songs``).
+
+    Opening those folders is the slow part, so the page asks twice. With
+    ``quick`` no folder is opened: the answer holds what needs none, and says
+    and the songs are read no further than their first page: the answer
+    holds what that gives, and says under ``more`` whether there may be more.
+    The second ask reads the rest and opens the folders, going on from the
+    first one's rows where no other search of the tab came between.
+    """
+    household = _songbook_household(zone)
+    sid, account = _songbook_tab(tab)
+    finds = _songbook_writes(_SONGBOOK.shelf(f"{household.id}|svc:{sid}:{account}"))
+    if not finds:
+        raise HTTPException(404, "this tab takes no write-ins")
+    term = term.strip()
+    if len(term) < 2:
+        return {"artists": [], "songs": []}
+    ctl = controller()
+    service = await _cached_service(ctl, household, sid)
+    if service is None:
+        raise HTTPException(404, f"service {sid} not in this household")
+    creds = _songbook_creds(household, sid, account)
+    if service.auth != "Anonymous" and not creds.get("token"):
+        raise HTTPException(502, "no login for this account")
+    device_id = await ctl.device_serial(household)
+
+    said: dict[str, int] = {}
+
+    async def look(found: str, words: str = "", *, first: list | None = None) -> list[dict] | None:
+        """One category's rows, none where the tab has no such category, and
+        None when the service would not answer."""
+        if found not in finds:
+            return []
+        # Any search of the tab changes what its folders open to.
+        _SONGBOOK_ASKED.pop(key, None)
+
+        async def page(index: int, count: int) -> list[dict]:
+            answer = await ctl.smapi.search(
+                endpoint=service.endpoint, service_name=service.name,
+                category_id=finds[found], term=words or term, index=index, count=count,
+                household_id=household.id, token=creds.get("token", ""),
+                key=creds.get("key", ""), device_id=device_id)
+            said[found] = answer.total
+            return [_songbook_row(item) for item in answer.items]
+
+        try:
+            # The songs the reader asked for are read past the first page: a
+            # common word has more songs than one page holds, and the one
+            # wanted may sit well down the list. Artists are used only from
+            # the top, and a folder's re-ask is one of many. A quick look
+            # stops at the songs' first page, and the next one reads on from it.
+            if found == "tracks" and not words:
+                if quick:
+                    return await page(0, 50)
+                return await songbook.every_page(page, total=lambda: said.get(found, 0),
+                                                 first=first, rows=_SONGBOOK_SEARCH_ROWS,
+                                                 asks=_SONGBOOK_SEARCH_ROWS // 50 + 1)
+            return await page(0, 20)
+        except SmapiError as exc:
+            log.info("songbook: %s would not search its %s: %s", service.name, found, exc)
+            return None
+
+    async def read(ident: str) -> dict | None:
+        """One found row read again on its own, which is asked of the service
+        once and kept."""
+        key = (household.id, tab, ident)
+        item = _SONGBOOK_READ.get(key)
+        if item is None:
+            item = await ctl.smapi.get_extended_metadata_item(
+                endpoint=service.endpoint, service_name=service.name, item_id=ident,
+                household_id=household.id, token=creds.get("token", ""),
+                key=creds.get("key", ""), device_id=device_id)
+            if item is None:
+                return None
+            _SONGBOOK_READ[key] = item
+            while len(_SONGBOOK_READ) > 1200:
+                _SONGBOOK_READ.pop(next(iter(_SONGBOOK_READ)))
+        return _songbook_row(item)
+
+    def ask(found: str):
+        async def by(words: str) -> list[dict]:
+            return await look(found, words) or []
+        return by
+
+    key = f"{household.id}|svc:{sid}:{account}"
+    copies = _SONGBOOK_COPIES.setdefault(key, {"artists": {}, "tracks": {}})
+    if sum(map(len, copies.values())) > 400:
+        copies["artists"].clear()
+        copies["tracks"].clear()
+    shut = _SONGBOOK.shut(key)
+    more = False
+    # One search of a tab at a time: what a found folder opens to can turn on
+    # the search the service answered last.
+    async with _SONGBOOK_ASKING.setdefault(key, asyncio.Lock()):
+        # What the tab holds is read while the service searches: it opens the
+        # tab's own shelves, which no search changes.
+        _service, open_page = await _songbook_opener(household, sid, account)
+        asked = _SONGBOOK_ASKED.get(key)
+        if (not quick and asked and asked["term"] == term
+                and time.monotonic() - asked["at"] < 120):
+            artists, scope = asked["artists"], asked["scope"]
+            tracks = await look("tracks", first=asked["tracks"])
+        else:
+            artists, tracks, scope = await asyncio.gather(
+                look("artists"), look("tracks"),
+                _songbook_scope(key, _SONGBOOK.shelf(key), open_page))
+            if artists is None and tracks is None:
+                raise HTTPException(502, "the service did not answer the search")
+            if quick:
+                _SONGBOOK_ASKED[key] = {"term": term, "artists": artists, "tracks": tracks,
+                                        "scope": scope, "at": time.monotonic()}
+                # A first page of songs may not be the last, however short.
+                more = bool(tracks) or songbook.folders_unread(
+                    artists or [], copies["artists"], shut)
+        named = await songbook.found_artists(
+            artists or [], open_page, read, ask("artists"), shut=shut, kept=copies["artists"],
+            scope=scope, opened=not quick)
+        songs = await songbook.found_songs(
+            tracks or [], open_page, read, ask("tracks"), shut=shut, kept=copies["tracks"],
+            scope=scope, opened=not quick)
+    sn, udn = await _songbook_serial(household, zone, service, account)
+    out: dict = {"artists": [], "songs": [], "more": more}
+    met: set[str] = set()
+    for artist in named:
+        if artist["id"] not in met:
+            met.add(artist["id"])
+            out["artists"].append({"id": artist["id"], "title": artist["title"]})
+    kept: list[SmapiItem] = []
+    lines: dict[str, str] = {}
+    for row in songs:
+        item = row["item"]
+        lines[item.id] = row.get("summary") or ""
+        if (item.item_type != "track" or not item.id or not item.title or item.id in met
+                or not playable(item, sid, sn, udn=udn)):
+            continue
+        met.add(item.id)
+        kept.append(item)
+    entries = [_songbook_entry(household.id, sid, account, item) for item in kept]
+    for entry_key, facts in entries:
+        # A song found without its artist keeps the one it was numbered with.
+        if not facts["a"]:
+            held = _SONGBOOK.facts(entry_key)
+            facts["a"], facts["al"] = held.get("a") or "", facts["al"] or held.get("al") or ""
+    numbers = _SONGBOOK.number(entries)
+    for item, number in zip(kept, numbers):
+        if number is None:
+            continue
+        _SONGBOOK_FOUND[(household.id, tab, item.id)] = item
+        # A song not read again for its artist goes under the line the
+        # service describes it by.
+        out["songs"].append({"id": item.id, "title": item.title,
+                             "artist": item.artist or lines[item.id],
+                             "album": item.album, "number": number})
+    while len(_SONGBOOK_FOUND) > 600:
+        _SONGBOOK_FOUND.pop(next(iter(_SONGBOOK_FOUND)))
+    return out
+
+
+@app.post("/api/songbook/file")
+async def songbook_file(body: SongbookPickBody) -> dict:
+    """File a written-in artist behind a service's tab, and answer with the
+    artist's page of songs.
+
+    The page is read first, as ``/api/songbook/songs`` reads it, and an artist
+    with no songs to list is not filed: the name stays off the binder and the
+    answer is 409.
+    """
+    household = _songbook_household(body.zone)
+    sid, account = _songbook_tab(body.tab)
+    key = f"{household.id}|svc:{sid}:{account}"
+    name = body.name.strip()
+    if not body.id or not name:
+        raise HTTPException(400, "an artist is filed by its id and its name")
+    if not _songbook_writes(_SONGBOOK.shelf(key)):
+        raise HTTPException(404, "this tab takes no write-ins")
+    read = await songbook_songs(body.tab, body.id, name, body.zone)
+    if not any(song.get("number") for song in read["items"]):
+        raise HTTPException(409, "no songs are listed for this artist")
+    _SONGBOOK.file_artist(key, body.id, name)
+    return {"artist": {"id": body.id, "title": name, "filed": True}, "items": read["items"]}
+
+
+@app.post("/api/songbook/reserve")
+async def songbook_reserve(body: SongbookPickBody) -> dict:
+    """Answer a song a write-in found with what plays it, and file its artist.
+
+    The song is the one the search answered with where that is still in hand,
+    and keeps the number it was given there; where it is not, it is read from
+    its service again and numbered as the search would have. Its artist goes behind
+    the tab when the song names the artist's id, under the name the service
+    gives that id; the artist's page is read when it is turned to. An artist
+    the tab does not hold (``songbook.Scope``) is not filed, and neither is
+    one the tab's own list has already.
+    """
+    household = _songbook_household(body.zone)
+    sid, account = _songbook_tab(body.tab)
+    key = f"{household.id}|svc:{sid}:{account}"
+    if not _songbook_writes(_SONGBOOK.shelf(key)):
+        raise HTTPException(404, "this tab takes no write-ins")
+    ctl = controller()
+    service = await _cached_service(ctl, household, sid)
+    if service is None:
+        raise HTTPException(404, f"service {sid} not in this household")
+    creds = _songbook_creds(household, sid, account)
+
+    async def read(ident: str) -> SmapiItem | None:
+        if service.auth != "Anonymous" and not creds.get("token"):
+            return None
+        try:
+            return await ctl.smapi.get_extended_metadata_item(
+                endpoint=service.endpoint, service_name=service.name, item_id=ident,
+                household_id=household.id, token=creds.get("token", ""),
+                key=creds.get("key", ""), device_id=await ctl.device_serial(household))
+        except Exception as exc:  # noqa: BLE001 - answered as a song not found
+            log.info("songbook: %s would not describe an item: %s", service.name, exc)
+            return None
+
+    item = _SONGBOOK_FOUND.get((household.id, body.tab, body.id))
+    if item is None or not item.artist:
+        # A song found by its description alone is read for its artist now.
+        item = await read(body.id) or item
+    sn, udn = await _songbook_serial(household, body.zone, service, account)
+    built = playable(item, sid, sn, udn=udn) if item is not None else None
+    if not built:
+        raise HTTPException(404, "this song can no longer be played")
+    number = _SONGBOOK.number([_songbook_entry(household.id, sid, account, item)])[0]
+    if number is None:
+        raise HTTPException(409, "the songbook has no numbers left")
+    artist = None
+    _service, open_page = await _songbook_opener(household, sid, account)
+    scope = await _songbook_scope(key, _SONGBOOK.shelf(key), open_page)
+    # An artist the tab does not hold gets no page, and one its own list has
+    # under another id has its page there already.
+    if item.artist_id and item.artist and (
+            scope is None or scope.home(item.artist_id) == item.artist_id):
+        filed = _SONGBOOK.filed(key)
+        # A song by two artists names them both on its artist line; the page
+        # is filed under the name the service gives the id.
+        title = filed.get(item.artist_id) or getattr(await read(item.artist_id), "title", "")
+        title = title or item.artist
+        _SONGBOOK.file_artist(key, item.artist_id, title)
+        artist = {"id": item.artist_id, "title": title, "filed": True}
+    return {"song": {"id": item.id, "title": item.title, "artist": item.artist,
+                     "album": item.album, "uri": built[0], "metadata": built[1],
+                     "item_type": "track", "number": number},
+            "artist": artist}
+
+
+@app.get("/api/songbook/favorites")
+async def songbook_favorites(zone: str | None = None) -> dict:
+    """The number each of the household's favorites goes by, under the
+    favorite's own id.
+
+    A favorite is numbered the first time it is listed here and keeps the
+    number, wherever it is moved to in the list afterwards.
+    """
+    household = _songbook_household(zone)
+    items = await controller().content.favorites(_host_for(zone))
+    keys: list[str] = []
+    for item in items:
+        key = songbook.favorite_key(item.uri, item.resource_metadata, item.id)
+        # Two favorites that play the same thing are told apart by their ids.
+        keys.append(f"{key}#{item.id}" if key in keys else key)
+    numbers = _SONGBOOK.favorite_numbers(household.id, keys)
+    return {"numbers": {item.id: n for item, n in zip(items, numbers) if n}}
+
+
+@app.get("/api/songbook/number/{number}")
+async def songbook_number(number: int, zone: str | None = None) -> dict:
+    """The song a number was given to, with what plays it now.
+
+    What plays a service's song names the household's account for it, so it
+    is built when asked for and not kept; the song is read from its service
+    again where that works, for its picture, and built from the kept facts
+    where it does not. A number given in another household is unknown here.
+    """
+    household = _songbook_household(zone)
+    facts = _SONGBOOK.find(number)
+    if facts is None or facts.get("h") != household.id:
+        raise HTTPException(404, "no song has this number")
+    out = {"number": number, "title": facts.get("t") or "",
+           "artist": facts.get("a") or "", "album": facts.get("al") or "",
+           "item_type": "track"}
+    source = facts.get("src") or ""
+    if source == "library":
+        return {**out, "id": facts["id"], "uri": facts["id"], "metadata": ""}
+    sid, account = _songbook_tab(f"{source}:{facts.get('acct') or ''}")
+    fresh = await service_item(sid, facts["id"], zone=zone, account=account)
+    if fresh.get("uri"):
+        return {**out, "id": facts["id"], "uri": fresh["uri"],
+                "metadata": fresh.get("metadata") or ""}
+    ctl = controller()
+    service = await _cached_service(ctl, household, sid)
+    if service is None:
+        raise HTTPException(404, "the song's service is no longer on this system")
+    sn, udn = await _songbook_serial(household, zone, service, account)
+    built = playable(SmapiItem(id=facts["id"], title=out["title"], item_type="track",
+                               can_play=True, mime_type=facts.get("m") or "",
+                               artist=out["artist"], album=out["album"]),
+                     sid, sn, udn=udn)
+    if not built:
+        raise HTTPException(404, "this song can no longer be played")
+    return {**out, "id": facts["id"], "uri": built[0], "metadata": built[1]}
 
 
 # -- scenes --------------------------------------------------------------------

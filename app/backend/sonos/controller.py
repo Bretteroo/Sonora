@@ -1881,7 +1881,8 @@ class SonosController:
             self._track_changed(state)
         if "TransportState" in props and state_before != transport.state:
             if state.is_coordinator:
-                asyncio.create_task(self.dropouts.transport(state, state_before, transport.state),
+                asyncio.create_task(self.dropouts.transport(state, state_before, transport.state,
+                                                             new_track=transport.track_uri != prev_track),
                                     name=f"dropout:{state.uuid}")
             else:
                 self.dropouts.forget(state.uuid)

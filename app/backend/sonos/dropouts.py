@@ -8,7 +8,12 @@ Two kinds are told apart, both from what the speakers say themselves.
   through TRANSITIONING too, so one that ends on another track is not counted,
   and neither is a seek: the position is read when the pause starts and again
   when it ends, and a pause that lands far from where it began was a jump, not
-  a stall.
+  a stall. Nor is the wait at a track's start: a speaker often names the next
+  track in the same event that says TRANSITIONING, so the pause both begins
+  and ends on the new track. A pause that began with a track change, or in
+  the first seconds of a track with a length, is the track loading. A stream
+  has no length and its position does not count up the same way, so only the
+  track change rules one out.
 * ``skipped`` and ``failed``: the speaker could not play a source and said so
   in its TransportStatus (see SonosController._note_playback_error). It either
   carried on with the next track or stopped.
@@ -36,6 +41,16 @@ MAX_AGE = 7 * 24 * 60 * 60  # seconds
 MIN_STALL_S = 1.0
 #: How far the position may move across a pause before it counts as a seek.
 SEEK_SLACK_S = 5.0
+#: A pause that begins this early in a track is the track loading.
+START_GRACE_S = 3.0
+
+
+def _clock_seconds(clock: str) -> float:
+    """'H:MM:SS' as seconds; 0 when it is not a time."""
+    try:
+        return float(sum(int(p) * 60 ** i for i, p in enumerate(reversed(str(clock or "").split(":")))))
+    except ValueError:
+        return 0.0
 
 
 @dataclass
@@ -109,14 +124,21 @@ class DropoutWatch:
         self.household_of = household_of
         self._stalls: dict[str, _Stall] = {}
 
-    async def transport(self, state, before: str, after: str) -> None:
-        """A coordinator's TransportState went from ``before`` to ``after``."""
+    async def transport(self, state, before: str, after: str, *, new_track: bool = False) -> None:
+        """A coordinator's TransportState went from ``before`` to ``after``.
+        ``new_track`` says the same event changed the track."""
         tr = state.transport
         if before == "PLAYING" and after == "TRANSITIONING":
+            if new_track:
+                self._stalls.pop(state.uuid, None)
+                return  # the next track loading
             self._stalls[state.uuid] = _Stall(monotonic(), time.time(), tr.track_uri,
                                               tr.track_number, None)
             stall = self._stalls[state.uuid]
             stall.position = await self.read_position(state)
+            if (stall.position is not None and stall.position < START_GRACE_S
+                    and _clock_seconds(tr.track_duration) > 0):
+                self._stalls.pop(state.uuid, None)  # a track's start
             return
         stall = self._stalls.pop(state.uuid, None) if after != "TRANSITIONING" else None
         if stall is None or after != "PLAYING":

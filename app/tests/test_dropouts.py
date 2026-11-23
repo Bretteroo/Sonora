@@ -62,6 +62,50 @@ def test_a_seek_is_not_a_dropout(monkeypatch):
     assert watch.log.recent() == []
 
 
+def song(**transport):
+    state = room(**transport)
+    state.transport.track_uri = "x-sonos-http:song-2.mp4"
+    state.transport.track_duration = "0:04:10"
+    return state
+
+
+def test_the_next_song_loading_is_not_a_dropout(monkeypatch):
+    # The speaker names the next song in the same event that says
+    # TRANSITIONING, so the wait begins and ends on that song.
+    monkeypatch.setattr(dropouts, "MIN_STALL_S", 0.05)
+    watch, kitchen = watcher(positions=[0.0, 1.0]), song()
+    async def go():
+        await watch.transport(kitchen, "PLAYING", "TRANSITIONING", new_track=True)
+        await asyncio.sleep(0.08)
+        await watch.transport(kitchen, "TRANSITIONING", "PLAYING")
+    asyncio.run(go())
+    assert watch.log.recent() == []
+
+
+def test_a_wait_in_a_songs_first_seconds_is_not_a_dropout(monkeypatch):
+    monkeypatch.setattr(dropouts, "MIN_STALL_S", 0.05)
+    watch, kitchen = watcher(positions=[1.0, 1.5]), song()
+    run(watch, kitchen, ("PLAYING", "TRANSITIONING", 0.08), ("TRANSITIONING", "PLAYING", 0))
+    assert watch.log.recent() == []
+
+
+def test_a_pause_to_buffer_mid_song_is_logged(monkeypatch):
+    monkeypatch.setattr(dropouts, "MIN_STALL_S", 0.05)
+    watch, kitchen = watcher(positions=[95.0, 96.0]), song()
+    run(watch, kitchen, ("PLAYING", "TRANSITIONING", 0.08), ("TRANSITIONING", "PLAYING", 0))
+    [entry] = watch.log.recent()
+    assert entry["kind"] == "buffering"
+
+
+def test_a_stream_is_watched_from_its_first_seconds(monkeypatch):
+    # A stream has no length, and its position is no guide to a song's start.
+    monkeypatch.setattr(dropouts, "MIN_STALL_S", 0.05)
+    watch, kitchen = watcher(positions=[0.0, 0.0]), room()
+    run(watch, kitchen, ("PLAYING", "TRANSITIONING", 0.08), ("TRANSITIONING", "PLAYING", 0))
+    [entry] = watch.log.recent()
+    assert entry["kind"] == "buffering"
+
+
 def test_a_short_hand_off_and_a_pause_by_hand_are_not_dropouts():
     watch, kitchen = watcher(), room()
     run(watch, kitchen, ("PLAYING", "TRANSITIONING", 0), ("TRANSITIONING", "PLAYING", 0))

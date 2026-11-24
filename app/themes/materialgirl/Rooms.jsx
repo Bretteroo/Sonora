@@ -273,7 +273,7 @@ export function RoomSettings({ uuid: opened, households, onClose }) {
               )}
               <Switch checked={Boolean(zone.loudness)} label={t('desk.prefs.loudness')} onChange={(on) => actions.setTone(uuid, { loudness: on })} />
               {extraKeys.length > 0 && (
-                <fieldset className="mg-stack mg-fieldset" disabled={busy}>
+                <fieldset className="mg-stack mg-fieldset">
                   {extraKeys.map((k) => EQ_FLAGS.has(k) ? (
                     <Switch key={k} checked={eq[k] === 1} label={t(EQ_LABELS[k])} onChange={(on) => applyExtras({ eq: { [k]: on ? 1 : 0 } })} />
                   ) : (

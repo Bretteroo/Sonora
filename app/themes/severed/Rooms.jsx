@@ -282,7 +282,7 @@ export function RoomSettings({ uuid: opened, households, onClose }) {
               )}
               <Toggle checked={Boolean(zone.loudness)} label={t('desk.prefs.loudness')} onChange={(on) => actions.setTone(uuid, { loudness: on })} />
               {extraKeys.length > 0 && (
-                <fieldset className="sv-stack sv-fieldset" disabled={busy}>
+                <fieldset className="sv-stack sv-fieldset">
                   {extraKeys.map((k) => EQ_FLAGS.has(k) ? (
                     <Toggle key={k} checked={eq[k] === 1} label={t(EQ_LABELS[k])} onChange={(on) => applyExtras({ eq: { [k]: on ? 1 : 0 } })} />
                   ) : (

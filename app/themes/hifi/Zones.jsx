@@ -297,7 +297,7 @@ export function ToneControl({ uuid, households, onClose }) {
               <ToneLever label={t('desk.prefs.loudness')} checked={Boolean(zone.loudness)} onChange={(on) => actions.setTone(uuid, { loudness: on })} />
             </div>
             {(extraKeys.length > 0 || 'trueplay' in (extras || {})) && (
-              <fieldset className="hf-tone-row hf-tone-extras" disabled={busy}>
+              <fieldset className="hf-tone-row hf-tone-extras">
                 {extraKeys.map((k) => (EQ_FLAGS.has(k) ? (
                   <ToneLever key={k} label={t(EQ_LABELS[k])} checked={eq[k] === 1} onChange={(on) => applyExtras({ eq: { [k]: on ? 1 : 0 } })} />
                 ) : (
@@ -337,7 +337,7 @@ export function ToneControl({ uuid, households, onClose }) {
                 Music EQ tab sets out its own. The light's lever is in its real
                 position, read with the room's settings; it moves at once and the
                 speaker is told. */}
-            <fieldset className="hf-tone-row" disabled={busy}>
+            <fieldset className="hf-tone-row">
               <ToneLever label={t('desk.prefs.statusLight')} checked={light} disabled={!extras}
                          onChange={(on) => { setLight(on); actions.setStatusLight(uuid, on) }} />
               {extras && 'button_lock' in extras && (

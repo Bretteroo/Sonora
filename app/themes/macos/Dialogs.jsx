@@ -1426,7 +1426,7 @@ export function RoomExtras({ zone }) {
     </div>
   )
   return (
-    <fieldset className="dk-room-extras" disabled={busy}>
+    <fieldset className="dk-room-extras">
       {keys.map((k) => EQ_FLAGS.has(k) ? (
         <label key={k} className="dk-field dk-check">
           <input type="checkbox" checked={eq[k] === 1} onChange={(e) => apply({ eq: { [k]: e.target.checked ? 1 : 0 } })} />

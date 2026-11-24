@@ -289,7 +289,7 @@ function WinEq({ zone, startTab = 'basic' }) {
           </div>
         )}
         {shown === 'linein' && extras && (
-          <fieldset className="win-eq-linein" disabled={busy}>
+          <fieldset className="win-eq-linein">
             {'line_in_level' in extras && (
               <>
                 <div className="win-eq-field">

@@ -1834,8 +1834,10 @@
   & .sv-window-actions { flex: none; display: flex; justify-content: flex-end; gap: 12px; padding: 10px 18px 14px; border-top: 2px solid var(--sv-ph-faint); }
   & .sv-confirm .sv-window-body { display: grid; gap: 14px; }
   & .sv-confirm-icon { color: var(--sv-ph-dim); line-height: 0; }
-  & .sv-tone { display: grid; grid-template-columns: minmax(0, 9ch) auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
-  & .sv-tone-label { text-transform: uppercase; letter-spacing: 0.06em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* The labels run to "Audio Delay (Lip Sync)" and longer in other languages: the column is wide
+     enough for most on one line, and a longer one wraps rather than being cut short. */
+  & .sv-tone { display: grid; grid-template-columns: minmax(0, 15ch) auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+  & .sv-tone-label { text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.2; text-wrap: balance; overflow-wrap: break-word; }
   & .sv-tone-end { color: var(--sv-ph-dim); font-size: 18px; }
   & .sv-willplay { display: flex; gap: 14px; align-items: center; padding: 10px; margin-bottom: 12px; border: 2px dashed var(--sv-ph-line); }
   & .sv-willplay-art { width: 56px; height: 56px; }

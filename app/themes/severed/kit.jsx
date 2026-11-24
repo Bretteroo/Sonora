@@ -32,7 +32,8 @@ export function useDismiss(ref, onClose, enabled = true) {
   close.current = onClose
   useEffect(() => {
     if (!enabled) return undefined
-    const down = (event) => { if (ref.current && !ref.current.contains(event.target)) close.current() }
+    // The press is handed on, so a menu's opener can tell its own key from the rest of the screen.
+    const down = (event) => { if (ref.current && !ref.current.contains(event.target)) close.current(event) }
     const key = (event) => { if (event.key === 'Escape') { event.stopPropagation(); close.current() } }
     const id = setTimeout(() => {
       document.addEventListener('pointerdown', down)

@@ -458,6 +458,12 @@
   & .sv-reactionkeys > .sv-cluster-keys { grid-row: 2; grid-column: 1; }
   & .sv-reactionkeys[data-entering] > .sv-cluster-keys:not(.sv-reaction-leaving) { animation: sv-reaction-in 0.4s ease both; }
   & .sv-reaction-leaving { animation: sv-reaction-out 0.4s ease both; pointer-events: none; }
+  /* The Mix key coming and going with the room's group, one step at a time: going, it fades
+     (0.2s) and only then does the row close up (0.15s); coming, the row opens to its width and
+     only then does it fade in. The keys beside it are drawn in by a margin
+     as wide as the key and its gap (index.jsx measures it). */
+  & .sv-key[data-fade='in'] { animation: sv-mix-in 0.35s ease both; }
+  & .sv-key[data-fade='out'] { animation: sv-mix-out 0.35s ease both; pointer-events: none; }
   & .sv-cluster-label > span {
     padding: 0 8px; font-family: var(--sv-panel-font); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sv-print); white-space: nowrap;
     max-width: 75%; overflow: hidden; text-overflow: ellipsis;
@@ -549,6 +555,9 @@
   & .sv-fader input:focus-visible ~ .sv-fader-cap, & .sv-fader:has(input:focus-visible) .sv-fader-cap { outline: 2px solid var(--sv-teal-face); outline-offset: 2px; }
   & .sv-fader[data-disabled] { opacity: 0.5; }
   & .sv-volume-keys { display: flex; gap: 3px; justify-content: center; }
+  /* The fader's box is as wide as a group's row of volume keys, Mix key and all, so the fader is
+     the same width for a room while the row itself closes up (index.jsx works the width out). */
+  & .sv-volume > .sv-cluster-keys { min-width: var(--sv-volume-row, auto); }
   /* A drive's access lamp: a small green lens, dark
      when the drive rests and bright while it works. */
   /* The drive lamps set into the case's plastic, left of the screen's dark surround, each name printed
@@ -1973,7 +1982,10 @@
   /* Short of the wings, the deck's volume is the fader with Mute and Mix beside it (the wheel and
      the keyboard's arrows step it), and the cursor keys and trackball give way to the screen. */
   & :is(.sv-size-mid, .sv-size-compact) {
-    & .sv-deck .sv-volume { min-width: 0; grid-template-columns: minmax(150px, 1fr) auto; column-gap: 10px; }
+    /* The keys' column keeps a group's width, so the fader beside it does too, and a room's
+       shorter row sits at the column's start, by the fader. */
+    & .sv-deck .sv-volume { min-width: 0; grid-template-columns: minmax(150px, 1fr) var(--sv-volume-row, auto); column-gap: 10px; }
+    & .sv-deck .sv-volume-keys { justify-self: start; }
     & .sv-deck .sv-volume .sv-cluster-label { grid-column: 1 / -1; }
     & .sv-deck .sv-volume .sv-cluster-keys { display: contents; }
     & .sv-deck .sv-volume-keys .sv-key:nth-child(-n + 2) { display: none; }
@@ -2113,6 +2125,18 @@
 @keyframes sv-gear-turn { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes sv-reaction-in { from { opacity: 0; } }
 @keyframes sv-reaction-out { to { opacity: 0; } }
+/* Each step's curve meets the next at speed: an ease on both slowed the end of the fade and the
+   start of the close, and the two read as a pause between them. */
+@keyframes sv-mix-out {
+  0% { opacity: 1; margin-inline-end: 0; animation-timing-function: ease-in; }
+  57% { opacity: 0; margin-inline-end: 0; animation-timing-function: ease-out; }
+  100% { opacity: 0; margin-inline-end: calc(-1 * var(--sv-mix-w, 0px)); }
+}
+@keyframes sv-mix-in {
+  0% { opacity: 0; margin-inline-end: calc(-1 * var(--sv-mix-w, 0px)); animation-timing-function: ease-in; }
+  43% { opacity: 0; margin-inline-end: 0; animation-timing-function: ease-out; }
+  100% { opacity: 1; margin-inline-end: 0; }
+}
 @keyframes sv-refresh-roll { from { transform: translateY(840%); } to { transform: translateY(-100%); } }
 @keyframes sv-marquee { from { transform: translateX(0); } to { transform: translateX(calc(-100% - 3em)); } }
 @keyframes sv-program-in { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }

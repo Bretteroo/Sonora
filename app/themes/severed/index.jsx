@@ -645,6 +645,55 @@ export function Shell() {
   const ordered = orderedHouseholds(households)
   const groupLabel = activeGroup ? groupTitle(activeGroup, zones, t) : ''
   const grouped = (activeGroup?.members?.length || 1) > 1
+  // The Mix key is a group's: it fades from the panel as the room leaves its group, taking the
+  // mixer with it, and fades back in as the room joins one, as a set of reaction keys gives way.
+  const [mixFade, setMixFade] = useState(null)
+  const wasGrouped = useRef(grouped)
+  useEffect(() => {
+    if (wasGrouped.current === grouped) return undefined
+    wasGrouped.current = grouped
+    if (!grouped) setMixer(null)
+    setMixFade(grouped ? 'in' : 'out')
+    const id = setTimeout(() => setMixFade(null), MIX_FADE_MS)
+    return () => clearTimeout(id)
+  }, [grouped])
+  // The room the key's going makes is closed by pulling the keys beside it in, not by clipping
+  // (nothing in the tilted deck may clip), so the key's width and the row's gap are measured
+  // before the first frame of either way.
+  useLayoutEffect(() => {
+    if (!mixFade) return
+    const key = document.querySelector('[data-mix-key]')
+    const row = key?.parentElement
+    if (!key || !row) return
+    const gap = parseFloat(getComputedStyle(row).columnGap) || 0
+    key.style.setProperty('--sv-mix-w', `${key.offsetWidth + gap}px`)
+  }, [mixFade])
+  // The fader is as wide for a room as for a group: its box keeps the width of a group's row of
+  // volume keys (severed.css), while the row itself closes up around a missing Mix key. That
+  // width is the row's own, measured at the width of its keys, and where Mix is not in it (gone,
+  // or still opening its way in), one more key the size of Mute and a gap. Layout widths
+  // throughout (offsetWidth): the panel may be drawn scaled, and its rects with it.
+  useLayoutEffect(() => {
+    const hold = () => {
+      for (const row of document.querySelectorAll('.sv-volume-keys')) {
+        const volume = row.closest('.sv-volume')
+        const mute = [...row.children].find((k) => k.classList.contains('sv-key-m') && !k.hasAttribute('data-mix-key'))
+        if (!volume || !mute) continue
+        row.style.width = 'max-content'
+        const cs = getComputedStyle(row)
+        const mix = row.querySelector('[data-mix-key]')
+        const missing = !mix || mix.getAttribute('data-fade') === 'in'
+        const gap = parseFloat(cs.columnGap) || 0
+        const margins = (parseFloat(cs.marginLeft) || 0) + (parseFloat(cs.marginRight) || 0)
+        const width = row.offsetWidth + margins + (missing ? mute.offsetWidth + gap : 0)
+        row.style.width = ''
+        volume.style.setProperty('--sv-volume-row', `${width}px`)
+      }
+    }
+    hold()
+    window.addEventListener('resize', hold)
+    return () => window.removeEventListener('resize', hold)
+  }, [grouped, mixFade])
   const tr = activeZone?.transport || {}
   const hasLyrics = Boolean(lyricsSong(tr))
   const what = nextTransport(tr)
@@ -728,8 +777,11 @@ export function Shell() {
         <Key absent={!activeZone} size="s" glyph={<L.Plus size={14} />} label={t('desk.shortcuts.volUp')} onPress={() => volumeBy(2)} />
         <Key absent={!activeZone} size="m" tone="coral" legend={t('sv.muteKey')} lit={Boolean(muted)} pressed={Boolean(muted)} label={muted ? t('common.unmute') : t('common.mute')}
              onPress={() => actions.setMute(activeZone.uuid, !muted, grouped)} />
-        <Key absent={!activeZone} size="m" tone="sage" legend={t('sv.mixKey')} label={t('sv.mixer')}
-             onPress={(event) => setMixer(mixer ? null : event.currentTarget)} />
+        {(grouped || mixFade === 'out') && (
+          <Key size="m" tone="sage" legend={t('sv.mixKey')} label={t('sv.mixer')} data-fade={mixFade || undefined} data-mix-key=""
+               aria-hidden={grouped ? undefined : 'true'} tabIndex={grouped ? undefined : -1}
+               onPress={(event) => { if (grouped) setMixer(mixer ? null : event.currentTarget) }} />
+        )}
       </div>
     </Cluster>
   )
@@ -877,7 +929,9 @@ export function Shell() {
       </footer>
 
       {mixer && activeZone && (
-        <Menu anchor={mixer} align="right" width={360} onClose={() => setMixer(null)} title={groupLabel}>
+        // A press on the Mix key itself is left to the key, which closes the mixer: closed here
+        // first, the key's own press found it shut and opened it again.
+        <Menu anchor={mixer} align="right" width={360} onClose={(event) => { if (!event || !mixer.contains(event.target)) setMixer(null) }} title={groupLabel}>
           <div className="sv-menu-pad"><Volumes zone={activeZone} group={activeGroup} zones={zones} /></div>
         </Menu>
       )}
@@ -1066,6 +1120,8 @@ const TEMPERS = ['woe', 'frolic', 'dread', 'malice']
 const TEMPER_GLYPHS = { woe: L.Woe, frolic: L.Frolic, dread: L.Dread, malice: L.Malice }
 const TEMPER_TAGS = { woe: 'WO', frolic: 'FC', dread: 'DR', malice: 'MA' }
 const KEYS_FADE_MS = 400
+// The Mix key's fade, and the row closing after it or opening before it (severed.css, sv-mix-out).
+const MIX_FADE_MS = 350
 function ReactionCluster({ zone, t, onMessage }) {
   const { actions } = useSystem()
   const tr = zone?.transport || {}

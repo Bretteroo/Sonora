@@ -1,5 +1,60 @@
 # Changelog
 
+## 1.3.0
+
+The Karaoke Release. 1.3.0 brings a new "Karaoke Machine" theme, a much faster way to switch themes, and a long list of fixes.
+
+### Karaoke Machine
+
+A new theme brings karaoke to your Sonos system, with industrial and UI design inspired by some of the 1990s' finest LaserDisc players.
+
+With Karaoke Machine, you'll select your songs from a three-ring binder filled with songs from your music library (and from any linked services that list songs by artist).  Sing along to chunky lyrics animated in time with your chosen songs over video backgrounds.  Every karaoke machine I've ever used has had a Korean-first UI, so I decided Sonora should do the same.
+
+As before, lyrics are provided by the outstanding LRCLIB project.  If any aren't perfectly synced with the music, you can nudge them back or ahead a bit to make them perfect.
+
+The video backgrounds are your own YouTube links (videos and/or playlists), pasted into Settings.  (At least 30 are suggested to avoid repeats.)  They will play randomly and won't repeat until each has played once.  Search YouTube for "karaoke bgv" to get started.
+
+Settings also hides an alternate cabinet: same software, different hardware.
+
+Karaoke Machine leaves out some features that aren't strictly required for a proper karaoke experience.  If you want to create sleep timers, alarms, or mess around with rooms' EQ settings, you'll need to do that in any of the other 14 themes before switching to KM.
+
+Please drop your thoughts on Karaoke Machine in the discussions!
+
+### What's new
+
+* Fast theme switch: Control + Y (Command + Y on a Mac) opens a floating theme picker in every theme, so you can try out different themes without drilling into Settings.
+* Tap a lyric line to jump to that point in the song.
+* On touch screens, a tap beside a volume slider's handle moves the volume by one step instead of jumping to the tap, so a stray tap can't send a room to full volume (#33). Thanks to @hasifantasy for reporting it.
+* Severed's "% Complete" heading now measures how far the room is through its whole queue, and reads "Live" for a live broadcast (#37). Thanks to @kzshantonu for the idea.
+* The "This browser" room now plays Sonos playlists and service albums, and keeps its list after a page reload.
+* A search with no filter picked labels each result (Song, Album), and picking a filter narrows the results already found instead of searching again.
+* "View All Songs on Album" opens the album's full page, with its art, Play, Shuffle, and "..." menu.
+* Liquid Glass on phones: the tab bar folds away while you scroll, the bars are clearer glass, and pages scroll and fade behind them. Sonofuture's pages scroll behind its bars too.
+* Liquid Glass and Sonofuture: the big player's background fades from one album's colors to the next.
+* Material Girl's big player shows the whole cover over a turning shape that pauses with the music, and Recently Played slides into its new order.
+* A service already streaming on as many devices as the account allows now says so.
+* Library files without tags are named after the file.
+* Queues no longer show track lengths. Too many services only report a length once the track is playing, so the column was never consistent.
+
+### Fixes
+
+* Audio Delay, Height Level, and the other room sliders no longer jump to the middle after a click.
+* Group volume follows the way the speakers scale each room more closely while the slider moves.
+* Stop on a soundbar returns to the TV input.
+* The "explicit" badge no longer gets stuck on for a service after its first explicit track.
+* In-progress firmware updates are now reported as such.
+* A song's initial buffering is no longer counted as a dropout in the network check.
+* A station whose own lookup fails no longer leaves its songs without covers.
+* A queue cleared while a stream was starting no longer keeps saying "Connecting...".
+* The speaker health donut's last segment no longer spills past 12 o'clock.
+* The system dropdown is readable again in the Windows and Hot Dog Stand themes.
+* Round tiles' Play buttons are no longer cut off, and "..." menus open under their button, in Material Girl and Severed.
+* Severed: the Mix key now only shows when a group is selected, long slider labels wrap instead of being cut off, and keys no longer flash before fading in.
+* The scene editor in Liquid Glass and Sonofuture keeps Save and Cancel on screen on a phone.
+* Sonofuture and Liquid Glass: tapped buttons no longer stay highlighted on phones, and the room name lines up beside Home's headings.
+* Long song titles scroll smoothly in Firefox on phones.
+* Error log entries now show the date as well as the time.
+
 ## 1.2.1
 
 This release fixes several S2 services, gets rooms back up a little more smoothly after a network outage, and lets a sleep timer turn off your TV.

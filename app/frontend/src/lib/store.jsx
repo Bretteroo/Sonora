@@ -932,9 +932,10 @@ export function SystemProvider({ children }) {
           if (/^object\.container/.test(classFrom(body.metadata)) || /^x-rincon-cpcontainer:|savedqueues\.rsq#/i.test(body.uri || '')) {
             return local.refuseSource({ reason: 'needs-queue' })
           }
+          // The ampersand is unescaped last, so a title that spells out an entity ("&amp;lt;") keeps it.
           const field = (tag) => {
             const found = new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`).exec(body.metadata || '')
-            return found ? found[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'") : ''
+            return found ? found[1].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&') : ''
           }
           const row = { id: `local:${body.uri}`, title: body.title || field('dc:title'), artist: field('dc:creator'), album: field('upnp:album'),
                         art: field('upnp:albumArtURI'), kind: 'track', is_container: false, uri: body.uri }

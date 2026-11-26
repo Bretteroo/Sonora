@@ -15,7 +15,8 @@
    "dk-scope-check",
    "dk-scroll",
    "dk-sr-only",
-   "dk-strip-select"
+   "dk-strip-select",
+   "dk-win-btn"
   ],
   "browse": [
    "dk-account-menu",
@@ -81,13 +82,10 @@
    "dk-scopebar-back",
    "dk-scopebar-tabs",
    "dk-search-results",
-   "dk-slide-in-",
    "dk-slide-out",
-   "dk-slide-out-",
    "dk-slide-stage",
    "dk-spinner",
-   "dk-tunein-pinned",
-   "dk-win-btn"
+   "dk-tunein-pinned"
   ],
   "nowPlaying and queue": [
    "dk-header-count",
@@ -95,7 +93,6 @@
    "dk-header-sub",
    "dk-marquee-badged",
    "dk-now",
-   "dk-now-art",
    "dk-now-art-button",
    "dk-now-badge",
    "dk-now-explicit",
@@ -113,7 +110,6 @@
    "dk-queue-dragging",
    "dk-queue-dropping",
    "dk-queue-ghost",
-   "dk-queue-list",
    "dk-row",
    "dk-row-album",
    "dk-row-art",
@@ -143,6 +139,32 @@
    "dk-tile-now",
    "dk-tile-state-mac",
    "dk-tile-state-win"
+  ],
+  "settings": [
+   "dk-add-error",
+   "dk-field",
+   "dk-theme-actions",
+   "dk-theme-blurb",
+   "dk-theme-hint",
+   "dk-theme-manage",
+   "dk-theme-noshot",
+   "dk-theme-preview",
+   "dk-theme-version",
+   "pt-escape",
+   "pt-escape-button",
+   "pt-escape-close",
+   "pt-escape-panel",
+   "pt-settings",
+   "pt-settings-about",
+   "theme-about",
+   "theme-apply",
+   "theme-pill",
+   "theme-version-num"
+  ],
+  "sliders": [
+   "dk-slider",
+   "dk-slider-fill",
+   "dk-slider-track"
   ],
   "transport": [
    "dk-btn-back30",
@@ -427,7 +449,19 @@
   "dk-window",
   "dk-window-body",
   "dk-window-icon",
-  "dk-window-title"
+  "dk-window-title",
+  "pt-escape",
+  "pt-escape-button",
+  "pt-escape-close",
+  "pt-escape-panel",
+  "pt-missing",
+  "pt-part",
+  "pt-problems",
+  "pt-region",
+  "pt-root",
+  "pt-settings",
+  "pt-settings-about",
+  "theme-about"
  ],
  "tokens": {
   "all": [
@@ -547,7 +581,48 @@
    "tile-selected",
    "tile-selected-edge"
   ],
-  "note": "Each becomes --t-<name>. The core ones are read by the parts whatever your layout is; the rest are one theme's own and may change, so set your own value rather than relying on it."
+  "note": "Each becomes --t-<name>. `read` is every token the parts read when they draw a theme installed from a file: set those. `core` is the set most of Sonora's own themes define, and `all` is every name any of them reads; a name in neither `read` nor `core` is one theme's own and may change.",
+  "read": [
+   "accent",
+   "accent-fg",
+   "bg",
+   "border",
+   "border-strong",
+   "critical",
+   "fg",
+   "fg-dim",
+   "fg-muted",
+   "focus",
+   "font",
+   "header-bottom",
+   "header-rule",
+   "header-top",
+   "info",
+   "menu-bg",
+   "menu-border",
+   "menu-hover",
+   "menubar-bg",
+   "menubar-fg",
+   "row-hover",
+   "row-playing",
+   "row-selected",
+   "row-selected-edge",
+   "slider-fill",
+   "slider-track",
+   "strip-bottom",
+   "strip-mid",
+   "strip-top",
+   "surface",
+   "surface-hover",
+   "thumb",
+   "tile",
+   "tile-edge",
+   "tile-hover",
+   "tile-hover-edge",
+   "tile-selected",
+   "tile-selected-edge",
+   "tile-selected-fg"
+  ]
  },
- "what": "Class names the parts render, for a theme's stylesheet, grouped by the part that renders them; `styled` lists the ones Sonora's own stylesheet paints, the ones worth reaching for first. Scope every rule to :root[data-theme='<your id>']."
+ "what": "Class names the parts render, for a theme's stylesheet, grouped by the part that renders them. `any pane` holds the names more than one part renders, `settings` covers the settings part and the Settings button Sonora adds when a layout places none, and `sliders` is every slider, wherever it is. `styled` lists the ones Sonora's own stylesheet paints, the ones worth reaching for first. Scope every rule to :root[data-theme='<your id>']."
 }

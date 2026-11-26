@@ -20,7 +20,7 @@
   html:where([data-layout]) .dk-root { height: 100dvh; }
 
   /* --- the pane tabs --- */
-  html:where([data-layout]) .dk-root .dk-pane-switch { display: flex; flex: none; gap: 6px; padding: 6px 8px; background: var(--t-strip-bottom, var(--t-surface)); border-bottom: 1px solid var(--t-border); }
+  html:where([data-layout]) .dk-root .dk-pane-switch { display: flex; flex: 1 1 auto; min-width: 0; gap: 6px; padding: 6px 8px; background: var(--t-strip-bottom, var(--t-surface)); border-bottom: 1px solid var(--t-border); }
   html:where([data-layout]) .dk-root .dk-pane-switch button {
     flex: 1; min-width: 0; height: 32px; padding: 0 8px; border: 1px solid var(--t-border); border-radius: 6px;
     background: transparent; color: var(--t-fg-muted); font: inherit; font-size: 12px; font-weight: 600;

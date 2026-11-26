@@ -37,7 +37,10 @@ SOURCES = {
     "browse": "Browse.jsx",
     "transport": "Transport.jsx",
     "paneSwitch": "PaneSwitch.jsx",
-    "settings": "Settings.jsx",
+    # The theme chooser is most of the settings part, and it is a shared
+    # component, so its names are read from where it is written.
+    "settings": ("Settings.jsx", "../components/ThemeChooser.jsx"),
+    "sliders": "Slider.jsx",
 }
 
 #: Names that appear in more than one part are not that part's; they are the
@@ -45,11 +48,36 @@ SOURCES = {
 #: heading rather than repeated five times.
 SHARED = "any pane"
 
-CLASS = re.compile(r"\bdk-[a-z0-9-]+")
+#: The parts' names are all `dk-`. The settings part and the Settings button
+#: are the renderer's and the chooser's own, and carry `pt-` and `theme-`
+#: names as well: with only `dk-` read, the reference had no settings group at
+#: all (found by the theme-guide test).
+CLASS = re.compile(r"(?<![\w-])(?:dk|pt|theme)-[a-z0-9]+(?:-[a-z0-9]+)*(?![\w-]*\$\{)")
 
 
-def _names(filename: str) -> set[str]:
-    return set(CLASS.findall((PARTS / filename).read_text(encoding="utf-8")))
+def _names(filenames) -> set[str]:
+    if isinstance(filenames, str):
+        filenames = (filenames,)
+    found: set[str] = set()
+    for filename in filenames:
+        found |= set(CLASS.findall((PARTS / filename).read_text(encoding="utf-8")))
+    return found
+
+
+def _read_by_the_parts() -> list[str]:
+    """Every token the layout renderer's own sheets read.
+
+    This is the list a theme installed from a file is painted from. The core
+    set is a different thing, the tokens most built-in themes define, and a
+    token can be read here without being in it (`tile-selected-fg` is).
+    window-chrome.css is left out: its rules are for a shell class the layout
+    renderer never sets.
+    """
+    names: set[str] = set()
+    for path in (PARTS / "desktop.css", PARTS / "dialogs.css", PARTS / "responsive.css",
+                 PARTS / "arrangement.css", PARTS.parent / "components/shared.css"):
+        names |= set(re.findall(r"var\(--t-([a-z0-9-]+)", path.read_text(encoding="utf-8")))
+    return sorted(names)
 
 
 def _tokens() -> dict:
@@ -66,12 +94,15 @@ def _tokens() -> dict:
     core = {name for name, _, _ in theme_tokens.core()}
     return {
         "core": sorted(core),
+        "read": _read_by_the_parts(),
         # Core names are in the full list too: fg-faint was core and absent
         # from it (found by the theme-guide test).
         "all": sorted(set(counts) | core),
-        "note": "Each becomes --t-<name>. The core ones are read by the parts "
-                "whatever your layout is; the rest are one theme's own and "
-                "may change, so set your own value rather than relying on it.",
+        "note": "Each becomes --t-<name>. `read` is every token the parts "
+                "read when they draw a theme installed from a file: set "
+                "those. `core` is the set most of Sonora's own themes define, "
+                "and `all` is every name any of them reads; a name in "
+                "neither `read` nor `core` is one theme's own and may change.",
     }
 
 
@@ -120,7 +151,8 @@ def build() -> dict:
         path.read_text(encoding="utf-8").replace(":where(:root[data-layout]) ", "")
         for path in (PARTS / "desktop.css", PARTS / "dialogs.css",
                      PARTS.parent / "components/shared.css"))
-    styled = set(re.findall(r"^\.(dk-[a-z0-9-]+)", sheet, re.M))
+    sheet += "\n" + (PARTS / "arrangement.css").read_text(encoding="utf-8")
+    styled = set(re.findall(r"^\.((?:dk|pt|theme)-[a-z0-9-]+)", sheet, re.M))
 
     groups = {SHARED: sorted(shared)}
     for part, names in by_part.items():
@@ -130,9 +162,13 @@ def build() -> dict:
 
     return {
         "what": "Class names the parts render, for a theme's stylesheet, "
-                "grouped by the part that renders them; `styled` lists the "
-                "ones Sonora's own stylesheet paints, the ones worth reaching "
-                "for first. Scope every rule to :root[data-theme='<your id>'].",
+                "grouped by the part that renders them. `any pane` holds the "
+                "names more than one part renders, `settings` covers the "
+                "settings part and the Settings button Sonora adds when a "
+                "layout places none, and `sliders` is every slider, wherever "
+                "it is. `styled` lists the ones Sonora's own stylesheet "
+                "paints, the ones worth reaching for first. Scope every rule "
+                "to :root[data-theme='<your id>'].",
         "classes": groups,
         "styled": sorted(styled),
         "tokens": _tokens(),

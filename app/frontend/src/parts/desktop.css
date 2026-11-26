@@ -15,7 +15,8 @@
  * The Mac build's system menu bar and window title bar sit above it. */
 
 :where(:root[data-layout]) .dk-root {
-  --dk-font: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /* The theme's `font` token, and the system's face where it sets none. */
+  --dk-font: var(--t-font, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -185,9 +186,13 @@
 
 /* --- transport strip ------------------------------------------------------- */
 
+/* The strip is the one child of its part, which is a row: it takes the part's
+   whole width. With `flex: none` it was as wide as its contents, and those
+   are positioned, so it was 0px wide with every control piled in a corner. */
 :where(:root[data-layout]) .dk-strip {
   position: relative;
-  flex: none;
+  flex: 1 1 auto;
+  min-width: 0;
   height: 80px;
   background: linear-gradient(var(--t-strip-top), var(--t-strip-mid) 50%, var(--t-strip-bottom));
   border-bottom: 1px solid var(--t-border);
@@ -359,32 +364,46 @@
   top: 26px;
   width: 212px;
   height: 25px;
+  min-height: 25px;
   display: flex;
+  box-sizing: border-box;
+  /* The pill is the form, painted from the theme's tokens, and what stands on
+     it (the scope badge, the field, the magnifier) takes its color. The field
+     alone was white with a black magnifier beside it, which no dark theme
+     could see. */
+  border: 1px solid var(--t-border-strong, var(--t-border));
+  border-radius: 12.5px;
+  background: var(--t-surface);
+  color: var(--t-fg);
+  overflow: hidden;
+}
+
+:where(:root[data-layout]) .dk-strip-search:focus-within {
+  border-color: var(--t-focus, var(--t-accent));
 }
 
 :where(:root[data-layout]) .dk-strip-search input {
   flex: 1;
-  height: 25px;
+  align-self: stretch;
   min-width: 0;
   padding: 0 8px;
   border: 0;
-  border-radius: 12px 0 0 12px;
-  background: #ffffff;
-  color: #000000;
+  background: transparent;
+  color: inherit;
   font: inherit;
   outline: none;
 }
 
-/* The button sits on the pill and takes the pill's own color: both desktop
-   apps have a white pill, so painting it white here looked right in them and
-   left a white square on any theme that repaints the pill (Outrun, reported
-   2026-09-15). */
+:where(:root[data-layout]) .dk-strip-search input::placeholder {
+  color: var(--t-fg-dim, var(--t-fg-muted));
+  opacity: 1;
+}
+
 :where(:root[data-layout]) .dk-strip-search button {
   width: 30px;
-  height: 25px;
-  border-radius: 0 12px 12px 0;
+  align-self: stretch;
   background: transparent;
-  color: #000000;
+  color: inherit;
   display: grid;
   place-items: center;
 }
@@ -423,7 +442,7 @@
   align-items: center;
   height: 32px;
   padding: 0 12px;
-  background: linear-gradient(var(--t-header-top), var(--t-header-bottom) 94%, #000000 94%, #000000 97%, var(--t-header-rule) 97%);
+  background: linear-gradient(var(--t-header-top), var(--t-header-bottom) 94%, var(--t-border, transparent) 94%, var(--t-border, transparent) 97%, var(--t-header-rule) 97%);
   font-weight: 600;
   font-size: 13px;
   white-space: nowrap;
@@ -620,12 +639,14 @@
   display: grid;
   place-items: center;
   border-radius: 4px;
-  background: rgba(4, 46, 81, 0.8);
+  /* From the theme's tokens: it was a fixed navy, which suited one palette. */
+  border: 1px solid var(--t-border-strong, var(--t-border));
+  background: var(--t-surface);
   color: var(--t-fg);
 }
 
 :where(:root[data-layout]) .dk-tile-group:hover {
-  background: rgba(5, 64, 112, 0.8);
+  background: var(--t-surface-hover, var(--t-surface));
 }
 
 :where(:root[data-layout]) .dk-tile-group svg {
@@ -1066,7 +1087,8 @@
   width: 19px;
   height: 19px;
   border-radius: 50%;
-  background: #ffffff;
+  /* The theme's text color: a white thumb could not be seen on a light theme. */
+  background: var(--t-fg, #ffffff);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
@@ -1075,12 +1097,13 @@
   height: 19px;
   border: 0;
   border-radius: 50%;
-  background: #ffffff;
+  /* The theme's text color: a white thumb could not be seen on a light theme. */
+  background: var(--t-fg, #ffffff);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 :where(:root[data-layout]) .dk-slider input:disabled::-moz-range-thumb {
-  background: #868686;
+  background: var(--t-fg-dim, #868686);
 }
 
 /* --- dialogs (Mac windows over the dark application) ------------------------ */
@@ -1356,7 +1379,7 @@
 :where(:root[data-layout]) .dk-strip-scope { flex: none; display: flex; align-items: center; gap: 3px; height: 100%; padding: 0 3px 0 7px; border: 0; background: transparent; color: inherit; }
 :where(:root[data-layout]) .dk-strip-scope img, :where(:root[data-layout]) .dk-strip-scope > svg:first-child { width: 18px; height: 18px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25); padding: 0; box-sizing: border-box; }
 :where(:root[data-layout]) .dk-strip-scope > svg:first-child { padding: 3px; }
-:where(:root[data-layout]) .dk-strip-scope > svg:last-child { width: 8px; height: 8px; color: #6a6a6a; }
+:where(:root[data-layout]) .dk-strip-scope > svg:last-child { width: 8px; height: 8px; color: var(--t-fg-muted, currentColor); }
 /* As tall as its list, as the apps' menu is, down to the window's foot: at
    360px it hid the last service (TuneIn, with 17 scopes) and the recent
    searches behind a scroll (2026-10-02). */
@@ -1424,10 +1447,10 @@
 /* Album page rows and numbered tracks; the per-row checkbox shows on hover
    or while ticked, and a ticked row keeps the selected shade. */
 :where(:root[data-layout]) .dk-browse-number { display: grid; place-items: center; color: var(--t-fg-muted); font-size: 13px; background: transparent !important; }
-:where(:root[data-layout]) .dk-browse-check { flex: none; width: 35px; height: 42px; display: grid; place-items: center; color: #979797; opacity: 0; padding: 0; }
+:where(:root[data-layout]) .dk-browse-check { flex: none; width: 35px; height: 42px; display: grid; place-items: center; color: var(--t-fg-muted, #979797); opacity: 0; padding: 0; }
 :where(:root[data-layout]) .dk-browse-check svg { width: 16px; height: 16px; }
 :where(:root[data-layout]) .dk-browse-row:hover .dk-browse-check, :where(:root[data-layout]) .dk-browse-check[aria-checked='true'], :where(:root[data-layout]) .dk-browse-row:focus-within .dk-browse-check { opacity: 1; }
-:where(:root[data-layout]) .dk-browse-check:hover, :where(:root[data-layout]) .dk-browse-check[aria-checked='true'] { color: #ffffff; }
+:where(:root[data-layout]) .dk-browse-check:hover, :where(:root[data-layout]) .dk-browse-check[aria-checked='true'] { color: var(--t-fg, #ffffff); }
 :where(:root[data-layout]) .dk-browse-row[aria-checked='true'] { background: var(--t-row-selected); }
 :where(:root[data-layout]) .dk-album-play .dk-browse-art { position: relative; }
 :where(:root[data-layout]) .dk-album-play-badge { position: absolute; inset: 0; margin: auto; width: 22px; height: 22px; color: #ffffff; opacity: 0; filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.7)); }

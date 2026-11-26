@@ -109,8 +109,9 @@ def test_the_reference_is_current():
 def test_every_name_in_the_reference_is_really_rendered():
     parts = ROOT / "frontend/src/parts"
     rendered = set()
-    for path in parts.glob("*.jsx"):
-        rendered.update(re.findall(r"\bdk-[a-z0-9-]+", path.read_text(encoding="utf-8")))
+    sources = [*parts.glob("*.jsx"), parts.parent / "components/ThemeChooser.jsx"]
+    for path in sources:
+        rendered.update(re.findall(r"\b(?:dk|pt|theme)-[a-z0-9-]+", path.read_text(encoding="utf-8")))
     published = {name for names in themes.reference()["classes"].values()
                  for name in names}
     assert published <= rendered, sorted(published - rendered)
@@ -119,5 +120,5 @@ def test_every_name_in_the_reference_is_really_rendered():
 
 def test_the_reference_groups_by_part():
     groups = themes.reference()["classes"]
-    for part in ("rooms", "browse", "transport"):
+    for part in ("rooms", "browse", "transport", "settings", "sliders"):
         assert part in groups, f"no class names published for {part}"

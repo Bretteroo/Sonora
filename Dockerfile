@@ -12,7 +12,7 @@ COPY app/themes/ ../themes/
 RUN npm run build
 
 # ---- python deps ----------------------------------------------------------
-FROM python:3.14-slim AS deps
+FROM python:3.15-slim AS deps
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_NO_CACHE_DIR=1
 WORKDIR /src
 COPY app/pyproject.toml app/requirements.lock ./
@@ -24,7 +24,7 @@ RUN python -m venv /venv \
  && /venv/bin/pip install --no-deps .
 
 # ---- runtime --------------------------------------------------------------
-FROM python:3.14-slim AS runtime
+FROM python:3.15-slim AS runtime
 LABEL org.opencontainers.image.title="Sonora" \
       org.opencontainers.image.description="Web controller for Sonos S1 and S2 systems" \
       org.opencontainers.image.licenses="AGPL-3.0-only"

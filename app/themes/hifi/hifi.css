@@ -615,11 +615,14 @@
    and the position bar run beside it. */
 :root[data-theme='hifi'] .hf-vfd-split { flex: 1; min-height: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; }
 :root[data-theme='hifi'] .hf-vfd-art {
-  height: 100%; aspect-ratio: 1; border-radius: 3px; overflow: hidden; display: grid; place-items: center;
+  position: relative; height: 100%; aspect-ratio: 1; border-radius: 3px; overflow: hidden; display: grid; place-items: center;
   background: rgba(0, 0, 0, 0.18); color: var(--hf-vfd); text-shadow: none;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.25);
 }
-:root[data-theme='hifi'] .hf-vfd-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* The picture is laid over its box, not in it. In the box, Safari sized the
+   column from the picture's own width (a 600px cover made a 600px column
+   around a 188px box) and pushed the text far to the right. */
+:root[data-theme='hifi'] .hf-vfd-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 :root[data-theme='hifi'] .hf-vfd-art svg { width: 44%; height: 44%; opacity: 0.7; }
 :root[data-theme='hifi'] .hf-vfd-body { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 3px; }
 :root[data-theme='hifi'] .hf-preamp .hf-main-display .hf-vfd-body .hf-posbar { margin-top: auto; }
